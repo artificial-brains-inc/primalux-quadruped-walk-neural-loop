@@ -3,7 +3,7 @@ import unittest
 
 from design_brain import create_brain
 from robot.configuration import load_config
-from robot.contracts import REWARD_INPUT
+from robot.contracts import REWARD_INPUT, LEGS
 from robot.reward import ProgressReward, RewardPublisher
 
 
@@ -24,6 +24,7 @@ class LearningGraphTests(unittest.TestCase):
                     "PHASE_B_RELEASE",
                     "PHASE_A_INHIBITOR",
                     "PHASE_B_INHIBITOR",
+                    *(f"REFLEX_{leg}_EXTENSION_VETO_HG" for leg in LEGS),
                 },
             )
         for edge in d["connections"]:
@@ -33,6 +34,7 @@ class LearningGraphTests(unittest.TestCase):
                 "PHASE_B_RELEASE",
                 "PHASE_A_INHIBITOR",
                 "PHASE_B_INHIBITOR",
+                *(f"REFLEX_{leg}_EXTENSION_VETO_HG" for leg in LEGS),
             }:
                 if edge["type"] == "inh" and edge["to"] != "START_A_BIAS":
                     self.assertIn(edge, plastic)

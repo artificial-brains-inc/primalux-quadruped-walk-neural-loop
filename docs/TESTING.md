@@ -50,13 +50,14 @@ backlog can damage credit assignment even when command ACK is working.
 Run `learn` or `walk`, press W and correlate measured roll/pitch with the four
 tilt bits, `REFLEX_*_ACTIVE` and each knee's POS/NEG outputs. Follow the
 [reflex checks](REFLEX.md#observe-the-result): appropriate leg recruitment,
-flexion veto, extension, self-clear and renewed response to later evidence.
+flexion Beta/output inhibition, extension Beta recruitment followed by its
+output, reflex self-inhibition and renewed response to later evidence.
 Check S while a reflex is active; REST must silence it along with the gait.
 
 The telemetry window shows actual neuron activity. Inspect `GAIT_REWARD_RELAY`
 and `GAIT_REWARD` to verify dopamine firing; the accepted reward event log alone
-does not establish this. Inspect the gamma reflex/reset pair and the MOTOR_HG
-and CLEAR_HG adapters to separate input delivery, recruitment and cutoff failures.
+does not establish this. Inspect the high-gamma REFLEX/RESET pair, local extension-veto relay
+and the knee motor Betas to separate input delivery, recruitment and cutoff failures.
 ACTIVE is diagnostic only. Check simultaneous local responses: forward-left
 evidence can recruit front-left, front-right and rear-left without any corner
 veto. Do not expect a fixed burst length or infer saturation from ACTIVE alone.

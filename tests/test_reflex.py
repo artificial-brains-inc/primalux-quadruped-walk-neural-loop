@@ -15,6 +15,8 @@ from robot.contracts import (
     REFLEX_CUES,
     REFLEX_OUTPUTS,
     TILT_INPUTS,
+    TILT_NEURONS,
+    SWING_PHASE,
     motor_population,
 )
 from robot.reflex import TiltPublisher, encode_tilt
@@ -35,7 +37,10 @@ class TiltTests(unittest.TestCase):
         ):
             p = encode_tilt([roll, pitch, 1.2], self.settings)
             self.assertEqual(set(p), set(TILT_INPUTS))
-            self.assertEqual({k for k, v in p.items() if v == [1]}, set(expected))
+            self.assertTrue(all(len(v) == 12 and set(v) <= {0, 1} for v in p.values()))
+            self.assertEqual(
+                {k for k, v in p.items() if v == [1] * TILT_NEURONS}, set(expected)
+            )
         self.assertFalse(
             any(v[0] for v in encode_tilt([0.1, -0.1, 0], self.settings).values())
         )
@@ -59,7 +64,7 @@ class TiltTests(unittest.TestCase):
             all(not set(c) & (set(COMMAND_INPUT_SIZES) | {REWARD_INPUT}) for c in calls)
         )
         p.send([-0.3, 0.3, 0], suspended=True, force=True)
-        self.assertFalse(any(v[0] for v in calls[-1].values()))
+        self.assertEqual(calls[-1], {name: [0] * 12 for name in TILT_INPUTS})
         self.assertTrue(logs[-1]["suspended"])
 
     def test_rejected_tilt_input_is_an_error_not_assumed_delivery(self):
@@ -70,7 +75,7 @@ class TiltTests(unittest.TestCase):
             with self.assertRaisesRegex(RuntimeError, "Tilt inputs"):
                 TiltPublisher(lambda p: result, self.settings).send([0.2, 0, 0])
 
-    def test_native_sdk_preserves_four_single_neuron_inputs_in_one_frame(self):
+    def test_native_sdk_preserves_all_48_tilt_neurons_in_one_frame(self):
         from ab_sdk.encoder import SpikeEncoder
         from ab_sdk.maps import InputSensorMap
         from ab_sdk.session import RealtimeSession
@@ -79,7 +84,10 @@ class TiltTests(unittest.TestCase):
         session.compile_id = "test-install"
         session.encoder = SpikeEncoder(
             InputSensorMap(
-                [{"inputId": name, "sensor": name, "n": 1} for name in TILT_INPUTS]
+                [
+                    {"inputId": name, "sensor": name, "n": TILT_NEURONS}
+                    for name in TILT_INPUTS
+                ]
             )
         )
         session.input_client = MagicMock()
@@ -92,7 +100,7 @@ class TiltTests(unittest.TestCase):
         self.assertEqual(
             {e["target"]: e["payload"] for e in payload["events"]},
             {
-                name: [int(name in ("TILT_ROLL_NEG", "TILT_PITCH_POS"))]
+                name: [int(name in ("TILT_ROLL_NEG", "TILT_PITCH_POS"))] * TILT_NEURONS
                 for name in TILT_INPUTS
             },
         )
@@ -116,55 +124,94 @@ class ReflexGraphTests(unittest.TestCase):
         cls.nodes = {n["name"]: n for n in d["nodes"]}
         cls.edges = {(e["from"], e["to"]): e for e in d["connections"]}
 
-    def test_local_gamma_pair_has_explicit_motor_and_output_cutoff(self):
+    def test_high_gamma_recruits_motor_beta_and_inhibits_local_flexion(self):
         for leg in LEGS:
             stem = "REFLEX_" + leg
-            trigger, reset = stem + "_GAMMA", stem + "_RESET_GAMMA"
-            motor, clear, active = (
-                stem + "_MOTOR_HG",
-                stem + "_CLEAR_HG",
-                stem + "_ACTIVE",
-            )
+            trigger, reset, active = stem + "_HG", stem + "_RESET_HG", stem + "_ACTIVE"
+            extension = motor_population(leg, "KNEE", "NEG")
             for cue in REFLEX_CUES[leg]:
+                self.assertEqual(self.nodes[cue]["neurons"], 12)
                 self.assertEqual(self.edges[(cue, trigger)]["type"], "exc")
             for source, target in (
-                (trigger, motor),
-                (trigger, reset),
-                (reset, clear),
-                (motor, active),
-                (motor, f"{leg}_KNEE_NEG"),
+                (trigger, extension),
+                (extension, reset),
+                (trigger, active),
             ):
                 self.assertEqual(self.edges[(source, target)]["type"], "exc")
+            self.assertEqual(self.edges[(extension, f"{leg}_KNEE_NEG")]["type"], "exc")
+            self.assertEqual(self.edges[(trigger, trigger)]["role"], "feedback")
+            # No reflex can bypass the motor population to excite a motor output.
+            self.assertFalse(
+                any(
+                    source.startswith("REFLEX_")
+                    and target == f"{leg}_KNEE_NEG"
+                    and edge["type"] == "exc"
+                    for (source, target), edge in self.edges.items()
+                )
+            )
             for source, target in (
                 (reset, trigger),
-                (reset, motor),
-                (clear, active),
-                (clear, f"{leg}_KNEE_NEG"),
-                (motor, motor_population(leg, "KNEE", "POS")),
-                (motor, f"{leg}_KNEE_POS"),
+                (reset, active),
+                (trigger, motor_population(leg, "KNEE", "POS")),
+                (trigger, f"{leg}_KNEE_POS"),
             ):
                 edge = self.edges[(source, target)]
                 self.assertEqual(edge["type"], "inh")
-                self.assertEqual(edge["strength"], 4)
+                self.assertEqual(edge["strength"], 4 if source == reset else 64)
                 self.assertEqual(
                     edge.get("role"), "feedback" if target == trigger else None
                 )
-            for name, rhythm in (
-                (trigger, "gamma"),
-                (reset, "gamma"),
-                (motor, "high-gamma"),
-                (clear, "high-gamma"),
-            ):
+            for name in (trigger, reset):
                 node = self.nodes[name]
-                self.assertEqual((node["rhythm"], node["tnorm"]), (rhythm, 3))
-            for name in (trigger, reset, motor, clear, active):
+                self.assertEqual((node["rhythm"], node["tnorm"]), ("high-gamma", 3))
+            # Self-reset ends the reflex drive; motor clearing belongs to the
+            # existing phase/antagonist/REST circuit, not an early reflex timer.
+            self.assertEqual(
+                {t for s, t in self.edges if s == reset}, {trigger, active}
+            )
+            gate = stem + "_EXTENSION_VETO_HG"
+            self.assertEqual(self.edges[(trigger, gate)]["strength"], 64)
+            for name in (trigger, reset, active, gate):
                 for source in ("REST_NUCLEUS", "STOP_REQUEST_HG"):
                     self.assertEqual(self.edges[(source, name)]["strength"], 4)
         for (source, target), edge in self.edges.items():
             if source.startswith(("REFLEX_", "TILT_")) or target.startswith("REFLEX_"):
-                self.assertNotIn("rule", edge)
+                if source.endswith("_EXTENSION_VETO_HG"):
+                    self.assertEqual(edge["rule"], "STDP3")
+                else:
+                    self.assertNotIn("rule", edge)
         self.assertFalse(any("GUARD" in n or "RESET_1" in n for n in self.nodes))
         self.assertFalse(any(s in REFLEX_OUTPUTS for s, _ in self.edges))
+
+    def test_extension_beta_has_compatible_sources_and_retains_output_clearing(self):
+        for leg in LEGS:
+            stance = "B" if SWING_PHASE[leg] == "A" else "A"
+            relay = f"PHASE_{stance}_KNEE_DRIVE_HG"
+            extension = motor_population(leg, "KNEE", "NEG")
+            sources = {
+                s
+                for (s, t), e in self.edges.items()
+                if t == extension and e["type"] == "exc"
+            }
+            self.assertEqual(sources, {relay, f"REFLEX_{leg}_HG"})
+            self.assertEqual({self.nodes[s]["rhythm"] for s in sources}, {"high-gamma"})
+            self.assertEqual(self.edges[(f"PHASE_{stance}_BETA", relay)]["type"], "exc")
+            gate = f"REFLEX_{leg}_EXTENSION_VETO_HG"
+            self.assertEqual(
+                self.edges[(f"PHASE_{SWING_PHASE[leg]}_INHIBITOR", gate)]["type"], "exc"
+            )
+            self.assertEqual(self.nodes[gate]["rhythm"], "high-gamma")
+            self.assertEqual(self.nodes[gate]["tnorm"], 3)
+            self.assertEqual(
+                {t for s, t in self.edges if s == gate}, {extension, f"{leg}_KNEE_NEG"}
+            )
+            for source in (
+                "REST_NUCLEUS",
+                motor_population(leg, "KNEE", "POS"),
+                f"REFLEX_{leg}_EXTENSION_VETO_HG",
+            ):
+                for target in (extension, f"{leg}_KNEE_NEG"):
+                    self.assertEqual(self.edges[(source, target)]["type"], "inh")
 
     def test_reflex_never_targets_another_leg_or_a_phase(self):
         for leg in LEGS:
@@ -173,6 +220,7 @@ class ReflexGraphTests(unittest.TestCase):
                 f"{leg}_KNEE_POS",
                 f"{leg}_KNEE_NEG",
                 motor_population(leg, "KNEE", "POS"),
+                motor_population(leg, "KNEE", "NEG"),
             }
             for (source, target), edge in self.edges.items():
                 if source.startswith(stem):
@@ -192,7 +240,7 @@ class ReflexGraphTests(unittest.TestCase):
         ):
             self.assertEqual(
                 {t for s, t in self.edges if s == source},
-                {f"REFLEX_{leg}_GAMMA" for leg in expected},
+                {f"REFLEX_{leg}_HG" for leg in expected},
             )
 
     def test_enu_axis_signs_lower_the_supported_body_side(self):

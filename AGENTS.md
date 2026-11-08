@@ -3,18 +3,24 @@
 Preserve the public design and input contract unless the user requests a change.
 Use the Artificial Brains building guide's source-to-target relationships.
 
-- External inputs are WALK_START, WALK_STOP, TRANSPORT_ACK, GAIT_REWARD_IN and
-  TILT_ROLL_NEG/POS, TILT_PITCH_NEG/POS: eight neurons total, one per channel.
-- The tilt encoder digitizes physical roll/pitch only. Keep leg selection, flexion
-  veto, burst lifetime and self-inhibition in the neural graph. The decoder must
-  not inspect REFLEX readouts to synthesize support commands.
-- Keep each reflex local: gamma T3 → gamma T3 reset with strength-4 inhibition
-  back to its own trigger. Two high-gamma T3 adapters recruit and clear its
-  bistable outputs because the builder rejects direct gamma output sources.
-  ACTIVE is diagnostic only: no outgoing connections, guard or self-latch.
-  No reflex may target another leg or gait phase. Sensory paths are excitation
-  only; shared evidence may recruit several legs independently. T3 is an initial
-  operating point, not a universal input-to-gamma rule.
+- External inputs are WALK_START, WALK_STOP, TRANSPORT_ACK, GAIT_REWARD_IN
+  (one neuron each) and four signed tilt populations (12 neurons each):
+  52 external neurons across eight names. Keep the encoder contract aligned.
+- The tilt encoder digitizes physical roll/pitch only. Keep leg selection,
+  inhibition and burst lifetime in the graph. Do not decode ACTIVE into motion.
+- Each local reflex is high-gamma T3 with a high-gamma T3 self-reset. It excites
+  the existing extension Beta and inhibits flexion's Beta and output. No direct
+  reflex excitation of a motor output. ACTIVE has no outgoing connections.
+- Use the two shared high-gamma phase relays to keep the extension Beta's
+  immediate sources compatible. Reflexes never inhibit those shared relays.
+- A local high-gamma relay carries the gait's extension veto for each leg;
+  the reflex inhibits that relay, never a shared phase or another leg.
+- Reflex-to-flexion/veto strength is 64; self-reset and STOP/REST strength is 4.
+  Reflex feedback bridges input gaps; the extension Beta recruits local reset.
+  Reset ends reflex drive and clears ACTIVE. Existing antagonist, phase-veto
+  and REST paths clear motor outputs. Do not add an early motor cutoff timer.
+- Shared sensory evidence can recruit multiple independent reflexes. No corner
+  veto, guard, ACTIVE feedback or additional external command is needed.
 - Support reflex paths stay static. Negative knee rotation extends this bundled
   Spot leg in its configured range; do not assume the same for another model.
 - Tilt snapshots and command snapshots are separate. Recovery suspends tilt
@@ -24,7 +30,8 @@ Use the Artificial Brains building guide's source-to-target relationships.
   Python as inputs. Internal populations connect directly in the brain.
 - Physical outcome supplies one binary reward event from GPS/orientation after each qualifying body step.
   Never use reward measurement to choose a gait phase or actuator target.
-- Keep STDP3/LTP on the 66 phase/release/motor veto paths. START, STOP, local
+- Keep STDP3/LTP on the 66 phase/release/motor veto paths, including the eight
+  knee-extension veto paths carried by local relays. START, STOP, local
   antagonists, excitation and transport ACK stay static. Initial gait strength is
   1; command/REST clearing strength is 4. Do not treat TNorm as inhibitory intensity.
 - Command clearing must touch command channels only; reward has its own publisher.

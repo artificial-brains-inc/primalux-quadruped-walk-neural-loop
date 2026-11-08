@@ -9,6 +9,7 @@ from robot.contracts import (
     OUTPUT_SIZES,
     REWARD_INPUT,
     TILT_INPUTS,
+    TILT_NEURONS,
 )
 from robot.decoder import joint_targets
 from robot.exchange import CommandExchange
@@ -218,7 +219,11 @@ class RuntimeTests(unittest.TestCase):
         )
         self.assertEqual(
             INPUT_SIZES,
-            {**COMMAND_INPUT_SIZES, REWARD_INPUT: 1, **dict.fromkeys(TILT_INPUTS, 1)},
+            {
+                **COMMAND_INPUT_SIZES,
+                REWARD_INPUT: 1,
+                **dict.fromkeys(TILT_INPUTS, TILT_NEURONS),
+            },
         )
 
 

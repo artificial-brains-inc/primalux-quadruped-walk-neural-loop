@@ -103,15 +103,18 @@ During recovery every mode holds neutral targets and sends no positive reward.
 ## Physical tilt feedback
 
 After each completed body step, the IMU roll/pitch sample is encoded as four
-single-neuron signs beyond a 0.15 rad deadband. The SDK sends them together in one
+signed populations beyond a 0.15 rad deadband. Each population carries twelve
+identical binary values, matching its 12-neuron design width. The SDK sends them
+together in one
 `publish_sensor_frame` call. Each nonzero sample is fresh evidence; repeated
 unchanged tilt is not mistaken for a held input. Repeated all-zero frames are
 omitted. This is sensory quantization, not a controller-side choice of leg or
 support action. Gyro readings remain logged but are not new inputs.
 
 Each local reflex receives compatible signs, inhibits its own knee flexion,
-excites its own extension and clears its own burst. No reflex inhibits another
-leg; shared sensory evidence can recruit several independent reflexes. The existing motor decoder
+excites its own extension Beta and ends its own reflex drive. Existing motor
+inhibition clears motor outputs. No reflex inhibits another leg; shared sensory
+evidence can recruit several independent reflexes. The existing motor decoder
 is unchanged. It does not consume `REFLEX_*_ACTIVE` diagnostics. REST and pending
 STOP inhibit the reflex neurally. Only explicit simulator recovery, `rhythm`
 mode or `reflex.enabled=false` suspend tilt publication.

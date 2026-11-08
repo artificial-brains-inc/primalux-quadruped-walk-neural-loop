@@ -11,7 +11,7 @@ from unittest.mock import MagicMock, patch
 from test_runtime import Frames, frame
 
 from robot.configuration import ROOT
-from robot.contracts import COMMAND_INPUT_SIZES, TILT_INPUTS
+from robot.contracts import COMMAND_INPUT_SIZES, TILT_INPUTS, TILT_NEURONS
 
 
 class ControllerIntegrationTests(unittest.TestCase):
@@ -216,7 +216,10 @@ class ControllerIntegrationTests(unittest.TestCase):
         ]
         self.assertEqual([s for s, _ in evidence], [3, 4, 5])
         self.assertTrue(
-            all(p["TILT_ROLL_NEG"] == p["TILT_PITCH_POS"] == [1] for _, p in evidence)
+            all(
+                p["TILT_ROLL_NEG"] == p["TILT_PITCH_POS"] == [1] * TILT_NEURONS
+                for _, p in evidence
+            )
         )
         self.assertEqual(
             [r["joint_target_rad"]["FL_KNEE"] for r in rows], [0, 0, -0.08, 0]

@@ -29,9 +29,10 @@ class GraphTests(unittest.TestCase):
         self.assertEqual(edge["type"], "inh")
         self.assertGreaterEqual(edge.get("strength", 1), minimum)
 
-    def test_eight_input_neurons_and_matching_saved_design(self):
+    def test_eight_populations_52_input_neurons_and_matching_saved_design(self):
         self.assertEqual(self.brain.validate(), [])
-        self.assertEqual(sum(INPUT_SIZES.values()), 8)
+        self.assertEqual(len(INPUT_SIZES), 8)
+        self.assertEqual(sum(INPUT_SIZES.values()), 52)
         for kind, expected in (("input", INPUT_SIZES), ("output", OUTPUT_SIZES)):
             self.assertEqual(
                 {
@@ -194,11 +195,21 @@ class GraphTests(unittest.TestCase):
                             for (s, t), e in self.edges.items()
                             if t == population and e["type"] == "exc"
                         },
-                        {f"PHASE_{phase}_BETA"},
+                        (
+                            {f"PHASE_{phase}_KNEE_DRIVE_HG", f"REFLEX_{leg}_HG"}
+                            if joint == "KNEE" and side == "NEG"
+                            else {f"PHASE_{phase}_BETA"}
+                        ),
                     )
                     self.assertEqual(self.edges[(population, channel)]["type"], "exc")
                     for target in (population, channel):
-                        self.assert_inhibits(f"PHASE_{other}_INHIBITOR", target, 1)
+                        self.assert_inhibits(
+                            f"REFLEX_{leg}_EXTENSION_VETO_HG"
+                            if joint == "KNEE" and side == "NEG"
+                            else f"PHASE_{other}_INHIBITOR",
+                            target,
+                            1,
+                        )
                         self.assert_inhibits("REST_NUCLEUS", target, 4)
                         self.assert_inhibits(
                             motor_population(leg, joint, opposite_side), target

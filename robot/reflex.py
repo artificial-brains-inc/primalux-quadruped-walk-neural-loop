@@ -3,7 +3,7 @@
 import math
 import time
 
-from .contracts import TILT_INPUTS
+from .contracts import TILT_INPUTS, TILT_NEURONS
 
 
 def encode_tilt(rpy, settings):
@@ -15,10 +15,10 @@ def encode_tilt(rpy, settings):
         zip(
             TILT_INPUTS,
             (
-                [int(roll <= -threshold)],
-                [int(roll >= threshold)],
-                [int(pitch <= -threshold)],
-                [int(pitch >= threshold)],
+                [int(roll <= -threshold)] * TILT_NEURONS,
+                [int(roll >= threshold)] * TILT_NEURONS,
+                [int(pitch <= -threshold)] * TILT_NEURONS,
+                [int(pitch >= threshold)] * TILT_NEURONS,
             ),
             strict=True,
         )
@@ -45,7 +45,7 @@ class TiltPublisher:
         payload = (
             encode_tilt(rpy, self.settings)
             if active
-            else dict.fromkeys(TILT_INPUTS, [0])
+            else {name: [0] * TILT_NEURONS for name in TILT_INPUTS}
         )
         nonzero = any(v[0] for v in payload.values())
         if not force and not nonzero and payload == self.previous:

@@ -12,8 +12,8 @@ Only public SDK relationships appear in this project.
 | WALK_STOP | 1 | One request to inhibit walking; also sent at startup |
 | TRANSPORT_ACK | 1 | Acknowledgement stimulus accompanying that request |
 | GAIT_REWARD_IN | 1 | Binary physical outcome reward while learning |
-| TILT_ROLL_NEG / TILT_ROLL_POS | 1 each | Measured roll beyond the negative/positive deadband |
-| TILT_PITCH_NEG / TILT_PITCH_POS | 1 each | Measured pitch beyond the negative/positive deadband |
+| TILT_ROLL_NEG / TILT_ROLL_POS | 12 each | Measured roll beyond the negative/positive deadband |
+| TILT_PITCH_NEG / TILT_PITCH_POS | 12 each | Measured pitch beyond the negative/positive deadband |
 
 Live inputs are one-step events. An atomic command event includes START or STOP
 and ACK. Waiting in Python does not retain the command input on the device.
@@ -116,11 +116,11 @@ population `GAIT_REWARD` with `reward_type="LTP"`:
 | --- | ---: | --- |
 | RELEASE to its own INHIBITOR and inhibitor readout, both phases | 4 | Adjust release of the opposite phase |
 | Each INHIBITOR to opposite phase populations and readouts | 14 | Adjust competing phase suppression |
-| Each INHIBITOR to opposite-phase local motor populations and outputs | 48 | Adjust the same suppression all the way to actuator expression |
+| Phase veto to local motor populations and outputs (eight paths use local knee-extension relays) | 48 | Adjust suppression through to actuator expression |
 
 The population and output vetoes learn together as a policy; their individual
 weights are not tied. Leaving a parallel veto fixed at strength 4 would allow it
-to dominate a weaker learned path. The 66 connections add no extra OPUs or inputs.
+to dominate a weaker learned path. The learning rules themselves add no extra OPUs or inputs.
 Excitatory preparation, command reinforcement, STOP and ACK are not plastic.
 
 The reward path is `GAIT_REWARD_IN → GAIT_REWARD_RELAY` (High-Gamma T10)
@@ -176,10 +176,14 @@ Four named columns appear below the phase core in the Designer:
 Each leg has ABD, HIP and KNEE actuators, each with POS and NEG Beta T5 populations
 and output neurons: 4 × 3 × 2 = **24 local motor populations**. The complete path is
 Theta T3 → Theta T2.01 → phase Beta T5 → local motor Beta T5 → motor output.
-The Beta T5 → Beta T5 relay follows the guide's active-state relationship.
+The ordinary Beta T5 → Beta T5 relays follow the guide's active-state relationship.
+Knee extension adds a high-gamma T3 phase relay so gait and reflex can both
+excite its Beta through compatible immediate source rhythms.
 
 Each local Beta inhibits its opposing local Beta and output. The opposite phase's
-INHIBITOR also clears the population and output. REST clears both directions.
+INHIBITOR also clears the population and output. For knee extension, a local
+high-gamma veto relay carries these two inhibitory paths; the reflex can inhibit
+that local relay without affecting another leg. REST clears both directions.
 Preparation is shared at phase level; there is no extra Theta pair per actuator.
 
 Hip/knee POS is recruited by the leg's swing phase and NEG by its support phase.
@@ -194,9 +198,9 @@ to select a phase or move a joint. Only the 24 local motor outputs actuate the b
 Readouts have explicit clearing connections but remain bistable populations;
 they are not a complete view of the OPUs. Compare them with population telemetry.
 
-The saved graph contains 62 OPUs, 40 one-neuron outputs and eight one-neuron inputs:
-110 populations and 391 connections. Construction reports 598 total neurons and
-568,736 bytes (about 0.54 MiB) of matrix storage. Other image data also uses the
+The saved graph contains 60 OPUs, 40 one-neuron outputs and eight input populations:
+108 populations and 385 connections. Construction reports 922 total neurons,
+including 52 external neurons, and 1,123,584 bytes (about 1.07 MiB) of matrix storage. Other image data also uses the
 32 MiB budget. The device Build remains authoritative.
 
 ACK remains input → High-Gamma T10 → output → separate High-Gamma T10 reset,
@@ -209,10 +213,17 @@ public feedback role targets OPUs. No dummy external input is added.
 
 ## Local support reflexes
 
-Four tilt input neurons and four independent local reflex circuits add 56 neurons.
-Each circuit contains a gamma T3 reflex/reset pair and two high-gamma T3 output
-adapters, all three neurons wide, plus one diagnostic ACTIVE output. ACTIVE
-has no outgoing connections. No reflex targets another leg or phase.
-The source relationships, initial TNorm choice and limits are in [REFLEX.md](REFLEX.md).
-All pre-existing gait connections, their TNorms and the 66 STDP3 paths are preserved.
-The saved graph changes, so build this design before running its adapter.
+Four 12-neuron tilt populations feed four independent high-gamma T3 reflexes.
+Each reflex has 24 neurons; its self-reset, recruited by the extension Beta,
+has 28. Local reflex feedback bridges sensory-sample gaps until that reset acts. Reflex excitation enters the existing
+extension Beta, which has 28 neurons after combining the phase and reflex sources.
+Flexion's Beta and output receive local inhibition. A 12-neuron local relay carries
+the gait's extension veto; the reflex inhibits it to release its own extensor.
+Two shared high-gamma relays adapt phase excitation to the same immediate rhythm.
+ACTIVE has no outgoing connections. See [REFLEX.md](REFLEX.md).
+
+The phase core, command paths, motor TNorms and 66 STDP3/LTP inhibitory relationships
+remain. Eight knee-extension learning paths now originate from local veto relays;
+four phase-to-extension excitatory paths pass through the shared high-gamma relays.
+The builder recalculates the affected populations and connections. Build this graph
+before Run; old compiled state and learned weights are not interchangeable.

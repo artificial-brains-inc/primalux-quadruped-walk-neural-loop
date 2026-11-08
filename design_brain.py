@@ -1,7 +1,7 @@
 """Reciprocal disinhibition coordinates four explicit leg motor groups.
 
-START, STOP, ACK, reward and four signed tilt neurons enter from outside.
-Independent gamma reflexes veto local knee flexion, extend and self-inhibit.
+START, STOP, ACK, reward and four signed tilt populations enter from outside.
+Independent high-gamma reflexes recruit extension Betas, veto local flexion and reset.
 """
 
 from pathlib import Path
@@ -17,6 +17,7 @@ from robot.contracts import (
     REWARD_INPUT,
     SWING_PHASE,
     TILT_INPUTS,
+    TILT_NEURONS,
     motor_population,
 )
 
@@ -26,10 +27,11 @@ ROOT = Path(__file__).resolve().parent
 CROSS_INHIBITION = 1.0
 RELEASE_INHIBITION = 1.0
 STOP_INHIBITION = 4.0
-REFLEX_INHIBITION = 4.0
+REFLEX_INHIBITION = 64.0
+REFLEX_RESET_INHIBITION = 4.0
 REFLEX_TNORM = 3.0
 REFLEX_RESET_TNORM = 3.0
-REFLEX_OUTPUT_RELAY_TNORM = 3.0
+PHASE_MOTOR_RELAY_TNORM = 3.0
 GAIT_LEARNING_RULE = "STDP3"
 GAIT_REWARD_TYPE = "LTP"
 
@@ -178,11 +180,25 @@ def create_brain(*, learning=True):
         for suffix in ("OUT", "INHIBITOR_OUT", "RELEASE_OUT"):
             inhibit(source, f"PHASE_{other}_{suffix}", CROSS_INHIBITION, plastic=True)
 
+    # Knee extension receives both gait and reflex excitation. Give those
+    # immediate sources a common rhythm, as required by the building guide.
+    # These shared relays do not receive reflex feedback or choose a leg.
+    for i, phase in enumerate(("A", "B")):
+        relay = f"PHASE_{phase}_KNEE_DRIVE_HG"
+        opu(relay, "high-gamma", PHASE_MOTOR_RELAY_TNORM, 1600, 780 + i * 420)
+        b.connect(f"PHASE_{phase}_BETA", relay)
+        inhibit("STOP_REQUEST_HG", relay, STOP_INHIBITION)
+
     # Four separate leg columns; opposing populations for three joints each.
     # The phase shares preparation; local Beta T5 -> Beta T5 relays express it.
     for li, leg in enumerate(LEGS):
         swing = SWING_PHASE[leg]
         stance = "B" if swing == "A" else "A"
+        # Local copy of the gait veto: a reflex can release its own extensor
+        # without silencing a shared phase or changing another leg's behavior.
+        extension_veto = f"REFLEX_{leg}_EXTENSION_VETO_HG"
+        opu(extension_veto, "high-gamma", PHASE_MOTOR_RELAY_TNORM, li * 900 + 300, 3000)
+        b.connect(f"PHASE_{swing}_INHIBITOR", extension_veto)
         for ji, joint in enumerate(JOINTS):
             swing_side = "NEG" if joint == "ABD" and leg in ("FL", "RL") else "POS"
             for si, side in enumerate(("POS", "NEG")):
@@ -194,11 +210,18 @@ def create_brain(*, learning=True):
                 x, y = li * 900, 1760 + ji * 380 + si * 170
                 opu(population, "beta", 5, x, y)
                 output(channel, x + 500, y)
-                b.connect(f"PHASE_{phase}_BETA", population)
+                phase_source = (
+                    f"PHASE_{phase}_KNEE_DRIVE_HG"
+                    if joint == "KNEE" and side == "NEG"
+                    else f"PHASE_{phase}_BETA"
+                )
+                b.connect(phase_source, population)
                 b.connect(population, channel)
                 for target in (population, channel):
                     inhibit(
-                        f"PHASE_{other}_INHIBITOR",
+                        extension_veto
+                        if joint == "KNEE" and side == "NEG"
+                        else f"PHASE_{other}_INHIBITOR",
                         target,
                         CROSS_INHIBITION,
                         plastic=True,
@@ -214,38 +237,38 @@ def create_brain(*, learning=True):
                     motor_population(leg, joint, side), f"{leg}_{joint}_{other}", "inh"
                 )
 
-    # Each independent reflex receives two one-neuron sensory paths directly.
-    # Shared sensory evidence can recruit several legs; no corner veto is used.
+    # Each sensory population has 12 neurons. Two compatible populations
+    # construct a 24-neuron HG reflex; no corner veto or Python leg selection.
     reflex_nodes = []
     for i, name in enumerate(TILT_INPUTS):
-        b.input(name, 1)
+        b.input(name, TILT_NEURONS)
         coordinates[name] = (i * 900, 3120)
     for li, leg in enumerate(LEGS):
         x = li * 900
         stem = "REFLEX_" + leg
-        trigger, reset = stem + "_GAMMA", stem + "_RESET_GAMMA"
-        motor, clear, active = stem + "_MOTOR_HG", stem + "_CLEAR_HG", stem + "_ACTIVE"
-        opu(trigger, "gamma", REFLEX_TNORM, x, 3340)
-        opu(reset, "gamma", REFLEX_RESET_TNORM, x, 3580)
-        # Builder 0.4.11 accepts beta/high-gamma as output sources, including
-        # inhibitory clearing. These two relays only adapt the output boundary.
-        opu(motor, "high-gamma", REFLEX_OUTPUT_RELAY_TNORM, x + 300, 3340)
-        opu(clear, "high-gamma", REFLEX_OUTPUT_RELAY_TNORM, x + 300, 3580)
+        trigger, reset, active = stem + "_HG", stem + "_RESET_HG", stem + "_ACTIVE"
+        opu(trigger, "high-gamma", REFLEX_TNORM, x, 3340)
+        opu(reset, "high-gamma", REFLEX_RESET_TNORM, x, 3580)
         output(active, x + 580, 3340)
-        reflex_nodes.extend((trigger, reset, motor, clear, active))
+        reflex_nodes.extend((trigger, reset, active, f"REFLEX_{leg}_EXTENSION_VETO_HG"))
         for cue in REFLEX_CUES[leg]:
             b.connect(cue, trigger)
-        b.connect(trigger, motor)
-        b.connect(trigger, reset)
-        b.connect(reset, clear)
-        inhibit(reset, trigger, REFLEX_INHIBITION, feedback=True)
-        inhibit(reset, motor, REFLEX_INHIBITION)
-        b.connect(motor, f"{leg}_KNEE_NEG")
-        b.connect(motor, active)
+        # Recruitment goes through the existing motor Beta, never straight
+        # from the sensory/reflex population to the extension output.
+        b.connect(trigger, motor_population(leg, "KNEE", "NEG"))
         for target in (motor_population(leg, "KNEE", "POS"), f"{leg}_KNEE_POS"):
-            inhibit(motor, target, REFLEX_INHIBITION)
-        for target in (active, f"{leg}_KNEE_NEG"):
-            inhibit(clear, target, REFLEX_INHIBITION)
+            inhibit(trigger, target, REFLEX_INHIBITION)
+        inhibit(trigger, f"REFLEX_{leg}_EXTENSION_VETO_HG", REFLEX_INHIBITION)
+        b.connect(trigger, active)
+        # Retain a brief local response across sensor-sample gaps. The motor
+        # Beta's actual activity recruits reset; ACTIVE never feeds back.
+        b.connect(trigger, trigger, role="feedback")
+        b.connect(motor_population(leg, "KNEE", "NEG"), reset)
+        inhibit(reset, trigger, REFLEX_RESET_INHIBITION, feedback=True)
+        inhibit(reset, active, REFLEX_RESET_INHIBITION)
+        # End this local reflex's drive. Motor outputs retain their existing
+        # antagonist, phase and REST clearing; reset does not cut the motor
+        # output before its Beta has had an opportunity to recruit it.
     for target in reflex_nodes:
         inhibit("REST_NUCLEUS", target, STOP_INHIBITION)
         inhibit("STOP_REQUEST_HG", target, STOP_INHIBITION)

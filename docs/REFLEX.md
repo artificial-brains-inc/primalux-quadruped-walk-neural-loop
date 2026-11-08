@@ -1,142 +1,139 @@
-# Independent support reflexes
+# A support reflex that recruits the motor Beta
 
-Each leg has one local support goal: inhibit its own knee flexion, recruit its
-own knee extension, then inhibit itself. A reflex never inhibits another leg's
-reflex, motors or gait phase. Several legs can provide support together.
-
-The adapter publishes physical tilt evidence. Recruitment, antagonist inhibition
-and burst termination belong to the neural graph. There is no Python burst timer,
-leg selector, tilt-to-joint formula or extra phase input.
-
-## Four sensory neurons
-
-Roll and pitch are digitized beyond a signed 0.15 rad deadband, approximately
-8.6 degrees. Each channel has **one neuron**. This reports direction beyond the
-threshold, not tilt magnitude or angular velocity. Gyro measurements are logged.
-
-The world uses ENU: Spot faces local +X, left is +Y, and up is +Z. Its IMU has no
-additional rotation. Negative roll lowers the left side; positive pitch lowers
-the front. Check these conventions if replacing the model or rotating the IMU.
-
-| Local reflex | Excitatory evidence | External source neurons |
-| --- | --- | --- |
-| Front-left | Negative roll, positive pitch | 1 + 1 |
-| Front-right | Positive roll, positive pitch | 1 + 1 |
-| Rear-left | Negative roll, negative pitch | 1 + 1 |
-| Rear-right | Positive roll, negative pitch | 1 + 1 |
-
-There are no opposite-direction inhibitory inputs. A leftward tilt supplies both
-left legs. A forward-left tilt supplies two cues to front-left, one to front-right
-and one to rear-left. Those reflexes remain free to respond independently; the
-graph does not select a single winning corner or implement a strict AND gate.
-
-## Local gamma burst and self-inhibition
-
-For front-left, the circuit is:
+Each leg has its own high-gamma support reflex. It excites that leg's knee
+extension Beta and inhibits both its knee flexion Beta and flexion output.
+The extension Beta then drives the extension output. The reflex has no
+excitatory shortcut to that motor output and never targets another leg.
 
 ```mermaid
 flowchart TD
-    T["Two sensory neurons"] --> R["Reflex gamma T3"]
-    R --> M["Motor relay HG T3"]
-    R --> S["Reset gamma T3"]
-    S -. "inhibits" .-> R
-    S -. "inhibits" .-> M
-    M --> E["Local extension and ACTIVE"]
-    M -. "inhibits" .-> F["Local flexion"]
-    S --> C["Clear relay HG T3"]
-    C -. "clears" .-> E
+    S["Two tilt populations"] --> R["Reflex: HG T3, 24 neurons"]
+    R --> E["Extension Beta T5"]
+    E --> O["Extension output"]
+    R -. "inhibits" .-> F["Flexion Beta T5"]
+    F --> P["Flexion output"]
+    R -. "clears" .-> P
+    E --> C["Local reset: HG T3"]
+    R --> R
+    C -. "self-inhibits" .-> R
 ```
 
-`REFLEX_FL_GAMMA` recruits `REFLEX_FL_MOTOR_HG`, which excites `FL_KNEE_NEG`
-and `REFLEX_FL_ACTIVE`. The motor relay also inhibits `FRONT_LEFT_KNEE_POS_BETA`
-and `FL_KNEE_POS`. Inhibiting both the population and its bistable output prevents
-an old flexion readout from remaining latched after recruitment stops.
+## Inputs and population sizes
 
-The reflex also recruits `REFLEX_FL_RESET_GAMMA`. That population inhibits the
-reflex and its motor relay. It recruits `REFLEX_FL_CLEAR_HG`, which clears the
-extension and ACTIVE outputs. Removing excitation alone would not clear a
-bistable output. The return into the reflex uses `role="feedback"`.
+There are still four named tilt populations. Each contains **12 neurons**.
+A channel publishes twelve ones when its physical measurement crosses the
+signed deadband, and twelve zeros otherwise. This represents one measurement
+with a population; it does not add twelve sensors or compute a leg command.
+The threshold remains 0.15 rad, approximately 8.6 degrees.
 
-**ACTIVE has no outgoing connections.** It is a diagnostic readout, not a guard,
-an extra drive or a controller-side instruction. There is no three-stage reset
-delay. FR, RL and RR repeat this same local structure.
+| Reflex | Excitatory sensory populations |
+| --- | --- |
+| Front-left | Negative roll + positive pitch |
+| Front-right | Positive roll + positive pitch |
+| Rear-left | Negative roll + negative pitch |
+| Rear-right | Positive roll + negative pitch |
 
-The two high-gamma relays exist because the compatible builder accepts beta or
-high-gamma sources at the bistable output boundary, including inhibitory clearing.
-A direct gamma-to-output connection is rejected. The reflex and self-inhibition
-remain a gamma pair; the output adapters use T3, not T10.
+Webots ENU and this Spot model use local +X forward, +Y left and +Z up.
+Negative roll lowers the left side; positive pitch lowers the front. The IMU
+has no additional rotation. Check signs if changing the model or its IMU.
 
-## Choose TNorm from the source relationship
+Each reflex receives two 12-neuron populations and constructs with **24 neurons**.
+Its reset has 28 neurons, constructed from the extension Beta. Both use **high-gamma T3**. There are 48 tilt
+neurons plus START, STOP, ACK and reward: **52 external neurons in eight named
+populations**. No phase, oscillator or joint-progress inputs are added.
 
-Each reflex receives two one-neuron input populations directly. Construction
-produces three neurons in its gamma population; its reset gamma therefore has a
-three-neuron source. The motor and clear adapters also construct with three
-neurons each. These widths are construction results, not extra external inputs.
+| Population per leg | Rhythm | TNorm | Constructed neurons |
+| --- | --- | --- | --- |
+| REFLEX_*_HG | High-gamma | 3 | 24 |
+| REFLEX_*_RESET_HG | High-gamma | 3 | 28 |
+| Existing knee extension motor | Beta | 5 | 28 |
+| Existing knee flexion motor | Beta | 5 | 16 |
+| Local extension veto relay | High-gamma | 3 | 12 |
 
-All four OPUs in each local reflex use **T3 as a lower starting point**. The
-building guide describes T2–3 as a lower operating region and T10 as the upper
-boundary where activity can merge or saturate. It does not prescribe one universal
-TNorm for this particular input-to-gamma and gamma-to-gamma circuit. T3 must still
-be evaluated with actual population activity and the physical response. Frequency,
-TNorm and inhibitory strength are different choices.
+The builder derives OPU widths from their sources. Lowering TNorm alone does not
+increase the population. T3 is the selected operating point for these relays;
+it is not a claim that any incoming activity will remain below saturation.
 
-Local reflex inhibition is static strength **4**. TNorm is not the control for
-inhibitory intensity. Changing the neural rhythm also does not increase servo
-velocity, torque or permitted position range.
+## Gait and reflex enter the same extension Beta
 
-An isolated sensitivity check exercised one- and two-cue stimulation with explicit
-initialization and connectivity assumptions. It produced bounded extension
-readouts and cleared after evidence stopped. Burst lengths varied from two to
-seven modeled steps; there is no fixed pulse-width promise. This check excludes
-the gait, learning and body physics. See [scope and results](REFLEX_CHECK.json).
+The building guide requires compatible immediate source rhythms when several
+populations excite a rhythmic target. Each phase therefore has one high-gamma T3
+relay, `PHASE_A_KNEE_DRIVE_HG` or `PHASE_B_KNEE_DRIVE_HG`.
 
-## Interaction with gait and STOP
+The extension Beta receives its usual support phase through that relay and its
+own reflex directly. Both immediate sources are high-gamma. Their widths are
+12 and 24, respectively: 36 source neurons. The constructed extension Beta has
+28 neurons. The other motor excitatory paths retain their existing topology.
 
-The reflex targets the existing knee outputs. In this Spot posture range,
-negative knee rotation extends the leg. The motor decoder is unchanged and reads
-only the joint's POS/NEG outputs, never ACTIVE. Hip and abduction remain under
-the gait's control.
+The shared phase relay receives no reflex inhibition or feedback. Each reflex
+acts only on its own leg.
 
-Self-reset clears the shared knee NEG output, including any coincident gait
-command on it. Later gait activity can recruit it again. A reflex does not reset
-A/B or the learned weights. Other legs receive no signal from it.
+## Give the local reflex access to extension
 
-REST and the pending STOP request inhibit every reflex population and ACTIVE
-readout; REST also clears all motor outputs. Explicit simulator recovery suspends
-tilt publication while restoring and settling the body. `rhythm` mode suspends it
-as well. No periodic external command maintains a reflex.
+The gait normally inhibits extension during a leg's swing phase. A local
+`REFLEX_*_EXTENSION_VETO_HG` relay carries that inhibition to the same leg's
+extension Beta and output. The reflex inhibits this local relay while it
+supports the leg. It never inhibits the shared phase inhibitor or another leg.
 
-The 66 existing STDP3/LTP gait paths retain their initial settings. Reflex paths
-are static. Learned gait inhibition can still compete with extension: ACTIVE
-without knee NEG requires inspection of that competition, not a hidden motor
-override. A knee command can provide support only if the foot reaches the ground.
+This is local disinhibition: release this extension path while suppressing its
+flexion antagonist. All 66 STDP3/LTP gait inhibitory paths remain represented;
+eight knee-extension paths now originate from these four local relays. Their
+eligibility therefore belongs to the new local source, and learned weights from
+an older installed graph must not be assumed to migrate.
 
-## Observe the result
+The reflex's inhibition of flexion and of its local extension veto uses
+**strength 64**. This was chosen after lower strengths failed the imposed-gait
+competition check. Self-reset and STOP/REST retain strength 4. These are
+multipliers of the SDK's calculated reference, not percentages of neurons
+silenced and not TNorm settings. The live circuit still needs evaluation.
+
+## End the reflex drive locally
+
+`REFLEX_FL_HG` has a local excitatory feedback connection to carry a response
+across gaps between sensory samples. The extension Beta recruits
+`REFLEX_FL_RESET_HG` after motor activity begins. That reset inhibits its own
+reflex and clears the diagnostic `REFLEX_FL_ACTIVE` readout.
+ACTIVE has no outgoing connections. No guard, external burst timer or
+controller-side motor override maintains the reflex.
+
+Self-reset ends the extra reflex drive. It does not immediately cut the
+extension output before the extension Beta can recruit it. Motor output
+clearing remains explicit: the local antagonist, the local gait-veto relay
+and REST can clear the extension output and oppose its Beta.
+
+Sustained physical evidence can recruit another local burst. When evidence
+ends, reflex activity must cease and the gait can regain control. The helper
+never resets the entire brain or learned weights. STOP/REST inhibits every
+reflex population and readout. Simulator recovery suspends tilt publication
+while resetting and settling the body.
+
+Multiple legs can respond together. Forward-left tilt supplies two cues to
+front-left, one to front-right and one to rear-left. There is no corner winner,
+strict AND gate, or opposite-direction sensory veto.
+
+## Observe the actual motor path
 
 Build the saved graph, wait for READY, then run `ab run -ab --env .env learn`.
-Press W and inspect:
+Press W. In neuron telemetry, inspect the local reflex, reset, extension Beta,
+flexion Beta and extension-veto relay. Inspect the knee outputs and measured
+joint motion alongside them. ACTIVE is a bistable diagnostic, not an instantaneous
+spike counter or a promise that the leg extended.
 
-- `tilt-inputs.jsonl`: roll/pitch, published sensory bits and SDK call duration.
-  Queue acceptance does not prove same-step neural consumption.
-- `native-outputs.jsonl`: all received frames, including ACTIVE and knee outputs.
-  Bistable readouts do not measure individual neuron firing.
-- `observations.jsonl`: applied outputs, resulting joint/body measurements, gyro
-  and output queue depth. The tilt sample follows that frame's body step.
-- `summary.json`: reflex entries, active frames, tilt and assisted recoveries.
+The local check in [REFLEX_CHECK.json](REFLEX_CHECK.json) includes the motor
+Betas and imposed competing gait activity. It checks extension recruitment,
+flexion suppression, cessation after evidence ends and REST. Its explicit
+initialization and transport assumptions do not establish device equivalence,
+physical support or successful balance recovery.
 
-In neuron telemetry, follow `REFLEX_*_GAMMA`, `REFLEX_*_RESET_GAMMA`,
-`REFLEX_*_MOTOR_HG` and `REFLEX_*_CLEAR_HG`. Check recruitment, flexion suppression,
-reset and clearing. Confirm no continued burst once evidence disappears, and
-test S while a reflex is active. Inspect `GAIT_REWARD_RELAY` and `GAIT_REWARD`
-separately; accepted reward events do not prove dopamine firing.
-
-Correlate the negative knee target with measured knee motion and falling tilt.
-Check latency and output backlog. Short neural bursts can still fail to complete
-the physical support movement; the isolated check does not establish balance.
+Each run records tilt bits and publication time in `tilt-inputs.jsonl`, all
+received outputs in `native-outputs.jsonl`, and applied outputs plus resulting
+body/joint measurements in `observations.jsonl`. Check feedback latency and
+queued frames. A foot must reach suitable ground to supply support.
 
 For a comparison, set `reflex.enabled=false` and start a new run with otherwise
-matched settings and initial conditions. Changing the deadband needs a new Run;
-changing rhythm, TNorm, strength or connections requires Design and Build.
+matched settings and initial conditions. This disables tilt evidence; it does
+not restore an older graph. Changing a sensory deadband needs a new Run.
+Changing population widths, rhythm, TNorm or connections requires Design and Build.
 
 Model signs were checked against the bundled `Spot.proto` / `SpotLeg.proto`, the
 Webots R2025a [IMU implementation](https://github.com/cyberbotics/webots/blob/R2025a/src/controller/c/inertial_unit.c)

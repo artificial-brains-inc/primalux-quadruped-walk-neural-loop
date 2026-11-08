@@ -19,8 +19,10 @@ goal, phase interaction and local actuator expression.
 | Each phase recruits local motor Betas in four leg groups | Coordinate diagonal pairs while retaining separate actuators |
 | Opposing movements at one joint inhibit each other | Put competition at the physical antagonist relationship |
 | Tilt toward a leg recruits its fast support reflex | Add physical evidence to the motor goal |
-| The reflex inhibits local flexion and excites knee extension | Give support priority at the physical antagonist |
-| Its downstream reset inhibits its own trigger and clears both readouts | End the burst and permit later evidence to recruit it again |
+| The reflex inhibits flexion's Beta/output and excites extension's Beta | Give support priority at the physical antagonist |
+| Reflex feedback sustains local activity between sensory samples | Carry a response until motor activity can recruit its reset |
+| Extension Beta recruits reset, which inhibits its own reflex and clears ACTIVE | End reflex drive and permit later evidence to recruit it again |
+| It inhibits the local extension-veto relay | Release its own extensor without inhibiting a shared phase |
 | Each reflex leaves other legs and gait phases untouched | Allow several local support goals to coexist |
 | REST clears phase, local motor and reflex states | Make STOP apply throughout the recurrent network |
 
@@ -32,7 +34,7 @@ inhibitory connection; rhythm and TNorm describe the receiving relationship.
 Useful internal activity connects directly to the next population. It does not
 need to become a new input calculated and republished by the controller. The three
 command neurons remain START, STOP and ACK. A fourth neuron carries outcome reward.
-Four more neurons encode signed physical roll/pitch. Their combination is resolved
+Four 12-neuron populations encode signed physical roll/pitch. Their combination is resolved
 inside the neural graph, never translated into leg commands by Python.
 
 ## Decide what should learn
