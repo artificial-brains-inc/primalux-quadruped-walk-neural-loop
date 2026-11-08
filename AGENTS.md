@@ -13,7 +13,10 @@ Keep proprietary construction code, equations, compiled images and credentials o
   through its HG helper, which clears PUSH_HG and KNEE_PUSH at strength 64.
   Readiness must not be inhibited by its own push branch.
 - Actual KNEE_POS output recruits RETURN_BETA T3, then retained DONE/DONE_HG.
-  DONE ends this leg's movement and recruits its normal support Betas. Front
+  RETURN_BETA directly excites KNEE_NEG and inhibits KNEE_POS/output veto at 64.
+  DONE_HG retains the same direct extension and clearing paths. Do not put an
+  extra Beta stage between the return signal and the final extension output.
+  DONE also ends this leg's movement and recruits its normal support Betas. Front
   DONE_HG recruits HANDOFF_BETA T3, which starts the diagonal rear MOVE_HG.
   Do not trigger rear movement from a front swing or reflex motor output.
 - Rear DONE_HG recruits its phase's MOTOR_FEEDBACK_HG → FEEDBACK_BETA T5 →

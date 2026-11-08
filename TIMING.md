@@ -7,7 +7,10 @@ ACK the body consumes neural frames while goal confirmation is pending.
 
 Local MOVE_HG recruits an early push alongside the existing motor Betas. Hip
 Beta activity recruits retained readiness, which clears the push. Knee flexion
-output recruits the return. A front return pathway recruits its rear partner;
+output recruits RETURN_BETA, which directly requests final extension and clears
+flexion and the local output veto. DONE_HG retains those commands. This avoids
+waiting for an additional support Beta before landing. A front return pathway
+also recruits its rear partner;
 a rear return recruits the macro handoff. These paths add neural integration
 and propagation, not a prescribed millisecond schedule.
 

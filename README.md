@@ -10,7 +10,9 @@ leg's knee motion.
 | A | Front-right push → swing → return | Rear-left push → swing → return |
 | B | Front-left push → swing → return | Rear-right push → swing → return |
 
-The front partner's return pathway recruits the rear movement. A front swing
+The return pathway directly activates final knee extension and clears flexion.
+It also recruits the rear movement through its existing handoff Beta, so final
+extension can start before the next leg's initial push. A front swing
 command does not start the rear swing. The sequence is intended to prepare
 support before a leg lifts; these neural events do not measure actual unloading
 or foot contact.
@@ -40,6 +42,7 @@ zero means no reward. No new external gait, phase or progress inputs are added.
 - Capture a brief command and retain WALK or REST inside the brain.
 - Start an early push while the existing motor pathway builds activity.
 - Clear that push from retained neural readiness, without a host timer.
+- Start final extension directly from the return pathway, while clearing flexion.
 - Return a front leg to support before recruiting its diagonal rear partner.
 - Keep local reflexes independent and give them a neural reset long enough to
   avoid the immediate output-clearing loop.
@@ -66,7 +69,7 @@ See [requirements](docs/REQUIREMENTS.md).
 ## Clone and install
 
 ```bash
-git clone "$HOME/Downloads/primalux-spot-push-before-swing.bundle" primalux-spot-switch
+git clone "$HOME/Downloads/primalux-spot-direct-return.bundle" primalux-spot-switch
 cd primalux-spot-switch
 bash install.sh
 source .venv/bin/activate
@@ -97,6 +100,11 @@ ordinary motor Betas and PUSH_HG in parallel. Follow hip Beta → SWING_READY �
 SWING_READY_HG back to clear the push branch. Then follow KNEE_POS → RETURN_BETA
 → DONE → DONE_HG. Front DONE feeds HANDOFF_BETA → rear MOVE_HG; rear DONE feeds
 the macro handoff pathway. Python does not republish these internal signals.
+
+Inspect the direct RETURN_BETA → KNEE_NEG and DONE_HG → KNEE_NEG edges. Both
+sources clear KNEE_POS and its extension-output veto at strength 64. The final
+extension command starts through these fixed paths while the regular support
+Beta is still being recruited; no additional population or input is needed.
 
 Each REFLEX_HG T5 connects directly to KNEE_REFLEX_EXTEND and to the existing
 regular KNEE_NEG_BETA T5 through STDP3. Follow the fast output through two Beta
@@ -172,10 +180,11 @@ recorder reads the existing SDK viewer stream and never controls movement.
 
 ## Checks and limits
 
-Construction uses 503/10,000 neurons and 291,900 bytes of connection matrices;
+Construction uses 503/10,000 neurons and 292,796 bytes of connection matrices;
 other prepared-image data also consumes memory. The local complete-circuit check
 uses single START/STOP events, internal motor feedback and injected tilt evidence.
-It checks push/swing order, front support before rear swing, reflex recruitment,
+It checks push/swing order, final extension timing, front support before rear
+push and swing, reflex recruitment,
 clearing, stopping and restarting. It includes
 transition gaps and is not an FPGA or Webots run. Physical balance and learned
 walking still need your device test. See [validation](docs/VALIDATION.md).

@@ -48,8 +48,11 @@ KNEE_PUSH at strength 64. The normal pathway continues after this local clearing
 Hip and abduction activity may begin while preparation finishes; knee flexion
 follows the push. The controller imposes no delay or minimum stroke duration.
 
-KNEE_POS recruits RETURN_BETA T3, then DONE/DONE_HG. DONE inhibits local movement
-and readiness, and excites the normal support Betas. Each support Beta accepts
+KNEE_POS recruits RETURN_BETA T3, then DONE/DONE_HG. RETURN_BETA directly excites
+KNEE_NEG and inhibits KNEE_POS and the extension-output veto at strength 64.
+DONE_HG retains those direct paths, so landing does not wait for a further
+support-Beta stage. It also inhibits local movement and readiness, and excites
+the normal support Betas. Each support Beta accepts
 one unit from the opposite macro state and one from local DONE. The opposite
 macro state clears the local sequence for reuse. Rear movement receives the
 front's HANDOFF_BETA, not a front motor or reflex output. See [PUSH.md](PUSH.md).
@@ -94,7 +97,7 @@ one-HG clearing. ACTIVE remains diagnostic. See [REFLEX.md](REFLEX.md).
 
 The compatible builder calculates these widths from the declared relationships.
 The graph has 84 OPUs, 55 one-neuron outputs and eight external populations:
-147 populations, 643 connections, 503 total neurons and 291,900 bytes of
+147 populations, 663 connections, 503 total neurons and 292,796 bytes of
 connection matrices. Device preparation remains authoritative.
 
 ## Learning scope

@@ -197,7 +197,7 @@ class ReflexGraphTests(unittest.TestCase):
                         f"REFLEX_{leg}_HG",
                     },
                 ),
-                (output, {gait}),
+                (output, {gait, f"LEG_{leg}_RETURN_BETA", f"LEG_{leg}_DONE_HG"}),
                 (fast, {f"REFLEX_{leg}_HG"}),
             ):
                 self.assertEqual(

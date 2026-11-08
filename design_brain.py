@@ -290,6 +290,13 @@ def create_brain(*, learning=True):
         opu(gate, "high-gamma", 10, x, y + 1800)
         reflex_nodes.append(gate)
         b.connect(stem + "_SWING_READY_HG", gate)
+        # Begin landing from the return pathway itself. Do not wait for the
+        # ordinary support Beta to recruit its output after a completed swing.
+        # DONE_HG retains this extension while the following leg prepares.
+        for source in (stem + "_RETURN_BETA", stem + "_DONE_HG"):
+            b.connect(source, f"{leg}_KNEE_NEG")
+            inhibit(source, gate, REFLEX_INHIBITION)
+        inhibit(stem + "_RETURN_BETA", f"{leg}_KNEE_POS", REFLEX_INHIBITION)
         for ji, joint in enumerate(JOINTS):
             swing_side = "NEG" if joint == "ABD" and leg in ("FL", "RL") else "POS"
             for si, side in enumerate(("POS", "NEG")):
@@ -300,7 +307,13 @@ def create_brain(*, learning=True):
                     b.connect(stem + "_MOVE_HG", population)
                     for target in (population, channel):
                         inhibit(f"PHASE_{support}_DRIVE_HG", target, CROSS_INHIBITION)
-                        inhibit(stem + "_DONE_HG", target, CROSS_INHIBITION)
+                        inhibit(
+                            stem + "_DONE_HG",
+                            target,
+                            REFLEX_INHIBITION
+                            if joint == "KNEE" and target == channel
+                            else CROSS_INHIBITION,
+                        )
                 else:
                     # Support remains available after this leg's local return.
                     for source in (f"PHASE_{support}_DRIVE_HG", stem + "_DONE_HG"):

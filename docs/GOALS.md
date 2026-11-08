@@ -19,8 +19,10 @@ It opposes knee flexion output while the ordinary hip Beta builds activity.
 That Beta recruits a retained readiness state which ends the push. Retention
 keeps the push from restarting in a gap between Beta spikes.
 
-Actual knee flexion output then recruits a return pathway. The retained return
-state stops local movement and supports extension. A front return recruits its
+Actual knee flexion output then recruits a return pathway. Its Beta directly
+excites final extension and clears flexion and the extension-output veto. The
+retained return state continues those paths while the regular support Beta
+builds activity. A front return also recruits its
 diagonal rear partner; a rear return recruits the opposite macro state. A runs
 FR then RL, B runs FL then RR. Python supplies no phase, cadence or progress
 signal. These transitions represent command activity, not measured foot contact.

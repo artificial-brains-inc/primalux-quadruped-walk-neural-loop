@@ -276,6 +276,20 @@ class GraphTests(unittest.TestCase):
                 self.assert_inhibits(stem + "_SWING_READY_HG", target, 64)
                 self.assert_inhibits(stem + "_DONE_HG", target, 64)
 
+    def test_landing_does_not_wait_for_support_beta_or_leave_flexion_latched(self):
+        for leg in LEGS:
+            for source in (f"LEG_{leg}_RETURN_BETA", f"LEG_{leg}_DONE_HG"):
+                edge = self.edges[source, f"{leg}_KNEE_NEG"]
+                self.assertEqual(edge["type"], "exc")
+                self.assertNotIn("rule", edge)
+                self.assert_inhibits(source, f"{leg}_KNEE_POS", 64)
+                self.assert_inhibits(source, f"REFLEX_{leg}_EXTENSION_VETO_HG", 64)
+            # The fixed landing branch must not remove the regular motor path
+            # or its direct reflex-learning input.
+            beta = motor_population(leg, "KNEE", "NEG")
+            self.assertEqual(self.edges[beta, f"{leg}_KNEE_NEG"]["type"], "exc")
+            self.assertEqual(self.edges[f"REFLEX_{leg}_HG", beta]["rule"], "STDP3")
+
     def test_ack_is_isolated_from_behavior(self):
         for source, target in self.edges:
             self.assertEqual(

@@ -143,6 +143,11 @@ KNEE_PUSH is a separate early extension output, calibrated to −0.12 rad at up 
 3.0 rad/s. Its readiness and clearing are neural. The controller never reads
 LEG_*_SWING_READY or LEG_*_DONE to choose a motor target.
 
+Final extension is the existing KNEE_NEG output. RETURN_BETA and DONE_HG drive
+it directly and clear local knee flexion/output veto neurally, alongside the
+regular support-Beta pathway. The decoder applies its existing −0.08 rad,
+1.5 rad/s calibration; it does not infer a landing from a phase or DONE flag.
+
 The decoder maps the fast motor output to the configured corrective excursion
 and speed. Normal, push and fast extension use the largest commanded excursion, not summed
 angles. If flexion and

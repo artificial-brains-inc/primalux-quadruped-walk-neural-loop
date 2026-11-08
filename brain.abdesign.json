@@ -2237,6 +2237,34 @@
       "type": "exc"
     },
     {
+      "from": "LEG_FL_RETURN_BETA",
+      "to": "FL_KNEE_NEG",
+      "type": "exc"
+    },
+    {
+      "from": "LEG_FL_RETURN_BETA",
+      "to": "REFLEX_FL_EXTENSION_VETO_HG",
+      "type": "inh",
+      "strength": 64.0
+    },
+    {
+      "from": "LEG_FL_DONE_HG",
+      "to": "FL_KNEE_NEG",
+      "type": "exc"
+    },
+    {
+      "from": "LEG_FL_DONE_HG",
+      "to": "REFLEX_FL_EXTENSION_VETO_HG",
+      "type": "inh",
+      "strength": 64.0
+    },
+    {
+      "from": "LEG_FL_RETURN_BETA",
+      "to": "FL_KNEE_POS",
+      "type": "inh",
+      "strength": 64.0
+    },
+    {
       "from": "PHASE_A_DRIVE_HG",
       "to": "FRONT_LEFT_ABD_POS_BETA",
       "type": "exc",
@@ -2437,7 +2465,7 @@
       "from": "LEG_FL_DONE_HG",
       "to": "FL_KNEE_POS",
       "type": "inh",
-      "strength": 4.0
+      "strength": 64.0
     },
     {
       "from": "FRONT_LEFT_KNEE_POS_BETA",
@@ -2475,6 +2503,34 @@
       "type": "exc"
     },
     {
+      "from": "LEG_FR_RETURN_BETA",
+      "to": "FR_KNEE_NEG",
+      "type": "exc"
+    },
+    {
+      "from": "LEG_FR_RETURN_BETA",
+      "to": "REFLEX_FR_EXTENSION_VETO_HG",
+      "type": "inh",
+      "strength": 64.0
+    },
+    {
+      "from": "LEG_FR_DONE_HG",
+      "to": "FR_KNEE_NEG",
+      "type": "exc"
+    },
+    {
+      "from": "LEG_FR_DONE_HG",
+      "to": "REFLEX_FR_EXTENSION_VETO_HG",
+      "type": "inh",
+      "strength": 64.0
+    },
+    {
+      "from": "LEG_FR_RETURN_BETA",
+      "to": "FR_KNEE_POS",
+      "type": "inh",
+      "strength": 64.0
+    },
+    {
       "from": "LEG_FR_MOVE_HG",
       "to": "FRONT_RIGHT_ABD_POS_BETA",
       "type": "exc"
@@ -2675,7 +2731,7 @@
       "from": "LEG_FR_DONE_HG",
       "to": "FR_KNEE_POS",
       "type": "inh",
-      "strength": 4.0
+      "strength": 64.0
     },
     {
       "from": "FRONT_RIGHT_KNEE_POS_BETA",
@@ -2713,6 +2769,34 @@
       "type": "exc"
     },
     {
+      "from": "LEG_RL_RETURN_BETA",
+      "to": "RL_KNEE_NEG",
+      "type": "exc"
+    },
+    {
+      "from": "LEG_RL_RETURN_BETA",
+      "to": "REFLEX_RL_EXTENSION_VETO_HG",
+      "type": "inh",
+      "strength": 64.0
+    },
+    {
+      "from": "LEG_RL_DONE_HG",
+      "to": "RL_KNEE_NEG",
+      "type": "exc"
+    },
+    {
+      "from": "LEG_RL_DONE_HG",
+      "to": "REFLEX_RL_EXTENSION_VETO_HG",
+      "type": "inh",
+      "strength": 64.0
+    },
+    {
+      "from": "LEG_RL_RETURN_BETA",
+      "to": "RL_KNEE_POS",
+      "type": "inh",
+      "strength": 64.0
+    },
+    {
       "from": "PHASE_B_DRIVE_HG",
       "to": "REAR_LEFT_ABD_POS_BETA",
       "type": "exc",
@@ -2913,7 +2997,7 @@
       "from": "LEG_RL_DONE_HG",
       "to": "RL_KNEE_POS",
       "type": "inh",
-      "strength": 4.0
+      "strength": 64.0
     },
     {
       "from": "REAR_LEFT_KNEE_POS_BETA",
@@ -2951,6 +3035,34 @@
       "type": "exc"
     },
     {
+      "from": "LEG_RR_RETURN_BETA",
+      "to": "RR_KNEE_NEG",
+      "type": "exc"
+    },
+    {
+      "from": "LEG_RR_RETURN_BETA",
+      "to": "REFLEX_RR_EXTENSION_VETO_HG",
+      "type": "inh",
+      "strength": 64.0
+    },
+    {
+      "from": "LEG_RR_DONE_HG",
+      "to": "RR_KNEE_NEG",
+      "type": "exc"
+    },
+    {
+      "from": "LEG_RR_DONE_HG",
+      "to": "REFLEX_RR_EXTENSION_VETO_HG",
+      "type": "inh",
+      "strength": 64.0
+    },
+    {
+      "from": "LEG_RR_RETURN_BETA",
+      "to": "RR_KNEE_POS",
+      "type": "inh",
+      "strength": 64.0
+    },
+    {
       "from": "LEG_RR_MOVE_HG",
       "to": "REAR_RIGHT_ABD_POS_BETA",
       "type": "exc"
@@ -3151,7 +3263,7 @@
       "from": "LEG_RR_DONE_HG",
       "to": "RR_KNEE_POS",
       "type": "inh",
-      "strength": 4.0
+      "strength": 64.0
     },
     {
       "from": "REAR_RIGHT_KNEE_POS_BETA",

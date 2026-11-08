@@ -31,10 +31,23 @@ pushes during the same movement. Hip and abduction commands may begin while
 this preparation finishes; knee flexion follows push clearing. There is no
 Python delay or requirement to reach a target before advancing.
 
-The return starts from actual **KNEE_POS output**, through RETURN_BETA T3 into
-DONE. DONE/DONE_HG retain the return state, end this leg's movement and excite
-its ordinary support Betas. This lets the support command persist while the
-next leg moves. The opposite macro phase clears the local state for reuse.
+The return starts from actual **KNEE_POS output**, through RETURN_BETA T3.
+That existing two-neuron population directly excites **KNEE_NEG**, while
+inhibiting KNEE_POS and the local extension-output veto at strength 64. Final
+extension therefore does not wait for another Beta stage to become active.
+
+RETURN_BETA also recruits DONE. DONE/DONE_HG retain the return state, end this
+leg's movement and excite its ordinary support Betas. DONE_HG directly retains
+KNEE_NEG and the same two inhibitory paths. Thus the support command persists
+while the following leg begins its initial push. These direct landing edges
+are fixed; the regular extension Beta and its reflex-learning input remain.
+The opposite macro phase clears the local state for reuse, and swing readiness
+vetoes ordinary extension during the next swing. STOP/REST clears the outputs.
+
+Final extension uses the ordinary **−0.08 rad at up to 1.5 rad/s** calibration.
+The change is when the neural command starts; there is no controller timer,
+additional input, new population or target-completion wait. As with the push,
+a commanded landing does not confirm contact or load transfer.
 
 | Macro state | First movement | Following movement |
 | --- | --- | --- |

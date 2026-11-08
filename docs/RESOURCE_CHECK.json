@@ -1,6 +1,6 @@
 {
   "schema": "primalux-spot/construction-check/v1",
-  "design_sha256": "af2ef02138454d71a8da49cba05feee5b7ec58d31a4c45937bcb1b4175a07f50",
+  "design_sha256": "b79f38f13c526295522a908113be2fd2df30d02400153b320f916f4ade409d9f",
   "code": "CONSTRUCTION_OK",
   "populations": [
     {
@@ -825,13 +825,13 @@
   ],
   "resources": {
     "design_populations": 147,
-    "design_connections": 643,
+    "design_connections": 663,
     "input_neurons": 61,
     "neural_neurons": 442,
     "total_neurons": 503,
     "neuron_budget": 10000,
-    "dense_matrix_cells": 10425,
-    "matrix_storage_bytes": 291900,
+    "dense_matrix_cells": 10457,
+    "matrix_storage_bytes": 292796,
     "image_budget_bytes": 33554432
   }
 }

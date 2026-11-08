@@ -1,5 +1,5 @@
 {
-  "design_sha256": "af2ef02138454d71a8da49cba05feee5b7ec58d31a4c45937bcb1b4175a07f50",
+  "design_sha256": "b79f38f13c526295522a908113be2fd2df30d02400153b320f916f4ade409d9f",
   "scope": "Saved circuit with static weights and native ARM cell updates. Initialization, connectivity and transport assumptions are explicit local harness choices; not a compiled device image, FPGA-equivalence check or Webots physics run.",
   "all_passed": true,
   "case_count": 4,
@@ -11,7 +11,7 @@
       "multi_leg_flexion_frames": 0,
       "knee_antagonist_conflicts": 0,
       "stop_motor_activity": 0,
-      "restart_swing_frames": 173,
+      "restart_swing_frames": 108,
       "leg_sequences": {
         "FL": {
           "pushes": 5,
@@ -25,11 +25,11 @@
             15
           ],
           "swing_duration_frames": [
-            19,
-            19,
-            19,
-            19,
-            19
+            12,
+            12,
+            12,
+            12,
+            12
           ]
         },
         "FR": {
@@ -44,11 +44,11 @@
             15
           ],
           "swing_duration_frames": [
-            19,
-            19,
-            19,
-            19,
-            19
+            12,
+            12,
+            12,
+            12,
+            12
           ]
         },
         "RL": {
@@ -63,11 +63,11 @@
             15
           ],
           "swing_duration_frames": [
-            18,
-            18,
-            18,
-            18,
-            18
+            12,
+            12,
+            12,
+            12,
+            12
           ]
         },
         "RR": {
@@ -82,21 +82,64 @@
             15
           ],
           "swing_duration_frames": [
-            18,
-            18,
-            18,
-            18,
-            18
+            12,
+            12,
+            12,
+            12,
+            12
+          ]
+        }
+      },
+      "landing": {
+        "FL": {
+          "return_to_extension_frames": [
+            1,
+            1,
+            1,
+            1,
+            1
+          ]
+        },
+        "FR": {
+          "return_to_extension_frames": [
+            1,
+            1,
+            1,
+            1,
+            1,
+            1
+          ]
+        },
+        "RL": {
+          "return_to_extension_frames": [
+            1,
+            1,
+            1,
+            1,
+            1
+          ]
+        },
+        "RR": {
+          "return_to_extension_frames": [
+            1,
+            1,
+            1,
+            1,
+            1
           ]
         }
       },
       "rear_support_interlocks": {
         "RL": {
+          "push_onsets": 5,
+          "front_extension_at_rear_push": 5,
           "onsets": 5,
           "front_flexion_at_rear_onset": 0,
           "front_extension_at_rear_onset": 5
         },
         "RR": {
+          "push_onsets": 5,
+          "front_extension_at_rear_push": 5,
           "onsets": 5,
           "front_flexion_at_rear_onset": 0,
           "front_extension_at_rear_onset": 5
@@ -111,7 +154,7 @@
       "multi_leg_flexion_frames": 0,
       "knee_antagonist_conflicts": 0,
       "stop_motor_activity": 0,
-      "restart_swing_frames": 202,
+      "restart_swing_frames": 120,
       "leg_sequences": {
         "FL": {
           "pushes": 6,
@@ -126,12 +169,12 @@
             15
           ],
           "swing_duration_frames": [
-            20,
-            20,
-            20,
-            20,
-            20,
-            20
+            12,
+            12,
+            12,
+            12,
+            12,
+            12
           ]
         },
         "FR": {
@@ -146,11 +189,11 @@
             15
           ],
           "swing_duration_frames": [
-            20,
-            20,
-            20,
-            20,
-            20
+            12,
+            12,
+            12,
+            12,
+            12
           ]
         },
         "RL": {
@@ -160,18 +203,18 @@
           "push_duration_frames": [
             3,
             5,
-            4,
-            4,
+            5,
+            5,
             4,
             4
           ],
           "swing_duration_frames": [
-            19,
-            19,
-            19,
-            19,
-            19,
-            19
+            12,
+            12,
+            12,
+            12,
+            12,
+            12
           ]
         },
         "RR": {
@@ -180,28 +223,73 @@
           "ordered_push_then_swing": 5,
           "push_duration_frames": [
             5,
-            4,
             5,
             5,
+            5,
             4,
-            4
+            5
           ],
           "swing_duration_frames": [
-            19,
-            19,
-            19,
-            19,
-            19
+            12,
+            12,
+            12,
+            12,
+            12
+          ]
+        }
+      },
+      "landing": {
+        "FL": {
+          "return_to_extension_frames": [
+            1,
+            1,
+            1,
+            1,
+            1,
+            1
+          ]
+        },
+        "FR": {
+          "return_to_extension_frames": [
+            1,
+            1,
+            1,
+            1,
+            1,
+            1
+          ]
+        },
+        "RL": {
+          "return_to_extension_frames": [
+            1,
+            1,
+            1,
+            1,
+            1,
+            1
+          ]
+        },
+        "RR": {
+          "return_to_extension_frames": [
+            1,
+            1,
+            1,
+            1,
+            1
           ]
         }
       },
       "rear_support_interlocks": {
         "RL": {
+          "push_onsets": 6,
+          "front_extension_at_rear_push": 6,
           "onsets": 6,
           "front_flexion_at_rear_onset": 0,
           "front_extension_at_rear_onset": 6
         },
         "RR": {
+          "push_onsets": 6,
+          "front_extension_at_rear_push": 6,
           "onsets": 5,
           "front_flexion_at_rear_onset": 0,
           "front_extension_at_rear_onset": 5
@@ -216,7 +304,7 @@
       "multi_leg_flexion_frames": 0,
       "knee_antagonist_conflicts": 0,
       "stop_motor_activity": 0,
-      "restart_swing_frames": 173,
+      "restart_swing_frames": 108,
       "leg_sequences": {
         "FL": {
           "pushes": 4,
@@ -229,10 +317,10 @@
             15
           ],
           "swing_duration_frames": [
-            19,
-            19,
-            19,
-            19
+            12,
+            12,
+            12,
+            12
           ]
         },
         "FR": {
@@ -246,10 +334,10 @@
             15
           ],
           "swing_duration_frames": [
-            19,
-            19,
-            19,
-            19
+            12,
+            12,
+            12,
+            12
           ]
         },
         "RL": {
@@ -264,10 +352,10 @@
             15
           ],
           "swing_duration_frames": [
-            18,
-            18,
-            18,
-            18
+            12,
+            12,
+            12,
+            12
           ]
         },
         "RR": {
@@ -281,20 +369,59 @@
             15
           ],
           "swing_duration_frames": [
-            18,
-            18,
-            18,
-            18
+            12,
+            12,
+            12,
+            12
+          ]
+        }
+      },
+      "landing": {
+        "FL": {
+          "return_to_extension_frames": [
+            1,
+            1,
+            1,
+            1
+          ]
+        },
+        "FR": {
+          "return_to_extension_frames": [
+            1,
+            1,
+            1,
+            1,
+            1
+          ]
+        },
+        "RL": {
+          "return_to_extension_frames": [
+            1,
+            1,
+            1,
+            1
+          ]
+        },
+        "RR": {
+          "return_to_extension_frames": [
+            1,
+            1,
+            1,
+            1
           ]
         }
       },
       "rear_support_interlocks": {
         "RL": {
+          "push_onsets": 5,
+          "front_extension_at_rear_push": 5,
           "onsets": 4,
           "front_flexion_at_rear_onset": 0,
           "front_extension_at_rear_onset": 4
         },
         "RR": {
+          "push_onsets": 4,
+          "front_extension_at_rear_push": 4,
           "onsets": 4,
           "front_flexion_at_rear_onset": 0,
           "front_extension_at_rear_onset": 4
@@ -361,7 +488,7 @@
       "multi_leg_flexion_frames": 0,
       "knee_antagonist_conflicts": 0,
       "stop_motor_activity": 0,
-      "restart_swing_frames": 173,
+      "restart_swing_frames": 108,
       "leg_sequences": {
         "FL": {
           "pushes": 4,
@@ -374,10 +501,10 @@
             15
           ],
           "swing_duration_frames": [
-            19,
-            19,
-            19,
-            19
+            12,
+            12,
+            12,
+            12
           ]
         },
         "FR": {
@@ -391,10 +518,10 @@
             15
           ],
           "swing_duration_frames": [
-            19,
-            19,
-            19,
-            19
+            12,
+            12,
+            12,
+            12
           ]
         },
         "RL": {
@@ -409,11 +536,11 @@
             15
           ],
           "swing_duration_frames": [
-            18,
-            18,
-            18,
-            18,
-            18
+            12,
+            12,
+            12,
+            12,
+            12
           ]
         },
         "RR": {
@@ -427,20 +554,60 @@
             15
           ],
           "swing_duration_frames": [
-            18,
-            18,
-            14,
-            18
+            12,
+            12,
+            8,
+            12
+          ]
+        }
+      },
+      "landing": {
+        "FL": {
+          "return_to_extension_frames": [
+            1,
+            1,
+            1,
+            1
+          ]
+        },
+        "FR": {
+          "return_to_extension_frames": [
+            1,
+            1,
+            1,
+            1,
+            1
+          ]
+        },
+        "RL": {
+          "return_to_extension_frames": [
+            1,
+            1,
+            1,
+            1,
+            1
+          ]
+        },
+        "RR": {
+          "return_to_extension_frames": [
+            1,
+            1,
+            1,
+            1
           ]
         }
       },
       "rear_support_interlocks": {
         "RL": {
+          "push_onsets": 5,
+          "front_extension_at_rear_push": 5,
           "onsets": 5,
           "front_flexion_at_rear_onset": 0,
           "front_extension_at_rear_onset": 5
         },
         "RR": {
+          "push_onsets": 4,
+          "front_extension_at_rear_push": 4,
           "onsets": 4,
           "front_flexion_at_rear_onset": 0,
           "front_extension_at_rear_onset": 4
