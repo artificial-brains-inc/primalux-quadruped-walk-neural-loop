@@ -1,47 +1,52 @@
 # Spot: a neural walking switch and local support reflexes
 
-A developer teaching example for Prima-Lux and Webots. One neural switch holds
-one of two complementary motor patterns. Motor activity recruits the handoff to
-the other pattern. Independent support reflexes can override a leg's knee motion.
+A developer teaching example for Prima-Lux and Webots. Each leg first gives a
+small extension push, then flexes and advances, then returns to support. Neural
+activity sequences the movements; independent tilt reflexes can override a
+leg's knee motion.
 
-| Switch state | Front-left + rear-right | Front-right + rear-left |
+| Macro state | First | Then |
 | --- | --- | --- |
-| A | Small extension; support and backward hip movement | Larger flexion and forward hip movement |
-| B | Larger flexion and forward hip movement | Small extension; support and backward hip movement |
+| A | Front-right push → swing → return | Rear-left push → swing → return |
+| B | Front-left push → swing → return | Rear-right push → swing → return |
 
-Knee targets are **−0.08 rad for extension and +0.35 rad for flexion**, relative
-to neutral. Hip targets are ±0.20 rad. These are actuator calibration values,
-not TNorms or learned amplitudes. A separate reflex motor output requests
-**−0.22 rad at up to 3.0 rad/s**; ordinary knee motion uses 1.5 rad/s. The
-reflex also excites the normal extension Beta through a learning connection.
-These actuator calibration values remain editable in `config.json`.
+The front partner's return pathway recruits the rear movement. A front swing
+command does not start the rear swing. The sequence is intended to prepare
+support before a leg lifts; these neural events do not measure actual unloading
+or foot contact.
 
-There are **461 neurons**, including **61 external neurons across eight named
-inputs**. Four leg groups contain 24 opposing gait Betas. Each leg also has a
-24-neuron high-gamma T5 reflex that directly drives its fast extension output.
-The same high-gamma directly excites the regular extension Beta through STDP3.
-Four rear gait relays make RR follow FL and RL follow FR through their neural hip outputs.
-The reward path contains 10 outcome input neurons, 10 high-gamma T10 relay
-neurons and 17 dopaminergic T3 neurons. It classifies positive reward as new
-upright forward progress; zero is no reward. No additional external phase,
-progress or motor-feedback inputs are used.
+| Knee output | Excursion from neutral | Requested speed |
+| --- | --- | --- |
+| Ordinary flexion / extension | +0.35 / −0.08 rad | 1.5 rad/s |
+| Early push | −0.12 rad | 3.0 rad/s |
+| Tilt reflex | −0.22 rad | 3.0 rad/s |
 
-Python acquires and encodes measurements, applies local neural motor outputs and
-publishes physical reward. The switch, handoff, reflex selection and reset live
-in the graph. Webots position servos track the commanded joint angles.
+These are editable actuator settings in `config.json`, not TNorms or learned
+amplitudes. The adapter caps speed at the model's maximum. The body advances
+32 ms per native output frame; signed tilt evidence begins at 0.08 rad.
+
+There are **503 neurons**, including **61 external neurons across eight named
+inputs**. Each leg's reflex remains **24 high-gamma T5 neurons**, directly
+exciting its fast output and its **24-neuron regular extension Beta T5**. The
+latter connection uses STDP3/LTP. Swing inhibition acts at the regular extension
+output so it does not prevent that Beta from receiving reflex evidence.
+
+The reward path is 10 outcome input neurons → 10 high-gamma T10 neurons →
+17 dopaminergic T3 neurons. Positive reward means new upright forward progress;
+zero means no reward. No new external gait, phase or progress inputs are added.
 
 ## What you learn
 
-- Capture a brief command and retain a walking goal inside the brain.
-- Build a two-state switch whose states select complementary motor populations.
-- Feed actual motor output neurons back into a neural handoff pathway.
-- Let a local reflex excite extension and inhibit flexion without selecting a
-  phase in the controller or suppressing another leg.
-- Connect reflex high-gamma directly to regular extension Beta, creating a path
-  for STDP3 eligibility; keep the fast reflex output on its fixed direct branch.
+- Capture a brief command and retain WALK or REST inside the brain.
+- Start an early push while the existing motor pathway builds activity.
+- Clear that push from retained neural readiness, without a host timer.
+- Return a front leg to support before recruiting its diagonal rear partner.
+- Keep local reflexes independent and give them a neural reset long enough to
+  avoid the immediate output-clearing loop.
+- Connect reflex HG directly to regular Beta for reward-modulated eligibility.
 
-Read [goals and interactions](docs/GOALS.md), [the design](docs/DESIGN.md), and
-[the reflex path](docs/REFLEX.md).
+Read [goals and interactions](docs/GOALS.md), [the design](docs/DESIGN.md),
+[push before swing](docs/PUSH.md), and [the reflex path](docs/REFLEX.md).
 
 ## Requirements
 
@@ -61,7 +66,7 @@ See [requirements](docs/REQUIREMENTS.md).
 ## Clone and install
 
 ```bash
-git clone "$HOME/Downloads/primalux-spot-direct-hg5-rear-relay.bundle" primalux-spot-switch
+git clone "$HOME/Downloads/primalux-spot-push-before-swing.bundle" primalux-spot-switch
 cd primalux-spot-switch
 bash install.sh
 source .venv/bin/activate
@@ -87,15 +92,15 @@ ab design --brain brain.abdesign.json --env .env
 ```
 
 Follow START → START_REQUEST → WALK_ENABLED, then PHASE_A_REQUEST → PHASE_A_OUT.
-OUT and DRIVE_HG retain each switch state. Follow the four hip output neurons
-back to MOTOR_FEEDBACK_HG → FEEDBACK_BETA → BETA → RELEASE → the other request.
-These are internal connections; Python does not republish their activity.
+OUT and DRIVE_HG retain each macro state. Inspect LEG_FR_MOVE_HG: it excites the
+ordinary motor Betas and PUSH_HG in parallel. Follow hip Beta → SWING_READY →
+SWING_READY_HG back to clear the push branch. Then follow KNEE_POS → RETURN_BETA
+→ DONE → DONE_HG. Front DONE feeds HANDOFF_BETA → rear MOVE_HG; rear DONE feeds
+the macro handoff pathway. Python does not republish these internal signals.
 
-Below the switch, inspect the four leg motor groups. Each REFLEX_HG T5 has a
-fixed direct edge to KNEE_REFLEX_EXTEND and a direct STDP3 edge to the regular
-KNEE_NEG_BETA T5. That Beta also receives its normal gait source. Inspect both
-operand edges at one unit each. ACTIVE is only a diagnostic; it does not command
-a motor. Rear gait relays follow the diagonal front hip outputs.
+Each REFLEX_HG T5 connects directly to KNEE_REFLEX_EXTEND and to the existing
+regular KNEE_NEG_BETA T5 through STDP3. Follow the fast output through two Beta
+T3 recovery stages back to clear itself. ACTIVE is diagnostic only.
 
 Close the Designer with Ctrl+C before continuing. If you edit on the Canvas,
 save/download `brain.abdesign.json` before Build. Install and Run never
@@ -158,7 +163,7 @@ python design_brain.py --static
 command is an installer or launcher. See [design](docs/DESIGN.md) and
 [control and reward](docs/CONTROL.md).
 
-The startup line prints four fast reflex motor outputs, 10 reward input neurons,
+The startup line prints four push outputs, four fast reflex outputs, 10 reward input neurons,
 the design hash and the project folder. `logs/run-*/settings.json` records them
 too. This identifies which local package actually ran.
 `neuron-telemetry.jsonl` now records actual internal neuron activity automatically,
@@ -167,10 +172,11 @@ recorder reads the existing SDK viewer stream and never controls movement.
 
 ## Checks and limits
 
-Construction uses 461/10,000 neurons and 305,284 bytes of connection matrices;
+Construction uses 503/10,000 neurons and 291,900 bytes of connection matrices;
 other prepared-image data also consumes memory. The local complete-circuit check
 uses single START/STOP events, internal motor feedback and injected tilt evidence.
-It checks alternation, local overrides, stopping and restarting. It includes
+It checks push/swing order, front support before rear swing, reflex recruitment,
+clearing, stopping and restarting. It includes
 transition gaps and is not an FPGA or Webots run. Physical balance and learned
 walking still need your device test. See [validation](docs/VALIDATION.md).
 

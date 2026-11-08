@@ -1,33 +1,34 @@
 # Validation
 
-The saved design is generated through SDK 0.4.2 public fields. The compatible
-0.4.11 builder accepts its construction. [RESOURCE_CHECK.json](RESOURCE_CHECK.json)
-records the design hash, 461 total neurons and 305,284 bytes of matrix storage.
-Other prepared-image data also uses the 32 MiB image budget.
+SDK 0.4.2 accepts the saved design. The compatible local builder accepts its
+construction. [RESOURCE_CHECK.json](RESOURCE_CHECK.json) records 503 total
+neurons and 291,900 bytes of connection matrices; other image data also consumes
+the 32 MiB budget. Device preparation remains authoritative.
 
-93 application tests pass. They cover command/ACK/goal confirmation, SDK dispatch, local motor
-decoding, tilt encoding, reward evidence, Stop/save, recovery, installer behavior,
-asset resolution, graph/source agreement and the new I/O contract.
+95 application tests cover command/ACK/goal confirmation, SDK dispatch, motor
+calibration, input encoding, reward, recovery, Stop/save, installer behavior,
+assets, graph/source agreement and recording. Tests exercise push/fast/normal
+outputs, conflicting commands and return to normal speed after clearing.
 
-[SWITCH_CHECK.json](SWITCH_CHECK.json) records the complete-circuit local check.
-All neural populations run; only START, STOP and physical tilt evidence are
-injected. Phase activity and motor spikes are not imposed by the test. The check
-uses native ARM cell updates with explicit initialization, adjacency, coupling
-and membrane-floor assumptions. It is not the device's compiled image or an
-FPGA-equivalence test. Connections remain static during this check.
+[SWITCH_CHECK.json](SWITCH_CHECK.json) records four complete-circuit local cases:
+aligned initial phases, varied phases/coupling/floor, left tilt and right tilt.
+The check injects START, STOP and tilt evidence, not phase or motor spikes. It
+uses native ARM cell updates with explicit harness assumptions for initialization
+and connectivity. Weights remain static. It is not the compiled device image,
+an FPGA-equivalence test or a Webots physics run.
 
-The report includes both exclusive switch states, alternations, complete knee
-patterns, transition gaps, all-four-flexion occurrences, local reflex overrides, normal extension Beta recruitment, fast output clearing,
-stop clearing and restart. A motor output is a command, not ground contact.
-The tests do not include Webots physics, device transport timing, dopamine-driven
-weight changes, physical stability or proof of learned walking.
+The checks measure push before knee flexion, local return, front support output
+at rear swing onset, phase exclusivity, overlapping knee commands, reflex HG and
+regular Beta activity, fast-output clearing, STOP and restart. A corrective
+reflex can interrupt and delay an already prepared swing; the report preserves
+those events instead of labeling every delayed swing a fresh preparation.
 
-Use `walk` first, with reward disabled and reflexes enabled. Compare state
-readouts with actual hip/knee outputs and joint positions. Then enable `learn`
-and compare physical progress, falls and observed changes on the selected paths.
+Local checks cannot resolve an observed model/device mismatch. Record actual
+HG, Beta, reset, readiness and dopamine spikes through `neuron-telemetry.jsonl`.
+Compare with targets, measured angles, tilt and body motion. Command readiness
+and return do not prove foot contact or physical weight transfer. No ground
+forces, stable walking or reward-driven weight changes have been validated here.
 
-Local initialized-cell checks cannot resolve a mismatch with observed device
-behavior. The direct HG motor branch and regular Beta branch must both be
-observed on the device. Use the internal neuron recording to locate inactive
-stages; output-only logs cannot establish whether an upstream OPU fired. The
-rear relay orders command recruitment, not completion of a physical stroke.
+Run `walk` first. After the physical behavior works, compare `learn` against it
+using progress, falls and weight observations. Supervisor recovery remains
+explicit simulator assistance and is not learned self-righting.

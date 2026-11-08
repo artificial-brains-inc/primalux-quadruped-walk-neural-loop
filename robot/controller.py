@@ -2,7 +2,7 @@
 
 There is no gait clock, phase selector, trajectory generator, or command resend
 inside the running loop. Physical outcome supplies reward; IMU readings supply
-four signed tilt neurons. Reflex leg selection and cutoff stay inside the brain.
+four signed tilt populations. Reflex leg selection and cutoff stay inside the brain.
 """
 
 import json
@@ -18,6 +18,7 @@ from .contracts import (
     LEG_NAMES,
     LEGS,
     MOTOR_OUTPUTS,
+    PUSH_MOTOR_OUTPUTS,
     REFLEX_MOTOR_OUTPUTS,
     REFLEX_OUTPUTS,
     REWARD_CLASSIFICATION,
@@ -91,6 +92,7 @@ def main():
                 design_sha256=design_hash,
                 project_root=str(ROOT),
                 reflex_motor_outputs=list(REFLEX_MOTOR_OUTPUTS),
+                push_motor_outputs=list(PUSH_MOTOR_OUTPUTS),
                 reward_classification=REWARD_CLASSIFICATION,
                 reward_input_neurons=REWARD_INPUT_NEURONS,
             ),
@@ -100,6 +102,7 @@ def main():
     )
     print(
         f"[SPOT] Fast reflex outputs: {len(REFLEX_MOTOR_OUTPUTS)}; "
+        f"pre-swing push outputs: {len(PUSH_MOTOR_OUTPUTS)}; "
         f"reward input: {REWARD_INPUT_NEURONS} neurons; "
         f"reward class: dopaminergic T3 / positive outcome / STDP3-LTP; "
         f"design: {design_hash}; project: {ROOT}",

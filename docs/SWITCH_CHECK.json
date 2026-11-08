@@ -1,226 +1,510 @@
 {
-  "design_sha256": "7449acf0b487ff5b23a1172ff0073bfdadf74262f5f9f61563d0f65649178d5a",
-  "scope": "Whole saved neural circuit with static connections, native ARM cell updates and single-event START/STOP/restart. Sparse adjacency, initial phases, coupling and membrane floor are explicit harness assumptions; this is not a compiled device image, FPGA comparison or Webots physics run. No imposed phase or motor spikes.",
-  "case_count": 5,
+  "design_sha256": "af2ef02138454d71a8da49cba05feee5b7ec58d31a4c45937bcb1b4175a07f50",
+  "scope": "Saved circuit with static weights and native ARM cell updates. Initialization, connectivity and transport assumptions are explicit local harness choices; not a compiled device image, FPGA-equivalence check or Webots physics run.",
   "all_passed": true,
-  "limitations": [
-    "Transition steps include quiet and incomplete motor patterns; exclusivity does not imply instantaneous actuator handoff.",
-    "Motor feedback is the activity of hip output neurons, not measured joint position or ground contact.",
-    "No robot physics, hardware timing, reward-triggered weight changes or learned balance were tested.",
-    "Fast reflex output clearing and normal extension Beta recruitment are measured neural activity; neither establishes physical support."
-  ],
+  "case_count": 4,
   "cases": [
     {
-      "case": "baseline_seed_1",
-      "measured_steps": 1400,
-      "exclusive_a_steps": 622,
-      "exclusive_b_steps": 654,
-      "both_switch_states_steps": 0,
-      "neither_switch_state_steps": 124,
-      "alternations": 31,
-      "complete_knee_pattern_a_steps": 276,
-      "complete_knee_pattern_b_steps": 287,
-      "all_four_flexing_steps": 0,
-      "rest_motor_activity": 0,
-      "restart_motor_activity": 2810,
-      "passed": true,
-      "rear_hip_onset_lags": {
+      "case": "aligned_initial_phases",
+      "simulated_neural_frames": 2950,
+      "both_phase_states": 0,
+      "multi_leg_flexion_frames": 0,
+      "knee_antagonist_conflicts": 0,
+      "stop_motor_activity": 0,
+      "restart_swing_frames": 173,
+      "leg_sequences": {
+        "FL": {
+          "pushes": 5,
+          "swings": 5,
+          "ordered_push_then_swing": 5,
+          "push_duration_frames": [
+            15,
+            15,
+            15,
+            15,
+            15
+          ],
+          "swing_duration_frames": [
+            19,
+            19,
+            19,
+            19,
+            19
+          ]
+        },
+        "FR": {
+          "pushes": 5,
+          "swings": 5,
+          "ordered_push_then_swing": 5,
+          "push_duration_frames": [
+            15,
+            15,
+            15,
+            15,
+            15
+          ],
+          "swing_duration_frames": [
+            19,
+            19,
+            19,
+            19,
+            19
+          ]
+        },
         "RL": {
-          "onsets": 31,
-          "minimum_neural_steps": 15,
-          "maximum_neural_steps": 15
+          "pushes": 5,
+          "swings": 5,
+          "ordered_push_then_swing": 5,
+          "push_duration_frames": [
+            3,
+            15,
+            15,
+            15,
+            15
+          ],
+          "swing_duration_frames": [
+            18,
+            18,
+            18,
+            18,
+            18
+          ]
         },
         "RR": {
-          "onsets": 31,
-          "minimum_neural_steps": 15,
-          "maximum_neural_steps": 15
+          "pushes": 5,
+          "swings": 5,
+          "ordered_push_then_swing": 5,
+          "push_duration_frames": [
+            15,
+            15,
+            15,
+            15,
+            15
+          ],
+          "swing_duration_frames": [
+            18,
+            18,
+            18,
+            18,
+            18
+          ]
         }
       },
-      "late_reflex_spikes": 0
+      "rear_support_interlocks": {
+        "RL": {
+          "onsets": 5,
+          "front_flexion_at_rear_onset": 0,
+          "front_extension_at_rear_onset": 5
+        },
+        "RR": {
+          "onsets": 5,
+          "front_flexion_at_rear_onset": 0,
+          "front_extension_at_rear_onset": 5
+        }
+      },
+      "passed": true
+    },
+    {
+      "case": "varied_initial_phases",
+      "simulated_neural_frames": 2950,
+      "both_phase_states": 0,
+      "multi_leg_flexion_frames": 0,
+      "knee_antagonist_conflicts": 0,
+      "stop_motor_activity": 0,
+      "restart_swing_frames": 202,
+      "leg_sequences": {
+        "FL": {
+          "pushes": 6,
+          "swings": 6,
+          "ordered_push_then_swing": 6,
+          "push_duration_frames": [
+            15,
+            15,
+            15,
+            15,
+            15,
+            15
+          ],
+          "swing_duration_frames": [
+            20,
+            20,
+            20,
+            20,
+            20,
+            20
+          ]
+        },
+        "FR": {
+          "pushes": 5,
+          "swings": 5,
+          "ordered_push_then_swing": 5,
+          "push_duration_frames": [
+            15,
+            15,
+            15,
+            15,
+            15
+          ],
+          "swing_duration_frames": [
+            20,
+            20,
+            20,
+            20,
+            20
+          ]
+        },
+        "RL": {
+          "pushes": 6,
+          "swings": 6,
+          "ordered_push_then_swing": 6,
+          "push_duration_frames": [
+            3,
+            5,
+            4,
+            4,
+            4,
+            4
+          ],
+          "swing_duration_frames": [
+            19,
+            19,
+            19,
+            19,
+            19,
+            19
+          ]
+        },
+        "RR": {
+          "pushes": 6,
+          "swings": 5,
+          "ordered_push_then_swing": 5,
+          "push_duration_frames": [
+            5,
+            4,
+            5,
+            5,
+            4,
+            4
+          ],
+          "swing_duration_frames": [
+            19,
+            19,
+            19,
+            19,
+            19
+          ]
+        }
+      },
+      "rear_support_interlocks": {
+        "RL": {
+          "onsets": 6,
+          "front_flexion_at_rear_onset": 0,
+          "front_extension_at_rear_onset": 6
+        },
+        "RR": {
+          "onsets": 5,
+          "front_flexion_at_rear_onset": 0,
+          "front_extension_at_rear_onset": 5
+        }
+      },
+      "passed": true
     },
     {
       "case": "left_tilt",
-      "measured_steps": 1400,
-      "exclusive_a_steps": 622,
-      "exclusive_b_steps": 654,
-      "both_switch_states_steps": 0,
-      "neither_switch_state_steps": 124,
-      "alternations": 31,
-      "complete_knee_pattern_a_steps": 224,
-      "complete_knee_pattern_b_steps": 241,
-      "all_four_flexing_steps": 0,
-      "rest_motor_activity": 0,
-      "restart_motor_activity": 2810,
-      "passed": true,
-      "rear_hip_onset_lags": {
+      "simulated_neural_frames": 2950,
+      "both_phase_states": 0,
+      "multi_leg_flexion_frames": 0,
+      "knee_antagonist_conflicts": 0,
+      "stop_motor_activity": 0,
+      "restart_swing_frames": 173,
+      "leg_sequences": {
+        "FL": {
+          "pushes": 4,
+          "swings": 4,
+          "ordered_push_then_swing": 3,
+          "push_duration_frames": [
+            15,
+            15,
+            15,
+            15
+          ],
+          "swing_duration_frames": [
+            19,
+            19,
+            19,
+            19
+          ]
+        },
+        "FR": {
+          "pushes": 4,
+          "swings": 4,
+          "ordered_push_then_swing": 4,
+          "push_duration_frames": [
+            15,
+            15,
+            15,
+            15
+          ],
+          "swing_duration_frames": [
+            19,
+            19,
+            19,
+            19
+          ]
+        },
         "RL": {
-          "onsets": 31,
-          "minimum_neural_steps": 15,
-          "maximum_neural_steps": 15
+          "pushes": 5,
+          "swings": 4,
+          "ordered_push_then_swing": 4,
+          "push_duration_frames": [
+            3,
+            15,
+            15,
+            15,
+            15
+          ],
+          "swing_duration_frames": [
+            18,
+            18,
+            18,
+            18
+          ]
         },
         "RR": {
-          "onsets": 31,
-          "minimum_neural_steps": 15,
-          "maximum_neural_steps": 15
+          "pushes": 4,
+          "swings": 4,
+          "ordered_push_then_swing": 4,
+          "push_duration_frames": [
+            15,
+            15,
+            3,
+            15
+          ],
+          "swing_duration_frames": [
+            18,
+            18,
+            18,
+            18
+          ]
         }
       },
-      "reflex_leg_outputs": {
+      "rear_support_interlocks": {
+        "RL": {
+          "onsets": 4,
+          "front_flexion_at_rear_onset": 0,
+          "front_extension_at_rear_onset": 4
+        },
+        "RR": {
+          "onsets": 4,
+          "front_flexion_at_rear_onset": 0,
+          "front_extension_at_rear_onset": 4
+        }
+      },
+      "passed": true,
+      "reflex": {
         "FL": {
-          "POS": 0,
-          "NEG": 122
+          "hg_spikes": 1680,
+          "regular_beta_spikes": 744,
+          "fast_frames": 49,
+          "fast_burst_frames": [
+            8,
+            7,
+            7,
+            7,
+            7,
+            7,
+            7,
+            7,
+            7,
+            7,
+            7,
+            7,
+            7,
+            7,
+            7,
+            7,
+            7
+          ],
+          "late_fast_frames": 0
         },
         "RL": {
-          "POS": 0,
-          "NEG": 126
+          "hg_spikes": 1680,
+          "regular_beta_spikes": 744,
+          "fast_frames": 49,
+          "fast_burst_frames": [
+            8,
+            7,
+            7,
+            7,
+            7,
+            7,
+            7,
+            7,
+            7,
+            7,
+            7,
+            7,
+            7,
+            7,
+            7,
+            7,
+            7
+          ],
+          "late_fast_frames": 0
         }
-      },
-      "switch_and_hips_unchanged": true,
-      "unaffected_leg_outputs_unchanged": true,
-      "normal_extension_beta_spikes": {
-        "FL": 982,
-        "RL": 1084
-      },
-      "fast_motor_active_steps": {
-        "FL": 37,
-        "RL": 37
-      },
-      "late_fast_motor_steps": 0,
-      "unaffected_fast_motor_steps": 0,
-      "late_reflex_spikes": 0
+      }
     },
     {
       "case": "right_tilt",
-      "measured_steps": 1400,
-      "exclusive_a_steps": 622,
-      "exclusive_b_steps": 654,
-      "both_switch_states_steps": 0,
-      "neither_switch_state_steps": 124,
-      "alternations": 31,
-      "complete_knee_pattern_a_steps": 222,
-      "complete_knee_pattern_b_steps": 241,
-      "all_four_flexing_steps": 0,
-      "rest_motor_activity": 0,
-      "restart_motor_activity": 2810,
-      "passed": true,
-      "rear_hip_onset_lags": {
-        "RL": {
-          "onsets": 31,
-          "minimum_neural_steps": 15,
-          "maximum_neural_steps": 15
-        },
-        "RR": {
-          "onsets": 31,
-          "minimum_neural_steps": 15,
-          "maximum_neural_steps": 15
-        }
-      },
-      "reflex_leg_outputs": {
-        "FR": {
-          "POS": 0,
-          "NEG": 126
-        },
-        "RR": {
-          "POS": 0,
-          "NEG": 122
-        }
-      },
-      "switch_and_hips_unchanged": true,
-      "unaffected_leg_outputs_unchanged": true,
-      "normal_extension_beta_spikes": {
-        "FR": 1098,
-        "RR": 1019
-      },
-      "fast_motor_active_steps": {
-        "FR": 37,
-        "RR": 37
-      },
-      "late_fast_motor_steps": 0,
-      "unaffected_fast_motor_steps": 0,
-      "late_reflex_spikes": 0
-    },
-    {
-      "case": "left_front_tilt",
-      "measured_steps": 1400,
-      "exclusive_a_steps": 622,
-      "exclusive_b_steps": 654,
-      "both_switch_states_steps": 0,
-      "neither_switch_state_steps": 124,
-      "alternations": 31,
-      "complete_knee_pattern_a_steps": 222,
-      "complete_knee_pattern_b_steps": 241,
-      "all_four_flexing_steps": 0,
-      "rest_motor_activity": 0,
-      "restart_motor_activity": 2810,
-      "passed": true,
-      "rear_hip_onset_lags": {
-        "RL": {
-          "onsets": 31,
-          "minimum_neural_steps": 15,
-          "maximum_neural_steps": 15
-        },
-        "RR": {
-          "onsets": 31,
-          "minimum_neural_steps": 15,
-          "maximum_neural_steps": 15
-        }
-      },
-      "reflex_leg_outputs": {
+      "simulated_neural_frames": 2950,
+      "both_phase_states": 0,
+      "multi_leg_flexion_frames": 0,
+      "knee_antagonist_conflicts": 0,
+      "stop_motor_activity": 0,
+      "restart_swing_frames": 173,
+      "leg_sequences": {
         "FL": {
-          "POS": 0,
-          "NEG": 122
+          "pushes": 4,
+          "swings": 4,
+          "ordered_push_then_swing": 4,
+          "push_duration_frames": [
+            15,
+            15,
+            15,
+            15
+          ],
+          "swing_duration_frames": [
+            19,
+            19,
+            19,
+            19
+          ]
         },
         "FR": {
-          "POS": 0,
-          "NEG": 126
+          "pushes": 4,
+          "swings": 4,
+          "ordered_push_then_swing": 4,
+          "push_duration_frames": [
+            15,
+            15,
+            15,
+            15
+          ],
+          "swing_duration_frames": [
+            19,
+            19,
+            19,
+            19
+          ]
         },
         "RL": {
-          "POS": 0,
-          "NEG": 126
-        }
-      },
-      "switch_and_hips_unchanged": true,
-      "unaffected_leg_outputs_unchanged": true,
-      "normal_extension_beta_spikes": {
-        "FL": 982,
-        "FR": 1098,
-        "RL": 1084
-      },
-      "fast_motor_active_steps": {
-        "FL": 37,
-        "FR": 37,
-        "RL": 37
-      },
-      "late_fast_motor_steps": 0,
-      "unaffected_fast_motor_steps": 0,
-      "late_reflex_spikes": 0
-    },
-    {
-      "case": "different_initial_phase_coupling_and_floor",
-      "measured_steps": 1400,
-      "exclusive_a_steps": 622,
-      "exclusive_b_steps": 654,
-      "both_switch_states_steps": 0,
-      "neither_switch_state_steps": 124,
-      "alternations": 31,
-      "complete_knee_pattern_a_steps": 281,
-      "complete_knee_pattern_b_steps": 291,
-      "all_four_flexing_steps": 0,
-      "rest_motor_activity": 0,
-      "restart_motor_activity": 2814,
-      "passed": true,
-      "rear_hip_onset_lags": {
-        "RL": {
-          "onsets": 31,
-          "minimum_neural_steps": 15,
-          "maximum_neural_steps": 15
+          "pushes": 5,
+          "swings": 5,
+          "ordered_push_then_swing": 5,
+          "push_duration_frames": [
+            3,
+            15,
+            15,
+            15,
+            15
+          ],
+          "swing_duration_frames": [
+            18,
+            18,
+            18,
+            18,
+            18
+          ]
         },
         "RR": {
-          "onsets": 31,
-          "minimum_neural_steps": 15,
-          "maximum_neural_steps": 15
+          "pushes": 4,
+          "swings": 4,
+          "ordered_push_then_swing": 3,
+          "push_duration_frames": [
+            15,
+            15,
+            15,
+            15
+          ],
+          "swing_duration_frames": [
+            18,
+            18,
+            14,
+            18
+          ]
         }
       },
-      "late_reflex_spikes": 0
+      "rear_support_interlocks": {
+        "RL": {
+          "onsets": 5,
+          "front_flexion_at_rear_onset": 0,
+          "front_extension_at_rear_onset": 5
+        },
+        "RR": {
+          "onsets": 4,
+          "front_flexion_at_rear_onset": 0,
+          "front_extension_at_rear_onset": 4
+        }
+      },
+      "passed": true,
+      "reflex": {
+        "FR": {
+          "hg_spikes": 1680,
+          "regular_beta_spikes": 744,
+          "fast_frames": 49,
+          "fast_burst_frames": [
+            8,
+            7,
+            7,
+            7,
+            7,
+            7,
+            7,
+            7,
+            7,
+            7,
+            7,
+            7,
+            7,
+            7,
+            7,
+            7,
+            7
+          ],
+          "late_fast_frames": 0
+        },
+        "RR": {
+          "hg_spikes": 1680,
+          "regular_beta_spikes": 744,
+          "fast_frames": 49,
+          "fast_burst_frames": [
+            8,
+            7,
+            7,
+            7,
+            7,
+            7,
+            7,
+            7,
+            7,
+            7,
+            7,
+            7,
+            7,
+            7,
+            7,
+            7,
+            7
+          ],
+          "late_fast_frames": 0
+        }
+      }
     }
+  ],
+  "limitations": [
+    "No foot-contact, weight-transfer, ground-force or body-stability validation.",
+    "Neural return/support commands do not prove touchdown or unloading.",
+    "No dopamine-driven weight changes tested.",
+    "Local checks cannot certify device timing or eliminate the prior observed model/device mismatch."
   ]
 }

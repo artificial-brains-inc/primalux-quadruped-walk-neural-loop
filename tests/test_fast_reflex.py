@@ -49,10 +49,11 @@ class FastReflexTests(unittest.TestCase):
         edges = {(e["from"], e["to"]): e for e in doc["connections"]}
         for leg in LEGS:
             fast = f"{leg}_KNEE_REFLEX_EXTEND"
-            reset = f"REFLEX_{leg}_OUTPUT_RESET_HG"
+            reset = f"REFLEX_{leg}_OUTPUT_RESET_BETA"
             relay = f"REFLEX_{leg}_HG"
             self.assertIn(fast, MOTOR_OUTPUTS)
-            self.assertEqual(edges[fast, reset]["type"], "exc")
+            self.assertEqual(edges[fast, f"REFLEX_{leg}_RECOVERY_BETA"]["type"], "exc")
+            self.assertEqual(edges[f"REFLEX_{leg}_RECOVERY_BETA", reset]["type"], "exc")
             for source in (reset, "REST_NUCLEUS", "STOP_REQUEST_HG"):
                 self.assertEqual(edges[source, fast]["type"], "inh")
                 self.assertNotIn("rule", edges[source, fast])
@@ -61,6 +62,22 @@ class FastReflexTests(unittest.TestCase):
             teaching = edges[relay, motor_population(leg, "KNEE", "NEG")]
             self.assertEqual(teaching["type"], "exc")
             self.assertEqual(teaching["rule"], "STDP3")
+
+    def test_push_has_separate_calibration_and_reflex_does_not_add_angles(self):
+        config = load_config()
+        for leg in LEGS:
+            key = (leg, "KNEE")
+            push = frame(1, **{f"{leg}_KNEE_PUSH": 1})
+            both = frame(2, **{f"{leg}_KNEE_PUSH": 1, f"{leg}_KNEE_REFLEX_EXTEND": 1})
+            self.assertEqual(joint_targets(push, config)[key], -0.12)
+            self.assertEqual(joint_speeds(push, config)[key], 3.0)
+            self.assertEqual(joint_targets(both, config)[key], -0.22)
+            self.assertEqual(joint_targets(frame(3), config)[key], 0)
+            self.assertEqual(joint_speeds(frame(3), config)[key], 1.5)
+            conflict = frame(4, **{f"{leg}_KNEE_PUSH": 1, f"{leg}_KNEE_POS": 1})
+            self.assertEqual(joint_targets(conflict, config)[key], 0)
+            self.assertEqual(joint_speeds(conflict, config)[key], 1.5)
+            self.assertEqual(joint_targets(push, config, rhythm_only=True)[key], 0)
 
     def test_config_rejects_invalid_corrective_speed_and_endpoint(self):
         for name, value in (

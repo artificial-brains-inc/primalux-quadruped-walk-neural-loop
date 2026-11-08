@@ -1,7 +1,7 @@
-# One switch, two complementary patterns
+# One switch, ordered push/swing sequences
 
-A and B are the two retained states of one neural switch. A supports FL/RR while
-FR/RL flex and advance. B exchanges those roles. Each joint has opposing local
+A and B are the two retained states of one neural switch. A orders FR then RL;
+B orders FL then RR. Each movement has an early push before knee flexion and a return-to-support stage. Each joint has opposing local
 Beta T5 populations and explicit output-clearing paths. No controller-side phase
 selector, gait clock, trajectory or inverse kinematics is present.
 
@@ -27,122 +27,86 @@ reference, not a percentage of neurons suppressed. These paths are static.
 
 ## What flips the switch
 
-The four hip output neurons selected by the active pattern feed its
-MOTOR_FEEDBACK_HG. Their combined activity passes through FEEDBACK_BETA T5 →
-BETA T5 → RELEASE T3. RELEASE excites the opposite phase's REQUEST. It also
-inhibits its own two feedback Betas, allowing that pathway to recover.
+A orders FR then RL; B orders FL then RR. Each leg has MOVE, PUSH, SWING_READY
+and DONE activity. Front DONE recruits a Beta T3 handoff into the rear leg's
+MOVE_HG. Rear DONE_HG supplies the macro state's MOTOR_FEEDBACK_HG →
+FEEDBACK_BETA T5 → BETA T5 → RELEASE T3. RELEASE captures the opposite request.
+The same four inhibitory RELEASE returns retain their STDP3/LTP metadata.
 
-| State | Hip outputs supplying its feedback |
-| --- | --- |
-| A | FL_HIP_NEG, RR_HIP_NEG, FR_HIP_POS, RL_HIP_POS |
-| B | FL_HIP_POS, RR_HIP_POS, FR_HIP_NEG, RL_HIP_NEG |
+This sequence uses internal neural activity. The return begins from an actual
+knee flexion output rather than from the earlier hip command, so the leg's
+knee command has started before it recruits the return. It is still command
+history, not joint completion or confirmed ground contact.
 
-The neural outputs are the feedback source. No per-step phase, movement progress,
-oscillator signal or motor state is sent back by Python. This path reflects
-command activity, not joint completion or confirmed ground contact. It combines
-the four outputs; it does not implement a strict four-way AND.
+## Early push and local return
 
-A handoff request persists through competition until the new state takes over.
-There can be propagation gaps between states and between actuator outputs. The
-adapter always applies the current motor frame, including quiet frames.
+MOVE_HG excites the normal swing Betas and PUSH_HG in parallel. PUSH_HG directly
+excites KNEE_PUSH and inhibits KNEE_POS output at strength 64. The push output
+feeds back into its HG to retain activity through upstream gaps. Hip Beta
+recruits a retained SWING_READY output/HG loop; readiness clears PUSH_HG and
+KNEE_PUSH at strength 64. The normal pathway continues after this local clearing.
+Hip and abduction activity may begin while preparation finishes; knee flexion
+follows the push. The controller imposes no delay or minimum stroke duration.
 
-## Motor assignment
+KNEE_POS recruits RETURN_BETA T3, then DONE/DONE_HG. DONE inhibits local movement
+and readiness, and excites the normal support Betas. Each support Beta accepts
+one unit from the opposite macro state and one from local DONE. The opposite
+macro state clears the local sequence for reuse. Rear movement receives the
+front's HANDOFF_BETA, not a front motor or reflex output. See [PUSH.md](PUSH.md).
 
-| State | FL/RR | FR/RL |
-| --- | --- | --- |
-| A | HIP_NEG, KNEE_NEG | HIP_POS, KNEE_POS |
-| B | HIP_POS, KNEE_POS | HIP_NEG, KNEE_NEG |
+## Reflex and ordinary extension
 
-Positive hip rotation advances the foot in the bundled Spot model. Knee POS
-flexes and NEG extends in the configured range. Abduction is mirrored: swing
-uses NEG on left legs and POS on right legs. Each state relay excites the
-appropriate front-leg Beta T5, which excites its named actuator output.
-The rear legs instead receive their corresponding front hip output through a
-one-neuron high-gamma T10 relay: RR follows FL and RL follows FR. Each rear leg
-has a relay for each switch state. The opposite state, STOP and REST clear
-these relays. Reflexes do not pass through them. This orders command activity;
-it does not measure when the front foot has completed a stroke.
+Each 24-neuron REFLEX_HG T5 has a fixed direct connection to the fast extension
+output and a direct STDP3/LTP operand connection into the existing regular
+extension Beta T5. Regular extension accepts one canonical unit each from
+macro support, local DONE and reflex HG, using the Beta T5 OR construction as
+its starting relationship. Learning intentionally adapts reflex recruitment.
 
-The opposite state inhibits that Beta and output at strength 4. Local opposing
-Betas also inhibit one another and their opposite outputs at the reference
-strength of 1. Knee extension uses a local high-gamma veto relay so its reflex
-can release its own extension without changing the shared switch.
+The local SWING_READY_HG recruits EXTENSION_VETO_HG T10, which inhibits ordinary
+extension output at strength 64. It does not inhibit the extension Beta. Knee
+competition is enforced through the state/output vetoes rather than continuous
+opposing Beta inhibition. This preserves the Beta's ability to respond to reflex
+evidence during swing. Hip and abduction keep their local Beta antagonism.
 
-Knee flexion is +0.35 rad and extension −0.08 rad relative to neutral. This is
-mechanical amplitude calibration. TNorm does not encode angle, force or speed.
-The configured limits do not establish a validated foot trajectory.
-
-## Direct reflex and normal extension recruitment
-
-REFLEX_HG contains 24 high-gamma T5 neurons. It directly excites
-KNEE_REFLEX_EXTEND, calibrated to −0.22 rad at up to 3.0 rad/s. The reflex does
-not wait for a Beta. Normal KNEE_NEG remains −0.08 rad at 1.5 rad/s.
-
-The same REFLEX_HG directly excites the actual regular knee extension Beta
-through STDP3/LTP. The normal gait drive and reflex HG both have role `operand`
-and `units=1` into this Beta T5. This is the guide's OR starting construction:
-either gait or reflex evidence can recruit normal extension. Equal canonical
-units express equal contributions despite the different source widths; units
-are not neuron counts or arbitrary gains. The builder allocates 24 neurons to
-each regular extension Beta. Learning can change reflex recruitment from this
-initial relationship. No output-derived teaching relay is present.
-
-KNEE_REFLEX_EXTEND recruits OUTPUT_RESET_HG T10 (one neuron), which clears that
-output and ACTIVE and inhibits the reflex trigger at strength 4. Reset therefore
-begins after the fast output fires. Continued evidence may recruit another burst.
-The trigger also inhibits local flexion Beta/output and the normal extension-veto
-relay at strength 64. ACTIVE has no outgoing edges. There is no dedicated reflex
-Beta, separate upstream reset population, corner veto or controller timer.
-See [REFLEX.md](REFLEX.md).
+Reflex HG inhibits its own flexion Beta/output and its extension-veto relay at
+strength 64. It does not change a shared phase or another leg. The fast output
+recruits RECOVERY_BETA T3 → OUTPUT_RESET_BETA T3. The latter clears fast output
+and ACTIVE and inhibits its own trigger at strength 4. This replaces immediate
+one-HG clearing. ACTIVE remains diagnostic. See [REFLEX.md](REFLEX.md).
 
 ## Allocation and operating points
 
 | Population | Rhythm / TNorm | Neurons each |
 | --- | --- | --- |
-| Switch request and state relays | High-gamma 10 | 1 |
-| Motor feedback relay | High-gamma 10 | 4 |
-| Feedback Beta | Beta 5 | 7 |
-| Downstream Beta | Beta 5 | 11 |
-| Release | Beta 3 | 15 |
-| Normal knee extension Beta | Beta 5 | 24 |
-| Other local gait motor Beta | Beta 5 | 2 |
-| Local extension-veto relay | High-gamma 3 | 1 |
-| Local reflex | High-gamma 5 | 24 |
-| Rear gait relays (four) | High-gamma 10 | 1 |
-| Reward relay | High-gamma 10 | 10 |
-| Reward population | Dopaminergic 3 | 17 |
-| Reflex output reset | High-gamma 10 | 1 |
+| Command, state and readiness HG helpers | High-gamma 10 | 1 |
+| Macro motor feedback HG | High-gamma 10 | 1 |
+| Macro feedback / downstream / release | Beta 5 / Beta 5 / Beta 3 | 2 / 4 / 7 |
+| Front MOVE / PUSH | High-gamma 10 | 1 |
+| Rear MOVE / PUSH | High-gamma 10 | 2 |
+| Local RETURN / front HANDOFF | Beta 3 | 2 |
+| Regular knee extension Beta | Beta 5 | 24 |
+| Front swing / rear swing Betas | Beta 5 | 2 / 4 |
+| Other support Betas | Beta 5 | 4 |
+| Local extension-output veto | High-gamma 10 | 1 |
+| Local reflex HG | High-gamma 5 | 24 |
+| Reflex recovery / output reset | Beta 3 / Beta 3 | 2 / 4 |
+| Reward relay / reward | High-gamma 10 / Dopaminergic 3 | 10 / 17 |
 
-The builder calculates these widths from the declared relationships. T10 is used
-for the small retained command/state relay paths; the sensory reflex uses T5.
-No claim is made that T5 is universally optimal or that larger populations alone
-produce coordination.
-
-The complete graph has 62 OPUs, 43 one-neuron outputs and eight external input
-populations: 113 populations, 457 connections, 461 total neurons and 305,284 bytes
-of connection matrices. Build on the device remains authoritative.
+The compatible builder calculates these widths from the declared relationships.
+The graph has 84 OPUs, 55 one-neuron outputs and eight external populations:
+147 populations, 643 connections, 503 total neurons and 291,900 bytes of
+connection matrices. Device preparation remains authoritative.
 
 ## Learning scope
 
-GAIT_REWARD is a dopaminergic T3 population with 17 neurons. It receives a
-10-neuron high-gamma relay driven by one 10-neuron outcome input population.
-Its outcome class is positive upright forward progress; zero means no reward.
+Four RELEASE inhibitory returns and four REFLEX_HG → regular extension Beta
+excitatory connections use STDP3, GAIT_REWARD and reward_type LTP. Eligibility
+reflects recent source/receiver timing; dopaminergic activity acts on that
+eligibility. LTP follows its sign and does not mean every update strengthens.
+The fast motor branches, state retention, sequencing, vetoes and resets remain
+static. `walk` sends no positive reward; `learn` rewards new upright forward
+progress. Stationary recovery alone is not that outcome.
 
-Four connections use STDP3, GAIT_REWARD and reward_type LTP: each RELEASE inhibits
-its own FEEDBACK_BETA and BETA, initially at strength 4. This targets recovery of
-the handoff pathway. Eligibility stores recent source/receiver timing; dopamine
-uses that eligibility to adjust the selected inhibitory connections. LTP follows
-eligibility direction; it does not mean every update strengthens inhibition.
-
-Four more STDP3/LTP connections excite the normal extension Beta from that leg's
-REFLEX_HG. Their source is the reflex population itself, so pre/post firing at
-that direct connection contributes eligibility. This is
-deliberate adaptation of excitatory recruitment; it can change that relationship's
-computation. It does not create activity without a source or prove anticipation
-before a tilt. The fixed fast branch works before learning.
-
-All state retention, state interlocks, request capture, motor vetoes, antagonists,
-fast reflex excitation and reset remain static. `walk` sends no positive
-reward. `learn` supplies reward from new upright forward progress. A static graph
-can also be authored with `python design_brain.py --static`. First verify the
-behavior, then evaluate adaptation using actual trajectories and weight telemetry.
+Check the static behavior first. Use internal spike recording and weight
+observation to assess recruitment and learning, and actual robot measurements
+to assess physical benefit. A wire or accepted reward publication proves neither.

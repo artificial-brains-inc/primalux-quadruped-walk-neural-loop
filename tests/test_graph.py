@@ -14,7 +14,6 @@ from robot.contracts import (
     OUTPUT_SIZES,
     REAR_FRONT_PARTNER,
     SWING_PHASE,
-    gait_drive,
     motor_population,
 )
 
@@ -127,8 +126,8 @@ class GraphTests(unittest.TestCase):
 
     def test_handoff_uses_internal_motor_activity_not_external_progress(self):
         expected = {
-            "A": {"FL_HIP_NEG", "RR_HIP_NEG", "FR_HIP_POS", "RL_HIP_POS"},
-            "B": {"FL_HIP_POS", "RR_HIP_POS", "FR_HIP_NEG", "RL_HIP_NEG"},
+            "A": {"LEG_RL_DONE_HG"},
+            "B": {"LEG_RR_DONE_HG"},
         }
         for phase, sources in expected.items():
             stem = f"PHASE_{phase}"
@@ -153,52 +152,50 @@ class GraphTests(unittest.TestCase):
                 n = self.nodes[stem + "_" + suffix]
                 self.assertEqual((n["rhythm"], n["tnorm"]), ("beta", tnorm))
 
-    def test_switch_drives_complementary_patterns_through_motor_betas(self):
+    def test_local_motor_betas_receive_move_or_support_evidence(self):
         self.assertEqual(SWING_PHASE, dict(FL="B", RR="B", FR="A", RL="A"))
         populations = set()
         for leg in LEGS:
+            stem = f"LEG_{leg}"
+            support = "A" if SWING_PHASE[leg] == "B" else "B"
             for joint in JOINTS:
                 swing_side = "NEG" if joint == "ABD" and leg in ("FL", "RL") else "POS"
-                for side, opposite_side in (("POS", "NEG"), ("NEG", "POS")):
-                    population, channel = (
-                        motor_population(leg, joint, side),
-                        f"{leg}_{joint}_{side}",
-                    )
+                for side in ("POS", "NEG"):
+                    population = motor_population(leg, joint, side)
                     populations.add(population)
-                    phase = (
-                        SWING_PHASE[leg]
+                    channel = f"{leg}_{joint}_{side}"
+                    expected = (
+                        {stem + "_MOVE_HG"}
                         if side == swing_side
-                        else ("B" if SWING_PHASE[leg] == "A" else "A")
+                        else {f"PHASE_{support}_DRIVE_HG", stem + "_DONE_HG"}
                     )
-                    other = "B" if phase == "A" else "A"
-                    n = self.nodes[population]
-                    self.assertEqual((n["rhythm"], n["tnorm"]), ("beta", 5))
+                    if joint == "KNEE" and side == "NEG":
+                        expected.add(f"REFLEX_{leg}_HG")
+                        self.assertNotIn(
+                            (f"REFLEX_{leg}_EXTENSION_VETO_HG", population), self.edges
+                        )
+                        self.assertNotIn(
+                            (motor_population(leg, "KNEE", "POS"), population),
+                            self.edges,
+                        )
                     self.assertEqual(
                         {
-                            s
-                            for (s, t), e in self.edges.items()
-                            if t == population and e["type"] == "exc"
+                            a
+                            for (a, b), e in self.edges.items()
+                            if b == population and e["type"] == "exc"
                         },
-                        {gait_drive(leg, phase)}
-                        | (
-                            {f"REFLEX_{leg}_HG"}
-                            if joint == "KNEE" and side == "NEG"
-                            else set()
+                        expected,
+                    )
+                    self.assertEqual(
+                        (
+                            self.nodes[population]["rhythm"],
+                            self.nodes[population]["tnorm"],
                         ),
+                        ("beta", 5),
                     )
                     self.assertEqual(self.edges[population, channel]["type"], "exc")
-                    veto = (
-                        f"REFLEX_{leg}_EXTENSION_VETO_HG"
-                        if joint == "KNEE" and side == "NEG"
-                        else f"PHASE_{other}_DRIVE_HG"
-                    )
-                    for target in (population, channel):
-                        self.assert_inhibits(veto, target, 4)
-                        self.assertNotIn("rule", self.edges[veto, target])
-                        self.assert_inhibits("REST_NUCLEUS", target, 4)
-                        self.assert_inhibits(
-                            motor_population(leg, joint, opposite_side), target
-                        )
+                    self.assert_inhibits("REST_NUCLEUS", population, 4)
+                    self.assert_inhibits("REST_NUCLEUS", channel, 4)
         self.assertEqual(len(populations), 24)
 
     def test_stop_clears_switch_requests_and_all_motor_outputs(self):
@@ -207,6 +204,7 @@ class GraphTests(unittest.TestCase):
                 name.startswith(
                     (
                         "PHASE_",
+                        "LEG_",
                         "REFLEX_",
                         "FRONT_LEFT_",
                         "FRONT_RIGHT_",
@@ -229,31 +227,54 @@ class GraphTests(unittest.TestCase):
         for target in ("REST_ACTIVE", "REST_NUCLEUS"):
             self.assert_inhibits("START_REQUEST_HG", target, 4)
 
-    def test_rear_relays_require_diagonal_front_hip_commands(self):
+    def test_rear_moves_follow_front_return_without_reflex_triggering_handoff(self):
         for rear, front in REAR_FRONT_PARTNER.items():
-            for phase in ("A", "B"):
-                relay = gait_drive(rear, phase)
-                source_side = "POS" if phase == SWING_PHASE[front] else "NEG"
-                sources = {
-                    s
-                    for (s, t), e in self.edges.items()
-                    if t == relay and e["type"] == "exc"
-                }
-                self.assertEqual(sources, {f"{front}_HIP_{source_side}"})
-                self.assertEqual(
-                    (self.nodes[relay]["rhythm"], self.nodes[relay]["tnorm"]),
-                    ("high-gamma", 10),
-                )
-                other = "B" if phase == "A" else "A"
-                for clear in (
-                    f"PHASE_{other}_DRIVE_HG",
-                    "REST_NUCLEUS",
-                    "STOP_REQUEST_HG",
-                ):
-                    self.assert_inhibits(clear, relay, 4)
-                self.assertFalse(
-                    any(s == relay and t.startswith("REFLEX_") for s, t in self.edges)
-                )
+            relay = f"LEG_{rear}_MOVE_HG"
+            sources = {
+                a
+                for (a, b), e in self.edges.items()
+                if b == relay and e["type"] == "exc"
+            }
+            self.assertEqual(sources, {f"LEG_{front}_HANDOFF_BETA"})
+            self.assertEqual(
+                self.edges[f"LEG_{front}_DONE_HG", f"LEG_{front}_HANDOFF_BETA"]["type"],
+                "exc",
+            )
+            self.assertEqual(self.nodes[f"LEG_{front}_HANDOFF_BETA"]["tnorm"], 3)
+            self.assertNotIn((f"{front}_KNEE_NEG", relay), self.edges)
+            self.assertNotIn((f"{front}_HIP_POS", relay), self.edges)
+        for leg in LEGS:
+            stem = f"LEG_{leg}"
+            self.assertEqual(
+                self.edges[f"{leg}_KNEE_POS", stem + "_RETURN_BETA"]["type"], "exc"
+            )
+            self.assertEqual(
+                self.edges[stem + "_RETURN_BETA", stem + "_DONE"]["type"], "exc"
+            )
+            self.assertEqual(
+                self.edges[stem + "_DONE_HG", stem + "_DONE"]["type"], "exc"
+            )
+            self.assert_inhibits(stem + "_DONE_HG", stem + "_MOVE_HG", 64)
+
+    def test_push_runs_beside_motor_beta_and_clears_from_retained_readiness(self):
+        for leg in LEGS:
+            stem = f"LEG_{leg}"
+            for a, b in [
+                (stem + "_MOVE_HG", stem + "_PUSH_HG"),
+                (stem + "_PUSH_HG", f"{leg}_KNEE_PUSH"),
+                (motor_population(leg, "HIP", "POS"), stem + "_SWING_READY"),
+                (stem + "_SWING_READY", stem + "_SWING_READY_HG"),
+                (stem + "_SWING_READY_HG", stem + "_SWING_READY"),
+            ]:
+                self.assertEqual(self.edges[a, b]["type"], "exc")
+                self.assertNotIn("rule", self.edges[a, b])
+            self.assert_inhibits(stem + "_PUSH_HG", f"{leg}_KNEE_POS", 64)
+            self.assertNotIn(
+                (stem + "_PUSH_HG", motor_population(leg, "HIP", "POS")), self.edges
+            )
+            for target in [stem + "_PUSH_HG", f"{leg}_KNEE_PUSH"]:
+                self.assert_inhibits(stem + "_SWING_READY_HG", target, 64)
+                self.assert_inhibits(stem + "_DONE_HG", target, 64)
 
     def test_ack_is_isolated_from_behavior(self):
         for source, target in self.edges:

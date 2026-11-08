@@ -23,7 +23,7 @@ produces one body step, including frames while the command remains pending.
 Failure reports WALK, REST and both request readouts and triggers SDK Stop/save.
 An explicit S can replace pending START; a new W keypress can issue a fresh event.
 
-One native output frame now advances 64 ms of simulation time (four 16 ms physics
+One native output frame advances 32 ms of simulation time (two 16 ms physics
 substeps). Webots runs in fast mode with rendering, so this duration does not add
 a realtime sleep. The motor readout remains authoritative on every native frame;
 there is no host minimum stroke duration or wait-until-target rule. Queue depth
@@ -124,7 +124,7 @@ During recovery every mode holds neutral targets and sends no positive reward.
 ## Physical tilt feedback
 
 After each completed body step, the IMU roll/pitch sample is encoded as four
-signed populations beyond a 0.15 rad deadband. Each population carries twelve
+signed populations beyond a 0.08 rad deadband. Each population carries twelve
 identical binary values, matching its 12-neuron design width. The SDK sends them
 together in one
 `publish_sensor_frame` call. Each nonzero sample is fresh evidence; repeated
@@ -134,13 +134,18 @@ support action. Gyro readings remain logged but are not new inputs.
 
 Each local reflex receives compatible signs, inhibits its own knee flexion,
 directly excites its fast extension output from high-gamma T5.
-KNEE_REFLEX_EXTEND recruits an output-reset relay that clears the output and
-inhibits its trigger. The same high-gamma directly excites the regular extension
+KNEE_REFLEX_EXTEND recruits RECOVERY_BETA T3 then OUTPUT_RESET_BETA T3; the
+second stage clears the output and inhibits its trigger. The same high-gamma directly excites the regular extension
 Beta through STDP3/LTP. No reflex inhibits another leg;
 shared sensory evidence can recruit several independent reflexes.
 
+KNEE_PUSH is a separate early extension output, calibrated to −0.12 rad at up to
+3.0 rad/s. Its readiness and clearing are neural. The controller never reads
+LEG_*_SWING_READY or LEG_*_DONE to choose a motor target.
+
 The decoder maps the fast motor output to the configured corrective excursion
-and speed. Normal and fast extension do not add their angles. If flexion and
+and speed. Normal, push and fast extension use the largest commanded excursion, not summed
+angles. If flexion and
 extension are both commanded, they cancel as before; the graph is responsible
 for suppressing flexion. When fast output clears, normal speed is restored on
 the next frame. `joint_speed_limit_rad_s` records the applied limit, capped by

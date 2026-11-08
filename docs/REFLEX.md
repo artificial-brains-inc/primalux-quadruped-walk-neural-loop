@@ -9,7 +9,8 @@ flowchart TD
   H -->|STDP3 · one operand unit| B["Regular extension Beta · T5 · 24 neurons"]
   G["Normal gait drive"] -->|Fixed · one operand unit| B
   B --> O["Regular extension output"]
-  F --> R["Local reset · high-gamma T10"]
+  F --> C["Recovery Beta · T3 · 2 neurons"]
+  C --> R["Output reset Beta · T3 · 4 neurons"]
   R -->|Inhibits| H
   R -->|Clears| F
 ```
@@ -21,10 +22,10 @@ on it. There is no intermediate teaching relay or output-to-input republishing.
 The Beta is the existing normal knee extension population, not a second reflex
 motor Beta.
 
-Both excitatory sources into the regular Beta have `role="operand", units=1`.
-This follows the guide's Beta T5 OR starting construction: normal gait or reflex
+The three excitatory sources into the regular Beta have `role="operand", units=1`.
+This follows the guide's Beta T5 OR starting construction: macro support, local return or reflex
 evidence can recruit extension. Equal canonical units retain both contributions
-when a one-neuron gait drive and a 24-neuron reflex converge. Units are not neuron
+when the two one-neuron support sources and a 24-neuron reflex converge. Units are not neuron
 counts. The builder allocates the receiver's 24 neurons from this relationship.
 
 Learning intentionally adapts reflex recruitment of the normal path. It can
@@ -39,24 +40,26 @@ without reward.
 | Signed tilt evidence | Input | — | 12 |
 | REFLEX_*_HG | High-gamma reflex | 5 | 24 |
 | Regular KNEE_NEG_BETA | Beta motor | 5 | 24 |
-| Other gait motor Betas | Beta motor | 5 | 2 |
+| Front / rear swing Betas | Beta motor | 5 | 2 / 4 |
+| Other support Betas | Beta motor | 5 | 4 |
 | KNEE_REFLEX_EXTEND | Bistable motor output | — | 1 |
-| REFLEX_*_OUTPUT_RESET_HG | High-gamma reset | 10 | 1 |
-| REFLEX_*_EXTENSION_VETO_HG | High-gamma local veto | 3 | 1 |
+| REFLEX_*_RECOVERY_BETA | Beta recovery | 3 | 2 |
+| REFLEX_*_OUTPUT_RESET_BETA | Beta reset | 3 | 4 |
+| REFLEX_*_EXTENSION_VETO_HG | High-gamma local veto | 10 | 1 |
 | REFLEX_*_ACTIVE | Bistable diagnostic output | — | 1 |
 
 The reflex HG inhibits its own flexion Beta, flexion output and extension-veto
-relay at **strength 64**. The veto relay ordinarily conveys the swing state's
-inhibition to the regular extension Beta and output. Suppressing that relay
-releases normal extension without inhibiting the shared switch or another leg.
+relay at **strength 64**. The local veto is driven by retained SWING_READY_HG
+and inhibits the regular extension output at strength 64. It does not inhibit
+the regular Beta, so reflex input can recruit that Beta during swing. The reflex
+suppresses the output veto without changing the shared switch or another leg.
 The fast output has no gait veto. ACTIVE has no outgoing connections.
 
-The fast output recruits its one-neuron high-gamma T10 reset. That reset inhibits
-the same reflex HG and clears both the fast output and ACTIVE at **strength 4**.
-It begins from actual output activity. Local excitatory feedback supports the
-reflex, while reset ends its activity; continued tilt evidence may recruit
-another burst. These strength values are inhibitory reference multipliers,
-not TNorms, neuron counts or measured suppression percentages.
+The fast output recruits **RECOVERY_BETA T3 → OUTPUT_RESET_BETA T3**. The latter
+inhibits the same reflex HG and clears fast output and ACTIVE at strength 4.
+This provides neural integration before clearing instead of the immediate
+one-HG return. Continued tilt can recruit later bursts. Strength values are
+inhibitory reference multipliers, not TNorms or measured suppression percentages.
 
 | Knee command | Excursion from neutral | Requested speed |
 | --- | --- | --- |
@@ -77,11 +80,10 @@ establish that the joint finished its movement.
 | RL | Negative roll, negative pitch |
 | RR | Positive roll, negative pitch |
 
-The ENU world has +X forward, +Y left and +Z up. The tilt threshold is 0.15 rad.
+The ENU world has +X forward, +Y left and +Z up. The tilt threshold is 0.08 rad; each body advance is 32 ms.
 Each cue can recruit a leg; this is not a corner selector or strict AND.
 Left/front evidence can recruit FL, FR and RL independently. No sensory cue
-inhibits another corner. Rear gait relays order normal motor activity after the
-front partner; all four reflex paths bypass those relays.
+inhibits another corner. Rear gait handoff follows the front return pathway; all four reflex paths bypass those relays.
 
 In `walk`, reflexes operate but reward is zero. In `learn`, new upright forward
 progress supplies reward to the four direct HG → Beta edges and the four

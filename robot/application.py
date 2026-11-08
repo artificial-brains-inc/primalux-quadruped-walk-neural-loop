@@ -67,7 +67,7 @@ def launch(mode):
                 "--stdout",
                 "--stderr",
                 # The neural stream paces the adapter. Realtime mode would add
-                # a wall-clock wait to every 64 ms simulated body advance.
+                # a wall-clock wait to each simulated body advance.
                 "--mode=fast",
                 str(ROOT / "worlds/spot_neural_walk.wbt"),
             ],

@@ -38,18 +38,21 @@ REFLEX_CUES = {
 }
 REFLEX_OUTPUTS = tuple(f"REFLEX_{leg}_ACTIVE" for leg in LEGS)
 REFLEX_MOTOR_OUTPUTS = tuple(f"{leg}_KNEE_REFLEX_EXTEND" for leg in LEGS)
+PUSH_MOTOR_OUTPUTS = tuple(f"{leg}_KNEE_PUSH" for leg in LEGS)
 GAIT_MOTOR_OUTPUTS = tuple(
     f"{leg}_{joint}_{side}"
     for leg in LEGS
     for joint in JOINTS
     for side in ("POS", "NEG")
 )
-MOTOR_OUTPUTS = (*GAIT_MOTOR_OUTPUTS, *REFLEX_MOTOR_OUTPUTS)
+MOTOR_OUTPUTS = (*GAIT_MOTOR_OUTPUTS, *REFLEX_MOTOR_OUTPUTS, *PUSH_MOTOR_OUTPUTS)
 OUTPUT_SIZES = {
     name: 1
     for name in (
         *MOTOR_OUTPUTS,
         *REFLEX_OUTPUTS,
+        *(f"LEG_{leg}_DONE" for leg in LEGS),
+        *(f"LEG_{leg}_SWING_READY" for leg in LEGS),
         "WALK_ENABLED",
         "REST_ACTIVE",
         "START_REQUEST",
@@ -67,14 +70,6 @@ OUTPUT_SIZES = {
 
 def motor_population(leg, joint, side):
     return f"{LEG_PREFIXES[leg]}_{joint}_{side}_BETA"
-
-
-def gait_drive(leg, phase):
-    return (
-        f"REAR_{leg}_{phase}_RELAY_HG"
-        if leg in REAR_FRONT_PARTNER
-        else f"PHASE_{phase}_DRIVE_HG"
-    )
 
 
 def validate_channels(event):

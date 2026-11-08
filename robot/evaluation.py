@@ -15,6 +15,9 @@ def motor_pattern_counts(rows):
     patterns = dict(A=0, B=0)
     same_side = dict(left=0, right=0)
     all_flex = 0
+    single_leg = dict.fromkeys(LEGS, 0)
+    overlapping_flexion = 0
+    push_frames = dict.fromkeys(LEGS, 0)
     for row in confirmed:
         c = row["outputs"]
         for phase in patterns:
@@ -32,6 +35,10 @@ def motor_pattern_counts(rows):
             leg: bool(c[f"{leg}_KNEE_POS"]) and not c[f"{leg}_KNEE_NEG"] for leg in LEGS
         }
         all_flex += all(flex.values())
+        overlapping_flexion += sum(flex.values()) > 1
+        for leg in LEGS:
+            single_leg[leg] += flex[leg] and sum(flex.values()) == 1
+            push_frames[leg] += bool(c.get(f"{leg}_KNEE_PUSH", 0))
         same_side["left"] += (
             flex["FL"] and flex["RL"] and not (flex["FR"] or flex["RR"])
         )
@@ -40,6 +47,9 @@ def motor_pattern_counts(rows):
         )
     return dict(
         confirmed_walking_frames=len(confirmed),
+        single_leg_swing_frames=single_leg,
+        overlapping_knee_flexion_frames=overlapping_flexion,
+        push_motor_frames=push_frames,
         complete_diagonal_motor_pattern_frames=patterns,
         all_four_knees_flexing_frames=all_flex,
         same_side_only_knee_flexion_frames=same_side,
