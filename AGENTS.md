@@ -48,6 +48,8 @@ Keep proprietary construction code, equations, compiled images and credentials o
 - Preserve event command capture, transport ACK, separate goal confirmation,
   Q/close Stop/save and explicit simulator recovery. Never resend commands
   periodically. Supervisor recovery is not neural self-righting.
+- Runs have no elapsed-time cutoff. The user decides when to stop; do not add
+  a maximum duration or replace it with a large finite limit.
 - Installer never installs Webots or regenerates the design. Keep install,
   design, build and run as separate SDK steps. Preserve the project license.
 - Local construction, mocked SDK tests and native-cell harnesses do not validate

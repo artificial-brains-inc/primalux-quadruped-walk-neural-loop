@@ -69,7 +69,7 @@ See [requirements](docs/REQUIREMENTS.md).
 ## Clone and install
 
 ```bash
-git clone "$HOME/Downloads/primalux-spot-direct-return.bundle" primalux-spot-switch
+git clone "$HOME/Downloads/primalux-spot-continuous.bundle" primalux-spot-switch
 cd primalux-spot-switch
 bash install.sh
 source .venv/bin/activate
@@ -137,6 +137,7 @@ ab run -ab --env .env walk
 Focus the Webots 3D view: **W** starts, **S** stops stepping, **R** requests
 simulator recovery, and **Q** stops and saves. Closing Webots also stops and
 saves the SDK session. The reflex is enabled in walk mode; only reward is zero.
+There is no maximum run duration or automatic elapsed-time cutoff.
 
 Inspect both the phase readouts and the actual hip/knee outputs. A phase being
 active is not evidence that the feet are planted. Neural propagation introduces

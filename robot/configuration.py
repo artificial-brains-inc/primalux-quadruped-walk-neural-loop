@@ -21,7 +21,6 @@ def load_config(root=ROOT):
     for key in (
         "output_timeout_seconds",
         "ack_timeout_seconds",
-        "max_run_wall_seconds",
     ):
         if type(c[key]) not in (int, float) or not math.isfinite(c[key]) or c[key] <= 0:
             raise ValueError(f"{key} must be positive and finite")

@@ -1,5 +1,9 @@
 # Controller responsibilities and timing
 
+The session has no maximum duration. Elapsed wall time is recorded for analysis
+and does not end a run. Q, closing Webots or stopping the SDK application ends
+the session through Stop/save.
+
 ## What crosses the boundary
 
 The adapter publishes one atomic START-or-STOP event together with ACK at startup

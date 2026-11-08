@@ -199,7 +199,7 @@ def main():
                 f"Automatic recovery: {config['recovery']['automatic']}.",
                 flush=True,
             )
-            while time.monotonic() - started < config["max_run_wall_seconds"]:
+            while True:
                 events.check_health()
                 confirmed = exchange.observe(event)
                 channels = validate_channels(event)

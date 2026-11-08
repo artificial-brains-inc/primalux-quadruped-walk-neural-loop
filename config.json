@@ -2,7 +2,6 @@
   "physics_step_ms": 32,
   "output_timeout_seconds": 5.0,
   "ack_timeout_seconds": 30.0,
-  "max_run_wall_seconds": 600.0,
   "recovery": {
     "automatic": true,
     "fall_tilt_rad": 1.05,
