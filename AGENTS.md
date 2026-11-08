@@ -8,9 +8,13 @@ Use the Artificial Brains building guide's source-to-target relationships.
 - The tilt encoder digitizes physical roll/pitch only. Keep leg selection, flexion
   veto, burst lifetime and self-inhibition in the neural graph. The decoder must
   not inspect REFLEX readouts to synthesize support commands.
-- Preserve the High-Gamma T10 reflex and guard/reset return; inhibition strength
-  4 clears its own trigger, ACTIVE readout and knee NEG output. No excitatory
-  self-latch may sustain reflex bursts after physical evidence vanishes.
+- Keep each reflex local: gamma T3 → gamma T3 reset with strength-4 inhibition
+  back to its own trigger. Two high-gamma T3 adapters recruit and clear its
+  bistable outputs because the builder rejects direct gamma output sources.
+  ACTIVE is diagnostic only: no outgoing connections, guard or self-latch.
+  No reflex may target another leg or gait phase. Sensory paths are excitation
+  only; shared evidence may recruit several legs independently. T3 is an initial
+  operating point, not a universal input-to-gamma rule.
 - Support reflex paths stay static. Negative knee rotation extends this bundled
   Spot leg in its configured range; do not assume the same for another model.
 - Tilt snapshots and command snapshots are separate. Recovery suspends tilt

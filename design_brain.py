@@ -1,7 +1,7 @@
 """Reciprocal disinhibition coordinates four explicit leg motor groups.
 
 START, STOP, ACK, reward and four signed tilt neurons enter from outside.
-Local high-gamma reflexes veto knee flexion, extend and terminate themselves.
+Independent gamma reflexes veto local knee flexion, extend and self-inhibit.
 """
 
 from pathlib import Path
@@ -27,6 +27,9 @@ CROSS_INHIBITION = 1.0
 RELEASE_INHIBITION = 1.0
 STOP_INHIBITION = 4.0
 REFLEX_INHIBITION = 4.0
+REFLEX_TNORM = 3.0
+REFLEX_RESET_TNORM = 3.0
+REFLEX_OUTPUT_RELAY_TNORM = 3.0
 GAIT_LEARNING_RULE = "STDP3"
 GAIT_REWARD_TYPE = "LTP"
 
@@ -211,48 +214,38 @@ def create_brain(*, learning=True):
                     motor_population(leg, joint, side), f"{leg}_{joint}_{other}", "inh"
                 )
 
-    # Physical tilt has four one-neuron channels. Resolve supporting legs here,
-    # not in Python: same-direction evidence excites; opposing evidence vetoes.
+    # Each independent reflex receives two one-neuron sensory paths directly.
+    # Shared sensory evidence can recruit several legs; no corner veto is used.
     reflex_nodes = []
     for i, name in enumerate(TILT_INPUTS):
         b.input(name, 1)
         coordinates[name] = (i * 900, 3120)
-        opu(name + "_HG", "high-gamma", 10, i * 900, 3300)
-        b.connect(name, name + "_HG")
-        reflex_nodes.append(name + "_HG")
     for li, leg in enumerate(LEGS):
         x = li * 900
         stem = "REFLEX_" + leg
-        trigger, active, guard = stem + "_HG", stem + "_ACTIVE", stem + "_GUARD_HG"
-        opu(trigger, "high-gamma", 10, x, 3520)
-        output(active, x + 260, 3700)
-        opu(guard, "high-gamma", 10, x, 3880)
-        reflex_nodes.extend((trigger, active, guard))
-        b.connect(trigger, active)
-        b.connect(active, guard)
-        b.connect(trigger, f"{leg}_KNEE_NEG")
-        for source in (trigger, guard):
-            for target in (motor_population(leg, "KNEE", "POS"), f"{leg}_KNEE_POS"):
-                inhibit(source, target, REFLEX_INHIBITION)
+        trigger, reset = stem + "_GAMMA", stem + "_RESET_GAMMA"
+        motor, clear, active = stem + "_MOTOR_HG", stem + "_CLEAR_HG", stem + "_ACTIVE"
+        opu(trigger, "gamma", REFLEX_TNORM, x, 3340)
+        opu(reset, "gamma", REFLEX_RESET_TNORM, x, 3580)
+        # Builder 0.4.11 accepts beta/high-gamma as output sources, including
+        # inhibitory clearing. These two relays only adapt the output boundary.
+        opu(motor, "high-gamma", REFLEX_OUTPUT_RELAY_TNORM, x + 300, 3340)
+        opu(clear, "high-gamma", REFLEX_OUTPUT_RELAY_TNORM, x + 300, 3580)
+        output(active, x + 580, 3340)
+        reflex_nodes.extend((trigger, reset, motor, clear, active))
         for cue in REFLEX_CUES[leg]:
-            b.connect(cue + "_HG", trigger)
-            opposite = cue[:-3] + ("POS" if cue.endswith("NEG") else "NEG")
-            for target in (trigger, active):
-                inhibit(opposite + "_HG", target, REFLEX_INHIBITION)
-        # A neural return path allows a burst before strong self-inhibition.
-        # The guard keeps flexion suppressed while its readout remains active.
-        # No excitatory self-latch: a vanished cue must not sustain new bursts.
-        previous = guard
-        for stage in range(1, 4):
-            reset = f"{stem}_RESET_{stage}_HG"
-            opu(reset, "high-gamma", 10, x, 3880 + stage * 180)
-            b.connect(previous, reset)
-            reflex_nodes.append(reset)
-            previous = reset
-        inhibit(previous, trigger, REFLEX_INHIBITION, feedback=True)
-        inhibit(previous, active, REFLEX_INHIBITION)
-        # Bistable motor output needs an explicit cutoff as well as OPU reset.
-        inhibit(previous, f"{leg}_KNEE_NEG", REFLEX_INHIBITION)
+            b.connect(cue, trigger)
+        b.connect(trigger, motor)
+        b.connect(trigger, reset)
+        b.connect(reset, clear)
+        inhibit(reset, trigger, REFLEX_INHIBITION, feedback=True)
+        inhibit(reset, motor, REFLEX_INHIBITION)
+        b.connect(motor, f"{leg}_KNEE_NEG")
+        b.connect(motor, active)
+        for target in (motor_population(leg, "KNEE", "POS"), f"{leg}_KNEE_POS"):
+            inhibit(motor, target, REFLEX_INHIBITION)
+        for target in (active, f"{leg}_KNEE_NEG"):
+            inhibit(clear, target, REFLEX_INHIBITION)
     for target in reflex_nodes:
         inhibit("REST_NUCLEUS", target, STOP_INHIBITION)
         inhibit("STOP_REQUEST_HG", target, STOP_INHIBITION)

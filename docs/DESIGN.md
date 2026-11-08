@@ -194,9 +194,9 @@ to select a phase or move a joint. Only the 24 local motor outputs actuate the b
 Readouts have explicit clearing connections but remain bistable populations;
 they are not a complete view of the OPUs. Compare them with population telemetry.
 
-The saved graph contains 70 OPUs, 40 one-neuron outputs and eight one-neuron inputs:
-118 populations and 435 connections. Construction reports 578 total neurons and
-563,136 bytes (about 0.54 MiB) of matrix storage. Other image data also uses the
+The saved graph contains 62 OPUs, 40 one-neuron outputs and eight one-neuron inputs:
+110 populations and 391 connections. Construction reports 598 total neurons and
+568,736 bytes (about 0.54 MiB) of matrix storage. Other image data also uses the
 32 MiB budget. The device Build remains authoritative.
 
 ACK remains input → High-Gamma T10 → output → separate High-Gamma T10 reset,
@@ -209,7 +209,10 @@ public feedback role targets OPUs. No dummy external input is added.
 
 ## Local support reflexes
 
-The four reflex circuits and four sensory relays add 36 neurons. Their source-to-target
-roles, strong inhibitory return, leg mapping and limits are explained in [REFLEX.md](REFLEX.md).
+Four tilt input neurons and four independent local reflex circuits add 56 neurons.
+Each circuit contains a gamma T3 reflex/reset pair and two high-gamma T3 output
+adapters, all three neurons wide, plus one diagnostic ACTIVE output. ACTIVE
+has no outgoing connections. No reflex targets another leg or phase.
+The source relationships, initial TNorm choice and limits are in [REFLEX.md](REFLEX.md).
 All pre-existing gait connections, their TNorms and the 66 STDP3 paths are preserved.
 The saved graph changes, so build this design before running its adapter.

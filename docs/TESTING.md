@@ -55,8 +55,11 @@ Check S while a reflex is active; REST must silence it along with the gait.
 
 The telemetry window shows actual neuron activity. Inspect `GAIT_REWARD_RELAY`
 and `GAIT_REWARD` to verify dopamine firing; the accepted reward event log alone
-does not establish this. Inspect reflex trigger, guard and final reset neurons
-to separate input delivery, recruitment and cutoff failures.
+does not establish this. Inspect the gamma reflex/reset pair and the MOTOR_HG
+and CLEAR_HG adapters to separate input delivery, recruitment and cutoff failures.
+ACTIVE is diagnostic only. Check simultaneous local responses: forward-left
+evidence can recruit front-left, front-right and rear-left without any corner
+veto. Do not expect a fixed burst length or infer saturation from ACTIVE alone.
 
 Compare `reflex.enabled=true` with `false` in separate runs using otherwise
 matched configuration and initial neural/body conditions. Record recovery count,

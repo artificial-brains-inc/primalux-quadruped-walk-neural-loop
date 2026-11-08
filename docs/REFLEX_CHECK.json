@@ -1,122 +1,168 @@
 {
-  "scope": "Isolated static high-gamma reflex circuit using native ARM neuron-update source, dense homogeneous populations and explicit initial conditions. This is not a full gait, FPGA or Webots test.",
-  "result": "All eight tilt directions recruited the expected knee extensor readouts; bursts cleared and could retrigger from sustained sensory evidence. Single cues ended, flexion was vetoed during extension, and REST suppressed the circuit.",
-  "case_count": 6,
-  "direction_checks": 48,
+  "scope": "Isolated local gamma reflex/reset pair and high-gamma motor/clear adapters using native ARM cell updates. Explicit sparse-connectivity, initial-phase and coupling assumptions; not the device compiler or an FPGA-equivalence test.",
+  "design_sha256": "4b399ba6285714e390457c462af661aae328762bc14d857c005ef21524bc3a6a",
+  "operating_points": {
+    "reflex_gamma_tnorm": 3,
+    "reset_gamma_tnorm": 3,
+    "output_adapters_high_gamma_tnorm": 3,
+    "inhibitory_strength": 4,
+    "external_neurons_per_cue": 1,
+    "cues_per_reflex": 2,
+    "constructed_neurons_per_opu": 3
+  },
+  "result": "All twelve cases responded to one- and two-cue stimulation and returned to silence after stimulation ended. Readout bursts ranged from two to seven modeled steps. These checks do not identify an optimal TNorm.",
+  "case_count": 12,
+  "schedule": "1200 steps per case: one cue at steps 50\u2013349, no cue at 350\u2013549, two cues at 550\u2013849, no cue at 850\u20131199. Stimuli sampled every 1 or 3 steps. Baseline checked before 50; late silence checked from 1000.",
+  "variation": "Six explicit initialization/coupling/membrane-floor combinations, each with two input sampling intervals.",
   "cases": [
     {
       "case": 1,
-      "directions_checked": [
-        "left",
-        "right",
-        "front",
-        "rear",
-        "front_left",
-        "front_right",
-        "rear_left",
-        "rear_right"
+      "input_spacing_steps": 1,
+      "one_cue_bursts": 11,
+      "two_cue_bursts": 12,
+      "burst_lengths_steps": [
+        2,
+        3
       ],
-      "burst_length_steps": [
-        5
-      ],
-      "rest_cleared": true,
-      "single_cue_terminated": true
+      "late_activity_steps": 0,
+      "baseline_activity_steps": 0
     },
     {
       "case": 2,
-      "directions_checked": [
-        "left",
-        "right",
-        "front",
-        "rear",
-        "front_left",
-        "front_right",
-        "rear_left",
-        "rear_right"
+      "input_spacing_steps": 3,
+      "one_cue_bursts": 10,
+      "two_cue_bursts": 10,
+      "burst_lengths_steps": [
+        2
       ],
-      "burst_length_steps": [
-        5
-      ],
-      "rest_cleared": true,
-      "single_cue_terminated": true
+      "late_activity_steps": 0,
+      "baseline_activity_steps": 0
     },
     {
       "case": 3,
-      "directions_checked": [
-        "left",
-        "right",
-        "front",
-        "rear",
-        "front_left",
-        "front_right",
-        "rear_left",
-        "rear_right"
+      "input_spacing_steps": 1,
+      "one_cue_bursts": 11,
+      "two_cue_bursts": 12,
+      "burst_lengths_steps": [
+        2,
+        3
       ],
-      "burst_length_steps": [
-        5
-      ],
-      "rest_cleared": true,
-      "single_cue_terminated": true
+      "late_activity_steps": 0,
+      "baseline_activity_steps": 0
     },
     {
       "case": 4,
-      "directions_checked": [
-        "left",
-        "right",
-        "front",
-        "rear",
-        "front_left",
-        "front_right",
-        "rear_left",
-        "rear_right"
+      "input_spacing_steps": 3,
+      "one_cue_bursts": 10,
+      "two_cue_bursts": 10,
+      "burst_lengths_steps": [
+        2
       ],
-      "burst_length_steps": [
-        5
-      ],
-      "rest_cleared": true,
-      "single_cue_terminated": true
+      "late_activity_steps": 0,
+      "baseline_activity_steps": 0
     },
     {
       "case": 5,
-      "directions_checked": [
-        "left",
-        "right",
-        "front",
-        "rear",
-        "front_left",
-        "front_right",
-        "rear_left",
-        "rear_right"
-      ],
-      "burst_length_steps": [
+      "input_spacing_steps": 1,
+      "one_cue_bursts": 11,
+      "two_cue_bursts": 13,
+      "burst_lengths_steps": [
+        2,
+        3,
         5
       ],
-      "rest_cleared": true,
-      "single_cue_terminated": true
+      "late_activity_steps": 0,
+      "baseline_activity_steps": 0
     },
     {
       "case": 6,
-      "directions_checked": [
-        "left",
-        "right",
-        "front",
-        "rear",
-        "front_left",
-        "front_right",
-        "rear_left",
-        "rear_right"
+      "input_spacing_steps": 3,
+      "one_cue_bursts": 10,
+      "two_cue_bursts": 10,
+      "burst_lengths_steps": [
+        2
       ],
-      "burst_length_steps": [
+      "late_activity_steps": 0,
+      "baseline_activity_steps": 0
+    },
+    {
+      "case": 7,
+      "input_spacing_steps": 1,
+      "one_cue_bursts": 11,
+      "two_cue_bursts": 12,
+      "burst_lengths_steps": [
+        2,
+        3
+      ],
+      "late_activity_steps": 0,
+      "baseline_activity_steps": 0
+    },
+    {
+      "case": 8,
+      "input_spacing_steps": 3,
+      "one_cue_bursts": 10,
+      "two_cue_bursts": 10,
+      "burst_lengths_steps": [
+        2,
         5
       ],
-      "rest_cleared": true,
-      "single_cue_terminated": true
+      "late_activity_steps": 0,
+      "baseline_activity_steps": 0
+    },
+    {
+      "case": 9,
+      "input_spacing_steps": 1,
+      "one_cue_bursts": 11,
+      "two_cue_bursts": 12,
+      "burst_lengths_steps": [
+        2,
+        3
+      ],
+      "late_activity_steps": 0,
+      "baseline_activity_steps": 0
+    },
+    {
+      "case": 10,
+      "input_spacing_steps": 3,
+      "one_cue_bursts": 10,
+      "two_cue_bursts": 10,
+      "burst_lengths_steps": [
+        2
+      ],
+      "late_activity_steps": 0,
+      "baseline_activity_steps": 0
+    },
+    {
+      "case": 11,
+      "input_spacing_steps": 1,
+      "one_cue_bursts": 10,
+      "two_cue_bursts": 12,
+      "burst_lengths_steps": [
+        2,
+        3,
+        7
+      ],
+      "late_activity_steps": 0,
+      "baseline_activity_steps": 0
+    },
+    {
+      "case": 12,
+      "input_spacing_steps": 3,
+      "one_cue_bursts": 10,
+      "two_cue_bursts": 10,
+      "burst_lengths_steps": [
+        2,
+        3,
+        7
+      ],
+      "late_activity_steps": 0,
+      "baseline_activity_steps": 0
     }
   ],
   "limitations": [
-    "Gait pathways and STDP3 are excluded. A synthetic flexion stimulus tests opposition; learned gait inhibition could still defeat or alter the reflex on hardware.",
-    "The harness uses shared homogeneous state within dense populations, actual population widths and native cell updates. It is not a compiled image or FPGA transport timing test.",
-    "No ground contact, mechanical load or robot physics was simulated. Five-frame bursts in these cases do not guarantee balance or a completed servo stroke.",
-    "Internal readouts are bistable states, not spike telemetry or proof of dopaminergic firing."
+    "One local circuit, with the same reflex/reset/output relationships as each shipped leg. Gait pathways, flexion competition, REST/STOP dynamics and STDP3 are excluded from this sensitivity harness; public graph and mocked runtime tests cover the separate structural and command contracts.",
+    "Connectivity and phase evolution are explicit local assumptions. A compiled device image can behave differently. Native cell updates alone do not establish complete runtime equivalence.",
+    "No Webots physics, ground contact, mechanical load, transport latency or servo completion was simulated.",
+    "Bistable output readouts are not internal neuron telemetry. No live saturation, dopamine firing or learning effect is established."
   ]
 }

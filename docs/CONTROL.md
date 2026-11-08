@@ -109,8 +109,9 @@ unchanged tilt is not mistaken for a held input. Repeated all-zero frames are
 omitted. This is sensory quantization, not a controller-side choice of leg or
 support action. Gyro readings remain logged but are not new inputs.
 
-The brain combines these signs, vetoes the opposing side, inhibits local knee
-flexion, excites extension and clears its own burst. The existing motor decoder
+Each local reflex receives compatible signs, inhibits its own knee flexion,
+excites its own extension and clears its own burst. No reflex inhibits another
+leg; shared sensory evidence can recruit several independent reflexes. The existing motor decoder
 is unchanged. It does not consume `REFLEX_*_ACTIVE` diagnostics. REST and pending
 STOP inhibit the reflex neurally. Only explicit simulator recovery, `rhythm`
 mode or `reflex.enabled=false` suspend tilt publication.

@@ -4,7 +4,7 @@ A developer teaching example for Prima-Lux and Webots. One walking nucleus drive
 two neural phase pathways. Each phase inhibits the other; its downstream RELEASE
 inhibits its own inhibitor, making room for the opposite phase. STDP3 modulates
 those inhibitory paths using one reward signal from actual body movement. Four local
-high-gamma reflexes respond to body tilt, veto knee flexion, extend the supporting
+gamma reflexes respond to body tilt, veto knee flexion, extend the supporting
 leg and terminate through their own inhibitory return paths.
 
 **A and B are phases; the robot has four leg motor cortices.** Each leg has three
@@ -58,7 +58,7 @@ It does not depend on Webots sample directories or download model assets at Run.
 ## Clone and install
 
 ```bash
-git clone "$HOME/Downloads/primalux-spot-learning-reflex.bundle" primalux-spot-learning
+git clone "$HOME/Downloads/primalux-spot-learning-local-reflex.bundle" primalux-spot-learning
 cd primalux-spot-learning
 bash install.sh
 source .venv/bin/activate
@@ -97,8 +97,10 @@ Inspect an inhibitory connection's learning settings: **STDP3**, reward populati
 **GAIT_REWARD**, reward type **LTP**. Trace the separate reward input through its
 High-Gamma relay to that dopaminergic population. START, STOP, ACK and the support reflexes stay static.
 
-Below the motor columns, follow TILT_ROLL/PITCH → REFLEX → ACTIVE → GUARD
-→ RESET, including the inhibitory return. See [support reflexes](docs/REFLEX.md).
+Below the motor columns, follow TILT_ROLL/PITCH → REFLEX_GAMMA, its local
+RESET_GAMMA inhibitory return, and the MOTOR_HG/CLEAR_HG output adapters.
+ACTIVE is a readout with no outgoing connections. No reflex targets another
+leg. See [support reflexes](docs/REFLEX.md).
 
 Close the Designer with Ctrl+C before continuing in that terminal. If editing on
 the Canvas, save/download and replace `brain.abdesign.json` before Build. Install
@@ -114,8 +116,8 @@ ab build brain --brain brain.abdesign.json --env .env
 **Wait for READY. The reflex graph requires a new Build.** An older installed
 brain will fail the package's design-identity check.
 
-The saved graph has 578 total neurons, including eight external input neurons,
-118 populations, 435 connections and approximately 0.54 MiB of connection matrices.
+The saved graph has 598 total neurons, including eight external input neurons,
+110 populations, 391 connections and approximately 0.54 MiB of connection matrices.
 Of those connections, 66 inhibitory paths use STDP3. These are connections, not
 66 extra OPUs. [Aggregate resource check](docs/RESOURCE_CHECK.json).
 The device Build remains authoritative. This is a new design: do not assume
@@ -145,12 +147,15 @@ learned self-righting. Set `recovery.automatic` to `false` in `config.json` for
 unassisted trials; R still works. [Recovery details](docs/RECOVERY.md).
 
 The support reflex begins from roll or pitch beyond **0.15 rad (about 8.6°)**.
-Pure sideways tilt recruits the two legs on that side; combined forward/sideways
-tilt recruits the corresponding corner. These relationships are wired in the
-brain. Each reflex uses High-Gamma T10 and static inhibition strength 4; its reset
-also clears the knee extension output. It does not increase motor speed or torque.
-The isolated check produced five-frame bursts, but actual gait interaction and
-balance still need the live test. Set `reflex.enabled` to `false` in `config.json`
+Each reflex receives two one-neuron sensory paths directly. Shared evidence
+can recruit several legs: forward-left tilt supplies two cues to front-left,
+one to front-right and one to rear-left. There are no corner vetoes.
+Each local gamma/reset pair uses T3 as a lower starting point, with static
+inhibition strength 4. Two high-gamma T3 adapters recruit and clear its bistable
+outputs as required by the builder; ACTIVE has no feedback role. The isolated
+check shows bounded readouts under explicit assumptions, not proven balance
+or a guaranteed burst duration. [Reflex construction and checks](docs/REFLEX.md).
+Set `reflex.enabled` to `false` in `config.json`
 to compare without tilt evidence; that setting applies on the next Run.
 
 The arena is 30 × 30 metres with a **1 metre grid**, heavier lines every 5 metres,

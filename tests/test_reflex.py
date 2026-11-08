@@ -116,45 +116,84 @@ class ReflexGraphTests(unittest.TestCase):
         cls.nodes = {n["name"]: n for n in d["nodes"]}
         cls.edges = {(e["from"], e["to"]): e for e in d["connections"]}
 
-    def test_fast_static_reflex_has_directional_veto_and_explicit_self_cutoff(self):
+    def test_local_gamma_pair_has_explicit_motor_and_output_cutoff(self):
         for leg in LEGS:
             stem = "REFLEX_" + leg
-            trigger, active, guard = stem + "_HG", stem + "_ACTIVE", stem + "_GUARD_HG"
+            trigger, reset = stem + "_GAMMA", stem + "_RESET_GAMMA"
+            motor, clear, active = (
+                stem + "_MOTOR_HG",
+                stem + "_CLEAR_HG",
+                stem + "_ACTIVE",
+            )
             for cue in REFLEX_CUES[leg]:
-                self.assertEqual(self.edges[(cue + "_HG", trigger)]["type"], "exc")
-                opposite = cue[:-3] + ("POS" if cue.endswith("NEG") else "NEG")
-                for target in (trigger, active):
-                    self.assertEqual(
-                        self.edges[(opposite + "_HG", target)]["type"], "inh"
-                    )
-            previous = guard
-            for stage in range(1, 4):
-                reset = f"{stem}_RESET_{stage}_HG"
-                self.assertEqual(self.edges[(previous, reset)]["type"], "exc")
-                previous = reset
-            for target in (trigger, active, f"{leg}_KNEE_NEG"):
-                edge = self.edges[(previous, target)]
+                self.assertEqual(self.edges[(cue, trigger)]["type"], "exc")
+            for source, target in (
+                (trigger, motor),
+                (trigger, reset),
+                (reset, clear),
+                (motor, active),
+                (motor, f"{leg}_KNEE_NEG"),
+            ):
+                self.assertEqual(self.edges[(source, target)]["type"], "exc")
+            for source, target in (
+                (reset, trigger),
+                (reset, motor),
+                (clear, active),
+                (clear, f"{leg}_KNEE_NEG"),
+                (motor, motor_population(leg, "KNEE", "POS")),
+                (motor, f"{leg}_KNEE_POS"),
+            ):
+                edge = self.edges[(source, target)]
                 self.assertEqual(edge["type"], "inh")
+                self.assertEqual(edge["strength"], 4)
                 self.assertEqual(
                     edge.get("role"), "feedback" if target == trigger else None
                 )
-            for source in (trigger, guard):
-                for target in (motor_population(leg, "KNEE", "POS"), f"{leg}_KNEE_POS"):
-                    self.assertEqual(self.edges[(source, target)]["strength"], 4)
-            self.assertEqual(self.edges[(trigger, f"{leg}_KNEE_NEG")]["type"], "exc")
-        for name, node in self.nodes.items():
-            if name.startswith("REFLEX_"):
-                if node["kind"] == "opu":
-                    self.assertEqual(
-                        (node["rhythm"], node["tnorm"]), ("high-gamma", 10)
-                    )
+            for name, rhythm in (
+                (trigger, "gamma"),
+                (reset, "gamma"),
+                (motor, "high-gamma"),
+                (clear, "high-gamma"),
+            ):
+                node = self.nodes[name]
+                self.assertEqual((node["rhythm"], node["tnorm"]), (rhythm, 3))
+            for name in (trigger, reset, motor, clear, active):
                 for source in ("REST_NUCLEUS", "STOP_REQUEST_HG"):
                     self.assertEqual(self.edges[(source, name)]["strength"], 4)
         for (source, target), edge in self.edges.items():
             if source.startswith(("REFLEX_", "TILT_")) or target.startswith("REFLEX_"):
                 self.assertNotIn("rule", edge)
-            if source in REFLEX_OUTPUTS:
-                self.assertNotEqual(target, source.replace("_ACTIVE", "_HG"))
+        self.assertFalse(any("GUARD" in n or "RESET_1" in n for n in self.nodes))
+        self.assertFalse(any(s in REFLEX_OUTPUTS for s, _ in self.edges))
+
+    def test_reflex_never_targets_another_leg_or_a_phase(self):
+        for leg in LEGS:
+            stem = "REFLEX_" + leg + "_"
+            allowed = {
+                f"{leg}_KNEE_POS",
+                f"{leg}_KNEE_NEG",
+                motor_population(leg, "KNEE", "POS"),
+            }
+            for (source, target), edge in self.edges.items():
+                if source.startswith(stem):
+                    self.assertTrue(
+                        target.startswith(stem) or target in allowed, (source, target)
+                    )
+                if target.startswith(stem) and source in TILT_INPUTS:
+                    self.assertIn(source, REFLEX_CUES[leg])
+                    self.assertEqual(edge["type"], "exc")
+        for (source, target), edge in self.edges.items():
+            if source in TILT_INPUTS:
+                self.assertEqual(edge["type"], "exc")
+        # Shared left/front evidence remains available to independent legs.
+        for source, expected in (
+            ("TILT_ROLL_NEG", {"FL", "RL"}),
+            ("TILT_PITCH_POS", {"FL", "FR"}),
+        ):
+            self.assertEqual(
+                {t for s, t in self.edges if s == source},
+                {f"REFLEX_{leg}_GAMMA" for leg in expected},
+            )
 
     def test_enu_axis_signs_lower_the_supported_body_side(self):
         self.assertIn(

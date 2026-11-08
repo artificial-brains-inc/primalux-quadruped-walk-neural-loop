@@ -21,6 +21,7 @@ goal, phase interaction and local actuator expression.
 | Tilt toward a leg recruits its fast support reflex | Add physical evidence to the motor goal |
 | The reflex inhibits local flexion and excites knee extension | Give support priority at the physical antagonist |
 | Its downstream reset inhibits its own trigger and clears both readouts | End the burst and permit later evidence to recruit it again |
+| Each reflex leaves other legs and gait phases untouched | Allow several local support goals to coexist |
 | REST clears phase, local motor and reflex states | Make STOP apply throughout the recurrent network |
 
 When adding a goal, identify what recruits it, what maintains it, what inhibits it,

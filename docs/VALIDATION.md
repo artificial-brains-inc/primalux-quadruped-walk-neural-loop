@@ -1,11 +1,11 @@
 # Validation performed
 
-- **81 local tests passed** using Python 3.12 and SDK 0.4.2.
+- **82 local tests passed** using Python 3.12 and SDK 0.4.2.
 - A fresh `bash install.sh` installed SDK 0.4.2 from PyPI and its dependencies;
   `pip check` reported no broken requirements. Webots was not installed.
 - The public saved graph passes construction with the compatible 0.4.11 builder:
-  578 total neurons, eight external input neurons, 118 populations, 435 connections
-  and 563,136 bytes of connection matrices. Only aggregate feedback is included;
+  598 total neurons, eight external input neurons, 110 populations, 391 connections
+  and 568,736 bytes of connection matrices. Only aggregate feedback is included;
   no private construction code or compiled neural image is distributed.
 - The original command circuit's REST lock was reproduced in an isolated local
   check using the native ARM neuron-update source with one-step input events.
@@ -57,15 +57,18 @@
   rendered in Webots here. World SHA-256:
   `d69785d541d8ee92f28bc20b2c79c008751d727d166e26be6ddc25c0d49d9373`.
 - All 86 existing populations and 299 existing connections are preserved exactly.
-  Four tilt input neurons and their static high-gamma reflex circuits are added;
-  the saved graph and I/O contract change, so **Build is required**.
-- An isolated check of the reflex portion of the saved graph used native ARM
-  neuron-update source and dense homogeneous populations. Eight directional cases
-  across six initialization cases passed (48 direction checks). Sustained tilt
-  produced bounded five-frame knee extension readouts, flexion was suppressed,
-  single cues ended, and REST inhibited the circuit. Rhythmic gait populations,
-  learning, foot contact and body physics were excluded. See the aggregate
-  [REFLEX_CHECK.json](REFLEX_CHECK.json); no private simulation code is shipped.
+  Four tilt input neurons and their independent static gamma reflex circuits are
+  added. Each gamma/reset pair has two high-gamma T3 output adapters, required
+  by the builder. ACTIVE has no outgoing paths, sensory paths have no inhibitory
+  edges, and reflex targets cannot cross into another leg or phase. **Build is required**.
+- An isolated gamma reflex check used native ARM cell updates with explicit
+  phase initialization, sparse connectivity and coupling assumptions. Twelve
+  cases varied initialization, coupling, membrane floor and input sample spacing.
+  One- and two-cue stimulation produced bounded extension readouts; no activity
+  appeared before stimulation or late after it ended. Observed bursts ranged
+  from two to seven modeled steps. This excludes gait competition, STDP3,
+  foot contact, body physics and device transport. It is not a compiled-image
+  equivalence test or an optimized TNorm claim. See [REFLEX_CHECK.json](REFLEX_CHECK.json).
 - Tests verify signed IMU encoding, atomic SDK publication, rejection handling,
   post-step evidence, unchanged motor decoding, and Stop/save after publication
   failure. Model geometry and ENU coordinate checks verify the knee extension
@@ -74,10 +77,18 @@
 
 These checks establish construction compatibility and adapter behavior. They do
 not establish full-gait neural alternation, useful stepping, weight changes or
-improvement due to STDP3. No live Prima-Lux or Webots run was available here.
+improvement due to STDP3. This revision has not been run on Prima-Lux/Webots here.
 Gait inhibition strength 1, reflex inhibition strength 4, tilt deadband and reward
 thresholds are initial settings for the live trial.
 The device Build and the controlled trials in TESTING.md are still required.
+
+The supplied physical trace describes the preceding reflex graph: 42 assisted
+recoveries in about 323 wall seconds, with reflex ACTIVE readouts present but
+not consistently accompanied by knee extension outputs. Its tilt publications
+took about 78 ms at the median and 84 ms at the 95th percentile; the output queue
+reached 92 frames. These observations motivate checking both local recruitment
+and feedback latency. They do not establish saturation, dopamine firing, or the
+performance of this revised graph.
 
 ```bash
 python -m unittest discover -s tests -v
