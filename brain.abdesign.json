@@ -1,0 +1,2371 @@
+{
+  "schema": "artificial-brains/design/v1",
+  "name": "Spot - Learning Inhibitory Coordination",
+  "nodes": [
+    {
+      "name": "WALK_START",
+      "kind": "input",
+      "x": 0.0,
+      "y": 0.0,
+      "neurons": 1
+    },
+    {
+      "name": "WALK_START_HG",
+      "kind": "opu",
+      "x": 220.0,
+      "y": 0.0,
+      "rhythm": "high-gamma",
+      "tnorm": 10.0
+    },
+    {
+      "name": "WALK_STOP",
+      "kind": "input",
+      "x": 0.0,
+      "y": 180.0,
+      "neurons": 1
+    },
+    {
+      "name": "WALK_STOP_HG",
+      "kind": "opu",
+      "x": 220.0,
+      "y": 180.0,
+      "rhythm": "high-gamma",
+      "tnorm": 10.0
+    },
+    {
+      "name": "TRANSPORT_ACK",
+      "kind": "input",
+      "x": 0.0,
+      "y": 360.0,
+      "neurons": 1
+    },
+    {
+      "name": "TRANSPORT_ACK_HG",
+      "kind": "opu",
+      "x": 220.0,
+      "y": 360.0,
+      "rhythm": "high-gamma",
+      "tnorm": 10.0
+    },
+    {
+      "name": "GAIT_REWARD_IN",
+      "kind": "input",
+      "x": 1800.0,
+      "y": 0.0,
+      "neurons": 1
+    },
+    {
+      "name": "GAIT_REWARD_RELAY",
+      "kind": "opu",
+      "x": 2100.0,
+      "y": 0.0,
+      "rhythm": "high-gamma",
+      "tnorm": 10.0
+    },
+    {
+      "name": "GAIT_REWARD",
+      "kind": "opu",
+      "x": 2400.0,
+      "y": 0.0,
+      "rhythm": "dopaminergic",
+      "tnorm": 3.0
+    },
+    {
+      "name": "WALK_ENABLED",
+      "kind": "output",
+      "x": 500.0,
+      "y": 0.0,
+      "neurons": 1
+    },
+    {
+      "name": "REST_ACTIVE",
+      "kind": "output",
+      "x": 500.0,
+      "y": 180.0,
+      "neurons": 1
+    },
+    {
+      "name": "WALK_NUCLEUS",
+      "kind": "opu",
+      "x": 780.0,
+      "y": 0.0,
+      "rhythm": "high-gamma",
+      "tnorm": 10.0
+    },
+    {
+      "name": "REST_NUCLEUS",
+      "kind": "opu",
+      "x": 780.0,
+      "y": 180.0,
+      "rhythm": "high-gamma",
+      "tnorm": 10.0
+    },
+    {
+      "name": "WALK_DRIVE",
+      "kind": "opu",
+      "x": 1080.0,
+      "y": 0.0,
+      "rhythm": "theta",
+      "tnorm": 2.01
+    },
+    {
+      "name": "START_A_BIAS",
+      "kind": "output",
+      "x": 500.0,
+      "y": 540.0,
+      "neurons": 1
+    },
+    {
+      "name": "START_A_BIAS_HG",
+      "kind": "opu",
+      "x": 780.0,
+      "y": 540.0,
+      "rhythm": "high-gamma",
+      "tnorm": 10.0
+    },
+    {
+      "name": "PHASE_A_T1",
+      "kind": "opu",
+      "x": 0.0,
+      "y": 780.0,
+      "rhythm": "theta",
+      "tnorm": 3.0
+    },
+    {
+      "name": "PHASE_A_T2",
+      "kind": "opu",
+      "x": 300.0,
+      "y": 780.0,
+      "rhythm": "theta",
+      "tnorm": 2.01
+    },
+    {
+      "name": "PHASE_A_BETA",
+      "kind": "opu",
+      "x": 620.0,
+      "y": 780.0,
+      "rhythm": "beta",
+      "tnorm": 5.0
+    },
+    {
+      "name": "PHASE_A_INHIBITOR",
+      "kind": "opu",
+      "x": 620.0,
+      "y": 960.0,
+      "rhythm": "beta",
+      "tnorm": 5.0
+    },
+    {
+      "name": "PHASE_A_RELEASE",
+      "kind": "opu",
+      "x": 960.0,
+      "y": 780.0,
+      "rhythm": "beta",
+      "tnorm": 3.0
+    },
+    {
+      "name": "PHASE_A_OUT",
+      "kind": "output",
+      "x": 1320.0,
+      "y": 780.0,
+      "neurons": 1
+    },
+    {
+      "name": "PHASE_A_INHIBITOR_OUT",
+      "kind": "output",
+      "x": 960.0,
+      "y": 960.0,
+      "neurons": 1
+    },
+    {
+      "name": "PHASE_A_RELEASE_OUT",
+      "kind": "output",
+      "x": 1320.0,
+      "y": 960.0,
+      "neurons": 1
+    },
+    {
+      "name": "PHASE_B_T1",
+      "kind": "opu",
+      "x": 0.0,
+      "y": 1200.0,
+      "rhythm": "theta",
+      "tnorm": 3.0
+    },
+    {
+      "name": "PHASE_B_T2",
+      "kind": "opu",
+      "x": 300.0,
+      "y": 1200.0,
+      "rhythm": "theta",
+      "tnorm": 2.01
+    },
+    {
+      "name": "PHASE_B_BETA",
+      "kind": "opu",
+      "x": 620.0,
+      "y": 1200.0,
+      "rhythm": "beta",
+      "tnorm": 5.0
+    },
+    {
+      "name": "PHASE_B_INHIBITOR",
+      "kind": "opu",
+      "x": 620.0,
+      "y": 1380.0,
+      "rhythm": "beta",
+      "tnorm": 5.0
+    },
+    {
+      "name": "PHASE_B_RELEASE",
+      "kind": "opu",
+      "x": 960.0,
+      "y": 1200.0,
+      "rhythm": "beta",
+      "tnorm": 3.0
+    },
+    {
+      "name": "PHASE_B_OUT",
+      "kind": "output",
+      "x": 1320.0,
+      "y": 1200.0,
+      "neurons": 1
+    },
+    {
+      "name": "PHASE_B_INHIBITOR_OUT",
+      "kind": "output",
+      "x": 960.0,
+      "y": 1380.0,
+      "neurons": 1
+    },
+    {
+      "name": "PHASE_B_RELEASE_OUT",
+      "kind": "output",
+      "x": 1320.0,
+      "y": 1380.0,
+      "neurons": 1
+    },
+    {
+      "name": "FRONT_LEFT_ABD_POS_BETA",
+      "kind": "opu",
+      "x": 0.0,
+      "y": 1760.0,
+      "rhythm": "beta",
+      "tnorm": 5.0
+    },
+    {
+      "name": "FL_ABD_POS",
+      "kind": "output",
+      "x": 500.0,
+      "y": 1760.0,
+      "neurons": 1
+    },
+    {
+      "name": "FRONT_LEFT_ABD_NEG_BETA",
+      "kind": "opu",
+      "x": 0.0,
+      "y": 1930.0,
+      "rhythm": "beta",
+      "tnorm": 5.0
+    },
+    {
+      "name": "FL_ABD_NEG",
+      "kind": "output",
+      "x": 500.0,
+      "y": 1930.0,
+      "neurons": 1
+    },
+    {
+      "name": "FRONT_LEFT_HIP_POS_BETA",
+      "kind": "opu",
+      "x": 0.0,
+      "y": 2140.0,
+      "rhythm": "beta",
+      "tnorm": 5.0
+    },
+    {
+      "name": "FL_HIP_POS",
+      "kind": "output",
+      "x": 500.0,
+      "y": 2140.0,
+      "neurons": 1
+    },
+    {
+      "name": "FRONT_LEFT_HIP_NEG_BETA",
+      "kind": "opu",
+      "x": 0.0,
+      "y": 2310.0,
+      "rhythm": "beta",
+      "tnorm": 5.0
+    },
+    {
+      "name": "FL_HIP_NEG",
+      "kind": "output",
+      "x": 500.0,
+      "y": 2310.0,
+      "neurons": 1
+    },
+    {
+      "name": "FRONT_LEFT_KNEE_POS_BETA",
+      "kind": "opu",
+      "x": 0.0,
+      "y": 2520.0,
+      "rhythm": "beta",
+      "tnorm": 5.0
+    },
+    {
+      "name": "FL_KNEE_POS",
+      "kind": "output",
+      "x": 500.0,
+      "y": 2520.0,
+      "neurons": 1
+    },
+    {
+      "name": "FRONT_LEFT_KNEE_NEG_BETA",
+      "kind": "opu",
+      "x": 0.0,
+      "y": 2690.0,
+      "rhythm": "beta",
+      "tnorm": 5.0
+    },
+    {
+      "name": "FL_KNEE_NEG",
+      "kind": "output",
+      "x": 500.0,
+      "y": 2690.0,
+      "neurons": 1
+    },
+    {
+      "name": "FRONT_RIGHT_ABD_POS_BETA",
+      "kind": "opu",
+      "x": 900.0,
+      "y": 1760.0,
+      "rhythm": "beta",
+      "tnorm": 5.0
+    },
+    {
+      "name": "FR_ABD_POS",
+      "kind": "output",
+      "x": 1400.0,
+      "y": 1760.0,
+      "neurons": 1
+    },
+    {
+      "name": "FRONT_RIGHT_ABD_NEG_BETA",
+      "kind": "opu",
+      "x": 900.0,
+      "y": 1930.0,
+      "rhythm": "beta",
+      "tnorm": 5.0
+    },
+    {
+      "name": "FR_ABD_NEG",
+      "kind": "output",
+      "x": 1400.0,
+      "y": 1930.0,
+      "neurons": 1
+    },
+    {
+      "name": "FRONT_RIGHT_HIP_POS_BETA",
+      "kind": "opu",
+      "x": 900.0,
+      "y": 2140.0,
+      "rhythm": "beta",
+      "tnorm": 5.0
+    },
+    {
+      "name": "FR_HIP_POS",
+      "kind": "output",
+      "x": 1400.0,
+      "y": 2140.0,
+      "neurons": 1
+    },
+    {
+      "name": "FRONT_RIGHT_HIP_NEG_BETA",
+      "kind": "opu",
+      "x": 900.0,
+      "y": 2310.0,
+      "rhythm": "beta",
+      "tnorm": 5.0
+    },
+    {
+      "name": "FR_HIP_NEG",
+      "kind": "output",
+      "x": 1400.0,
+      "y": 2310.0,
+      "neurons": 1
+    },
+    {
+      "name": "FRONT_RIGHT_KNEE_POS_BETA",
+      "kind": "opu",
+      "x": 900.0,
+      "y": 2520.0,
+      "rhythm": "beta",
+      "tnorm": 5.0
+    },
+    {
+      "name": "FR_KNEE_POS",
+      "kind": "output",
+      "x": 1400.0,
+      "y": 2520.0,
+      "neurons": 1
+    },
+    {
+      "name": "FRONT_RIGHT_KNEE_NEG_BETA",
+      "kind": "opu",
+      "x": 900.0,
+      "y": 2690.0,
+      "rhythm": "beta",
+      "tnorm": 5.0
+    },
+    {
+      "name": "FR_KNEE_NEG",
+      "kind": "output",
+      "x": 1400.0,
+      "y": 2690.0,
+      "neurons": 1
+    },
+    {
+      "name": "REAR_LEFT_ABD_POS_BETA",
+      "kind": "opu",
+      "x": 1800.0,
+      "y": 1760.0,
+      "rhythm": "beta",
+      "tnorm": 5.0
+    },
+    {
+      "name": "RL_ABD_POS",
+      "kind": "output",
+      "x": 2300.0,
+      "y": 1760.0,
+      "neurons": 1
+    },
+    {
+      "name": "REAR_LEFT_ABD_NEG_BETA",
+      "kind": "opu",
+      "x": 1800.0,
+      "y": 1930.0,
+      "rhythm": "beta",
+      "tnorm": 5.0
+    },
+    {
+      "name": "RL_ABD_NEG",
+      "kind": "output",
+      "x": 2300.0,
+      "y": 1930.0,
+      "neurons": 1
+    },
+    {
+      "name": "REAR_LEFT_HIP_POS_BETA",
+      "kind": "opu",
+      "x": 1800.0,
+      "y": 2140.0,
+      "rhythm": "beta",
+      "tnorm": 5.0
+    },
+    {
+      "name": "RL_HIP_POS",
+      "kind": "output",
+      "x": 2300.0,
+      "y": 2140.0,
+      "neurons": 1
+    },
+    {
+      "name": "REAR_LEFT_HIP_NEG_BETA",
+      "kind": "opu",
+      "x": 1800.0,
+      "y": 2310.0,
+      "rhythm": "beta",
+      "tnorm": 5.0
+    },
+    {
+      "name": "RL_HIP_NEG",
+      "kind": "output",
+      "x": 2300.0,
+      "y": 2310.0,
+      "neurons": 1
+    },
+    {
+      "name": "REAR_LEFT_KNEE_POS_BETA",
+      "kind": "opu",
+      "x": 1800.0,
+      "y": 2520.0,
+      "rhythm": "beta",
+      "tnorm": 5.0
+    },
+    {
+      "name": "RL_KNEE_POS",
+      "kind": "output",
+      "x": 2300.0,
+      "y": 2520.0,
+      "neurons": 1
+    },
+    {
+      "name": "REAR_LEFT_KNEE_NEG_BETA",
+      "kind": "opu",
+      "x": 1800.0,
+      "y": 2690.0,
+      "rhythm": "beta",
+      "tnorm": 5.0
+    },
+    {
+      "name": "RL_KNEE_NEG",
+      "kind": "output",
+      "x": 2300.0,
+      "y": 2690.0,
+      "neurons": 1
+    },
+    {
+      "name": "REAR_RIGHT_ABD_POS_BETA",
+      "kind": "opu",
+      "x": 2700.0,
+      "y": 1760.0,
+      "rhythm": "beta",
+      "tnorm": 5.0
+    },
+    {
+      "name": "RR_ABD_POS",
+      "kind": "output",
+      "x": 3200.0,
+      "y": 1760.0,
+      "neurons": 1
+    },
+    {
+      "name": "REAR_RIGHT_ABD_NEG_BETA",
+      "kind": "opu",
+      "x": 2700.0,
+      "y": 1930.0,
+      "rhythm": "beta",
+      "tnorm": 5.0
+    },
+    {
+      "name": "RR_ABD_NEG",
+      "kind": "output",
+      "x": 3200.0,
+      "y": 1930.0,
+      "neurons": 1
+    },
+    {
+      "name": "REAR_RIGHT_HIP_POS_BETA",
+      "kind": "opu",
+      "x": 2700.0,
+      "y": 2140.0,
+      "rhythm": "beta",
+      "tnorm": 5.0
+    },
+    {
+      "name": "RR_HIP_POS",
+      "kind": "output",
+      "x": 3200.0,
+      "y": 2140.0,
+      "neurons": 1
+    },
+    {
+      "name": "REAR_RIGHT_HIP_NEG_BETA",
+      "kind": "opu",
+      "x": 2700.0,
+      "y": 2310.0,
+      "rhythm": "beta",
+      "tnorm": 5.0
+    },
+    {
+      "name": "RR_HIP_NEG",
+      "kind": "output",
+      "x": 3200.0,
+      "y": 2310.0,
+      "neurons": 1
+    },
+    {
+      "name": "REAR_RIGHT_KNEE_POS_BETA",
+      "kind": "opu",
+      "x": 2700.0,
+      "y": 2520.0,
+      "rhythm": "beta",
+      "tnorm": 5.0
+    },
+    {
+      "name": "RR_KNEE_POS",
+      "kind": "output",
+      "x": 3200.0,
+      "y": 2520.0,
+      "neurons": 1
+    },
+    {
+      "name": "REAR_RIGHT_KNEE_NEG_BETA",
+      "kind": "opu",
+      "x": 2700.0,
+      "y": 2690.0,
+      "rhythm": "beta",
+      "tnorm": 5.0
+    },
+    {
+      "name": "RR_KNEE_NEG",
+      "kind": "output",
+      "x": 3200.0,
+      "y": 2690.0,
+      "neurons": 1
+    },
+    {
+      "name": "TRANSPORT_ACK_OUT",
+      "kind": "output",
+      "x": 500.0,
+      "y": 360.0,
+      "neurons": 1
+    },
+    {
+      "name": "TRANSPORT_ACK_RESET",
+      "kind": "opu",
+      "x": 780.0,
+      "y": 360.0,
+      "rhythm": "high-gamma",
+      "tnorm": 10.0
+    }
+  ],
+  "connections": [
+    {
+      "from": "WALK_START",
+      "to": "WALK_START_HG",
+      "type": "exc"
+    },
+    {
+      "from": "WALK_STOP",
+      "to": "WALK_STOP_HG",
+      "type": "exc"
+    },
+    {
+      "from": "TRANSPORT_ACK",
+      "to": "TRANSPORT_ACK_HG",
+      "type": "exc"
+    },
+    {
+      "from": "GAIT_REWARD_IN",
+      "to": "GAIT_REWARD_RELAY",
+      "type": "exc"
+    },
+    {
+      "from": "GAIT_REWARD_RELAY",
+      "to": "GAIT_REWARD",
+      "type": "exc"
+    },
+    {
+      "from": "WALK_START_HG",
+      "to": "WALK_ENABLED",
+      "type": "exc"
+    },
+    {
+      "from": "WALK_ENABLED",
+      "to": "WALK_NUCLEUS",
+      "type": "exc"
+    },
+    {
+      "from": "WALK_NUCLEUS",
+      "to": "WALK_ENABLED",
+      "type": "exc"
+    },
+    {
+      "from": "WALK_STOP_HG",
+      "to": "WALK_ENABLED",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "WALK_STOP_HG",
+      "to": "WALK_NUCLEUS",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "WALK_STOP_HG",
+      "to": "REST_ACTIVE",
+      "type": "exc"
+    },
+    {
+      "from": "REST_ACTIVE",
+      "to": "REST_NUCLEUS",
+      "type": "exc"
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "REST_ACTIVE",
+      "type": "exc"
+    },
+    {
+      "from": "WALK_START_HG",
+      "to": "REST_ACTIVE",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "WALK_START_HG",
+      "to": "REST_NUCLEUS",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "WALK_ENABLED",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "WALK_NUCLEUS",
+      "type": "inh",
+      "strength": 4.0,
+      "role": "feedback"
+    },
+    {
+      "from": "WALK_NUCLEUS",
+      "to": "REST_ACTIVE",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "WALK_NUCLEUS",
+      "to": "REST_NUCLEUS",
+      "type": "inh",
+      "strength": 4.0,
+      "role": "feedback"
+    },
+    {
+      "from": "WALK_NUCLEUS",
+      "to": "WALK_DRIVE",
+      "type": "exc"
+    },
+    {
+      "from": "WALK_START_HG",
+      "to": "START_A_BIAS",
+      "type": "exc"
+    },
+    {
+      "from": "START_A_BIAS",
+      "to": "START_A_BIAS_HG",
+      "type": "exc"
+    },
+    {
+      "from": "WALK_STOP_HG",
+      "to": "START_A_BIAS",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "WALK_DRIVE",
+      "to": "PHASE_A_T1",
+      "type": "exc"
+    },
+    {
+      "from": "PHASE_A_T1",
+      "to": "PHASE_A_T2",
+      "type": "exc"
+    },
+    {
+      "from": "PHASE_A_T2",
+      "to": "PHASE_A_BETA",
+      "type": "exc"
+    },
+    {
+      "from": "PHASE_A_T2",
+      "to": "PHASE_A_INHIBITOR",
+      "type": "exc"
+    },
+    {
+      "from": "PHASE_A_BETA",
+      "to": "PHASE_A_OUT",
+      "type": "exc"
+    },
+    {
+      "from": "PHASE_A_BETA",
+      "to": "PHASE_A_RELEASE",
+      "type": "exc"
+    },
+    {
+      "from": "PHASE_A_INHIBITOR",
+      "to": "PHASE_A_INHIBITOR_OUT",
+      "type": "exc"
+    },
+    {
+      "from": "PHASE_A_RELEASE",
+      "to": "PHASE_A_RELEASE_OUT",
+      "type": "exc"
+    },
+    {
+      "from": "PHASE_A_RELEASE",
+      "to": "PHASE_A_INHIBITOR",
+      "type": "inh",
+      "rule": "STDP3",
+      "reward": "GAIT_REWARD",
+      "reward_type": "LTP",
+      "role": "feedback"
+    },
+    {
+      "from": "PHASE_A_RELEASE",
+      "to": "PHASE_A_INHIBITOR_OUT",
+      "type": "inh",
+      "rule": "STDP3",
+      "reward": "GAIT_REWARD",
+      "reward_type": "LTP"
+    },
+    {
+      "from": "WALK_DRIVE",
+      "to": "PHASE_B_T1",
+      "type": "exc"
+    },
+    {
+      "from": "PHASE_B_T1",
+      "to": "PHASE_B_T2",
+      "type": "exc"
+    },
+    {
+      "from": "PHASE_B_T2",
+      "to": "PHASE_B_BETA",
+      "type": "exc"
+    },
+    {
+      "from": "PHASE_B_T2",
+      "to": "PHASE_B_INHIBITOR",
+      "type": "exc"
+    },
+    {
+      "from": "PHASE_B_BETA",
+      "to": "PHASE_B_OUT",
+      "type": "exc"
+    },
+    {
+      "from": "PHASE_B_BETA",
+      "to": "PHASE_B_RELEASE",
+      "type": "exc"
+    },
+    {
+      "from": "PHASE_B_INHIBITOR",
+      "to": "PHASE_B_INHIBITOR_OUT",
+      "type": "exc"
+    },
+    {
+      "from": "PHASE_B_RELEASE",
+      "to": "PHASE_B_RELEASE_OUT",
+      "type": "exc"
+    },
+    {
+      "from": "PHASE_B_RELEASE",
+      "to": "PHASE_B_INHIBITOR",
+      "type": "inh",
+      "rule": "STDP3",
+      "reward": "GAIT_REWARD",
+      "reward_type": "LTP",
+      "role": "feedback"
+    },
+    {
+      "from": "PHASE_B_RELEASE",
+      "to": "PHASE_B_INHIBITOR_OUT",
+      "type": "inh",
+      "rule": "STDP3",
+      "reward": "GAIT_REWARD",
+      "reward_type": "LTP"
+    },
+    {
+      "from": "START_A_BIAS_HG",
+      "to": "PHASE_B_T2",
+      "type": "inh"
+    },
+    {
+      "from": "START_A_BIAS_HG",
+      "to": "PHASE_B_BETA",
+      "type": "inh"
+    },
+    {
+      "from": "START_A_BIAS_HG",
+      "to": "PHASE_B_INHIBITOR",
+      "type": "inh"
+    },
+    {
+      "from": "PHASE_A_INHIBITOR",
+      "to": "START_A_BIAS",
+      "type": "inh"
+    },
+    {
+      "from": "PHASE_A_T2",
+      "to": "PHASE_B_T1",
+      "type": "exc",
+      "role": "feedback"
+    },
+    {
+      "from": "PHASE_A_INHIBITOR",
+      "to": "PHASE_B_T2",
+      "type": "inh",
+      "rule": "STDP3",
+      "reward": "GAIT_REWARD",
+      "reward_type": "LTP",
+      "role": "feedback"
+    },
+    {
+      "from": "PHASE_A_INHIBITOR",
+      "to": "PHASE_B_BETA",
+      "type": "inh",
+      "rule": "STDP3",
+      "reward": "GAIT_REWARD",
+      "reward_type": "LTP",
+      "role": "feedback"
+    },
+    {
+      "from": "PHASE_A_INHIBITOR",
+      "to": "PHASE_B_INHIBITOR",
+      "type": "inh",
+      "rule": "STDP3",
+      "reward": "GAIT_REWARD",
+      "reward_type": "LTP",
+      "role": "feedback"
+    },
+    {
+      "from": "PHASE_A_INHIBITOR",
+      "to": "PHASE_B_RELEASE",
+      "type": "inh",
+      "rule": "STDP3",
+      "reward": "GAIT_REWARD",
+      "reward_type": "LTP",
+      "role": "feedback"
+    },
+    {
+      "from": "PHASE_A_INHIBITOR",
+      "to": "PHASE_B_OUT",
+      "type": "inh",
+      "rule": "STDP3",
+      "reward": "GAIT_REWARD",
+      "reward_type": "LTP"
+    },
+    {
+      "from": "PHASE_A_INHIBITOR",
+      "to": "PHASE_B_INHIBITOR_OUT",
+      "type": "inh",
+      "rule": "STDP3",
+      "reward": "GAIT_REWARD",
+      "reward_type": "LTP"
+    },
+    {
+      "from": "PHASE_A_INHIBITOR",
+      "to": "PHASE_B_RELEASE_OUT",
+      "type": "inh",
+      "rule": "STDP3",
+      "reward": "GAIT_REWARD",
+      "reward_type": "LTP"
+    },
+    {
+      "from": "PHASE_B_T2",
+      "to": "PHASE_A_T1",
+      "type": "exc",
+      "role": "feedback"
+    },
+    {
+      "from": "PHASE_B_INHIBITOR",
+      "to": "PHASE_A_T2",
+      "type": "inh",
+      "rule": "STDP3",
+      "reward": "GAIT_REWARD",
+      "reward_type": "LTP",
+      "role": "feedback"
+    },
+    {
+      "from": "PHASE_B_INHIBITOR",
+      "to": "PHASE_A_BETA",
+      "type": "inh",
+      "rule": "STDP3",
+      "reward": "GAIT_REWARD",
+      "reward_type": "LTP",
+      "role": "feedback"
+    },
+    {
+      "from": "PHASE_B_INHIBITOR",
+      "to": "PHASE_A_INHIBITOR",
+      "type": "inh",
+      "rule": "STDP3",
+      "reward": "GAIT_REWARD",
+      "reward_type": "LTP",
+      "role": "feedback"
+    },
+    {
+      "from": "PHASE_B_INHIBITOR",
+      "to": "PHASE_A_RELEASE",
+      "type": "inh",
+      "rule": "STDP3",
+      "reward": "GAIT_REWARD",
+      "reward_type": "LTP",
+      "role": "feedback"
+    },
+    {
+      "from": "PHASE_B_INHIBITOR",
+      "to": "PHASE_A_OUT",
+      "type": "inh",
+      "rule": "STDP3",
+      "reward": "GAIT_REWARD",
+      "reward_type": "LTP"
+    },
+    {
+      "from": "PHASE_B_INHIBITOR",
+      "to": "PHASE_A_INHIBITOR_OUT",
+      "type": "inh",
+      "rule": "STDP3",
+      "reward": "GAIT_REWARD",
+      "reward_type": "LTP"
+    },
+    {
+      "from": "PHASE_B_INHIBITOR",
+      "to": "PHASE_A_RELEASE_OUT",
+      "type": "inh",
+      "rule": "STDP3",
+      "reward": "GAIT_REWARD",
+      "reward_type": "LTP"
+    },
+    {
+      "from": "PHASE_B_BETA",
+      "to": "FRONT_LEFT_ABD_POS_BETA",
+      "type": "exc"
+    },
+    {
+      "from": "FRONT_LEFT_ABD_POS_BETA",
+      "to": "FL_ABD_POS",
+      "type": "exc"
+    },
+    {
+      "from": "PHASE_A_INHIBITOR",
+      "to": "FRONT_LEFT_ABD_POS_BETA",
+      "type": "inh",
+      "rule": "STDP3",
+      "reward": "GAIT_REWARD",
+      "reward_type": "LTP"
+    },
+    {
+      "from": "PHASE_A_INHIBITOR",
+      "to": "FL_ABD_POS",
+      "type": "inh",
+      "rule": "STDP3",
+      "reward": "GAIT_REWARD",
+      "reward_type": "LTP"
+    },
+    {
+      "from": "PHASE_A_BETA",
+      "to": "FRONT_LEFT_ABD_NEG_BETA",
+      "type": "exc"
+    },
+    {
+      "from": "FRONT_LEFT_ABD_NEG_BETA",
+      "to": "FL_ABD_NEG",
+      "type": "exc"
+    },
+    {
+      "from": "PHASE_B_INHIBITOR",
+      "to": "FRONT_LEFT_ABD_NEG_BETA",
+      "type": "inh",
+      "rule": "STDP3",
+      "reward": "GAIT_REWARD",
+      "reward_type": "LTP"
+    },
+    {
+      "from": "PHASE_B_INHIBITOR",
+      "to": "FL_ABD_NEG",
+      "type": "inh",
+      "rule": "STDP3",
+      "reward": "GAIT_REWARD",
+      "reward_type": "LTP"
+    },
+    {
+      "from": "FRONT_LEFT_ABD_POS_BETA",
+      "to": "FRONT_LEFT_ABD_NEG_BETA",
+      "type": "inh",
+      "role": "feedback"
+    },
+    {
+      "from": "FRONT_LEFT_ABD_POS_BETA",
+      "to": "FL_ABD_NEG",
+      "type": "inh"
+    },
+    {
+      "from": "FRONT_LEFT_ABD_NEG_BETA",
+      "to": "FRONT_LEFT_ABD_POS_BETA",
+      "type": "inh",
+      "role": "feedback"
+    },
+    {
+      "from": "FRONT_LEFT_ABD_NEG_BETA",
+      "to": "FL_ABD_POS",
+      "type": "inh"
+    },
+    {
+      "from": "PHASE_A_BETA",
+      "to": "FRONT_LEFT_HIP_POS_BETA",
+      "type": "exc"
+    },
+    {
+      "from": "FRONT_LEFT_HIP_POS_BETA",
+      "to": "FL_HIP_POS",
+      "type": "exc"
+    },
+    {
+      "from": "PHASE_B_INHIBITOR",
+      "to": "FRONT_LEFT_HIP_POS_BETA",
+      "type": "inh",
+      "rule": "STDP3",
+      "reward": "GAIT_REWARD",
+      "reward_type": "LTP"
+    },
+    {
+      "from": "PHASE_B_INHIBITOR",
+      "to": "FL_HIP_POS",
+      "type": "inh",
+      "rule": "STDP3",
+      "reward": "GAIT_REWARD",
+      "reward_type": "LTP"
+    },
+    {
+      "from": "PHASE_B_BETA",
+      "to": "FRONT_LEFT_HIP_NEG_BETA",
+      "type": "exc"
+    },
+    {
+      "from": "FRONT_LEFT_HIP_NEG_BETA",
+      "to": "FL_HIP_NEG",
+      "type": "exc"
+    },
+    {
+      "from": "PHASE_A_INHIBITOR",
+      "to": "FRONT_LEFT_HIP_NEG_BETA",
+      "type": "inh",
+      "rule": "STDP3",
+      "reward": "GAIT_REWARD",
+      "reward_type": "LTP"
+    },
+    {
+      "from": "PHASE_A_INHIBITOR",
+      "to": "FL_HIP_NEG",
+      "type": "inh",
+      "rule": "STDP3",
+      "reward": "GAIT_REWARD",
+      "reward_type": "LTP"
+    },
+    {
+      "from": "FRONT_LEFT_HIP_POS_BETA",
+      "to": "FRONT_LEFT_HIP_NEG_BETA",
+      "type": "inh",
+      "role": "feedback"
+    },
+    {
+      "from": "FRONT_LEFT_HIP_POS_BETA",
+      "to": "FL_HIP_NEG",
+      "type": "inh"
+    },
+    {
+      "from": "FRONT_LEFT_HIP_NEG_BETA",
+      "to": "FRONT_LEFT_HIP_POS_BETA",
+      "type": "inh",
+      "role": "feedback"
+    },
+    {
+      "from": "FRONT_LEFT_HIP_NEG_BETA",
+      "to": "FL_HIP_POS",
+      "type": "inh"
+    },
+    {
+      "from": "PHASE_A_BETA",
+      "to": "FRONT_LEFT_KNEE_POS_BETA",
+      "type": "exc"
+    },
+    {
+      "from": "FRONT_LEFT_KNEE_POS_BETA",
+      "to": "FL_KNEE_POS",
+      "type": "exc"
+    },
+    {
+      "from": "PHASE_B_INHIBITOR",
+      "to": "FRONT_LEFT_KNEE_POS_BETA",
+      "type": "inh",
+      "rule": "STDP3",
+      "reward": "GAIT_REWARD",
+      "reward_type": "LTP"
+    },
+    {
+      "from": "PHASE_B_INHIBITOR",
+      "to": "FL_KNEE_POS",
+      "type": "inh",
+      "rule": "STDP3",
+      "reward": "GAIT_REWARD",
+      "reward_type": "LTP"
+    },
+    {
+      "from": "PHASE_B_BETA",
+      "to": "FRONT_LEFT_KNEE_NEG_BETA",
+      "type": "exc"
+    },
+    {
+      "from": "FRONT_LEFT_KNEE_NEG_BETA",
+      "to": "FL_KNEE_NEG",
+      "type": "exc"
+    },
+    {
+      "from": "PHASE_A_INHIBITOR",
+      "to": "FRONT_LEFT_KNEE_NEG_BETA",
+      "type": "inh",
+      "rule": "STDP3",
+      "reward": "GAIT_REWARD",
+      "reward_type": "LTP"
+    },
+    {
+      "from": "PHASE_A_INHIBITOR",
+      "to": "FL_KNEE_NEG",
+      "type": "inh",
+      "rule": "STDP3",
+      "reward": "GAIT_REWARD",
+      "reward_type": "LTP"
+    },
+    {
+      "from": "FRONT_LEFT_KNEE_POS_BETA",
+      "to": "FRONT_LEFT_KNEE_NEG_BETA",
+      "type": "inh",
+      "role": "feedback"
+    },
+    {
+      "from": "FRONT_LEFT_KNEE_POS_BETA",
+      "to": "FL_KNEE_NEG",
+      "type": "inh"
+    },
+    {
+      "from": "FRONT_LEFT_KNEE_NEG_BETA",
+      "to": "FRONT_LEFT_KNEE_POS_BETA",
+      "type": "inh",
+      "role": "feedback"
+    },
+    {
+      "from": "FRONT_LEFT_KNEE_NEG_BETA",
+      "to": "FL_KNEE_POS",
+      "type": "inh"
+    },
+    {
+      "from": "PHASE_B_BETA",
+      "to": "FRONT_RIGHT_ABD_POS_BETA",
+      "type": "exc"
+    },
+    {
+      "from": "FRONT_RIGHT_ABD_POS_BETA",
+      "to": "FR_ABD_POS",
+      "type": "exc"
+    },
+    {
+      "from": "PHASE_A_INHIBITOR",
+      "to": "FRONT_RIGHT_ABD_POS_BETA",
+      "type": "inh",
+      "rule": "STDP3",
+      "reward": "GAIT_REWARD",
+      "reward_type": "LTP"
+    },
+    {
+      "from": "PHASE_A_INHIBITOR",
+      "to": "FR_ABD_POS",
+      "type": "inh",
+      "rule": "STDP3",
+      "reward": "GAIT_REWARD",
+      "reward_type": "LTP"
+    },
+    {
+      "from": "PHASE_A_BETA",
+      "to": "FRONT_RIGHT_ABD_NEG_BETA",
+      "type": "exc"
+    },
+    {
+      "from": "FRONT_RIGHT_ABD_NEG_BETA",
+      "to": "FR_ABD_NEG",
+      "type": "exc"
+    },
+    {
+      "from": "PHASE_B_INHIBITOR",
+      "to": "FRONT_RIGHT_ABD_NEG_BETA",
+      "type": "inh",
+      "rule": "STDP3",
+      "reward": "GAIT_REWARD",
+      "reward_type": "LTP"
+    },
+    {
+      "from": "PHASE_B_INHIBITOR",
+      "to": "FR_ABD_NEG",
+      "type": "inh",
+      "rule": "STDP3",
+      "reward": "GAIT_REWARD",
+      "reward_type": "LTP"
+    },
+    {
+      "from": "FRONT_RIGHT_ABD_POS_BETA",
+      "to": "FRONT_RIGHT_ABD_NEG_BETA",
+      "type": "inh",
+      "role": "feedback"
+    },
+    {
+      "from": "FRONT_RIGHT_ABD_POS_BETA",
+      "to": "FR_ABD_NEG",
+      "type": "inh"
+    },
+    {
+      "from": "FRONT_RIGHT_ABD_NEG_BETA",
+      "to": "FRONT_RIGHT_ABD_POS_BETA",
+      "type": "inh",
+      "role": "feedback"
+    },
+    {
+      "from": "FRONT_RIGHT_ABD_NEG_BETA",
+      "to": "FR_ABD_POS",
+      "type": "inh"
+    },
+    {
+      "from": "PHASE_B_BETA",
+      "to": "FRONT_RIGHT_HIP_POS_BETA",
+      "type": "exc"
+    },
+    {
+      "from": "FRONT_RIGHT_HIP_POS_BETA",
+      "to": "FR_HIP_POS",
+      "type": "exc"
+    },
+    {
+      "from": "PHASE_A_INHIBITOR",
+      "to": "FRONT_RIGHT_HIP_POS_BETA",
+      "type": "inh",
+      "rule": "STDP3",
+      "reward": "GAIT_REWARD",
+      "reward_type": "LTP"
+    },
+    {
+      "from": "PHASE_A_INHIBITOR",
+      "to": "FR_HIP_POS",
+      "type": "inh",
+      "rule": "STDP3",
+      "reward": "GAIT_REWARD",
+      "reward_type": "LTP"
+    },
+    {
+      "from": "PHASE_A_BETA",
+      "to": "FRONT_RIGHT_HIP_NEG_BETA",
+      "type": "exc"
+    },
+    {
+      "from": "FRONT_RIGHT_HIP_NEG_BETA",
+      "to": "FR_HIP_NEG",
+      "type": "exc"
+    },
+    {
+      "from": "PHASE_B_INHIBITOR",
+      "to": "FRONT_RIGHT_HIP_NEG_BETA",
+      "type": "inh",
+      "rule": "STDP3",
+      "reward": "GAIT_REWARD",
+      "reward_type": "LTP"
+    },
+    {
+      "from": "PHASE_B_INHIBITOR",
+      "to": "FR_HIP_NEG",
+      "type": "inh",
+      "rule": "STDP3",
+      "reward": "GAIT_REWARD",
+      "reward_type": "LTP"
+    },
+    {
+      "from": "FRONT_RIGHT_HIP_POS_BETA",
+      "to": "FRONT_RIGHT_HIP_NEG_BETA",
+      "type": "inh",
+      "role": "feedback"
+    },
+    {
+      "from": "FRONT_RIGHT_HIP_POS_BETA",
+      "to": "FR_HIP_NEG",
+      "type": "inh"
+    },
+    {
+      "from": "FRONT_RIGHT_HIP_NEG_BETA",
+      "to": "FRONT_RIGHT_HIP_POS_BETA",
+      "type": "inh",
+      "role": "feedback"
+    },
+    {
+      "from": "FRONT_RIGHT_HIP_NEG_BETA",
+      "to": "FR_HIP_POS",
+      "type": "inh"
+    },
+    {
+      "from": "PHASE_B_BETA",
+      "to": "FRONT_RIGHT_KNEE_POS_BETA",
+      "type": "exc"
+    },
+    {
+      "from": "FRONT_RIGHT_KNEE_POS_BETA",
+      "to": "FR_KNEE_POS",
+      "type": "exc"
+    },
+    {
+      "from": "PHASE_A_INHIBITOR",
+      "to": "FRONT_RIGHT_KNEE_POS_BETA",
+      "type": "inh",
+      "rule": "STDP3",
+      "reward": "GAIT_REWARD",
+      "reward_type": "LTP"
+    },
+    {
+      "from": "PHASE_A_INHIBITOR",
+      "to": "FR_KNEE_POS",
+      "type": "inh",
+      "rule": "STDP3",
+      "reward": "GAIT_REWARD",
+      "reward_type": "LTP"
+    },
+    {
+      "from": "PHASE_A_BETA",
+      "to": "FRONT_RIGHT_KNEE_NEG_BETA",
+      "type": "exc"
+    },
+    {
+      "from": "FRONT_RIGHT_KNEE_NEG_BETA",
+      "to": "FR_KNEE_NEG",
+      "type": "exc"
+    },
+    {
+      "from": "PHASE_B_INHIBITOR",
+      "to": "FRONT_RIGHT_KNEE_NEG_BETA",
+      "type": "inh",
+      "rule": "STDP3",
+      "reward": "GAIT_REWARD",
+      "reward_type": "LTP"
+    },
+    {
+      "from": "PHASE_B_INHIBITOR",
+      "to": "FR_KNEE_NEG",
+      "type": "inh",
+      "rule": "STDP3",
+      "reward": "GAIT_REWARD",
+      "reward_type": "LTP"
+    },
+    {
+      "from": "FRONT_RIGHT_KNEE_POS_BETA",
+      "to": "FRONT_RIGHT_KNEE_NEG_BETA",
+      "type": "inh",
+      "role": "feedback"
+    },
+    {
+      "from": "FRONT_RIGHT_KNEE_POS_BETA",
+      "to": "FR_KNEE_NEG",
+      "type": "inh"
+    },
+    {
+      "from": "FRONT_RIGHT_KNEE_NEG_BETA",
+      "to": "FRONT_RIGHT_KNEE_POS_BETA",
+      "type": "inh",
+      "role": "feedback"
+    },
+    {
+      "from": "FRONT_RIGHT_KNEE_NEG_BETA",
+      "to": "FR_KNEE_POS",
+      "type": "inh"
+    },
+    {
+      "from": "PHASE_A_BETA",
+      "to": "REAR_LEFT_ABD_POS_BETA",
+      "type": "exc"
+    },
+    {
+      "from": "REAR_LEFT_ABD_POS_BETA",
+      "to": "RL_ABD_POS",
+      "type": "exc"
+    },
+    {
+      "from": "PHASE_B_INHIBITOR",
+      "to": "REAR_LEFT_ABD_POS_BETA",
+      "type": "inh",
+      "rule": "STDP3",
+      "reward": "GAIT_REWARD",
+      "reward_type": "LTP"
+    },
+    {
+      "from": "PHASE_B_INHIBITOR",
+      "to": "RL_ABD_POS",
+      "type": "inh",
+      "rule": "STDP3",
+      "reward": "GAIT_REWARD",
+      "reward_type": "LTP"
+    },
+    {
+      "from": "PHASE_B_BETA",
+      "to": "REAR_LEFT_ABD_NEG_BETA",
+      "type": "exc"
+    },
+    {
+      "from": "REAR_LEFT_ABD_NEG_BETA",
+      "to": "RL_ABD_NEG",
+      "type": "exc"
+    },
+    {
+      "from": "PHASE_A_INHIBITOR",
+      "to": "REAR_LEFT_ABD_NEG_BETA",
+      "type": "inh",
+      "rule": "STDP3",
+      "reward": "GAIT_REWARD",
+      "reward_type": "LTP"
+    },
+    {
+      "from": "PHASE_A_INHIBITOR",
+      "to": "RL_ABD_NEG",
+      "type": "inh",
+      "rule": "STDP3",
+      "reward": "GAIT_REWARD",
+      "reward_type": "LTP"
+    },
+    {
+      "from": "REAR_LEFT_ABD_POS_BETA",
+      "to": "REAR_LEFT_ABD_NEG_BETA",
+      "type": "inh",
+      "role": "feedback"
+    },
+    {
+      "from": "REAR_LEFT_ABD_POS_BETA",
+      "to": "RL_ABD_NEG",
+      "type": "inh"
+    },
+    {
+      "from": "REAR_LEFT_ABD_NEG_BETA",
+      "to": "REAR_LEFT_ABD_POS_BETA",
+      "type": "inh",
+      "role": "feedback"
+    },
+    {
+      "from": "REAR_LEFT_ABD_NEG_BETA",
+      "to": "RL_ABD_POS",
+      "type": "inh"
+    },
+    {
+      "from": "PHASE_B_BETA",
+      "to": "REAR_LEFT_HIP_POS_BETA",
+      "type": "exc"
+    },
+    {
+      "from": "REAR_LEFT_HIP_POS_BETA",
+      "to": "RL_HIP_POS",
+      "type": "exc"
+    },
+    {
+      "from": "PHASE_A_INHIBITOR",
+      "to": "REAR_LEFT_HIP_POS_BETA",
+      "type": "inh",
+      "rule": "STDP3",
+      "reward": "GAIT_REWARD",
+      "reward_type": "LTP"
+    },
+    {
+      "from": "PHASE_A_INHIBITOR",
+      "to": "RL_HIP_POS",
+      "type": "inh",
+      "rule": "STDP3",
+      "reward": "GAIT_REWARD",
+      "reward_type": "LTP"
+    },
+    {
+      "from": "PHASE_A_BETA",
+      "to": "REAR_LEFT_HIP_NEG_BETA",
+      "type": "exc"
+    },
+    {
+      "from": "REAR_LEFT_HIP_NEG_BETA",
+      "to": "RL_HIP_NEG",
+      "type": "exc"
+    },
+    {
+      "from": "PHASE_B_INHIBITOR",
+      "to": "REAR_LEFT_HIP_NEG_BETA",
+      "type": "inh",
+      "rule": "STDP3",
+      "reward": "GAIT_REWARD",
+      "reward_type": "LTP"
+    },
+    {
+      "from": "PHASE_B_INHIBITOR",
+      "to": "RL_HIP_NEG",
+      "type": "inh",
+      "rule": "STDP3",
+      "reward": "GAIT_REWARD",
+      "reward_type": "LTP"
+    },
+    {
+      "from": "REAR_LEFT_HIP_POS_BETA",
+      "to": "REAR_LEFT_HIP_NEG_BETA",
+      "type": "inh",
+      "role": "feedback"
+    },
+    {
+      "from": "REAR_LEFT_HIP_POS_BETA",
+      "to": "RL_HIP_NEG",
+      "type": "inh"
+    },
+    {
+      "from": "REAR_LEFT_HIP_NEG_BETA",
+      "to": "REAR_LEFT_HIP_POS_BETA",
+      "type": "inh",
+      "role": "feedback"
+    },
+    {
+      "from": "REAR_LEFT_HIP_NEG_BETA",
+      "to": "RL_HIP_POS",
+      "type": "inh"
+    },
+    {
+      "from": "PHASE_B_BETA",
+      "to": "REAR_LEFT_KNEE_POS_BETA",
+      "type": "exc"
+    },
+    {
+      "from": "REAR_LEFT_KNEE_POS_BETA",
+      "to": "RL_KNEE_POS",
+      "type": "exc"
+    },
+    {
+      "from": "PHASE_A_INHIBITOR",
+      "to": "REAR_LEFT_KNEE_POS_BETA",
+      "type": "inh",
+      "rule": "STDP3",
+      "reward": "GAIT_REWARD",
+      "reward_type": "LTP"
+    },
+    {
+      "from": "PHASE_A_INHIBITOR",
+      "to": "RL_KNEE_POS",
+      "type": "inh",
+      "rule": "STDP3",
+      "reward": "GAIT_REWARD",
+      "reward_type": "LTP"
+    },
+    {
+      "from": "PHASE_A_BETA",
+      "to": "REAR_LEFT_KNEE_NEG_BETA",
+      "type": "exc"
+    },
+    {
+      "from": "REAR_LEFT_KNEE_NEG_BETA",
+      "to": "RL_KNEE_NEG",
+      "type": "exc"
+    },
+    {
+      "from": "PHASE_B_INHIBITOR",
+      "to": "REAR_LEFT_KNEE_NEG_BETA",
+      "type": "inh",
+      "rule": "STDP3",
+      "reward": "GAIT_REWARD",
+      "reward_type": "LTP"
+    },
+    {
+      "from": "PHASE_B_INHIBITOR",
+      "to": "RL_KNEE_NEG",
+      "type": "inh",
+      "rule": "STDP3",
+      "reward": "GAIT_REWARD",
+      "reward_type": "LTP"
+    },
+    {
+      "from": "REAR_LEFT_KNEE_POS_BETA",
+      "to": "REAR_LEFT_KNEE_NEG_BETA",
+      "type": "inh",
+      "role": "feedback"
+    },
+    {
+      "from": "REAR_LEFT_KNEE_POS_BETA",
+      "to": "RL_KNEE_NEG",
+      "type": "inh"
+    },
+    {
+      "from": "REAR_LEFT_KNEE_NEG_BETA",
+      "to": "REAR_LEFT_KNEE_POS_BETA",
+      "type": "inh",
+      "role": "feedback"
+    },
+    {
+      "from": "REAR_LEFT_KNEE_NEG_BETA",
+      "to": "RL_KNEE_POS",
+      "type": "inh"
+    },
+    {
+      "from": "PHASE_A_BETA",
+      "to": "REAR_RIGHT_ABD_POS_BETA",
+      "type": "exc"
+    },
+    {
+      "from": "REAR_RIGHT_ABD_POS_BETA",
+      "to": "RR_ABD_POS",
+      "type": "exc"
+    },
+    {
+      "from": "PHASE_B_INHIBITOR",
+      "to": "REAR_RIGHT_ABD_POS_BETA",
+      "type": "inh",
+      "rule": "STDP3",
+      "reward": "GAIT_REWARD",
+      "reward_type": "LTP"
+    },
+    {
+      "from": "PHASE_B_INHIBITOR",
+      "to": "RR_ABD_POS",
+      "type": "inh",
+      "rule": "STDP3",
+      "reward": "GAIT_REWARD",
+      "reward_type": "LTP"
+    },
+    {
+      "from": "PHASE_B_BETA",
+      "to": "REAR_RIGHT_ABD_NEG_BETA",
+      "type": "exc"
+    },
+    {
+      "from": "REAR_RIGHT_ABD_NEG_BETA",
+      "to": "RR_ABD_NEG",
+      "type": "exc"
+    },
+    {
+      "from": "PHASE_A_INHIBITOR",
+      "to": "REAR_RIGHT_ABD_NEG_BETA",
+      "type": "inh",
+      "rule": "STDP3",
+      "reward": "GAIT_REWARD",
+      "reward_type": "LTP"
+    },
+    {
+      "from": "PHASE_A_INHIBITOR",
+      "to": "RR_ABD_NEG",
+      "type": "inh",
+      "rule": "STDP3",
+      "reward": "GAIT_REWARD",
+      "reward_type": "LTP"
+    },
+    {
+      "from": "REAR_RIGHT_ABD_POS_BETA",
+      "to": "REAR_RIGHT_ABD_NEG_BETA",
+      "type": "inh",
+      "role": "feedback"
+    },
+    {
+      "from": "REAR_RIGHT_ABD_POS_BETA",
+      "to": "RR_ABD_NEG",
+      "type": "inh"
+    },
+    {
+      "from": "REAR_RIGHT_ABD_NEG_BETA",
+      "to": "REAR_RIGHT_ABD_POS_BETA",
+      "type": "inh",
+      "role": "feedback"
+    },
+    {
+      "from": "REAR_RIGHT_ABD_NEG_BETA",
+      "to": "RR_ABD_POS",
+      "type": "inh"
+    },
+    {
+      "from": "PHASE_A_BETA",
+      "to": "REAR_RIGHT_HIP_POS_BETA",
+      "type": "exc"
+    },
+    {
+      "from": "REAR_RIGHT_HIP_POS_BETA",
+      "to": "RR_HIP_POS",
+      "type": "exc"
+    },
+    {
+      "from": "PHASE_B_INHIBITOR",
+      "to": "REAR_RIGHT_HIP_POS_BETA",
+      "type": "inh",
+      "rule": "STDP3",
+      "reward": "GAIT_REWARD",
+      "reward_type": "LTP"
+    },
+    {
+      "from": "PHASE_B_INHIBITOR",
+      "to": "RR_HIP_POS",
+      "type": "inh",
+      "rule": "STDP3",
+      "reward": "GAIT_REWARD",
+      "reward_type": "LTP"
+    },
+    {
+      "from": "PHASE_B_BETA",
+      "to": "REAR_RIGHT_HIP_NEG_BETA",
+      "type": "exc"
+    },
+    {
+      "from": "REAR_RIGHT_HIP_NEG_BETA",
+      "to": "RR_HIP_NEG",
+      "type": "exc"
+    },
+    {
+      "from": "PHASE_A_INHIBITOR",
+      "to": "REAR_RIGHT_HIP_NEG_BETA",
+      "type": "inh",
+      "rule": "STDP3",
+      "reward": "GAIT_REWARD",
+      "reward_type": "LTP"
+    },
+    {
+      "from": "PHASE_A_INHIBITOR",
+      "to": "RR_HIP_NEG",
+      "type": "inh",
+      "rule": "STDP3",
+      "reward": "GAIT_REWARD",
+      "reward_type": "LTP"
+    },
+    {
+      "from": "REAR_RIGHT_HIP_POS_BETA",
+      "to": "REAR_RIGHT_HIP_NEG_BETA",
+      "type": "inh",
+      "role": "feedback"
+    },
+    {
+      "from": "REAR_RIGHT_HIP_POS_BETA",
+      "to": "RR_HIP_NEG",
+      "type": "inh"
+    },
+    {
+      "from": "REAR_RIGHT_HIP_NEG_BETA",
+      "to": "REAR_RIGHT_HIP_POS_BETA",
+      "type": "inh",
+      "role": "feedback"
+    },
+    {
+      "from": "REAR_RIGHT_HIP_NEG_BETA",
+      "to": "RR_HIP_POS",
+      "type": "inh"
+    },
+    {
+      "from": "PHASE_A_BETA",
+      "to": "REAR_RIGHT_KNEE_POS_BETA",
+      "type": "exc"
+    },
+    {
+      "from": "REAR_RIGHT_KNEE_POS_BETA",
+      "to": "RR_KNEE_POS",
+      "type": "exc"
+    },
+    {
+      "from": "PHASE_B_INHIBITOR",
+      "to": "REAR_RIGHT_KNEE_POS_BETA",
+      "type": "inh",
+      "rule": "STDP3",
+      "reward": "GAIT_REWARD",
+      "reward_type": "LTP"
+    },
+    {
+      "from": "PHASE_B_INHIBITOR",
+      "to": "RR_KNEE_POS",
+      "type": "inh",
+      "rule": "STDP3",
+      "reward": "GAIT_REWARD",
+      "reward_type": "LTP"
+    },
+    {
+      "from": "PHASE_B_BETA",
+      "to": "REAR_RIGHT_KNEE_NEG_BETA",
+      "type": "exc"
+    },
+    {
+      "from": "REAR_RIGHT_KNEE_NEG_BETA",
+      "to": "RR_KNEE_NEG",
+      "type": "exc"
+    },
+    {
+      "from": "PHASE_A_INHIBITOR",
+      "to": "REAR_RIGHT_KNEE_NEG_BETA",
+      "type": "inh",
+      "rule": "STDP3",
+      "reward": "GAIT_REWARD",
+      "reward_type": "LTP"
+    },
+    {
+      "from": "PHASE_A_INHIBITOR",
+      "to": "RR_KNEE_NEG",
+      "type": "inh",
+      "rule": "STDP3",
+      "reward": "GAIT_REWARD",
+      "reward_type": "LTP"
+    },
+    {
+      "from": "REAR_RIGHT_KNEE_POS_BETA",
+      "to": "REAR_RIGHT_KNEE_NEG_BETA",
+      "type": "inh",
+      "role": "feedback"
+    },
+    {
+      "from": "REAR_RIGHT_KNEE_POS_BETA",
+      "to": "RR_KNEE_NEG",
+      "type": "inh"
+    },
+    {
+      "from": "REAR_RIGHT_KNEE_NEG_BETA",
+      "to": "REAR_RIGHT_KNEE_POS_BETA",
+      "type": "inh",
+      "role": "feedback"
+    },
+    {
+      "from": "REAR_RIGHT_KNEE_NEG_BETA",
+      "to": "RR_KNEE_POS",
+      "type": "inh"
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "WALK_DRIVE",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "START_A_BIAS",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "START_A_BIAS_HG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "PHASE_A_T1",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "PHASE_A_T2",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "PHASE_A_BETA",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "PHASE_A_INHIBITOR",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "PHASE_A_RELEASE",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "PHASE_A_OUT",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "PHASE_A_INHIBITOR_OUT",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "PHASE_A_RELEASE_OUT",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "PHASE_B_T1",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "PHASE_B_T2",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "PHASE_B_BETA",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "PHASE_B_INHIBITOR",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "PHASE_B_RELEASE",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "PHASE_B_OUT",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "PHASE_B_INHIBITOR_OUT",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "PHASE_B_RELEASE_OUT",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "FRONT_LEFT_ABD_POS_BETA",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "FRONT_LEFT_ABD_NEG_BETA",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "FRONT_LEFT_HIP_POS_BETA",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "FRONT_LEFT_HIP_NEG_BETA",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "FRONT_LEFT_KNEE_POS_BETA",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "FRONT_LEFT_KNEE_NEG_BETA",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "FRONT_RIGHT_ABD_POS_BETA",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "FRONT_RIGHT_ABD_NEG_BETA",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "FRONT_RIGHT_HIP_POS_BETA",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "FRONT_RIGHT_HIP_NEG_BETA",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "FRONT_RIGHT_KNEE_POS_BETA",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "FRONT_RIGHT_KNEE_NEG_BETA",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "REAR_LEFT_ABD_POS_BETA",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "REAR_LEFT_ABD_NEG_BETA",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "REAR_LEFT_HIP_POS_BETA",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "REAR_LEFT_HIP_NEG_BETA",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "REAR_LEFT_KNEE_POS_BETA",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "REAR_LEFT_KNEE_NEG_BETA",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "REAR_RIGHT_ABD_POS_BETA",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "REAR_RIGHT_ABD_NEG_BETA",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "REAR_RIGHT_HIP_POS_BETA",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "REAR_RIGHT_HIP_NEG_BETA",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "REAR_RIGHT_KNEE_POS_BETA",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "REAR_RIGHT_KNEE_NEG_BETA",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "FL_ABD_POS",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "FL_ABD_NEG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "FL_HIP_POS",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "FL_HIP_NEG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "FL_KNEE_POS",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "FL_KNEE_NEG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "FR_ABD_POS",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "FR_ABD_NEG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "FR_HIP_POS",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "FR_HIP_NEG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "FR_KNEE_POS",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "FR_KNEE_NEG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "RL_ABD_POS",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "RL_ABD_NEG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "RL_HIP_POS",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "RL_HIP_NEG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "RL_KNEE_POS",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "RL_KNEE_NEG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "RR_ABD_POS",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "RR_ABD_NEG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "RR_HIP_POS",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "RR_HIP_NEG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "RR_KNEE_POS",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "RR_KNEE_NEG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "WALK_STOP_HG",
+      "to": "PHASE_A_T2",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "WALK_STOP_HG",
+      "to": "PHASE_A_BETA",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "WALK_STOP_HG",
+      "to": "PHASE_A_INHIBITOR",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "WALK_STOP_HG",
+      "to": "PHASE_A_RELEASE",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "WALK_STOP_HG",
+      "to": "PHASE_B_T2",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "WALK_STOP_HG",
+      "to": "PHASE_B_BETA",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "WALK_STOP_HG",
+      "to": "PHASE_B_INHIBITOR",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "WALK_STOP_HG",
+      "to": "PHASE_B_RELEASE",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "TRANSPORT_ACK_HG",
+      "to": "TRANSPORT_ACK_OUT",
+      "type": "exc"
+    },
+    {
+      "from": "TRANSPORT_ACK_OUT",
+      "to": "TRANSPORT_ACK_RESET",
+      "type": "exc"
+    },
+    {
+      "from": "TRANSPORT_ACK_RESET",
+      "to": "TRANSPORT_ACK_OUT",
+      "type": "inh"
+    }
+  ]
+}

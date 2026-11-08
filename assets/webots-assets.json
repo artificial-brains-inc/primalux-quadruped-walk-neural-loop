@@ -1,0 +1,779 @@
+{
+  "release": "R2025a",
+  "files": [
+    {
+      "path": "protos/appearances/BrushedAluminium.proto",
+      "source": "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/appearances/protos/BrushedAluminium.proto",
+      "upstream_git_blob": "96e90942af8f62a00ae3cbb364bcebcf9570d70d",
+      "upstream_sha256": "d2a2cd1c15c69d62ae9add8ff79f413ae5177c12a981dcaeb8002a11cc04d4ad",
+      "sha256": "d2a2cd1c15c69d62ae9add8ff79f413ae5177c12a981dcaeb8002a11cc04d4ad",
+      "bytes": 1173,
+      "modified": false
+    },
+    {
+      "path": "protos/appearances/GlossyPaint.proto",
+      "source": "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/appearances/protos/GlossyPaint.proto",
+      "upstream_git_blob": "cf8d5b2a653f110314666eaad90fdc56a9b8a367",
+      "upstream_sha256": "ffe28363cb674d9d3d10861e8df9304e78c25154b146a5902c46b7b7b7aa7b38",
+      "sha256": "ffe28363cb674d9d3d10861e8df9304e78c25154b146a5902c46b7b7b7aa7b38",
+      "bytes": 1320,
+      "modified": false
+    },
+    {
+      "path": "protos/appearances/MattePaint.proto",
+      "source": "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/appearances/protos/MattePaint.proto",
+      "upstream_git_blob": "c8ba018c9b20f9de38fc8b84289f57231f7c6b04",
+      "upstream_sha256": "65911291cb96c9dfd9e43cd216fd4622fc077333c980f1a742c55859f4b51000",
+      "sha256": "65911291cb96c9dfd9e43cd216fd4622fc077333c980f1a742c55859f4b51000",
+      "bytes": 1178,
+      "modified": false
+    },
+    {
+      "path": "protos/appearances/PerforatedMetal.proto",
+      "source": "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/appearances/protos/PerforatedMetal.proto",
+      "upstream_git_blob": "70e8fa90ff5617643de2b1e3ec91d14dc6260eb7",
+      "upstream_sha256": "8bc5e95484eb51c473cfd75580e788efb06b909aa6a6d8c5c7ba18f6767c1fb4",
+      "sha256": "8bc5e95484eb51c473cfd75580e788efb06b909aa6a6d8c5c7ba18f6767c1fb4",
+      "bytes": 1036,
+      "modified": false
+    },
+    {
+      "path": "protos/appearances/Plastic.proto",
+      "source": "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/appearances/protos/Plastic.proto",
+      "upstream_git_blob": "d717f3f7fcddf31634d0f9429b3e2ddfbe34d3ac",
+      "upstream_sha256": "b89cda6ac87c6228b6d25f494fac579336d249ee6532b8b0fa5703dc987fff45",
+      "sha256": "b89cda6ac87c6228b6d25f494fac579336d249ee6532b8b0fa5703dc987fff45",
+      "bytes": 1880,
+      "modified": false
+    },
+    {
+      "path": "protos/appearances/textures/brushed_aluminium/brushed_aluminium_base_color.jpg",
+      "source": "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/appearances/protos/textures/brushed_aluminium/brushed_aluminium_base_color.jpg",
+      "upstream_git_blob": "9c7aabe5e0145342c0bc226cacc688596c99ea3b",
+      "upstream_sha256": "02ac2298bf255e55b66e90f329fa3437b4460982bf14277640cbf17307c478f1",
+      "sha256": "02ac2298bf255e55b66e90f329fa3437b4460982bf14277640cbf17307c478f1",
+      "bytes": 70835,
+      "modified": false
+    },
+    {
+      "path": "protos/appearances/textures/brushed_aluminium/brushed_aluminium_normal.jpg",
+      "source": "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/appearances/protos/textures/brushed_aluminium/brushed_aluminium_normal.jpg",
+      "upstream_git_blob": "59089111bccb89678cb81dd8a4d37d2db9979d6d",
+      "upstream_sha256": "e184e5b17cce514c5afa9efacd020d07f69da6caf20670220b2d46747e8c2e6d",
+      "sha256": "e184e5b17cce514c5afa9efacd020d07f69da6caf20670220b2d46747e8c2e6d",
+      "bytes": 246675,
+      "modified": false
+    },
+    {
+      "path": "protos/appearances/textures/brushed_aluminium/brushed_aluminium_roughness.jpg",
+      "source": "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/appearances/protos/textures/brushed_aluminium/brushed_aluminium_roughness.jpg",
+      "upstream_git_blob": "d6d5ba1f84bb6e79d3157269268368651294b915",
+      "upstream_sha256": "b5bc119049432c574651c0a90b3431fc7ab9abc5688e34d31a77ae89d53fdb16",
+      "sha256": "b5bc119049432c574651c0a90b3431fc7ab9abc5688e34d31a77ae89d53fdb16",
+      "bytes": 156559,
+      "modified": false
+    },
+    {
+      "path": "protos/appearances/textures/glossy_car_paint/glossy_car_paint_normal.jpg",
+      "source": "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/appearances/protos/textures/glossy_car_paint/glossy_car_paint_normal.jpg",
+      "upstream_git_blob": "242a8ce1df57b5047a97007fea2829104d29168d",
+      "upstream_sha256": "08034a3cd5a03e5532c2731ad2ccec87e30510a693156060471e6416f90d2f90",
+      "sha256": "08034a3cd5a03e5532c2731ad2ccec87e30510a693156060471e6416f90d2f90",
+      "bytes": 82612,
+      "modified": false
+    },
+    {
+      "path": "protos/appearances/textures/glossy_car_paint/glossy_car_paint_roughness.jpg",
+      "source": "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/appearances/protos/textures/glossy_car_paint/glossy_car_paint_roughness.jpg",
+      "upstream_git_blob": "c8715fa79ddec1f3522f81204683022677f1f02f",
+      "upstream_sha256": "4a4eac37b077adf22ce3eebde87911c419bee99df20dbf668d465df35943b5a3",
+      "sha256": "4a4eac37b077adf22ce3eebde87911c419bee99df20dbf668d465df35943b5a3",
+      "bytes": 1253127,
+      "modified": false
+    },
+    {
+      "path": "protos/appearances/textures/matte_car_paint/matte_car_paint_base_color.jpg",
+      "source": "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/appearances/protos/textures/matte_car_paint/matte_car_paint_base_color.jpg",
+      "upstream_git_blob": "938e4dfb17d1fcc66d54c525959cf86314659cfe",
+      "upstream_sha256": "c2364d95b565f27664f09cd06878497e86d8a5a147c43ca1636fbf3a81f2c305",
+      "sha256": "c2364d95b565f27664f09cd06878497e86d8a5a147c43ca1636fbf3a81f2c305",
+      "bytes": 917859,
+      "modified": false
+    },
+    {
+      "path": "protos/appearances/textures/matte_car_paint/matte_car_paint_roughness.jpg",
+      "source": "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/appearances/protos/textures/matte_car_paint/matte_car_paint_roughness.jpg",
+      "upstream_git_blob": "6d0e3663415f902bce852403d43ea21c8c539029",
+      "upstream_sha256": "0369c04c58d217621de852dad09c5d6e0c0fc2e99797853e28632811eb4cf759",
+      "sha256": "0369c04c58d217621de852dad09c5d6e0c0fc2e99797853e28632811eb4cf759",
+      "bytes": 405812,
+      "modified": false
+    },
+    {
+      "path": "protos/appearances/textures/perforated_metal/perforated_metal_base_color.png",
+      "source": "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/appearances/protos/textures/perforated_metal/perforated_metal_base_color.png",
+      "upstream_git_blob": "8f99b147ee194b9256eb4e297de7b5adfd3d43e6",
+      "upstream_sha256": "fd3b0d8f2438f0b1cc66787331c04ba2912aa026720a90d9e418e01734c09559",
+      "sha256": "fd3b0d8f2438f0b1cc66787331c04ba2912aa026720a90d9e418e01734c09559",
+      "bytes": 1498156,
+      "modified": false
+    },
+    {
+      "path": "protos/appearances/textures/perforated_metal/perforated_metal_normal.png",
+      "source": "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/appearances/protos/textures/perforated_metal/perforated_metal_normal.png",
+      "upstream_git_blob": "7f88896322abd79943eb1f750e976e80069629db",
+      "upstream_sha256": "abc14e1e81343450e19f8f6c6cfdf1d48c0d7a725a4706e2db597e2f840c654c",
+      "sha256": "abc14e1e81343450e19f8f6c6cfdf1d48c0d7a725a4706e2db597e2f840c654c",
+      "bytes": 1307481,
+      "modified": false
+    },
+    {
+      "path": "protos/appearances/textures/plastic/plastic_padded_base_color.jpg",
+      "source": "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/appearances/protos/textures/plastic/plastic_padded_base_color.jpg",
+      "upstream_git_blob": "6cd79085d5b0fb85f38ad1ee663beebd1d9b60e0",
+      "upstream_sha256": "62ab7c8ad8079a4fc27e4f89add60c77fb716b1b2f2fbef9ae7730f2d2a99776",
+      "sha256": "62ab7c8ad8079a4fc27e4f89add60c77fb716b1b2f2fbef9ae7730f2d2a99776",
+      "bytes": 520029,
+      "modified": false
+    },
+    {
+      "path": "protos/appearances/textures/plastic/plastic_padded_metalness.jpg",
+      "source": "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/appearances/protos/textures/plastic/plastic_padded_metalness.jpg",
+      "upstream_git_blob": "668ba978da6e08c126cbf2b3db4853a3ee315679",
+      "upstream_sha256": "a7be12b19105a7a3cf4e71bf258407e825a8525f7ebbfeaee3e7f10d31ddea0a",
+      "sha256": "a7be12b19105a7a3cf4e71bf258407e825a8525f7ebbfeaee3e7f10d31ddea0a",
+      "bytes": 75551,
+      "modified": false
+    },
+    {
+      "path": "protos/appearances/textures/plastic/plastic_padded_normal.jpg",
+      "source": "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/appearances/protos/textures/plastic/plastic_padded_normal.jpg",
+      "upstream_git_blob": "8f94930ffc5b51e33f96ea94d7da40c3bfd41a24",
+      "upstream_sha256": "c726911837faec5e4cd1642beecfb9c9e352e3e1798d53351c34bf7e3e3bd5b2",
+      "sha256": "c726911837faec5e4cd1642beecfb9c9e352e3e1798d53351c34bf7e3e3bd5b2",
+      "bytes": 379084,
+      "modified": false
+    },
+    {
+      "path": "protos/appearances/textures/plastic/plastic_padded_occlusion.jpg",
+      "source": "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/appearances/protos/textures/plastic/plastic_padded_occlusion.jpg",
+      "upstream_git_blob": "042e2653a2f57acc64d52f08a70d7a363ec7a7f4",
+      "upstream_sha256": "8bd12248b17e841cfac515bb173dfd026637f8e598b191ae06c3817a0bacaa36",
+      "sha256": "8bd12248b17e841cfac515bb173dfd026637f8e598b191ae06c3817a0bacaa36",
+      "bytes": 328805,
+      "modified": false
+    },
+    {
+      "path": "protos/appearances/textures/plastic/plastic_padded_roughness.jpg",
+      "source": "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/appearances/protos/textures/plastic/plastic_padded_roughness.jpg",
+      "upstream_git_blob": "e354d86a14183508a1764e47ad002ab1e166dc8e",
+      "upstream_sha256": "d5aa71c76af16297d96d2dae4863eab444005e8a314b0591dd2533b96877e91d",
+      "sha256": "d5aa71c76af16297d96d2dae4863eab444005e8a314b0591dd2533b96877e91d",
+      "bytes": 417460,
+      "modified": false
+    },
+    {
+      "path": "protos/appearances/textures/plastic/plastic_rough_normal.jpg",
+      "source": "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/appearances/protos/textures/plastic/plastic_rough_normal.jpg",
+      "upstream_git_blob": "5711a6ac0e8619f696e0f937c51339cdb7f4d627",
+      "upstream_sha256": "4b4b00792c1f8a50f8957db6c7f92fc91fb08e82a438e365c1b7d410d89bb9a5",
+      "sha256": "4b4b00792c1f8a50f8957db6c7f92fc91fb08e82a438e365c1b7d410d89bb9a5",
+      "bytes": 506985,
+      "modified": false
+    },
+    {
+      "path": "protos/appearances/textures/plastic/plastic_rough_roughness.jpg",
+      "source": "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/appearances/protos/textures/plastic/plastic_rough_roughness.jpg",
+      "upstream_git_blob": "ba21fd12b6122bf182c9fafd2a9dbb82aaab71c7",
+      "upstream_sha256": "6a2c4ecb8bf7f2ed1f2583d41af08d27264589ac8dda073b96532c319162b65c",
+      "sha256": "6a2c4ecb8bf7f2ed1f2583d41af08d27264589ac8dda073b96532c319162b65c",
+      "bytes": 287051,
+      "modified": false
+    },
+    {
+      "path": "protos/spot/Spot.proto",
+      "source": "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/robots/boston_dynamics/spot/protos/Spot.proto",
+      "upstream_git_blob": "f46ee8de0dce2247e5de4efd6d84d087947db2e0",
+      "upstream_sha256": "101a24fb51df684b2d9abfb65eaa14f9a21ad2c599b075cbc53d4b68a495aca0",
+      "sha256": "c567390600c80e6b2459df1603325effdd78db8cf90e3f817703678d0139a081",
+      "bytes": 25588,
+      "modified": true
+    },
+    {
+      "path": "protos/spot/SpotLeg.proto",
+      "source": "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/robots/boston_dynamics/spot/protos/SpotLeg.proto",
+      "upstream_git_blob": "fbef7a37e80c9e9d05739c723e7319174ee365e2",
+      "upstream_sha256": "b5d0db78836e2075bee3c0957b0d04518681a8f70dbe0113069b48dab9b875bf",
+      "sha256": "1690b1870a7e5c970de8f13e57443261dee1fb5479a64e3c424fb3aec2064239",
+      "bytes": 24577,
+      "modified": true
+    },
+    {
+      "path": "protos/spot/meshes/back_cover.obj",
+      "source": "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/robots/boston_dynamics/spot/protos/meshes/back_cover.obj",
+      "upstream_git_blob": "6e2239115a910b788fee17961da7c371596977d2",
+      "upstream_sha256": "a1d2ffcbab2f1aa6efd6e6a58f91dc1d7a66b9cc3c79e06103f8897ebe23bae8",
+      "sha256": "a1d2ffcbab2f1aa6efd6e6a58f91dc1d7a66b9cc3c79e06103f8897ebe23bae8",
+      "bytes": 53130,
+      "modified": false
+    },
+    {
+      "path": "protos/spot/meshes/back_screws.obj",
+      "source": "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/robots/boston_dynamics/spot/protos/meshes/back_screws.obj",
+      "upstream_git_blob": "cf48a1e07c1c5a783a61fd2654d01ce095a10db6",
+      "upstream_sha256": "06a876872a9b745558e67dd23410c9ec91fd8657e2eddf37f5c04c672510fdb1",
+      "sha256": "06a876872a9b745558e67dd23410c9ec91fd8657e2eddf37f5c04c672510fdb1",
+      "bytes": 114293,
+      "modified": false
+    },
+    {
+      "path": "protos/spot/meshes/black_box_1.obj",
+      "source": "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/robots/boston_dynamics/spot/protos/meshes/black_box_1.obj",
+      "upstream_git_blob": "d186c19138bd202640ce4c4625a322ab66e2e5b5",
+      "upstream_sha256": "582dc6cb0f12b55a2ea500a14d4eb5923e7653d8be4e451b81c4380c444b6b4e",
+      "sha256": "582dc6cb0f12b55a2ea500a14d4eb5923e7653d8be4e451b81c4380c444b6b4e",
+      "bytes": 1039,
+      "modified": false
+    },
+    {
+      "path": "protos/spot/meshes/black_box_1_screw.obj",
+      "source": "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/robots/boston_dynamics/spot/protos/meshes/black_box_1_screw.obj",
+      "upstream_git_blob": "3bcf4447adfe984b24ce73edfbe91561337efd51",
+      "upstream_sha256": "b8dd855259e889022d9947c9d4f95998b5720997da6ef5a082bbbf7967ab732c",
+      "sha256": "b8dd855259e889022d9947c9d4f95998b5720997da6ef5a082bbbf7967ab732c",
+      "bytes": 37980,
+      "modified": false
+    },
+    {
+      "path": "protos/spot/meshes/black_box_2.obj",
+      "source": "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/robots/boston_dynamics/spot/protos/meshes/black_box_2.obj",
+      "upstream_git_blob": "34dfa18bd4f048298c08ad4f874eaca396c30ec2",
+      "upstream_sha256": "2353dd54a466e2fc72f654918688dfb2accd1d46582da1d2628fb098f635c038",
+      "sha256": "2353dd54a466e2fc72f654918688dfb2accd1d46582da1d2628fb098f635c038",
+      "bytes": 1039,
+      "modified": false
+    },
+    {
+      "path": "protos/spot/meshes/black_box_2_screw.obj",
+      "source": "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/robots/boston_dynamics/spot/protos/meshes/black_box_2_screw.obj",
+      "upstream_git_blob": "099784f4dadf8ed1d6706da5dbd062c47743970b",
+      "upstream_sha256": "550a48d9dd4a90128a65636f62ecad5cc85040555e44c8f86cf2af819f797d3b",
+      "sha256": "550a48d9dd4a90128a65636f62ecad5cc85040555e44c8f86cf2af819f797d3b",
+      "bytes": 37980,
+      "modified": false
+    },
+    {
+      "path": "protos/spot/meshes/bottom_side.obj",
+      "source": "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/robots/boston_dynamics/spot/protos/meshes/bottom_side.obj",
+      "upstream_git_blob": "730d6e51ced30e24b1dbf4bf766506f41f374eb7",
+      "upstream_sha256": "2848d606eb6afb9ceee54823ccee23377a8c7d4dbd313e272621f8f787bf70ec",
+      "sha256": "2848d606eb6afb9ceee54823ccee23377a8c7d4dbd313e272621f8f787bf70ec",
+      "bytes": 33044,
+      "modified": false
+    },
+    {
+      "path": "protos/spot/meshes/cover_elbow.obj",
+      "source": "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/robots/boston_dynamics/spot/protos/meshes/cover_elbow.obj",
+      "upstream_git_blob": "1a9950468be6e4b808bdf740cfbe7d8c33097abe",
+      "upstream_sha256": "79af1e957b8701c2c700f751754ce3e25ddc583fa198cdcab78571269e7ba8d3",
+      "sha256": "79af1e957b8701c2c700f751754ce3e25ddc583fa198cdcab78571269e7ba8d3",
+      "bytes": 7078,
+      "modified": false
+    },
+    {
+      "path": "protos/spot/meshes/cover_leg.obj",
+      "source": "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/robots/boston_dynamics/spot/protos/meshes/cover_leg.obj",
+      "upstream_git_blob": "096b9ff7f4d3389efcf98a83bfd3eae78f33e923",
+      "upstream_sha256": "72e8987835f589ffb990f9227eb9d90fe848dfa822ce3436eda9eb4816ef158e",
+      "sha256": "72e8987835f589ffb990f9227eb9d90fe848dfa822ce3436eda9eb4816ef158e",
+      "bytes": 50382,
+      "modified": false
+    },
+    {
+      "path": "protos/spot/meshes/cover_motor.obj",
+      "source": "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/robots/boston_dynamics/spot/protos/meshes/cover_motor.obj",
+      "upstream_git_blob": "8cff788c55b10cdccd9146f374e37f40f2127d3d",
+      "upstream_sha256": "536c952479e7f99f8564e53d37aaaf9de9b26d4ad51929475914c8eb61b8e92e",
+      "sha256": "536c952479e7f99f8564e53d37aaaf9de9b26d4ad51929475914c8eb61b8e92e",
+      "bytes": 13420,
+      "modified": false
+    },
+    {
+      "path": "protos/spot/meshes/foot.obj",
+      "source": "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/robots/boston_dynamics/spot/protos/meshes/foot.obj",
+      "upstream_git_blob": "2e7027f7bd07b309b155e3f85c0f816e72212c77",
+      "upstream_sha256": "5cd085bdb1427abaf4955b9d97f76e6875d27c9eb28c339c41d0a45a0bdc7721",
+      "sha256": "5cd085bdb1427abaf4955b9d97f76e6875d27c9eb28c339c41d0a45a0bdc7721",
+      "bytes": 9636,
+      "modified": false
+    },
+    {
+      "path": "protos/spot/meshes/foot_rubber.obj",
+      "source": "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/robots/boston_dynamics/spot/protos/meshes/foot_rubber.obj",
+      "upstream_git_blob": "d15cf84f09790ea6d87b64f863375489044590d2",
+      "upstream_sha256": "aa3b732840a4f9f2f326b86bac646e64bbf67fca4f42de2a37e269ad0ffe1b04",
+      "sha256": "aa3b732840a4f9f2f326b86bac646e64bbf67fca4f42de2a37e269ad0ffe1b04",
+      "bytes": 8973,
+      "modified": false
+    },
+    {
+      "path": "protos/spot/meshes/forearm_sh.obj",
+      "source": "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/robots/boston_dynamics/spot/protos/meshes/forearm_sh.obj",
+      "upstream_git_blob": "69349337c6e172072692857bff8811d0056c750e",
+      "upstream_sha256": "4080833df4f79d682ef707adc3dfee040a497997929cf3206b0fefb05b033e76",
+      "sha256": "4080833df4f79d682ef707adc3dfee040a497997929cf3206b0fefb05b033e76",
+      "bytes": 116230,
+      "modified": false
+    },
+    {
+      "path": "protos/spot/meshes/front_shoulder_cover.obj",
+      "source": "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/robots/boston_dynamics/spot/protos/meshes/front_shoulder_cover.obj",
+      "upstream_git_blob": "37b5ebc5e1ef006240f74607f09b7b0ef100ac1e",
+      "upstream_sha256": "4f801a9b3d07d4546a908d597c5380735156987b343adfafad0a3ca2efdf965f",
+      "sha256": "4f801a9b3d07d4546a908d597c5380735156987b343adfafad0a3ca2efdf965f",
+      "bytes": 33810,
+      "modified": false
+    },
+    {
+      "path": "protos/spot/meshes/head_background_holes.obj",
+      "source": "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/robots/boston_dynamics/spot/protos/meshes/head_background_holes.obj",
+      "upstream_git_blob": "9bd5e7dd175e6dc2334625989926e8d93e53cde2",
+      "upstream_sha256": "7fd1f109afc65ddbe2cc213a5ee91dde1bdf9b60754fe604d10b8da96fcbbe6d",
+      "sha256": "7fd1f109afc65ddbe2cc213a5ee91dde1bdf9b60754fe604d10b8da96fcbbe6d",
+      "bytes": 3781,
+      "modified": false
+    },
+    {
+      "path": "protos/spot/meshes/head_cam_l1.obj",
+      "source": "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/robots/boston_dynamics/spot/protos/meshes/head_cam_l1.obj",
+      "upstream_git_blob": "f67c78c759da82b70ae35425ac4d394dfad1b2b0",
+      "upstream_sha256": "353739154f8f339168f15ac34ea1a92f893b1591d58b76f0962712e0ec258450",
+      "sha256": "353739154f8f339168f15ac34ea1a92f893b1591d58b76f0962712e0ec258450",
+      "bytes": 232,
+      "modified": false
+    },
+    {
+      "path": "protos/spot/meshes/head_cam_l2.obj",
+      "source": "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/robots/boston_dynamics/spot/protos/meshes/head_cam_l2.obj",
+      "upstream_git_blob": "a2659a4bd6c578870807d7e6ec707c92ae0559e4",
+      "upstream_sha256": "bb4dc1b81ee84b9389a80e7e7350b6c969d109f1ea87d64e9bb038230c3111fc",
+      "sha256": "bb4dc1b81ee84b9389a80e7e7350b6c969d109f1ea87d64e9bb038230c3111fc",
+      "bytes": 232,
+      "modified": false
+    },
+    {
+      "path": "protos/spot/meshes/head_cam_l3.obj",
+      "source": "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/robots/boston_dynamics/spot/protos/meshes/head_cam_l3.obj",
+      "upstream_git_blob": "1217da7d231825c74c50fdef6d74a9c02ed17c9e",
+      "upstream_sha256": "f7ab97ab35aeee8c28afd716a0e8be5e35a3a820cc8364b9004517649737479c",
+      "sha256": "f7ab97ab35aeee8c28afd716a0e8be5e35a3a820cc8364b9004517649737479c",
+      "bytes": 232,
+      "modified": false
+    },
+    {
+      "path": "protos/spot/meshes/head_cam_r1.obj",
+      "source": "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/robots/boston_dynamics/spot/protos/meshes/head_cam_r1.obj",
+      "upstream_git_blob": "f1206a046cdf68b2c4268dd621738bba5f538865",
+      "upstream_sha256": "a45a5dcca70b59d76a8bfb5ea59cd5ded7213cf61e761e1a5748c8b3533c1d5f",
+      "sha256": "a45a5dcca70b59d76a8bfb5ea59cd5ded7213cf61e761e1a5748c8b3533c1d5f",
+      "bytes": 228,
+      "modified": false
+    },
+    {
+      "path": "protos/spot/meshes/head_cam_r2.obj",
+      "source": "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/robots/boston_dynamics/spot/protos/meshes/head_cam_r2.obj",
+      "upstream_git_blob": "70eb407962aafc88974e0b9c3263734a961b1ed6",
+      "upstream_sha256": "0f8500dafb144929f5cc302ce4f91fab238b1e5833f93acbaa34fd2b3fdb18ed",
+      "sha256": "0f8500dafb144929f5cc302ce4f91fab238b1e5833f93acbaa34fd2b3fdb18ed",
+      "bytes": 226,
+      "modified": false
+    },
+    {
+      "path": "protos/spot/meshes/head_cam_r3.obj",
+      "source": "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/robots/boston_dynamics/spot/protos/meshes/head_cam_r3.obj",
+      "upstream_git_blob": "5202c6c4765df0d278605903aa19dccc0e68be6c",
+      "upstream_sha256": "8114d34fbb517336f825a8b9367646aec1cbfcd75e0b338b4c66e11527e7eb5a",
+      "sha256": "8114d34fbb517336f825a8b9367646aec1cbfcd75e0b338b4c66e11527e7eb5a",
+      "bytes": 228,
+      "modified": false
+    },
+    {
+      "path": "protos/spot/meshes/head_cover.obj",
+      "source": "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/robots/boston_dynamics/spot/protos/meshes/head_cover.obj",
+      "upstream_git_blob": "eb86f0d94101f51a5d6eb7771b7d78cc771afe04",
+      "upstream_sha256": "bea7f84a8f15c73ce7675e735525018a877124b129d6a8f93d802189712e8166",
+      "sha256": "bea7f84a8f15c73ce7675e735525018a877124b129d6a8f93d802189712e8166",
+      "bytes": 193619,
+      "modified": false
+    },
+    {
+      "path": "protos/spot/meshes/left_flank_cam_1.obj",
+      "source": "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/robots/boston_dynamics/spot/protos/meshes/left_flank_cam_1.obj",
+      "upstream_git_blob": "dcc792ca21c7a0af827dd45d28b51a57c7d35c43",
+      "upstream_sha256": "a82316c80fcbefd0291a047c822bf687f058eff89ba229c7f6603aec413eb425",
+      "sha256": "a82316c80fcbefd0291a047c822bf687f058eff89ba229c7f6603aec413eb425",
+      "bytes": 32079,
+      "modified": false
+    },
+    {
+      "path": "protos/spot/meshes/left_flank_cam_2.obj",
+      "source": "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/robots/boston_dynamics/spot/protos/meshes/left_flank_cam_2.obj",
+      "upstream_git_blob": "6fe08adc39199274a5946738ddd9264827313e80",
+      "upstream_sha256": "843bbd124d5ba8279494c050a9ae07c0c2bc6ebc4a23604e25bbb09547f871d2",
+      "sha256": "843bbd124d5ba8279494c050a9ae07c0c2bc6ebc4a23604e25bbb09547f871d2",
+      "bytes": 236,
+      "modified": false
+    },
+    {
+      "path": "protos/spot/meshes/left_flank_cam_3.obj",
+      "source": "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/robots/boston_dynamics/spot/protos/meshes/left_flank_cam_3.obj",
+      "upstream_git_blob": "53945965509788db6a4db9175feca15be8512255",
+      "upstream_sha256": "606c9230ca72263796d9464b49b3a9a820f6b58464675e57bc44ab2e79c14508",
+      "sha256": "606c9230ca72263796d9464b49b3a9a820f6b58464675e57bc44ab2e79c14508",
+      "bytes": 237,
+      "modified": false
+    },
+    {
+      "path": "protos/spot/meshes/left_flank_cam_4.obj",
+      "source": "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/robots/boston_dynamics/spot/protos/meshes/left_flank_cam_4.obj",
+      "upstream_git_blob": "b6b8658ad41769e9613586f2f4c05ef8e66c9359",
+      "upstream_sha256": "45b791b2a2cdeadb5c5867759e53f4768b38ec825581e5ac417585fd882372f4",
+      "sha256": "45b791b2a2cdeadb5c5867759e53f4768b38ec825581e5ac417585fd882372f4",
+      "bytes": 239,
+      "modified": false
+    },
+    {
+      "path": "protos/spot/meshes/left_flank_cover.obj",
+      "source": "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/robots/boston_dynamics/spot/protos/meshes/left_flank_cover.obj",
+      "upstream_git_blob": "afa9e9bf6fd1c41e88676cad0927e74ffd25a5d5",
+      "upstream_sha256": "ce78393791fca71eb549832c15fe47e4f2f4d0acfe66dc66e8a6206ac444b391",
+      "sha256": "ce78393791fca71eb549832c15fe47e4f2f4d0acfe66dc66e8a6206ac444b391",
+      "bytes": 31202,
+      "modified": false
+    },
+    {
+      "path": "protos/spot/meshes/left_flank_holes.obj",
+      "source": "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/robots/boston_dynamics/spot/protos/meshes/left_flank_holes.obj",
+      "upstream_git_blob": "b423aa82563d8e651c9339d7b9fab92cf6c9ca8d",
+      "upstream_sha256": "a06b6eba7199d2643a789e057694ae284dbed0f1ed5437756549c6b0ddaa9431",
+      "sha256": "a06b6eba7199d2643a789e057694ae284dbed0f1ed5437756549c6b0ddaa9431",
+      "bytes": 1179,
+      "modified": false
+    },
+    {
+      "path": "protos/spot/meshes/left_flank_rubber.obj",
+      "source": "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/robots/boston_dynamics/spot/protos/meshes/left_flank_rubber.obj",
+      "upstream_git_blob": "272d4dc1a4623b71341a59a54c8e771c5f687e25",
+      "upstream_sha256": "70a5566da5b8960b43792b6f533c0ab3d25064094775f1232433af6bced13801",
+      "sha256": "70a5566da5b8960b43792b6f533c0ab3d25064094775f1232433af6bced13801",
+      "bytes": 5694,
+      "modified": false
+    },
+    {
+      "path": "protos/spot/meshes/metal_strip.obj",
+      "source": "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/robots/boston_dynamics/spot/protos/meshes/metal_strip.obj",
+      "upstream_git_blob": "999473e485d5791f80a328710852c6d793abf51c",
+      "upstream_sha256": "91e171e5742bee6cca14e9edf7081eb301ed7f2c6d65c464822f3330d2a4d2d3",
+      "sha256": "91e171e5742bee6cca14e9edf7081eb301ed7f2c6d65c464822f3330d2a4d2d3",
+      "bytes": 3204,
+      "modified": false
+    },
+    {
+      "path": "protos/spot/meshes/motor.obj",
+      "source": "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/robots/boston_dynamics/spot/protos/meshes/motor.obj",
+      "upstream_git_blob": "4e1cb97ea41048460e8b27056374566a742f176d",
+      "upstream_sha256": "03cc083b8aa569ff98e79b78d0a0ca8cbac2f08dc1a47062c7e93e9f9e88110d",
+      "sha256": "03cc083b8aa569ff98e79b78d0a0ca8cbac2f08dc1a47062c7e93e9f9e88110d",
+      "bytes": 28049,
+      "modified": false
+    },
+    {
+      "path": "protos/spot/meshes/motor_ring.obj",
+      "source": "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/robots/boston_dynamics/spot/protos/meshes/motor_ring.obj",
+      "upstream_git_blob": "2badbe542f389edd30f0715fa1938bd1873ff22b",
+      "upstream_sha256": "1c6f3b7449dd0b783753603d444ed3c8f78328c5887a864fa8818d607b45c9e8",
+      "sha256": "1c6f3b7449dd0b783753603d444ed3c8f78328c5887a864fa8818d607b45c9e8",
+      "bytes": 21203,
+      "modified": false
+    },
+    {
+      "path": "protos/spot/meshes/motor_support.obj",
+      "source": "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/robots/boston_dynamics/spot/protos/meshes/motor_support.obj",
+      "upstream_git_blob": "c9b5ce7c96971ee895549b3006ee40a32b2ac3ba",
+      "upstream_sha256": "c4328dd206d1ad27b8995de0065f0c5e3694c604bc4ff19bab9aa9c4a81ad028",
+      "sha256": "c4328dd206d1ad27b8995de0065f0c5e3694c604bc4ff19bab9aa9c4a81ad028",
+      "bytes": 35551,
+      "modified": false
+    },
+    {
+      "path": "protos/spot/meshes/rear_0.obj",
+      "source": "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/robots/boston_dynamics/spot/protos/meshes/rear_0.obj",
+      "upstream_git_blob": "6414c12ceae5bc40141b2b84c27e83602099cbf8",
+      "upstream_sha256": "f61d6a411b306b81919ecfa86b93539d888dcdd2b3f4eb9a4c7fca0ccfbd6687",
+      "sha256": "f61d6a411b306b81919ecfa86b93539d888dcdd2b3f4eb9a4c7fca0ccfbd6687",
+      "bytes": 1840,
+      "modified": false
+    },
+    {
+      "path": "protos/spot/meshes/rear_1.obj",
+      "source": "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/robots/boston_dynamics/spot/protos/meshes/rear_1.obj",
+      "upstream_git_blob": "48c59aea5b145e0b710650ce960544bde041b34a",
+      "upstream_sha256": "7409034075862c333a4d54b05d270a86d516b113f5b8aa3d429d690385609897",
+      "sha256": "7409034075862c333a4d54b05d270a86d516b113f5b8aa3d429d690385609897",
+      "bytes": 14264,
+      "modified": false
+    },
+    {
+      "path": "protos/spot/meshes/rear_2.obj",
+      "source": "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/robots/boston_dynamics/spot/protos/meshes/rear_2.obj",
+      "upstream_git_blob": "3d0c6317f4e6be94c71896a3c50794f33973174b",
+      "upstream_sha256": "925adfe091e056a398af1ae41dc8069918f953941362a1410d1c6a73f0f14491",
+      "sha256": "925adfe091e056a398af1ae41dc8069918f953941362a1410d1c6a73f0f14491",
+      "bytes": 32350,
+      "modified": false
+    },
+    {
+      "path": "protos/spot/meshes/rear_3.obj",
+      "source": "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/robots/boston_dynamics/spot/protos/meshes/rear_3.obj",
+      "upstream_git_blob": "412cdea8c35f09b4ae687400f5a134d80d5f2926",
+      "upstream_sha256": "06e145d617c3593df5074d399028fa6dd2784bf6e81f0fe975e1749d2dd2a394",
+      "sha256": "06e145d617c3593df5074d399028fa6dd2784bf6e81f0fe975e1749d2dd2a394",
+      "bytes": 10777,
+      "modified": false
+    },
+    {
+      "path": "protos/spot/meshes/rear_buttons.obj",
+      "source": "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/robots/boston_dynamics/spot/protos/meshes/rear_buttons.obj",
+      "upstream_git_blob": "8b5891b14f7c0f00d4a35309562e42edae662ae8",
+      "upstream_sha256": "a4f4b3d5e53fa12718b4dc9169f3d0bdf46a8c39affba588346a080eff52ff09",
+      "sha256": "a4f4b3d5e53fa12718b4dc9169f3d0bdf46a8c39affba588346a080eff52ff09",
+      "bytes": 21575,
+      "modified": false
+    },
+    {
+      "path": "protos/spot/meshes/rear_buttons_blue_1.obj",
+      "source": "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/robots/boston_dynamics/spot/protos/meshes/rear_buttons_blue_1.obj",
+      "upstream_git_blob": "ac71a6696082a579128a1c0b2fc2fecfbe0f81f7",
+      "upstream_sha256": "043f685178e88ff04086f2360a35ffae1d7688fc4e189e3bb67e10defa06faba",
+      "sha256": "043f685178e88ff04086f2360a35ffae1d7688fc4e189e3bb67e10defa06faba",
+      "bytes": 3021,
+      "modified": false
+    },
+    {
+      "path": "protos/spot/meshes/rear_buttons_blue_2.obj",
+      "source": "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/robots/boston_dynamics/spot/protos/meshes/rear_buttons_blue_2.obj",
+      "upstream_git_blob": "b8d5ddcdb171972bda8defa8120ef87baa1dee81",
+      "upstream_sha256": "650b54bdf86b12b63223329f6943c755863c41468e0bbdfe428c662430e50655",
+      "sha256": "650b54bdf86b12b63223329f6943c755863c41468e0bbdfe428c662430e50655",
+      "bytes": 1085,
+      "modified": false
+    },
+    {
+      "path": "protos/spot/meshes/rear_buttons_red_1.obj",
+      "source": "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/robots/boston_dynamics/spot/protos/meshes/rear_buttons_red_1.obj",
+      "upstream_git_blob": "a0ead6ffd71e9a626e8d5f952114404269cdad08",
+      "upstream_sha256": "301d8aeb3966a6d629851f6b52dbf5abed4aa4e3c65e6157d0edb5f7ca77f1f0",
+      "sha256": "301d8aeb3966a6d629851f6b52dbf5abed4aa4e3c65e6157d0edb5f7ca77f1f0",
+      "bytes": 3179,
+      "modified": false
+    },
+    {
+      "path": "protos/spot/meshes/rear_buttons_red_2.obj",
+      "source": "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/robots/boston_dynamics/spot/protos/meshes/rear_buttons_red_2.obj",
+      "upstream_git_blob": "558566de738f4a2936b42db56e3546c1070eca13",
+      "upstream_sha256": "a62fe1277b430f0eef9fd7c1ecee21392b23a56290bd619ed3dabc7ef2b96611",
+      "sha256": "a62fe1277b430f0eef9fd7c1ecee21392b23a56290bd619ed3dabc7ef2b96611",
+      "bytes": 1074,
+      "modified": false
+    },
+    {
+      "path": "protos/spot/meshes/rear_cam_1.obj",
+      "source": "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/robots/boston_dynamics/spot/protos/meshes/rear_cam_1.obj",
+      "upstream_git_blob": "2d6d51be67415ccbd977bb2bb1456ea70ef4ba25",
+      "upstream_sha256": "4407af6808f6b81d9ce5ad6d6ac4a7f2275bfbf1af13feda1f741ddf08b6a20a",
+      "sha256": "4407af6808f6b81d9ce5ad6d6ac4a7f2275bfbf1af13feda1f741ddf08b6a20a",
+      "bytes": 226,
+      "modified": false
+    },
+    {
+      "path": "protos/spot/meshes/rear_cam_2.obj",
+      "source": "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/robots/boston_dynamics/spot/protos/meshes/rear_cam_2.obj",
+      "upstream_git_blob": "57537ff36a8cf209fcc73db4da9721e370118314",
+      "upstream_sha256": "d35762ba1a8da27bbe05ed907669d960897947c3dd29bb2d9f29ca6e058f3a81",
+      "sha256": "d35762ba1a8da27bbe05ed907669d960897947c3dd29bb2d9f29ca6e058f3a81",
+      "bytes": 225,
+      "modified": false
+    },
+    {
+      "path": "protos/spot/meshes/rear_cam_3.obj",
+      "source": "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/robots/boston_dynamics/spot/protos/meshes/rear_cam_3.obj",
+      "upstream_git_blob": "5c7c61ad01fa28fad7dab896035bd2861a0961e9",
+      "upstream_sha256": "b5f963714ecec1fcc56bc2509d4eef4dd401bbfdb112b4b78c6216d46899cf65",
+      "sha256": "b5f963714ecec1fcc56bc2509d4eef4dd401bbfdb112b4b78c6216d46899cf65",
+      "bytes": 225,
+      "modified": false
+    },
+    {
+      "path": "protos/spot/meshes/rear_cover.obj",
+      "source": "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/robots/boston_dynamics/spot/protos/meshes/rear_cover.obj",
+      "upstream_git_blob": "fddd5e77f35805204f23ce80331214fc6e208514",
+      "upstream_sha256": "ad3db15861164e154e11aca8e6f8bfa4daf35824257a6f9d5f5e760260ce44e5",
+      "sha256": "ad3db15861164e154e11aca8e6f8bfa4daf35824257a6f9d5f5e760260ce44e5",
+      "bytes": 91492,
+      "modified": false
+    },
+    {
+      "path": "protos/spot/meshes/rear_shoulder_cover.obj",
+      "source": "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/robots/boston_dynamics/spot/protos/meshes/rear_shoulder_cover.obj",
+      "upstream_git_blob": "8c303f24974bfd59c319f11681f5ffdd4c5a94b4",
+      "upstream_sha256": "d69b469d132c7a80397580ef08bebf5e0d52b3954e1e6a568c53c584f9bb7600",
+      "sha256": "d69b469d132c7a80397580ef08bebf5e0d52b3954e1e6a568c53c584f9bb7600",
+      "bytes": 64390,
+      "modified": false
+    },
+    {
+      "path": "protos/spot/meshes/right_flank_cam_1.obj",
+      "source": "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/robots/boston_dynamics/spot/protos/meshes/right_flank_cam_1.obj",
+      "upstream_git_blob": "d829ad9cbb79b7cfb859f018bfa759928b5bc259",
+      "upstream_sha256": "fc47bd7328ca6672de16ccdf0fb2b948dba2aa0c64ee1606ec1ea2bf93c97708",
+      "sha256": "fc47bd7328ca6672de16ccdf0fb2b948dba2aa0c64ee1606ec1ea2bf93c97708",
+      "bytes": 51855,
+      "modified": false
+    },
+    {
+      "path": "protos/spot/meshes/right_flank_cam_2.obj",
+      "source": "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/robots/boston_dynamics/spot/protos/meshes/right_flank_cam_2.obj",
+      "upstream_git_blob": "b8c75249419458069299d80b19b0c22fda0e0f2a",
+      "upstream_sha256": "56e7be13d3ae3f7efdeb39e8489aa8197d9ac673640aa65d5ca8129af9e1208c",
+      "sha256": "56e7be13d3ae3f7efdeb39e8489aa8197d9ac673640aa65d5ca8129af9e1208c",
+      "bytes": 233,
+      "modified": false
+    },
+    {
+      "path": "protos/spot/meshes/right_flank_cam_3.obj",
+      "source": "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/robots/boston_dynamics/spot/protos/meshes/right_flank_cam_3.obj",
+      "upstream_git_blob": "127d9a9af1959e37ebf8a1986de961732407cfb7",
+      "upstream_sha256": "294a8d39ee2fd3023154174e4c19759e29d7654b8fbdcc3bc8811504f32c983e",
+      "sha256": "294a8d39ee2fd3023154174e4c19759e29d7654b8fbdcc3bc8811504f32c983e",
+      "bytes": 235,
+      "modified": false
+    },
+    {
+      "path": "protos/spot/meshes/right_flank_cam_4.obj",
+      "source": "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/robots/boston_dynamics/spot/protos/meshes/right_flank_cam_4.obj",
+      "upstream_git_blob": "564ad67bb88f0fd488ef7ad85fc3c53837c85ad0",
+      "upstream_sha256": "d4147bc2cbe508fbfd0d5062969f4571ad8315b42693fc6d480b550873dea722",
+      "sha256": "d4147bc2cbe508fbfd0d5062969f4571ad8315b42693fc6d480b550873dea722",
+      "bytes": 236,
+      "modified": false
+    },
+    {
+      "path": "protos/spot/meshes/right_flank_cover.obj",
+      "source": "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/robots/boston_dynamics/spot/protos/meshes/right_flank_cover.obj",
+      "upstream_git_blob": "6d65e8ea405ec889fa0f2fd0092b9ef14ad4abd9",
+      "upstream_sha256": "dfc36f0334cecaa650155bd0b180f8d2127ff009659772b9970230a4d0736308",
+      "sha256": "dfc36f0334cecaa650155bd0b180f8d2127ff009659772b9970230a4d0736308",
+      "bytes": 31309,
+      "modified": false
+    },
+    {
+      "path": "protos/spot/meshes/right_flank_holes.obj",
+      "source": "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/robots/boston_dynamics/spot/protos/meshes/right_flank_holes.obj",
+      "upstream_git_blob": "2584b3284b4eae0029df10e20e75a28a316c15a0",
+      "upstream_sha256": "3a463d07fa82d7c72ebe806bffcf513afd5972bdbd19a921e1686dd3d0122cdf",
+      "sha256": "3a463d07fa82d7c72ebe806bffcf513afd5972bdbd19a921e1686dd3d0122cdf",
+      "bytes": 1178,
+      "modified": false
+    },
+    {
+      "path": "protos/spot/meshes/right_flank_rubber.obj",
+      "source": "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/robots/boston_dynamics/spot/protos/meshes/right_flank_rubber.obj",
+      "upstream_git_blob": "9005c3876d5cfba26f744b1a9bdbb218034b0b62",
+      "upstream_sha256": "625a8d9ce87c1b1ac735c551c98b2a25988dccb29b8bf9c0aae70e3bff28b273",
+      "sha256": "625a8d9ce87c1b1ac735c551c98b2a25988dccb29b8bf9c0aae70e3bff28b273",
+      "bytes": 5613,
+      "modified": false
+    },
+    {
+      "path": "protos/spot/meshes/square_screw_1.obj",
+      "source": "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/robots/boston_dynamics/spot/protos/meshes/square_screw_1.obj",
+      "upstream_git_blob": "6c7e91313d6666aafaef66edce8fdc0d97091989",
+      "upstream_sha256": "20e2712a309826fdd119f30d9a107a04e23a9fc879accb52fed2ae567dd00b07",
+      "sha256": "20e2712a309826fdd119f30d9a107a04e23a9fc879accb52fed2ae567dd00b07",
+      "bytes": 75906,
+      "modified": false
+    },
+    {
+      "path": "protos/spot/meshes/square_screw_2.obj",
+      "source": "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/robots/boston_dynamics/spot/protos/meshes/square_screw_2.obj",
+      "upstream_git_blob": "066ada212edec3e53d20d4bcdac244c97e84056d",
+      "upstream_sha256": "d7f502711a30e0bc8f635c8a99e3e84dbf9ec870aadc73f1a02ca810cf9553c0",
+      "sha256": "d7f502711a30e0bc8f635c8a99e3e84dbf9ec870aadc73f1a02ca810cf9553c0",
+      "bytes": 75906,
+      "modified": false
+    },
+    {
+      "path": "protos/spot/meshes/tendon.obj",
+      "source": "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/robots/boston_dynamics/spot/protos/meshes/tendon.obj",
+      "upstream_git_blob": "d15e4ecbc389087a91d674a41d0cf916c5b6664a",
+      "upstream_sha256": "301853286b9f54c81f6b94515c702178cc500ac55f3d18700df7ff55f25fd9d3",
+      "sha256": "301853286b9f54c81f6b94515c702178cc500ac55f3d18700df7ff55f25fd9d3",
+      "bytes": 19602,
+      "modified": false
+    },
+    {
+      "path": "protos/spot/meshes/upperarm_inside.obj",
+      "source": "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/robots/boston_dynamics/spot/protos/meshes/upperarm_inside.obj",
+      "upstream_git_blob": "0cfff4bd2b329db70bb73d54bc73138d9db48d04",
+      "upstream_sha256": "3c05c64af53d3be0c78727aa002e4fab550811301d6ea3c07424de47d18f87b9",
+      "sha256": "3c05c64af53d3be0c78727aa002e4fab550811301d6ea3c07424de47d18f87b9",
+      "bytes": 14825,
+      "modified": false
+    },
+    {
+      "path": "protos/spot/meshes/upperarm_sh.obj",
+      "source": "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/robots/boston_dynamics/spot/protos/meshes/upperarm_sh.obj",
+      "upstream_git_blob": "1783f124dfaca0fec5c62f03860eefddf7035656",
+      "upstream_sha256": "df0ac43447e9937ebc75be79062c781f89af01df34c11359136fdcdffdc09081",
+      "sha256": "df0ac43447e9937ebc75be79062c781f89af01df34c11359136fdcdffdc09081",
+      "bytes": 397502,
+      "modified": false
+    },
+    {
+      "path": "protos/spot/textures/camera_2_lens_base_color.jpg",
+      "source": "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/robots/boston_dynamics/spot/protos/textures/camera_2_lens_base_color.jpg",
+      "upstream_git_blob": "15a5b06d94e92cb184de9f1f466e6950bc5a6c0f",
+      "upstream_sha256": "417f683f966c0b8fd94733847918360b4f487b63300a089dd8e11365942333bb",
+      "sha256": "417f683f966c0b8fd94733847918360b4f487b63300a089dd8e11365942333bb",
+      "bytes": 10166,
+      "modified": false
+    },
+    {
+      "path": "protos/spot/textures/camera_big_lens_base_color.jpg",
+      "source": "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/robots/boston_dynamics/spot/protos/textures/camera_big_lens_base_color.jpg",
+      "upstream_git_blob": "a4e1fd662c93171ea579e314b7285c7bd553b246",
+      "upstream_sha256": "9030ac9997ee900ab5cbae964966c12c021d1e9c99af4a8a5b097aa1a6d8ae77",
+      "sha256": "9030ac9997ee900ab5cbae964966c12c021d1e9c99af4a8a5b097aa1a6d8ae77",
+      "bytes": 16065,
+      "modified": false
+    },
+    {
+      "path": "protos/spot/textures/camera_lens_base_color.jpg",
+      "source": "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/robots/boston_dynamics/spot/protos/textures/camera_lens_base_color.jpg",
+      "upstream_git_blob": "310bf8b4b7a9acbdf4d61db2a3cbbfb8ee8c8265",
+      "upstream_sha256": "8b7ab7e7d568d8d17bf8d342ba1193b7b9f720051a5893644dd69b94a2946690",
+      "sha256": "8b7ab7e7d568d8d17bf8d342ba1193b7b9f720051a5893644dd69b94a2946690",
+      "bytes": 5347,
+      "modified": false
+    },
+    {
+      "path": "protos/spot/textures/startup.png",
+      "source": "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/robots/boston_dynamics/spot/protos/textures/startup.png",
+      "upstream_git_blob": "0c36a5f10d200c4062c59f231e4048bbc103a70c",
+      "upstream_sha256": "22e1b43a9c56fe967e58cd4741ae64bf6a128b02e08861d6bbfeaa5920174675",
+      "sha256": "22e1b43a9c56fe967e58cd4741ae64bf6a128b02e08861d6bbfeaa5920174675",
+      "bytes": 8127,
+      "modified": false
+    }
+  ]
+}

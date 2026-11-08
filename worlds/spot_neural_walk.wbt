@@ -1,0 +1,80 @@
+#VRML_SIM R2025a utf8
+EXTERNPROTO "../protos/spot/Spot.proto"
+
+WorldInfo {
+  title "Prima-Lux - Spot recurrent walking"
+  basicTimeStep 16
+}
+Viewpoint {
+  orientation 0.286 -0.2 -0.937 2.15
+  position 2.3 2.4 1.8
+  follow "Spot"
+}
+Background {
+  skyColor [ 0.72 0.80 0.88 ]
+}
+DirectionalLight {
+  direction -0.3 -0.5 -1
+  intensity 1
+  ambientIntensity 0.5
+}
+Solid {
+  translation 0 0 -0.05
+  children [
+    Shape {
+      appearance DEF FLOOR_MATERIAL PBRAppearance {
+        baseColor 0.65 0.68 0.70
+        roughness 1
+        metalness 0
+      }
+      geometry DEF FLOOR_GEOMETRY Box { size 8 8 0.1 }
+    }
+  ]
+  name "floor"
+  boundingObject USE FLOOR_GEOMETRY
+}
+Solid {
+  translation 0 4.025 0.05
+  children [
+    Shape {
+      appearance USE FLOOR_MATERIAL
+      geometry DEF WALL_X Box { size 8.1 0.05 0.1 }
+    }
+  ]
+  name "north wall"
+  boundingObject USE WALL_X
+}
+Solid {
+  translation 0 -4.025 0.05
+  children [
+    Shape { appearance USE FLOOR_MATERIAL geometry USE WALL_X }
+  ]
+  name "south wall"
+  boundingObject USE WALL_X
+}
+Solid {
+  translation 4.025 0 0.05
+  children [
+    Shape {
+      appearance USE FLOOR_MATERIAL
+      geometry DEF WALL_Y Box { size 0.05 8 0.1 }
+    }
+  ]
+  name "east wall"
+  boundingObject USE WALL_Y
+}
+Solid {
+  translation -4.025 0 0.05
+  children [
+    Shape { appearance USE FLOOR_MATERIAL geometry USE WALL_Y }
+  ]
+  name "west wall"
+  boundingObject USE WALL_Y
+}
+Spot {
+  translation 0 0 0.624
+  name "Spot"
+  controller "spot_neural_walk"
+  supervisor FALSE
+  synchronization TRUE
+}

@@ -1,0 +1,17 @@
+{
+  "schema": "artificial-brains/build-feedback/v1",
+  "design_sha256": "b5fed9860e21fdee89b0f2ecd333c39070bc63bb36d785e520377034d5ac3963",
+  "code": "CONSTRUCTION_OK",
+  "populations": [],
+  "resources": {
+    "design_populations": 82,
+    "design_connections": 285,
+    "input_neurons": 4,
+    "neural_neurons": 534,
+    "total_neurons": 538,
+    "neuron_budget": 10000,
+    "dense_matrix_cells": 19738,
+    "matrix_storage_bytes": 552664,
+    "image_budget_bytes": 33554432
+  }
+}
