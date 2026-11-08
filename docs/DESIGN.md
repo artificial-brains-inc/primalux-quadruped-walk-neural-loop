@@ -102,6 +102,8 @@ See [REFLEX.md](REFLEX.md).
 | Local reflex | High-gamma 3 | 24 |
 | Reflex extension Beta | Beta 5 | 24 |
 | Reflex reset | High-gamma 3 | 24 |
+| Reward relay | High-gamma 10 | 10 |
+| Reward population | Dopaminergic 3 | 17 |
 | Normal-path relay / output reset | High-gamma 10 | 1 each |
 
 The builder calculates these widths from the declared relationships. T10 is used
@@ -110,10 +112,14 @@ No claim is made that T3 is universally optimal or that larger populations alone
 produce coordination.
 
 The complete graph has 70 OPUs, 43 one-neuron outputs and eight external input
-populations: 121 populations, 481 connections, 540 total neurons and 418,096 bytes
+populations: 121 populations, 481 connections, 573 total neurons and 425,572 bytes
 of connection matrices. Build on the device remains authoritative.
 
 ## Learning scope
+
+GAIT_REWARD is a dopaminergic T3 population with 17 neurons. It receives a
+10-neuron high-gamma relay driven by one 10-neuron outcome input population.
+Its outcome class is positive upright forward progress; zero means no reward.
 
 Four connections use STDP3, GAIT_REWARD and reward_type LTP: each RELEASE inhibits
 its own FEEDBACK_BETA and BETA, initially at strength 4. This targets recovery of

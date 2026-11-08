@@ -1,17 +1,35 @@
 {
   "schema": "artificial-brains/build-feedback/v1",
-  "design_sha256": "aa72a94978c05c1eb470e84f3971c943c16b43f0b3abbc6590c487276a635ec5",
+  "design_sha256": "19f2dcab60a41091c96bbacf5fa288ee0b7bebbb4ce66c06ac3ad702125bc82b",
   "code": "CONSTRUCTION_OK",
-  "populations": [],
+  "populations": [
+    {
+      "name": "GAIT_REWARD_IN",
+      "classification": "outcome_input",
+      "neurons": 10
+    },
+    {
+      "name": "GAIT_REWARD_RELAY",
+      "classification": "high-gamma",
+      "tnorm": 10,
+      "neurons": 10
+    },
+    {
+      "name": "GAIT_REWARD",
+      "classification": "dopaminergic",
+      "tnorm": 3,
+      "neurons": 17
+    }
+  ],
   "resources": {
     "design_populations": 121,
     "design_connections": 481,
-    "input_neurons": 52,
-    "neural_neurons": 488,
-    "total_neurons": 540,
+    "input_neurons": 61,
+    "neural_neurons": 512,
+    "total_neurons": 573,
     "neuron_budget": 10000,
-    "dense_matrix_cells": 14932,
-    "matrix_storage_bytes": 418096,
+    "dense_matrix_cells": 15199,
+    "matrix_storage_bytes": 425572,
     "image_budget_bytes": 33554432
   }
 }

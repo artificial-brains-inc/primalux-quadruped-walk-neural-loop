@@ -10,7 +10,7 @@ from ab_sdk.__main__ import main
 from ab_sdk.design_submit import design_sha256
 
 from design_brain import create_brain
-from robot.contracts import REWARD_INPUT
+from robot.contracts import REWARD_INPUT, REWARD_INPUT_NEURONS
 from robot.reward import RewardPublisher
 
 
@@ -25,7 +25,11 @@ class SDKWorkflowTests(unittest.TestCase):
         session.encoder = SpikeEncoder(
             InputSensorMap(
                 [
-                    {"inputId": REWARD_INPUT, "sensor": REWARD_INPUT, "n": 1},
+                    {
+                        "inputId": REWARD_INPUT,
+                        "sensor": REWARD_INPUT,
+                        "n": REWARD_INPUT_NEURONS,
+                    },
                 ]
             )
         )
@@ -45,7 +49,11 @@ class SDKWorkflowTests(unittest.TestCase):
             self.assertEqual(len(payload["events"]), 1)
             event = payload["events"][0]
             self.assertEqual(event["target"], REWARD_INPUT)
-            self.assertEqual(event["payload"], [expected])
+            self.assertEqual(event["payload"], [expected] * 10)
+            self.assertEqual(
+                event["meta"]["reward_class"],
+                "positive_outcome" if expected else "no_reward",
+            )
             self.assertNotIn("step", event)
 
     def test_native_design_loads_the_saved_file(self):

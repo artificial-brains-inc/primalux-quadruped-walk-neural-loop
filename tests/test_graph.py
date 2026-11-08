@@ -29,10 +29,10 @@ class GraphTests(unittest.TestCase):
         self.assertEqual(edge["type"], "inh")
         self.assertGreaterEqual(edge.get("strength", 1), minimum)
 
-    def test_eight_populations_52_input_neurons_and_matching_saved_design(self):
+    def test_eight_populations_61_input_neurons_and_matching_saved_design(self):
         self.assertEqual(self.brain.validate(), [])
         self.assertEqual(len(INPUT_SIZES), 8)
-        self.assertEqual(sum(INPUT_SIZES.values()), 52)
+        self.assertEqual(sum(INPUT_SIZES.values()), 61)
         for kind, expected in (("input", INPUT_SIZES), ("output", OUTPUT_SIZES)):
             self.assertEqual(
                 {
@@ -47,6 +47,9 @@ class GraphTests(unittest.TestCase):
         report = json.loads((ROOT / "docs/RESOURCE_CHECK.json").read_text())
         self.assertEqual(report["design_sha256"], design_sha256(saved))
         self.assertEqual(report["code"], "CONSTRUCTION_OK")
+        reward = next(p for p in report["populations"] if p["name"] == "GAIT_REWARD")
+        self.assertEqual(reward["classification"], "dopaminergic")
+        self.assertGreaterEqual(reward["neurons"], 10)
         self.assertLess(report["resources"]["total_neurons"], 10000)
         self.assertLess(report["resources"]["matrix_storage_bytes"], 32 * 1024 * 1024)
 

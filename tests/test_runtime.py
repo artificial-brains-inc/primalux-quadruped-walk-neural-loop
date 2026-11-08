@@ -8,6 +8,7 @@ from robot.contracts import (
     INPUT_SIZES,
     OUTPUT_SIZES,
     REWARD_INPUT,
+    REWARD_INPUT_NEURONS,
     TILT_INPUTS,
     TILT_NEURONS,
 )
@@ -212,7 +213,7 @@ class RuntimeTests(unittest.TestCase):
         with self.assertRaisesRegex(RuntimeError, "Missing Prima-Lux"):
             events.check_health()
 
-    def test_one_reward_and_four_tilt_neurons_are_separate_from_commands(self):
+    def test_reward_and_tilt_populations_are_separate_from_commands(self):
         self.assertEqual(
             COMMAND_INPUT_SIZES, dict(WALK_START=1, WALK_STOP=1, TRANSPORT_ACK=1)
         )
@@ -220,7 +221,7 @@ class RuntimeTests(unittest.TestCase):
             INPUT_SIZES,
             {
                 **COMMAND_INPUT_SIZES,
-                REWARD_INPUT: 1,
+                REWARD_INPUT: REWARD_INPUT_NEURONS,
                 **dict.fromkeys(TILT_INPUTS, TILT_NEURONS),
             },
         )

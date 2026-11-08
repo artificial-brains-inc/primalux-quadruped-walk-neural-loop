@@ -3,8 +3,12 @@
 Build behavior through the public SDK and the current Artificial Brains guide.
 Keep private construction code, formulas, compiled images and credentials out.
 
-- Eight external input populations, 52 neurons: START, STOP, ACK and reward
-  have one neuron each; four signed tilt populations have 12 each.
+- Eight external input populations, 61 neurons: START, STOP and ACK have one
+  neuron each; reward has 10; four signed tilt populations have 12 each.
+- Reward class is positive outcome for upright forward progress. Ten outcome
+  input neurons feed 10 high-gamma T10 relay neurons and 17 dopaminergic T3
+  neurons in the compatible build. Zero means no reward, not punishment.
+  Use publish_reward magnitude 1 for all 10 input neurons; never magnitude 10.
 - A supports FL/RR and swings FR/RL. B supports FR/RL and swings FL/RR.
   These are diagonal groups, not the robot's left and right sides.
 - Each switch state is retained through OUT → DRIVE_HG → OUT. Its request

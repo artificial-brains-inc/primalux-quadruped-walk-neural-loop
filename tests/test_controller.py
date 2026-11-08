@@ -178,6 +178,9 @@ class ControllerIntegrationTests(unittest.TestCase):
                 for path in root.glob("logs/run-*/observations.jsonl")
                 for line in path.read_text().splitlines()
             ]
+            self.run_settings = json.loads(
+                next(root.glob("logs/run-*/settings.json")).read_text()
+            )
             session.stop.assert_called_once()
             self.reward_calls = list(session.publish_reward.call_args_list)
             self.assertEqual(self.reward_calls[0].args[1], 0.0)
@@ -239,6 +242,12 @@ class ControllerIntegrationTests(unittest.TestCase):
             {2: ord("W"), 5: ord("Q")},
             5,
         )
+        self.assertEqual(self.run_settings["reward_input_neurons"], 10)
+        self.assertEqual(
+            self.run_settings["reward_classification"]["neuron_class"], "dopaminergic"
+        )
+        self.assertEqual(len(self.run_settings["reflex_motor_outputs"]), 4)
+        self.assertEqual(len(self.run_settings["design_sha256"]), 64)
         by_step = {r["native_step"]: r for r in rows}
         self.assertEqual(by_step[5]["joint_speed_limit_rad_s"]["FL_KNEE"], 2)
         self.assertEqual(by_step[6]["joint_speed_limit_rad_s"]["FL_KNEE"], 1.5)

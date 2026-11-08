@@ -2,7 +2,7 @@
 
 The saved design is generated through SDK 0.4.2 public fields. The compatible
 0.4.11 builder accepts its construction. [RESOURCE_CHECK.json](RESOURCE_CHECK.json)
-records the design hash, 540 total neurons and 418,096 bytes of matrix storage.
+records the design hash, 573 total neurons and 425,572 bytes of matrix storage.
 Other prepared-image data also uses the 32 MiB image budget.
 
 88 application tests pass. They cover command/ACK/goal confirmation, SDK dispatch, local motor

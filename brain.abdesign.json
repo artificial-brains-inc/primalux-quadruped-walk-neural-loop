@@ -52,7 +52,7 @@
       "kind": "input",
       "x": 2200.0,
       "y": 0.0,
-      "neurons": 1
+      "neurons": 10
     },
     {
       "name": "GAIT_REWARD_RELAY",

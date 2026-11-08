@@ -1,4 +1,4 @@
-"""Eight named inputs: four control/reward neurons and 48 tilt neurons."""
+"""Eight named inputs: 3 command, 10 reward and 48 tilt neurons."""
 
 LEGS = ("FL", "FR", "RL", "RR")
 LEG_NAMES = dict(FL="front left", FR="front right", RL="rear left", RR="rear right")
@@ -11,11 +11,20 @@ SWING_PHASE = {
 }
 COMMAND_INPUT_SIZES = {"WALK_START": 1, "WALK_STOP": 1, "TRANSPORT_ACK": 1}
 REWARD_INPUT = "GAIT_REWARD_IN"
+REWARD_INPUT_NEURONS = 10
+REWARD_CLASSIFICATION = {
+    "population": "GAIT_REWARD",
+    "neuron_class": "dopaminergic",
+    "tnorm": 3,
+    "outcome": "upright_forward_progress",
+    "rule": "STDP3",
+    "reward_type": "LTP",
+}
 TILT_INPUTS = ("TILT_ROLL_NEG", "TILT_ROLL_POS", "TILT_PITCH_NEG", "TILT_PITCH_POS")
 TILT_NEURONS = 12
 INPUT_SIZES = {
     **COMMAND_INPUT_SIZES,
-    REWARD_INPUT: 1,
+    REWARD_INPUT: REWARD_INPUT_NEURONS,
     **dict.fromkeys(TILT_INPUTS, TILT_NEURONS),
 }
 # Webots ENU: negative roll lowers the left side; positive pitch lowers the nose.

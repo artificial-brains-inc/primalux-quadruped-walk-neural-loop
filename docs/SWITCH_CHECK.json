@@ -1,5 +1,5 @@
 {
-  "design_sha256": "aa72a94978c05c1eb470e84f3971c943c16b43f0b3abbc6590c487276a635ec5",
+  "design_sha256": "19f2dcab60a41091c96bbacf5fa288ee0b7bebbb4ce66c06ac3ad702125bc82b",
   "scope": "Whole saved neural circuit with static connections, native ARM cell updates and single-event START/STOP/restart. Sparse adjacency, initial phases, coupling and membrane floor are explicit harness assumptions; this is not a compiled device image, FPGA comparison or Webots physics run. No imposed phase or motor spikes.",
   "case_count": 5,
   "all_passed": true,
@@ -149,16 +149,16 @@
     {
       "case": "different_initial_phase_coupling_and_floor",
       "measured_steps": 1400,
-      "exclusive_a_steps": 621,
-      "exclusive_b_steps": 655,
+      "exclusive_a_steps": 622,
+      "exclusive_b_steps": 654,
       "both_switch_states_steps": 0,
       "neither_switch_state_steps": 124,
       "alternations": 31,
-      "complete_knee_pattern_a_steps": 423,
-      "complete_knee_pattern_b_steps": 454,
+      "complete_knee_pattern_a_steps": 415,
+      "complete_knee_pattern_b_steps": 425,
       "all_four_flexing_steps": 0,
       "rest_motor_activity": 0,
-      "restart_motor_activity": 3496,
+      "restart_motor_activity": 3468,
       "passed": true,
       "late_reflex_spikes": 0
     }

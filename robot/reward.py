@@ -2,7 +2,7 @@
 
 import math
 
-from .contracts import REWARD_INPUT
+from .contracts import REWARD_INPUT, REWARD_INPUT_NEURONS
 
 
 class ProgressReward:
@@ -80,12 +80,15 @@ class RewardPublisher:
     def send(self, evidence, *, native_step=None, simulation_time=None, force=False):
         value = evidence["value"]
         if type(value) is not int or value not in (0, 1):
-            raise ValueError("The single reward neuron accepts binary outcomes")
+            raise ValueError("The reward population accepts binary outcome magnitudes")
         # Inputs are consumed as events; a preceding positive value is not held.
         # Each qualifying body step is fresh evidence, even if its value is also 1.
         if not force and value == self.value == 0:
             return
-        response = self.publish(REWARD_INPUT, float(value))
+        reward_class = "positive_outcome" if value else "no_reward"
+        response = self.publish(
+            REWARD_INPUT, float(value), meta={"reward_class": reward_class}
+        )
         if not (
             isinstance(response, dict)
             and response.get("ok") is True
@@ -98,6 +101,9 @@ class RewardPublisher:
                 input=REWARD_INPUT,
                 native_step=native_step,
                 simulation_time=simulation_time,
+                reward_class=reward_class,
+                input_population_neurons=REWARD_INPUT_NEURONS,
+                active_input_neurons=value * REWARD_INPUT_NEURONS,
                 **evidence,
             )
         )

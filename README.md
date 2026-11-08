@@ -16,10 +16,13 @@ not TNorms or learned amplitudes. A separate reflex motor output requests
 reflex also excites the normal extension Beta through a learning connection.
 These actuator calibration values remain editable in `config.json`.
 
-There are **540 neurons**, including **52 external neurons across eight named
+There are **573 neurons**, including **61 external neurons across eight named
 inputs**. Four leg groups contain 24 opposing gait Betas. Each leg also has a
 24-neuron high-gamma T3 reflex and a dedicated 24-neuron extension Beta T5.
-No additional external phase, progress or motor-feedback inputs are used.
+The reward path contains 10 outcome input neurons, 10 high-gamma T10 relay
+neurons and 17 dopaminergic T3 neurons. It classifies positive reward as new
+upright forward progress; zero is no reward. No additional external phase,
+progress or motor-feedback inputs are used.
 
 Python acquires and encodes measurements, applies local neural motor outputs and
 publishes physical reward. The switch, handoff, reflex selection and reset live
@@ -56,7 +59,7 @@ See [requirements](docs/REQUIREMENTS.md).
 ## Clone and install
 
 ```bash
-git clone "$HOME/Downloads/primalux-spot-switch.bundle" primalux-spot-switch
+git clone "$HOME/Downloads/primalux-spot-fast-reflex-reward10.bundle" primalux-spot-switch
 cd primalux-spot-switch
 bash install.sh
 source .venv/bin/activate
@@ -149,9 +152,13 @@ python design_brain.py --static
 command is an installer or launcher. See [design](docs/DESIGN.md) and
 [control and reward](docs/CONTROL.md).
 
+The startup line prints four fast reflex motor outputs, 10 reward input neurons,
+the design hash and the project folder. `logs/run-*/settings.json` records them
+too. This identifies which local package actually ran.
+
 ## Checks and limits
 
-Construction uses 540/10,000 neurons and 418,096 bytes of connection matrices;
+Construction uses 573/10,000 neurons and 425,572 bytes of connection matrices;
 other prepared-image data also consumes memory. The local complete-circuit check
 uses single START/STOP events, internal motor feedback and injected tilt evidence.
 It checks alternation, local overrides, stopping and restarting. It includes

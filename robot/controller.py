@@ -20,6 +20,8 @@ from .contracts import (
     MOTOR_OUTPUTS,
     REFLEX_MOTOR_OUTPUTS,
     REFLEX_OUTPUTS,
+    REWARD_CLASSIFICATION,
+    REWARD_INPUT_NEURONS,
     validate_channels,
 )
 from .decoder import joint_speeds, joint_targets
@@ -41,7 +43,8 @@ def write_state(state, **fields):
 def main():
     from ab import ABClient
 
-    from .application import verify_installed
+    from .application import saved_design, verify_installed
+    from ab_sdk.design_submit import design_sha256
     from .evaluation import summarize
 
     config = load_config()
@@ -78,8 +81,28 @@ def main():
         / ("run-" + time.strftime("%Y%m%d-%H%M%S") + "-" + str(time.time_ns()))
     )
     directory.mkdir(parents=True)
+    design_hash = design_sha256(saved_design())
     (directory / "settings.json").write_text(
-        json.dumps(dict(config=config, mode=mode), indent=2) + "\n"
+        json.dumps(
+            dict(
+                config=config,
+                mode=mode,
+                design_sha256=design_hash,
+                project_root=str(ROOT),
+                reflex_motor_outputs=list(REFLEX_MOTOR_OUTPUTS),
+                reward_classification=REWARD_CLASSIFICATION,
+                reward_input_neurons=REWARD_INPUT_NEURONS,
+            ),
+            indent=2,
+        )
+        + "\n"
+    )
+    print(
+        f"[SPOT] Fast reflex outputs: {len(REFLEX_MOTOR_OUTPUTS)}; "
+        f"reward input: {REWARD_INPUT_NEURONS} neurons; "
+        f"reward class: dopaminergic T3 / positive outcome / STDP3-LTP; "
+        f"design: {design_hash}; project: {ROOT}",
+        flush=True,
     )
     client = session = None
     failed = False

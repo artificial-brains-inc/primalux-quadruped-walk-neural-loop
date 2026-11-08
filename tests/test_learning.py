@@ -108,7 +108,10 @@ class OutcomeTests(unittest.TestCase):
     def test_publisher_sends_each_positive_observation_and_never_command_channels(self):
         calls, logs = [], []
 
-        def publish(name, value):
+        def publish(name, value, *, meta):
+            self.assertEqual(
+                meta["reward_class"], "positive_outcome" if value else "no_reward"
+            )
             calls.append((name, value))
             return dict(ok=True, queued_for_hardware=True)
 
@@ -125,10 +128,15 @@ class OutcomeTests(unittest.TestCase):
             ],
         )
         self.assertEqual(len(logs), 4)
+        self.assertEqual([e["active_input_neurons"] for e in logs], [0, 10, 10, 0])
+        self.assertEqual(
+            [e["reward_class"] for e in logs],
+            ["no_reward", "positive_outcome", "positive_outcome", "no_reward"],
+        )
         with self.assertRaises(ValueError):
             sender.send(dict(value=0.5))
         with self.assertRaises(RuntimeError):
-            RewardPublisher(lambda *a: dict(ok=True)).send(dict(value=1))
+            RewardPublisher(lambda *a, **kw: dict(ok=True)).send(dict(value=1))
 
 
 if __name__ == "__main__":

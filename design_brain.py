@@ -15,6 +15,7 @@ from robot.contracts import (
     MOTOR_OUTPUTS,
     REFLEX_CUES,
     REWARD_INPUT,
+    REWARD_INPUT_NEURONS,
     SWING_PHASE,
     SUPPORT_PHASE,
     TILT_INPUTS,
@@ -78,7 +79,7 @@ def create_brain(*, learning=True):
         opu(name + "_HG", "high-gamma", 10, 220, i * 180)
         b.connect(name, name + "_HG")
 
-    b.input(REWARD_INPUT, 1)
+    b.input(REWARD_INPUT, REWARD_INPUT_NEURONS)
     coordinates[REWARD_INPUT] = (2200, 0)
     opu("GAIT_REWARD_RELAY", "high-gamma", 10, 2500, 0)
     opu("GAIT_REWARD", "dopaminergic", 3, 2800, 0)

@@ -55,7 +55,7 @@ elbow motors. This example uses that same primary actuator interface.
 
 Joint positions, GPS, inertial orientation and gyro are logged after each applied
 motor frame and its completed Webots step. In `learn` mode, GPS and orientation
-also supply the single binary reward. No per-joint error or desired trajectory
+also supply one binary outcome carried by a 10-neuron reward input population. No per-joint error or desired trajectory
 is computed.
 
 After a confirmed START, capture the initial position and heading. For each body
@@ -72,6 +72,27 @@ or calibrated proof of good gait. New W confirmations start new measurement
 episodes. Stationary, backward, sideways, low or excessively tilted motion earns
 zero. Invalid measurements and simulation-time resets disarm reward until a new
 START. Loss of exclusive WALK readout also disarms it; W can start a new episode.
+
+### Reward classification and population size
+
+| Population | Classification | TNorm | Neurons |
+| --- | --- | --- | --- |
+| GAIT_REWARD_IN | External outcome input | — | 10 |
+| GAIT_REWARD_RELAY | High-gamma relay | 10 | 10 |
+| GAIT_REWARD | Dopaminergic neuromodulator | 3 | 17 |
+
+The compatible builder calculates 17 dopaminergic neurons from this pathway.
+There is still one named reward input. Magnitude 1 is encoded as ten active input
+neurons; magnitude 0 encodes ten zeros. Do not pass magnitude 10.
+
+Each accepted event is classified as `positive_outcome` or `no_reward` in SDK
+metadata and `rewards.jsonl`. Its `reason` records the physical condition.
+No reward is not punishment. The eight selected learning connections use STDP3
+and reward_type LTP; the latter follows signed eligibility and does not guarantee
+strengthening. Reward is a neuromodulator, not ordinary motor excitation.
+Ten active input neurons do not prove that all 17 dopamine neurons fired. Check
+individual neuron telemetry for that. A larger population also does not prove
+that learning improves balance. The fixed reflex remains active without reward.
 
 The adapter calls the SDK's `session.publish_reward("GAIT_REWARD_IN", value)`
 for every qualifying body step. Each event represents a newly measured outcome;
