@@ -23,6 +23,8 @@ class ControllerIntegrationTests(unittest.TestCase):
         mode="walk",
         moving=False,
         reject_reward=False,
+        recovery_settings=None,
+        fallen_from_step=None,
     ):
         with tempfile.TemporaryDirectory() as tmp, contextlib.ExitStack() as stack:
             root = Path(tmp)
@@ -49,6 +51,12 @@ class ControllerIntegrationTests(unittest.TestCase):
                     return [body.steps * 0.01 if moving else 0, 0, 0.624]
 
                 def getRollPitchYaw(self):
+                    if (
+                        fallen_from_step is not None
+                        and body.steps >= fallen_from_step
+                        and not body.restored
+                    ):
+                        return [3.14, 0, 0]
                     return [0, 0, 0]
 
             class Keyboard(Device):
@@ -62,6 +70,17 @@ class ControllerIntegrationTests(unittest.TestCase):
 
             class Body:
                 steps = 0
+                restored = False
+
+                def getSelf(self):
+                    return self
+
+                def loadState(self, name):
+                    self.restored = True
+                    calls.append("restore:" + name)
+
+                def resetPhysics(self):
+                    calls.append("reset_physics")
 
                 def getDevice(self, name):
                     return Device()
@@ -116,7 +135,7 @@ class ControllerIntegrationTests(unittest.TestCase):
             stack.enter_context(
                 patch.dict(
                     "sys.modules",
-                    {"controller": types.SimpleNamespace(Robot=lambda: body)},
+                    {"controller": types.SimpleNamespace(Supervisor=lambda: body)},
                 )
             )
             stack.enter_context(patch.dict("os.environ", {"SPOT_RUN_MODE": mode}))
@@ -130,6 +149,10 @@ class ControllerIntegrationTests(unittest.TestCase):
             module = importlib.util.module_from_spec(spec)
             spec.loader.exec_module(module)
             module.ROOT, module.EventBuffer = root, Buffer
+            if recovery_settings:
+                config = module.load_config()
+                config["recovery"].update(recovery_settings)
+                module.load_config = lambda: config
             if reject_reward:
                 with self.assertRaisesRegex(RuntimeError, "Reward input"):
                     module.main()
@@ -151,6 +174,87 @@ class ControllerIntegrationTests(unittest.TestCase):
             )
 
             return rows, sent, calls, output.getvalue()
+
+    def recovery_trial(self, *, automatic=False, cancel_resume=False):
+        frames = [
+            frame(1),
+            frame(2, TRANSPORT_ACK_OUT=1, REST_ACTIVE=1),
+            frame(3, REST_ACTIVE=1),
+            frame(4, TRANSPORT_ACK_OUT=1, WALK_ENABLED=1),
+            frame(5, WALK_ENABLED=1),
+            frame(6, WALK_ENABLED=1),
+            frame(7, TRANSPORT_ACK_OUT=1, WALK_ENABLED=1, FL_HIP_POS=1),
+            frame(8, REST_ACTIVE=1, FL_HIP_POS=1),
+            *[frame(n, REST_ACTIVE=1) for n in range(9, 13)],
+        ]
+        keyboard = {2: ord("W")}
+        if not automatic:
+            keyboard[4] = ord("R")
+        if cancel_resume:
+            keyboard[8] = ord("S")
+            keyboard[10] = ord("Q")
+        else:
+            frames += [
+                frame(13, REST_ACTIVE=1),
+                frame(14, TRANSPORT_ACK_OUT=1, WALK_ENABLED=1),
+                frame(15, WALK_ENABLED=1),
+            ]
+            keyboard[12] = ord("Q")
+        return self.exercise(
+            frames,
+            keyboard,
+            10 if cancel_resume else 12,
+            mode="learn",
+            moving=True,
+            recovery_settings=dict(
+                automatic=automatic, settle_seconds=0.05, fall_delay_seconds=0.03
+            ),
+            fallen_from_step=3 if automatic else None,
+        )
+
+    def test_manual_recovery_waits_for_rest_and_quiet_outputs_and_resumes_once(self):
+        rows, sent, calls, output = self.recovery_trial()
+        self.assertEqual(calls.count("restore:__init__"), 1)
+        self.assertLess(calls.index("frame8"), calls.index("restore:__init__"))
+        self.assertLess(calls.index("frame9"), calls.index("restore:__init__"))
+        self.assertEqual(calls.count("reset_physics"), 1)
+        self.assertEqual(sum(p.get("WALK_START", [0])[0] for _, p in sent), 2)
+        self.assertEqual(sum(p.get("WALK_STOP", [0])[0] for _, p in sent), 2)
+        assisted = [r for r in rows if r["recovery_state"] != "idle"]
+        self.assertTrue(assisted)
+        self.assertTrue(all(r["reward"]["value"] == 0 for r in assisted))
+        self.assertTrue(all(r["joint_target_rad"]["FL_HIP"] == 0 for r in assisted))
+        self.assertEqual(calls.count("physics"), len(rows) + 1)
+        self.assertIn("Recovery complete", output)
+
+    def test_automatic_fall_recovery_and_s_cancels_resume(self):
+        for cancel in (False, True):
+            rows, sent, calls, output = self.recovery_trial(
+                automatic=True, cancel_resume=cancel
+            )
+            self.assertEqual(calls.count("restore:__init__"), 1)
+            self.assertIn("fall detected", output)
+            self.assertEqual(
+                sum(p.get("WALK_START", [0])[0] for _, p in sent), 1 if cancel else 2
+            )
+            self.assertEqual(sum(p.get("WALK_STOP", [0])[0] for _, p in sent), 2)
+
+    def test_r_from_rest_recovers_without_starting_walk(self):
+        rows, sent, calls, output = self.exercise(
+            [
+                frame(1),
+                frame(2, TRANSPORT_ACK_OUT=1, REST_ACTIVE=1),
+                frame(3, REST_ACTIVE=1),
+                frame(4, TRANSPORT_ACK_OUT=1, REST_ACTIVE=1),
+                *[frame(n, REST_ACTIVE=1) for n in range(5, 9)],
+            ],
+            {2: ord("R"), 7: ord("Q")},
+            7,
+            recovery_settings=dict(settle_seconds=0.05),
+        )
+        self.assertEqual(calls.count("restore:__init__"), 1)
+        self.assertFalse(any(p.get("WALK_START", [0])[0] for _, p in sent))
+        self.assertIn("Recovery complete", output)
 
     def test_failed_reward_clear_still_stops_the_brain(self):
         self.exercise([], {}, 1, mode="learn", reject_reward=True)

@@ -1,5 +1,6 @@
 #VRML_SIM R2025a utf8
-# Modification: bundled appearance URLs use project-relative paths.
+# Modifications: bundled appearance URLs use project-relative paths.
+# Five Camera devices removed; visual housings and physics retained.
 # license: Creative Commons 4.0
 # license url: https://creativecommons.org/licenses/by/4.0
 # documentation url: https://webots.cloud/run?url=https://github.com/cyberbotics/webots/blob/released/projects/robots/boston_dynamics/spot/protos/Spot.proto
@@ -239,20 +240,6 @@ PROTO Spot [
               }
             ]
           }
-          Camera {
-            translation 0.044898 1.677970 -0.922603
-            rotation 0.492404 -0.738106 -0.461236 -2.507618
-            name "right head camera"
-            width 1080
-            height 720
-          }
-          Camera {
-            translation -0.045109 1.679550 -0.923250
-            rotation 0.776783 -0.539742 -0.324480 -2.231426
-            name "left head camera"
-            width 1080
-            height 720
-          }
           DEF HEAD_CAM_R1 Shape {
             appearance DEF LENS PBRAppearance {
               baseColorMap ImageTexture {
@@ -353,13 +340,6 @@ PROTO Spot [
           }
           DEF RIGHT_SIDE Group {
             children [
-              Camera {
-                translation 0.110163 1.715610 -0.324321
-                rotation -0.958773 0.200939 -0.200942 1.612883
-                name "right flank camera"
-                width 1080
-                height 720
-              }
               DEF RIGHT_FLANK_CAM_1 Shape {
                 appearance USE YELLOW_COVER
                 geometry Mesh {
@@ -421,13 +401,6 @@ PROTO Spot [
           }
           DEF LEFT_SIDE Group {
             children [
-              Camera {
-                translation -0.110127 1.715530 -0.324320
-                rotation -0.143022 0.699837 0.699837 -2.857471
-                name "left flank camera"
-                width 1080
-                height 720
-              }
               DEF LEFT_FLANK_CAM_1 Shape {
                 appearance USE YELLOW_COVER
                 geometry Mesh {
@@ -623,13 +596,6 @@ PROTO Spot [
             geometry Mesh {
               url "meshes/rear_cover.obj"
             }
-          }
-          Camera {
-            translation 0.018113 1.662560 -0.011864
-            rotation 0.461984 0.461983 0.757062 -1.845577
-            name "rear camera"
-            width 1080
-            height 720
           }
           DEF REAR_CAM_1 Shape {
             appearance USE TWO_LENS_ROTATE

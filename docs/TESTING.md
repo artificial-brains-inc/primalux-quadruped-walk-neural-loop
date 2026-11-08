@@ -32,9 +32,12 @@ motor outputs. Check the resulting joint/body measurements, not just A/B readout
 The `reward` object in each observation explains why reward is 0 or 1.
 
 Check that reward is absent during startup and pending commands, begins only for
-qualifying forward movement, and clears on S. Stop a run before dragging/resetting
-the robot or editing the world: the reward measures physical displacement, not its
-cause. Watch for upright sliding, rocking, asymmetric loading or falls. The first
+qualifying forward movement, and clears on S. Use R for an assisted upright reset:
+reward must stay zero through recovery and only restart after a fresh confirmed
+START. Test S during recovery to cancel resuming. Disable `recovery.automatic` for
+unassisted balance trials. Stop a run before manually dragging the robot or editing
+the world: arbitrary drag displacement is not distinguished from physical motion.
+Watch for upright sliding, rocking, asymmetric loading or falls. The first
 reward deliberately uses one coarse outcome rather than many external neurons.
 
 Compare reward timing with `queued_native_frames`. Body measurements follow the

@@ -6,9 +6,12 @@ WorldInfo {
   basicTimeStep 16
 }
 Viewpoint {
-  orientation 0.286 -0.2 -0.937 2.15
-  position 2.3 2.4 1.8
+  # View from the front-left, aimed at (0, 0, 0.45), world +Z up.
+  orientation 0.156744757670 0.064925804458 -0.985502775673 2.366467295550
+  position 2.6 2.6 1.65
   follow "Spot"
+  followType "Tracking Shot"
+  followSmoothness 0
 }
 Background {
   skyColor [ 0.72 0.80 0.88 ]
@@ -27,25 +30,25 @@ Solid {
         roughness 1
         metalness 0
       }
-      geometry DEF FLOOR_GEOMETRY Box { size 8 8 0.1 }
+      geometry DEF FLOOR_GEOMETRY Box { size 30 30 0.1 }
     }
   ]
   name "floor"
   boundingObject USE FLOOR_GEOMETRY
 }
 Solid {
-  translation 0 4.025 0.05
+  translation 0 15.025 0.05
   children [
     Shape {
       appearance USE FLOOR_MATERIAL
-      geometry DEF WALL_X Box { size 8.1 0.05 0.1 }
+      geometry DEF WALL_X Box { size 30.1 0.05 0.1 }
     }
   ]
   name "north wall"
   boundingObject USE WALL_X
 }
 Solid {
-  translation 0 -4.025 0.05
+  translation 0 -15.025 0.05
   children [
     Shape { appearance USE FLOOR_MATERIAL geometry USE WALL_X }
   ]
@@ -53,18 +56,18 @@ Solid {
   boundingObject USE WALL_X
 }
 Solid {
-  translation 4.025 0 0.05
+  translation 15.025 0 0.05
   children [
     Shape {
       appearance USE FLOOR_MATERIAL
-      geometry DEF WALL_Y Box { size 0.05 8 0.1 }
+      geometry DEF WALL_Y Box { size 0.05 30 0.1 }
     }
   ]
   name "east wall"
   boundingObject USE WALL_Y
 }
 Solid {
-  translation -4.025 0 0.05
+  translation -15.025 0 0.05
   children [
     Shape { appearance USE FLOOR_MATERIAL geometry USE WALL_Y }
   ]
@@ -75,6 +78,7 @@ Spot {
   translation 0 0 0.624
   name "Spot"
   controller "spot_neural_walk"
-  supervisor FALSE
+  window ""
+  supervisor TRUE
   synchronization TRUE
 }

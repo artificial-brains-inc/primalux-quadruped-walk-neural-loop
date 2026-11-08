@@ -195,8 +195,8 @@
       "source": "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/robots/boston_dynamics/spot/protos/Spot.proto",
       "upstream_git_blob": "f46ee8de0dce2247e5de4efd6d84d087947db2e0",
       "upstream_sha256": "101a24fb51df684b2d9abfb65eaa14f9a21ad2c599b075cbc53d4b68a495aca0",
-      "sha256": "c567390600c80e6b2459df1603325effdd78db8cf90e3f817703678d0139a081",
-      "bytes": 25588,
+      "sha256": "3cb964585c9bf1c7f89f92e832bb6384441748eb4b5ac9bd688307852bd9c828",
+      "bytes": 24480,
       "modified": true
     },
     {

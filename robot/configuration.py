@@ -27,6 +27,31 @@ def load_config(root=ROOT):
             raise ValueError(f"{key} must be positive and finite")
     if set(c["joint_targets"]) != set(JOINTS):
         raise ValueError("Expected ABD, HIP and KNEE actuator settings")
+    recovery = c["recovery"]
+    if type(recovery["automatic"]) is not bool:
+        raise ValueError("recovery.automatic must be true or false")
+    for key in (
+        "fall_tilt_rad",
+        "fall_height_m",
+        "fall_delay_seconds",
+        "settle_seconds",
+        "settle_timeout_seconds",
+        "stop_timeout_seconds",
+        "cooldown_seconds",
+    ):
+        value = recovery[key]
+        if type(value) not in (int, float) or not math.isfinite(value) or value <= 0:
+            raise ValueError(f"recovery.{key} must be positive and finite")
+    if (
+        not max(c["reward"]["max_abs_roll_rad"], c["reward"]["max_abs_pitch_rad"])
+        < recovery["fall_tilt_rad"]
+        < math.pi
+    ):
+        raise ValueError("Fall tilt must exceed upright thresholds and be below pi")
+    if recovery["fall_height_m"] >= c["reward"]["min_body_height_m"]:
+        raise ValueError("Fall height must be below upright height")
+    if recovery["settle_timeout_seconds"] <= recovery["settle_seconds"]:
+        raise ValueError("Recovery settle timeout must exceed settle duration")
     for key in (
         "min_forward_speed_m_s",
         "max_abs_roll_rad",

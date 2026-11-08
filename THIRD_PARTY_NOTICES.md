@@ -15,7 +15,8 @@ the Webots repository's [Apache-2.0 license](licenses/Apache-2.0.txt) is include
 Their original file notices are retained.
 
 Only Spot.proto and SpotLeg.proto were modified: their appearance declarations
-use relative paths to the bundled copies. Each modified file marks that change.
+use relative paths to the bundled copies. Spot.proto also removes its five Camera
+devices; their visible housings remain. Each modified file marks those changes.
 The robot's joints, limits, collision geometry, mass and actuator parameters are
 unchanged. Meshes, textures and the appearance PROTOs are unmodified.
 `assets/webots-assets.json` lists every bundled upstream URL and file digest.

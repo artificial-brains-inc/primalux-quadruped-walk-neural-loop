@@ -52,7 +52,7 @@ It does not depend on Webots sample directories or download model assets at Run.
 ## Clone and install
 
 ```bash
-git clone "$HOME/Downloads/primalux-spot-learning-start-fix.bundle" primalux-spot-learning
+git clone "$HOME/Downloads/primalux-spot-learning-recovery.bundle" primalux-spot-learning
 cd primalux-spot-learning
 bash install.sh
 source .venv/bin/activate
@@ -121,7 +121,22 @@ Focus the Webots 3D view:
 
 - **W:** request walking. Reward becomes eligible after exclusive WALK confirmation.
 - **S:** clear reward and request STOP/REST; the neural session remains running.
+- **R:** restore Spot upright at the starting position. Resume after settling if
+  walking was requested. Press S during recovery to remain in REST.
 - **Q:** end the session and trigger Prima-Lux Stop/save.
+
+Automatic fall recovery is enabled. A tilt of at least 1.05 rad (about 60 degrees)
+or body height below 0.30 m for 0.5 simulation seconds requests recovery. The
+adapter requests neural STOP, waits for REST and quiet motor outputs, restores
+Spot's initial body/joint state and zeroes its momentum. After one upright second
+it sends one START if walking should resume. The brain session and learned weights
+are retained; recovery supplies no reward. This is simulator assistance, not
+learned self-righting. Set `recovery.automatic` to `false` in `config.json` for
+unassisted trials; R still works. [Recovery details](docs/RECOVERY.md).
+
+The arena is 30 × 30 metres. The five onboard camera devices are removed, while
+the GPS and orientation sensors remain. The opening view looks toward Spot from
+the front-left and follows its position with an upright horizon.
 
 Startup is standing/resting. The console separately reports key receipt, command
 publication, transport ACK and WALK/REST confirmation. After ACK, the body advances

@@ -3,7 +3,8 @@
 ## What crosses the boundary
 
 The adapter publishes one atomic START-or-STOP event together with ACK at startup
-or on a W/S keypress. The device consumes the input event in a neural step; it does
+or on a W/S keypress. Explicit simulator recovery also requests one STOP and,
+if requested, one START after settling. The device consumes the input event in a neural step; it does
 not maintain START as a level until a later zero event. A fresh transport ACK
 confirms entry into its separate pathway, not the WALK/REST transition.
 
@@ -34,8 +35,11 @@ Neutral positions follow the official Spot sample's standing posture: left
 abduction -0.1 rad, right abduction +0.1 rad, hip and elbow 0 rad. Excursions are
 explicit first-design actuator calibration, within the model's joint limits.
 They are not learned values or a verified foot trajectory. The adapter never
-reads phase, inhibitor, release, WALK, REST or startup-bias channels to
-select a gait or posture. Those channels are diagnostics. Only local motor outputs move joints.
+reads phase, inhibitor, release or startup-bias channels to select a gait.
+During ordinary walking only local motor outputs move joints. Explicit simulator
+recovery holds neutral targets, waits for exclusive REST and quiet motor outputs,
+then restores the initial robot state. See [Recovery](RECOVERY.md); this assistance
+does not select a gait phase or demonstrate learned self-righting.
 
 The four additional piston motors in Spot's leg geometry are not primary gait
 actuators; the official sample likewise commands the 12 abduction, rotation and
@@ -88,3 +92,4 @@ a second ACK oscillator or select gait phases.
 `walk` is not a guaranteed frozen-weight baseline: a plastic graph can retain
 internal reward/eligibility state. Use the explicitly static graph for the
 controlled comparison in TESTING.md. No mode simulates synthetic neurons in Python.
+During recovery every mode holds neutral targets and sends no positive reward.

@@ -6,7 +6,12 @@ from .contracts import JOINTS, LEGS, MOTOR_OUTPUTS
 def summarize(rows):
     if not rows:
         return {"frames": 0}
-    walking = [r for r in rows if r["requested_command"] == "start"]
+    walking = [
+        r
+        for r in rows
+        if r["requested_command"] == "start"
+        and r.get("recovery_state", "idle") == "idle"
+    ]
     entries, previous, previous_sequence = [], None, None
     both = active = 0
     for row in walking:
@@ -48,6 +53,8 @@ def summarize(rows):
     }
     return dict(
         frames=len(rows),
+        recoveries=max(r.get("recovery_count", 0) for r in rows),
+        recovery_frames=sum(r.get("recovery_state", "idle") != "idle" for r in rows),
         walking_frames=len(walking),
         reward_active_frames=sum(r.get("reward", {}).get("value", 0) for r in rows),
         best_reward_forward_progress_m=max(
@@ -87,7 +94,15 @@ def summarize(rows):
             any(r["outputs"][k] for k in MOTOR_OUTPUTS) for r in stopped
         ),
         displacement_xyz_m=[
-            b - a for a, b in zip(rows[0]["body_xyz_m"], rows[-1]["body_xyz_m"])
+            sum(
+                b["body_xyz_m"][i] - a["body_xyz_m"][i]
+                for a, b in zip(rows, rows[1:])
+                if a.get("recovery_state", "idle")
+                == b.get("recovery_state", "idle")
+                == "idle"
+                and a.get("recovery_count", 0) == b.get("recovery_count", 0)
+            )
+            for i in range(3)
         ],
         maximum_absolute_roll_rad=max(abs(r["body_rpy_rad"][0]) for r in rows),
         maximum_absolute_pitch_rad=max(abs(r["body_rpy_rad"][1]) for r in rows),

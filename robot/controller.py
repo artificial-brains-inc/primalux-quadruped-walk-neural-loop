@@ -8,13 +8,21 @@ import json
 import os
 import time
 
-from controller import Robot
+from controller import Supervisor
 
 from .configuration import ROOT, environment_path, load_config
-from .contracts import JOINT_NAMES, JOINTS, LEG_NAMES, LEGS, validate_channels
+from .contracts import (
+    JOINT_NAMES,
+    JOINTS,
+    LEG_NAMES,
+    LEGS,
+    MOTOR_OUTPUTS,
+    validate_channels,
+)
 from .decoder import joint_targets
 from .exchange import CommandExchange
 from .reward import ProgressReward, RewardPublisher
+from .recovery import Recovery
 from .transport import EventBuffer, StopRequested
 
 
@@ -36,11 +44,14 @@ def main():
     mode = os.environ.get("SPOT_RUN_MODE", "learn")
     if mode not in ("learn", "walk", "rhythm"):
         raise ValueError("Unknown Spot mode")
-    body = Robot()
+    body = Supervisor()
+    robot_node = body.getSelf()
+    if robot_node is None:
+        raise RuntimeError("Spot recovery requires supervisor TRUE in the demo world")
     dt = config["physics_step_ms"]
     keyboard = body.getKeyboard()
     keyboard.enable(dt)
-    motors, sensors = {}, {}
+    motors, sensors, speeds = {}, {}, {}
     for leg in LEGS:
         for joint in JOINTS:
             key = (leg, joint)
@@ -50,6 +61,7 @@ def main():
             sensors[key].enable(dt)
             settings = config["joint_targets"][joint]
             speed = min(settings["speed_rad_s"], motors[key].getMaxVelocity())
+            speeds[key] = speed
             motors[key].setVelocity(speed)
             side = "left" if leg in ("FL", "RL") else "right"
             motors[key].setPosition(settings["neutral_" + side])
@@ -70,6 +82,7 @@ def main():
     started = time.monotonic()
     rows = []
     reward = ProgressReward(config["reward"])
+    recovery = Recovery(config["recovery"], config["reward"])
 
     def advance():
         if (ROOT / ".stop-request").exists():
@@ -139,23 +152,51 @@ def main():
                 "RUNNING", mode=mode, result_dir=str(directory.relative_to(ROOT))
             )
             print(
-                "[SPOT] Standing. Focus the 3D view: W = walk, S = stop stepping, Q = Stop/save.",
+                "[SPOT] Standing. Focus the 3D view: W = walk, S = stop stepping, "
+                "R = recover upright, Q = Stop/save. "
+                f"Automatic recovery: {config['recovery']['automatic']}.",
                 flush=True,
             )
             while time.monotonic() - started < config["max_run_wall_seconds"]:
                 events.check_health()
                 confirmed = exchange.observe(event)
                 channels = validate_channels(event)
-                if confirmed == "start" and mode == "learn":
+                recovery_frame = recovery.active
+                recovery_state = recovery.state
+                recovery_event = recovery.update(
+                    body.getTime(),
+                    stopped=(
+                        exchange.pending_action is None
+                        and channels["REST_ACTIVE"] == 1
+                        and channels["WALK_ENABLED"] == 0
+                        and not any(channels[k] for k in MOTOR_OUTPUTS)
+                    ),
+                    xyz=gps.getValues(),
+                    rpy=imu.getRollPitchYaw(),
+                )
+                if recovery_event == "restore":
+                    # Restore this robot and its joints only. The neural session,
+                    # learned weights, other objects and simulation time continue.
+                    robot_node.loadState("__init__")
+                    robot_node.resetPhysics()
+                    for key, motor in motors.items():
+                        motor.setVelocity(speeds[key])
+                    print("[SPOT] Upright pose restored; settling in REST.", flush=True)
+                elif recovery_event == "ready":
+                    print("[SPOT] Recovery complete; Spot is upright.", flush=True)
+                if confirmed == "start" and mode == "learn" and not recovery_frame:
                     reward.start(body.getTime(), gps.getValues(), imu.getRollPitchYaw())
                 if (
                     mode != "learn"
+                    or recovery_frame
                     or exchange.pending_action is not None
                     or not channels["WALK_ENABLED"]
                     or channels["REST_ACTIVE"]
                 ):
                     reward.disarm()
-                targets = joint_targets(event, config, rhythm_only=(mode == "rhythm"))
+                targets = joint_targets(
+                    event, config, rhythm_only=(mode == "rhythm" or recovery_frame)
+                )
                 for key, q in targets.items():
                     motors[key].setPosition(q)
                 advance()
@@ -173,6 +214,11 @@ def main():
                     requested_command=action,
                     command_sequence=exchange.sequence,
                     pending_command=exchange.pending_action,
+                    recovery_state=recovery.state
+                    if recovery_event == "restore"
+                    else recovery_state,
+                    recovery_event=recovery_event,
+                    recovery_count=recovery.count,
                     outputs=channels,
                     joint_position_rad={
                         "_".join(k): s.getValue() for k, s in sensors.items()
@@ -199,6 +245,7 @@ def main():
                                 a=channels["PHASE_A_OUT"],
                                 b=channels["PHASE_B_OUT"],
                                 pending=exchange.pending_action,
+                                recovery=record["recovery_state"],
                                 xyz=record["body_xyz_m"],
                             )
                         ),
@@ -217,6 +264,35 @@ def main():
                 requested = (
                     "stop" if ord("S") in new else "start" if ord("W") in new else None
                 )
+                manual_recovery = ord("R") in new
+                fallen = recovery.detect_fall(body.getTime(), xyz, rpy)
+                if recovery.active:
+                    if requested is not None:
+                        # STOP is already in progress. S cancels auto-resume;
+                        # W requests a single START only after stable recovery.
+                        recovery.resume = requested == "start"
+                        print(
+                            f"[SPOT] Recovery will {'resume walking' if recovery.resume else 'remain in REST'}.",
+                            flush=True,
+                        )
+                    requested = None
+                elif manual_recovery or fallen:
+                    reason = "R key" if manual_recovery else "fall detected"
+                    recovery.begin(
+                        body.getTime(),
+                        resume=(
+                            requested == "start"
+                            or (requested is None and action == "start")
+                        ),
+                        reason=reason,
+                    )
+                    record_command(dict(kind="recovery_requested", reason=reason))
+                    print(f"[SPOT] Recovery: {reason}; requesting STOP.", flush=True)
+                    requested = "stop"
+                elif (
+                    recovery_event == "ready" and requested is None and recovery.resume
+                ):
+                    requested = "start"
                 if requested is not None:
                     reward.disarm()
                     reward_sender.send(
@@ -224,17 +300,16 @@ def main():
                         native_step=event["step"],
                         simulation_time=body.getTime(),
                     )
-                    record_command(
-                        dict(
-                            kind="keyboard_command",
-                            action=requested,
-                            key="W" if requested == "start" else "S",
+                    if (requested == "start" and ord("W") in new) or (
+                        requested == "stop" and ord("S") in new
+                    ):
+                        key_name = "W" if requested == "start" else "S"
+                        record_command(
+                            dict(
+                                kind="keyboard_command", action=requested, key=key_name
+                            )
                         )
-                    )
-                    print(
-                        f"[SPOT] {'W' if requested == 'start' else 'S'} received.",
-                        flush=True,
-                    )
+                        print(f"[SPOT] {key_name} received.", flush=True)
                     # Only transport ACK blocks here. Neural goal confirmation
                     # is observed above while frame-synchronized physics continues.
                     event = exchange.command(requested)

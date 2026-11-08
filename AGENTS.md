@@ -32,6 +32,10 @@ Use the Artificial Brains building guide's source-to-target relationships.
 - Clear bistable outputs explicitly. Removing excitation alone is not a stop.
 - The adapter decodes local actuator outputs only. No host gait clock, sine wave,
   IK gait, phase selector, periodic command refresh or hidden fallback movement.
+- R and automatic fall recovery are explicit simulator assistance: request STOP,
+  confirm REST and quiet motor outputs, restore this robot's initial state, hold
+  neutral while settling, then issue one START if requested. Never reset the
+  neural session, claim learned self-righting, or reward recovery movement.
 - Keep SDK design/build/run steps separate. Install never installs Webots and
   never regenerates the saved graph.
 - Keep credentials and private construction code out of the repository.

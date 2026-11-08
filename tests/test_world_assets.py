@@ -1,5 +1,7 @@
 import hashlib
 import json
+import math
+import re
 import tempfile
 import unittest
 from pathlib import Path
@@ -12,6 +14,37 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class WorldAssetsTests(unittest.TestCase):
+    def test_opening_view_aims_at_spot_with_level_horizon(self):
+        world = (ROOT / "worlds/spot_neural_walk.wbt").read_text()
+        block = world.split("Viewpoint {", 1)[1].split("}", 1)[0]
+        axis_angle = [
+            float(n) for n in re.search(r"orientation (.*)", block)[1].split()
+        ]
+        position = [float(n) for n in re.search(r"position (.*)", block)[1].split()]
+        x, y, z, angle = axis_angle
+        self.assertAlmostEqual(x * x + y * y + z * z, 1)
+        c, s = math.cos(angle), math.sin(angle)
+        # R2025a Viewpoint looks along local +X; local +Z is screen up.
+        forward = [
+            c + x * x * (1 - c),
+            y * x * (1 - c) + z * s,
+            z * x * (1 - c) - y * s,
+        ]
+        up = [x * z * (1 - c) + y * s, y * z * (1 - c) - x * s, c + z * z * (1 - c)]
+        toward = [b - a for a, b in zip(position, [0, 0, 0.45])]
+        length = math.sqrt(sum(v * v for v in toward))
+        self.assertAlmostEqual(sum(a * b / length for a, b in zip(forward, toward)), 1)
+        self.assertGreater(up[2], 0.9)
+        self.assertAlmostEqual(forward[0] * up[1] - forward[1] * up[0], 0)
+
+    def test_no_onboard_camera_devices_and_recovery_has_supervisor_access(self):
+        source = (ROOT / "protos/spot/Spot.proto").read_text()
+        self.assertIsNone(re.search(r"\b(?:Camera|RangeFinder)\s*\{", source))
+        world = (ROOT / "worlds/spot_neural_walk.wbt").read_text()
+        self.assertIn("supervisor TRUE", world)
+        self.assertIn("size 30 30 0.1", world)
+        self.assertIn('followType "Tracking Shot"', world)
+
     def test_complete_world_has_only_existing_local_dependencies(self):
         self.assertEqual(check_world_assets(ROOT), 86)
         world = (ROOT / "worlds/spot_neural_walk.wbt").read_text()

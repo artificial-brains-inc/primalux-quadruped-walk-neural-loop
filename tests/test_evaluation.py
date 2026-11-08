@@ -20,6 +20,18 @@ def row(sequence, action, **outputs):
 
 
 class EvaluationTests(unittest.TestCase):
+    def test_recovery_teleport_is_excluded_from_displacement(self):
+        rows = [row(2, "start") for _ in range(5)]
+        for r, x in zip(rows, [5, 6, 0, 0, 0.5]):
+            r["body_xyz_m"][0] = x
+        rows[2].update(recovery_state="settling", recovery_count=1)
+        rows[3].update(recovery_state="settling", recovery_count=1)
+        rows[4].update(recovery_state="idle", recovery_count=1)
+        report = summarize(rows)
+        self.assertEqual(report["displacement_xyz_m"][0], 1)
+        self.assertEqual(report["recoveries"], 1)
+        self.assertEqual(report["recovery_frames"], 2)
+
     def test_inhibitor_and_release_readouts_are_measured_separately(self):
         report = summarize(
             [
