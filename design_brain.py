@@ -192,7 +192,7 @@ def create_brain(*, learning=True):
             )
         inhibit(stem + "_DRIVE_HG", opposite + "_RELEASE_OUT", CROSS_INHIBITION)
         # Learning may adjust local release recovery. State retention, handoff
-        # capture, interlocks, all motor vetoes and reflexes remain static.
+        # capture, interlocks and all motor vetoes remain static.
         for suffix in ("FEEDBACK_BETA", "BETA"):
             inhibit(
                 stem + "_RELEASE",
@@ -262,12 +262,32 @@ def create_brain(*, learning=True):
         opu(extension, "beta", 5, x, 3980)
         opu(reset, "high-gamma", REFLEX_RESET_TNORM, x + 470, 3980)
         output(active, x + 470, 3720)
+        fast = f"{leg}_KNEE_REFLEX_EXTEND"
+        output(fast, x + 470, 4200)
+        teaching = stem + "_NORMAL_RELAY_HG"
+        clear = stem + "_OUTPUT_RESET_HG"
+        opu(teaching, "high-gamma", 10, x + 200, 4440)
+        opu(clear, "high-gamma", 10, x + 470, 4440)
+        reflex_nodes.extend((teaching, clear))
         reflex_nodes.extend((trigger, extension, reset, active))
         for cue in REFLEX_CUES[leg]:
             b.connect(cue, trigger)
         b.connect(trigger, trigger, role="feedback")
         b.connect(trigger, extension)
-        b.connect(extension, f"{leg}_KNEE_NEG")
+        b.connect(extension, fast)
+        # Return actual reflex motor activity into the normal extension path.
+        # This one-neuron relay preserves the small normal pathway's source
+        # scale; it is not the 24-neuron sensory/motor reflex itself.
+        b.connect(fast, teaching)
+        b.connect(
+            teaching,
+            motor_population(leg, "KNEE", "NEG"),
+            **(
+                dict(rule="STDP3", reward="GAIT_REWARD", reward_type="LTP")
+                if learning
+                else {}
+            ),
+        )
         b.connect(extension, reset)
         b.connect(trigger, active)
         for target in (motor_population(leg, "KNEE", "POS"), f"{leg}_KNEE_POS", gate):
@@ -275,6 +295,11 @@ def create_brain(*, learning=True):
         inhibit(gate, extension, CROSS_INHIBITION)
         inhibit(reset, trigger, REFLEX_RESET_INHIBITION, feedback=True)
         inhibit(reset, active, REFLEX_RESET_INHIBITION)
+        # Clear the bistable motor command from its own activity, so a late
+        # motor spike cannot outlive the upstream reflex-reset burst.
+        b.connect(fast, clear)
+        inhibit(clear, fast, REFLEX_RESET_INHIBITION)
+        inhibit("STOP_REQUEST_HG", fast, STOP_INHIBITION)
 
     for target in (*phase_nodes, *motor_populations, *reflex_nodes):
         inhibit("REST_NUCLEUS", target, STOP_INHIBITION)

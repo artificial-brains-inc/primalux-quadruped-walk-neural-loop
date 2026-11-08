@@ -1,17 +1,17 @@
 {
   "schema": "artificial-brains/build-feedback/v1",
-  "design_sha256": "f8654fd1c2af3e813a67eed743106c529bec10d73cb81afeaf00f2c35b240a52",
+  "design_sha256": "aa72a94978c05c1eb470e84f3971c943c16b43f0b3abbc6590c487276a635ec5",
   "code": "CONSTRUCTION_OK",
   "populations": [],
   "resources": {
-    "design_populations": 109,
-    "design_connections": 441,
+    "design_populations": 121,
+    "design_connections": 481,
     "input_neurons": 52,
-    "neural_neurons": 468,
-    "total_neurons": 520,
+    "neural_neurons": 488,
+    "total_neurons": 540,
     "neuron_budget": 10000,
-    "dense_matrix_cells": 14800,
-    "matrix_storage_bytes": 414400,
+    "dense_matrix_cells": 14932,
+    "matrix_storage_bytes": 418096,
     "image_budget_bytes": 33554432
   }
 }

@@ -1,59 +1,28 @@
 {
-  "design_sha256": "f8654fd1c2af3e813a67eed743106c529bec10d73cb81afeaf00f2c35b240a52",
+  "design_sha256": "aa72a94978c05c1eb470e84f3971c943c16b43f0b3abbc6590c487276a635ec5",
   "scope": "Whole saved neural circuit with static connections, native ARM cell updates and single-event START/STOP/restart. Sparse adjacency, initial phases, coupling and membrane floor are explicit harness assumptions; this is not a compiled device image, FPGA comparison or Webots physics run. No imposed phase or motor spikes.",
-  "case_count": 9,
+  "case_count": 5,
   "all_passed": true,
   "limitations": [
     "Transition steps include quiet and incomplete motor patterns; exclusivity does not imply instantaneous actuator handoff.",
     "Motor feedback is the activity of hip output neurons, not measured joint position or ground contact.",
-    "No robot physics, hardware timing, reward-triggered weight changes or learned balance were tested."
+    "No robot physics, hardware timing, reward-triggered weight changes or learned balance were tested.",
+    "Fast reflex output clearing and normal extension Beta recruitment are measured neural activity; neither establishes physical support."
   ],
   "cases": [
     {
-      "case": "baseline_seed_1_coupling_0",
+      "case": "baseline_seed_1",
       "measured_steps": 1400,
       "exclusive_a_steps": 622,
       "exclusive_b_steps": 654,
       "both_switch_states_steps": 0,
       "neither_switch_state_steps": 124,
       "alternations": 31,
-      "complete_knee_pattern_a_steps": 437,
-      "complete_knee_pattern_b_steps": 464,
+      "complete_knee_pattern_a_steps": 442,
+      "complete_knee_pattern_b_steps": 462,
       "all_four_flexing_steps": 0,
       "rest_motor_activity": 0,
-      "restart_motor_activity": 3450,
-      "passed": true,
-      "late_reflex_spikes": 0
-    },
-    {
-      "case": "baseline_seed_2_coupling_0",
-      "measured_steps": 1400,
-      "exclusive_a_steps": 622,
-      "exclusive_b_steps": 654,
-      "both_switch_states_steps": 0,
-      "neither_switch_state_steps": 124,
-      "alternations": 31,
-      "complete_knee_pattern_a_steps": 437,
-      "complete_knee_pattern_b_steps": 464,
-      "all_four_flexing_steps": 0,
-      "rest_motor_activity": 0,
-      "restart_motor_activity": 3450,
-      "passed": true,
-      "late_reflex_spikes": 0
-    },
-    {
-      "case": "baseline_seed_3_coupling_0.1",
-      "measured_steps": 1400,
-      "exclusive_a_steps": 622,
-      "exclusive_b_steps": 654,
-      "both_switch_states_steps": 0,
-      "neither_switch_state_steps": 124,
-      "alternations": 31,
-      "complete_knee_pattern_a_steps": 437,
-      "complete_knee_pattern_b_steps": 464,
-      "all_four_flexing_steps": 0,
-      "rest_motor_activity": 0,
-      "restart_motor_activity": 3450,
+      "restart_motor_activity": 3484,
       "passed": true,
       "late_reflex_spikes": 0
     },
@@ -65,11 +34,11 @@
       "both_switch_states_steps": 0,
       "neither_switch_state_steps": 124,
       "alternations": 31,
-      "complete_knee_pattern_a_steps": 350,
-      "complete_knee_pattern_b_steps": 400,
+      "complete_knee_pattern_a_steps": 355,
+      "complete_knee_pattern_b_steps": 393,
       "all_four_flexing_steps": 0,
       "rest_motor_activity": 0,
-      "restart_motor_activity": 3450,
+      "restart_motor_activity": 3484,
       "passed": true,
       "reflex_leg_outputs": {
         "FL": {
@@ -83,6 +52,16 @@
       },
       "switch_and_hips_unchanged": true,
       "unaffected_leg_outputs_unchanged": true,
+      "normal_extension_beta_spikes": {
+        "FL": 212,
+        "RL": 212
+      },
+      "fast_motor_active_steps": {
+        "FL": 43,
+        "RL": 43
+      },
+      "late_fast_motor_steps": 0,
+      "unaffected_fast_motor_steps": 0,
       "late_reflex_spikes": 0
     },
     {
@@ -93,11 +72,11 @@
       "both_switch_states_steps": 0,
       "neither_switch_state_steps": 124,
       "alternations": 31,
-      "complete_knee_pattern_a_steps": 350,
-      "complete_knee_pattern_b_steps": 400,
+      "complete_knee_pattern_a_steps": 355,
+      "complete_knee_pattern_b_steps": 393,
       "all_four_flexing_steps": 0,
       "rest_motor_activity": 0,
-      "restart_motor_activity": 3450,
+      "restart_motor_activity": 3484,
       "passed": true,
       "reflex_leg_outputs": {
         "FR": {
@@ -111,62 +90,16 @@
       },
       "switch_and_hips_unchanged": true,
       "unaffected_leg_outputs_unchanged": true,
-      "late_reflex_spikes": 0
-    },
-    {
-      "case": "front_tilt",
-      "measured_steps": 1400,
-      "exclusive_a_steps": 622,
-      "exclusive_b_steps": 654,
-      "both_switch_states_steps": 0,
-      "neither_switch_state_steps": 124,
-      "alternations": 31,
-      "complete_knee_pattern_a_steps": 350,
-      "complete_knee_pattern_b_steps": 400,
-      "all_four_flexing_steps": 0,
-      "rest_motor_activity": 0,
-      "restart_motor_activity": 3450,
-      "passed": true,
-      "reflex_leg_outputs": {
-        "FL": {
-          "POS": 0,
-          "NEG": 130
-        },
-        "FR": {
-          "POS": 0,
-          "NEG": 130
-        }
+      "normal_extension_beta_spikes": {
+        "FR": 212,
+        "RR": 212
       },
-      "switch_and_hips_unchanged": true,
-      "unaffected_leg_outputs_unchanged": true,
-      "late_reflex_spikes": 0
-    },
-    {
-      "case": "rear_tilt",
-      "measured_steps": 1400,
-      "exclusive_a_steps": 622,
-      "exclusive_b_steps": 654,
-      "both_switch_states_steps": 0,
-      "neither_switch_state_steps": 124,
-      "alternations": 31,
-      "complete_knee_pattern_a_steps": 350,
-      "complete_knee_pattern_b_steps": 400,
-      "all_four_flexing_steps": 0,
-      "rest_motor_activity": 0,
-      "restart_motor_activity": 3450,
-      "passed": true,
-      "reflex_leg_outputs": {
-        "RL": {
-          "POS": 0,
-          "NEG": 130
-        },
-        "RR": {
-          "POS": 0,
-          "NEG": 130
-        }
+      "fast_motor_active_steps": {
+        "FR": 43,
+        "RR": 43
       },
-      "switch_and_hips_unchanged": true,
-      "unaffected_leg_outputs_unchanged": true,
+      "late_fast_motor_steps": 0,
+      "unaffected_fast_motor_steps": 0,
       "late_reflex_spikes": 0
     },
     {
@@ -177,11 +110,11 @@
       "both_switch_states_steps": 0,
       "neither_switch_state_steps": 124,
       "alternations": 31,
-      "complete_knee_pattern_a_steps": 350,
-      "complete_knee_pattern_b_steps": 400,
+      "complete_knee_pattern_a_steps": 355,
+      "complete_knee_pattern_b_steps": 398,
       "all_four_flexing_steps": 0,
       "rest_motor_activity": 0,
-      "restart_motor_activity": 3450,
+      "restart_motor_activity": 3484,
       "passed": true,
       "reflex_leg_outputs": {
         "FL": {
@@ -199,21 +132,33 @@
       },
       "switch_and_hips_unchanged": true,
       "unaffected_leg_outputs_unchanged": true,
+      "normal_extension_beta_spikes": {
+        "FL": 212,
+        "FR": 212,
+        "RL": 212
+      },
+      "fast_motor_active_steps": {
+        "FL": 43,
+        "FR": 43,
+        "RL": 43
+      },
+      "late_fast_motor_steps": 0,
+      "unaffected_fast_motor_steps": 0,
       "late_reflex_spikes": 0
     },
     {
       "case": "different_initial_phase_coupling_and_floor",
       "measured_steps": 1400,
-      "exclusive_a_steps": 620,
-      "exclusive_b_steps": 656,
+      "exclusive_a_steps": 621,
+      "exclusive_b_steps": 655,
       "both_switch_states_steps": 0,
       "neither_switch_state_steps": 124,
       "alternations": 31,
-      "complete_knee_pattern_a_steps": 439,
-      "complete_knee_pattern_b_steps": 468,
+      "complete_knee_pattern_a_steps": 423,
+      "complete_knee_pattern_b_steps": 454,
       "all_four_flexing_steps": 0,
       "rest_motor_activity": 0,
-      "restart_motor_activity": 3474,
+      "restart_motor_activity": 3496,
       "passed": true,
       "late_reflex_spikes": 0
     }

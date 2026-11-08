@@ -2,10 +2,10 @@
 
 The saved design is generated through SDK 0.4.2 public fields. The compatible
 0.4.11 builder accepts its construction. [RESOURCE_CHECK.json](RESOURCE_CHECK.json)
-records the design hash, 520 total neurons and 414,400 bytes of matrix storage.
+records the design hash, 540 total neurons and 418,096 bytes of matrix storage.
 Other prepared-image data also uses the 32 MiB image budget.
 
-Application tests cover command/ACK/goal confirmation, SDK dispatch, local motor
+88 application tests pass. They cover command/ACK/goal confirmation, SDK dispatch, local motor
 decoding, tilt encoding, reward evidence, Stop/save, recovery, installer behavior,
 asset resolution, graph/source agreement and the new I/O contract.
 
@@ -17,7 +17,7 @@ and membrane-floor assumptions. It is not the device's compiled image or an
 FPGA-equivalence test. Connections remain static during this check.
 
 The report includes both exclusive switch states, alternations, complete knee
-patterns, transition gaps, all-four-flexion occurrences, local reflex overrides,
+patterns, transition gaps, all-four-flexion occurrences, local reflex overrides, normal extension Beta recruitment, fast output clearing,
 stop clearing and restart. A motor output is a command, not ground contact.
 The tests do not include Webots physics, device transport timing, dopamine-driven
 weight changes, physical stability or proof of learned walking.

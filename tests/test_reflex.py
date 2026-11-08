@@ -138,7 +138,9 @@ class ReflexGraphTests(unittest.TestCase):
                 (trigger, active),
             ):
                 self.assertEqual(self.edges[(source, target)]["type"], "exc")
-            self.assertEqual(self.edges[(extension, f"{leg}_KNEE_NEG")]["type"], "exc")
+            self.assertEqual(
+                self.edges[(extension, f"{leg}_KNEE_REFLEX_EXTEND")]["type"], "exc"
+            )
             self.assertEqual(self.edges[(trigger, trigger)]["role"], "feedback")
             # No reflex can bypass the motor population to excite a motor output.
             self.assertFalse(
@@ -175,21 +177,25 @@ class ReflexGraphTests(unittest.TestCase):
                 for source in ("REST_NUCLEUS", "STOP_REQUEST_HG"):
                     self.assertEqual(self.edges[(source, name)]["strength"], 4)
         for (source, target), edge in self.edges.items():
-            if source.startswith(("REFLEX_", "TILT_")) or target.startswith("REFLEX_"):
+            if (
+                source.startswith(("REFLEX_", "TILT_")) or target.startswith("REFLEX_")
+            ) and not source.endswith("_NORMAL_RELAY_HG"):
                 self.assertNotIn("rule", edge)
         self.assertFalse(any("GUARD" in n or "RESET_1" in n for n in self.nodes))
         self.assertFalse(any(s in REFLEX_OUTPUTS for s, _ in self.edges))
 
-    def test_reflex_and_gait_share_extension_output_through_separate_betas(self):
+    def test_reflex_motor_activity_recruits_the_normal_beta_through_a_relay(self):
         for leg in LEGS:
             stance = "B" if SWING_PHASE[leg] == "A" else "A"
             gait = motor_population(leg, "KNEE", "NEG")
             reflex = f"REFLEX_{leg}_EXTENSION_BETA"
             output = f"{leg}_KNEE_NEG"
             for target, expected in (
-                (gait, {f"PHASE_{stance}_DRIVE_HG"}),
+                (gait, {f"PHASE_{stance}_DRIVE_HG", f"REFLEX_{leg}_NORMAL_RELAY_HG"}),
                 (reflex, {f"REFLEX_{leg}_HG"}),
-                (output, {gait, reflex}),
+                (output, {gait}),
+                (f"{leg}_KNEE_REFLEX_EXTEND", {reflex}),
+                (f"REFLEX_{leg}_NORMAL_RELAY_HG", {f"{leg}_KNEE_REFLEX_EXTEND"}),
             ):
                 self.assertEqual(
                     {
@@ -222,6 +228,7 @@ class ReflexGraphTests(unittest.TestCase):
             allowed = {
                 f"{leg}_KNEE_POS",
                 f"{leg}_KNEE_NEG",
+                f"{leg}_KNEE_REFLEX_EXTEND",
                 motor_population(leg, "KNEE", "POS"),
                 motor_population(leg, "KNEE", "NEG"),
             }
@@ -285,6 +292,9 @@ class ReflexGraphTests(unittest.TestCase):
 
             ext = -config["joint_targets"]["KNEE"]["negative_excursion"]
             flex = config["joint_targets"]["KNEE"]["positive_excursion"]
+            self.assertLess(
+                height(-config["reflex"]["extension_excursion_rad"]), height(ext)
+            )
             self.assertLess(height(ext), height(0))
             self.assertLess(height(0), height(flex))
 

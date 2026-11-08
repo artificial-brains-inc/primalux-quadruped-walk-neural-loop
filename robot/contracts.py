@@ -27,12 +27,14 @@ REFLEX_CUES = {
     "RR": ("TILT_ROLL_POS", "TILT_PITCH_NEG"),
 }
 REFLEX_OUTPUTS = tuple(f"REFLEX_{leg}_ACTIVE" for leg in LEGS)
-MOTOR_OUTPUTS = tuple(
+REFLEX_MOTOR_OUTPUTS = tuple(f"{leg}_KNEE_REFLEX_EXTEND" for leg in LEGS)
+GAIT_MOTOR_OUTPUTS = tuple(
     f"{leg}_{joint}_{side}"
     for leg in LEGS
     for joint in JOINTS
     for side in ("POS", "NEG")
 )
+MOTOR_OUTPUTS = (*GAIT_MOTOR_OUTPUTS, *REFLEX_MOTOR_OUTPUTS)
 OUTPUT_SIZES = {
     name: 1
     for name in (

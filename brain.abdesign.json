@@ -720,6 +720,29 @@
       "neurons": 1
     },
     {
+      "name": "FL_KNEE_REFLEX_EXTEND",
+      "kind": "output",
+      "x": 470.0,
+      "y": 4200.0,
+      "neurons": 1
+    },
+    {
+      "name": "REFLEX_FL_NORMAL_RELAY_HG",
+      "kind": "opu",
+      "x": 200.0,
+      "y": 4440.0,
+      "rhythm": "high-gamma",
+      "tnorm": 10.0
+    },
+    {
+      "name": "REFLEX_FL_OUTPUT_RESET_HG",
+      "kind": "opu",
+      "x": 470.0,
+      "y": 4440.0,
+      "rhythm": "high-gamma",
+      "tnorm": 10.0
+    },
+    {
       "name": "REFLEX_FR_HG",
       "kind": "opu",
       "x": 900.0,
@@ -749,6 +772,29 @@
       "x": 1370.0,
       "y": 3720.0,
       "neurons": 1
+    },
+    {
+      "name": "FR_KNEE_REFLEX_EXTEND",
+      "kind": "output",
+      "x": 1370.0,
+      "y": 4200.0,
+      "neurons": 1
+    },
+    {
+      "name": "REFLEX_FR_NORMAL_RELAY_HG",
+      "kind": "opu",
+      "x": 1100.0,
+      "y": 4440.0,
+      "rhythm": "high-gamma",
+      "tnorm": 10.0
+    },
+    {
+      "name": "REFLEX_FR_OUTPUT_RESET_HG",
+      "kind": "opu",
+      "x": 1370.0,
+      "y": 4440.0,
+      "rhythm": "high-gamma",
+      "tnorm": 10.0
     },
     {
       "name": "REFLEX_RL_HG",
@@ -782,6 +828,29 @@
       "neurons": 1
     },
     {
+      "name": "RL_KNEE_REFLEX_EXTEND",
+      "kind": "output",
+      "x": 2270.0,
+      "y": 4200.0,
+      "neurons": 1
+    },
+    {
+      "name": "REFLEX_RL_NORMAL_RELAY_HG",
+      "kind": "opu",
+      "x": 2000.0,
+      "y": 4440.0,
+      "rhythm": "high-gamma",
+      "tnorm": 10.0
+    },
+    {
+      "name": "REFLEX_RL_OUTPUT_RESET_HG",
+      "kind": "opu",
+      "x": 2270.0,
+      "y": 4440.0,
+      "rhythm": "high-gamma",
+      "tnorm": 10.0
+    },
+    {
       "name": "REFLEX_RR_HG",
       "kind": "opu",
       "x": 2700.0,
@@ -811,6 +880,29 @@
       "x": 3170.0,
       "y": 3720.0,
       "neurons": 1
+    },
+    {
+      "name": "RR_KNEE_REFLEX_EXTEND",
+      "kind": "output",
+      "x": 3170.0,
+      "y": 4200.0,
+      "neurons": 1
+    },
+    {
+      "name": "REFLEX_RR_NORMAL_RELAY_HG",
+      "kind": "opu",
+      "x": 2900.0,
+      "y": 4440.0,
+      "rhythm": "high-gamma",
+      "tnorm": 10.0
+    },
+    {
+      "name": "REFLEX_RR_OUTPUT_RESET_HG",
+      "kind": "opu",
+      "x": 3170.0,
+      "y": 4440.0,
+      "rhythm": "high-gamma",
+      "tnorm": 10.0
     },
     {
       "name": "TRANSPORT_ACK_OUT",
@@ -2188,8 +2280,21 @@
     },
     {
       "from": "REFLEX_FL_EXTENSION_BETA",
-      "to": "FL_KNEE_NEG",
+      "to": "FL_KNEE_REFLEX_EXTEND",
       "type": "exc"
+    },
+    {
+      "from": "FL_KNEE_REFLEX_EXTEND",
+      "to": "REFLEX_FL_NORMAL_RELAY_HG",
+      "type": "exc"
+    },
+    {
+      "from": "REFLEX_FL_NORMAL_RELAY_HG",
+      "to": "FRONT_LEFT_KNEE_NEG_BETA",
+      "type": "exc",
+      "rule": "STDP3",
+      "reward": "GAIT_REWARD",
+      "reward_type": "LTP"
     },
     {
       "from": "REFLEX_FL_EXTENSION_BETA",
@@ -2239,6 +2344,23 @@
       "strength": 4.0
     },
     {
+      "from": "FL_KNEE_REFLEX_EXTEND",
+      "to": "REFLEX_FL_OUTPUT_RESET_HG",
+      "type": "exc"
+    },
+    {
+      "from": "REFLEX_FL_OUTPUT_RESET_HG",
+      "to": "FL_KNEE_REFLEX_EXTEND",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "STOP_REQUEST_HG",
+      "to": "FL_KNEE_REFLEX_EXTEND",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
       "from": "TILT_ROLL_POS",
       "to": "REFLEX_FR_HG",
       "type": "exc"
@@ -2261,8 +2383,21 @@
     },
     {
       "from": "REFLEX_FR_EXTENSION_BETA",
-      "to": "FR_KNEE_NEG",
+      "to": "FR_KNEE_REFLEX_EXTEND",
       "type": "exc"
+    },
+    {
+      "from": "FR_KNEE_REFLEX_EXTEND",
+      "to": "REFLEX_FR_NORMAL_RELAY_HG",
+      "type": "exc"
+    },
+    {
+      "from": "REFLEX_FR_NORMAL_RELAY_HG",
+      "to": "FRONT_RIGHT_KNEE_NEG_BETA",
+      "type": "exc",
+      "rule": "STDP3",
+      "reward": "GAIT_REWARD",
+      "reward_type": "LTP"
     },
     {
       "from": "REFLEX_FR_EXTENSION_BETA",
@@ -2312,6 +2447,23 @@
       "strength": 4.0
     },
     {
+      "from": "FR_KNEE_REFLEX_EXTEND",
+      "to": "REFLEX_FR_OUTPUT_RESET_HG",
+      "type": "exc"
+    },
+    {
+      "from": "REFLEX_FR_OUTPUT_RESET_HG",
+      "to": "FR_KNEE_REFLEX_EXTEND",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "STOP_REQUEST_HG",
+      "to": "FR_KNEE_REFLEX_EXTEND",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
       "from": "TILT_ROLL_NEG",
       "to": "REFLEX_RL_HG",
       "type": "exc"
@@ -2334,8 +2486,21 @@
     },
     {
       "from": "REFLEX_RL_EXTENSION_BETA",
-      "to": "RL_KNEE_NEG",
+      "to": "RL_KNEE_REFLEX_EXTEND",
       "type": "exc"
+    },
+    {
+      "from": "RL_KNEE_REFLEX_EXTEND",
+      "to": "REFLEX_RL_NORMAL_RELAY_HG",
+      "type": "exc"
+    },
+    {
+      "from": "REFLEX_RL_NORMAL_RELAY_HG",
+      "to": "REAR_LEFT_KNEE_NEG_BETA",
+      "type": "exc",
+      "rule": "STDP3",
+      "reward": "GAIT_REWARD",
+      "reward_type": "LTP"
     },
     {
       "from": "REFLEX_RL_EXTENSION_BETA",
@@ -2385,6 +2550,23 @@
       "strength": 4.0
     },
     {
+      "from": "RL_KNEE_REFLEX_EXTEND",
+      "to": "REFLEX_RL_OUTPUT_RESET_HG",
+      "type": "exc"
+    },
+    {
+      "from": "REFLEX_RL_OUTPUT_RESET_HG",
+      "to": "RL_KNEE_REFLEX_EXTEND",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "STOP_REQUEST_HG",
+      "to": "RL_KNEE_REFLEX_EXTEND",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
       "from": "TILT_ROLL_POS",
       "to": "REFLEX_RR_HG",
       "type": "exc"
@@ -2407,8 +2589,21 @@
     },
     {
       "from": "REFLEX_RR_EXTENSION_BETA",
-      "to": "RR_KNEE_NEG",
+      "to": "RR_KNEE_REFLEX_EXTEND",
       "type": "exc"
+    },
+    {
+      "from": "RR_KNEE_REFLEX_EXTEND",
+      "to": "REFLEX_RR_NORMAL_RELAY_HG",
+      "type": "exc"
+    },
+    {
+      "from": "REFLEX_RR_NORMAL_RELAY_HG",
+      "to": "REAR_RIGHT_KNEE_NEG_BETA",
+      "type": "exc",
+      "rule": "STDP3",
+      "reward": "GAIT_REWARD",
+      "reward_type": "LTP"
     },
     {
       "from": "REFLEX_RR_EXTENSION_BETA",
@@ -2458,6 +2653,23 @@
       "strength": 4.0
     },
     {
+      "from": "RR_KNEE_REFLEX_EXTEND",
+      "to": "REFLEX_RR_OUTPUT_RESET_HG",
+      "type": "exc"
+    },
+    {
+      "from": "REFLEX_RR_OUTPUT_RESET_HG",
+      "to": "RR_KNEE_REFLEX_EXTEND",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "STOP_REQUEST_HG",
+      "to": "RR_KNEE_REFLEX_EXTEND",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
       "from": "REST_NUCLEUS",
       "to": "PHASE_A_REQUEST_HG",
       "type": "inh",
@@ -3011,6 +3223,30 @@
     },
     {
       "from": "REST_NUCLEUS",
+      "to": "REFLEX_FL_NORMAL_RELAY_HG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "STOP_REQUEST_HG",
+      "to": "REFLEX_FL_NORMAL_RELAY_HG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "REFLEX_FL_OUTPUT_RESET_HG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "STOP_REQUEST_HG",
+      "to": "REFLEX_FL_OUTPUT_RESET_HG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
       "to": "REFLEX_FL_HG",
       "type": "inh",
       "strength": 4.0
@@ -3054,6 +3290,30 @@
     {
       "from": "STOP_REQUEST_HG",
       "to": "REFLEX_FL_ACTIVE",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "REFLEX_FR_NORMAL_RELAY_HG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "STOP_REQUEST_HG",
+      "to": "REFLEX_FR_NORMAL_RELAY_HG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "REFLEX_FR_OUTPUT_RESET_HG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "STOP_REQUEST_HG",
+      "to": "REFLEX_FR_OUTPUT_RESET_HG",
       "type": "inh",
       "strength": 4.0
     },
@@ -3107,6 +3367,30 @@
     },
     {
       "from": "REST_NUCLEUS",
+      "to": "REFLEX_RL_NORMAL_RELAY_HG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "STOP_REQUEST_HG",
+      "to": "REFLEX_RL_NORMAL_RELAY_HG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "REFLEX_RL_OUTPUT_RESET_HG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "STOP_REQUEST_HG",
+      "to": "REFLEX_RL_OUTPUT_RESET_HG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
       "to": "REFLEX_RL_HG",
       "type": "inh",
       "strength": 4.0
@@ -3150,6 +3434,30 @@
     {
       "from": "STOP_REQUEST_HG",
       "to": "REFLEX_RL_ACTIVE",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "REFLEX_RR_NORMAL_RELAY_HG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "STOP_REQUEST_HG",
+      "to": "REFLEX_RR_NORMAL_RELAY_HG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "REFLEX_RR_OUTPUT_RESET_HG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "STOP_REQUEST_HG",
+      "to": "REFLEX_RR_OUTPUT_RESET_HG",
       "type": "inh",
       "strength": 4.0
     },
@@ -3342,6 +3650,30 @@
     {
       "from": "REST_NUCLEUS",
       "to": "RR_KNEE_NEG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "FL_KNEE_REFLEX_EXTEND",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "FR_KNEE_REFLEX_EXTEND",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "RL_KNEE_REFLEX_EXTEND",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "RR_KNEE_REFLEX_EXTEND",
       "type": "inh",
       "strength": 4.0
     },

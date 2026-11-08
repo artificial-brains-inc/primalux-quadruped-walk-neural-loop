@@ -67,17 +67,24 @@ Knee flexion is +0.35 rad and extension −0.08 rad relative to neutral. This is
 mechanical amplitude calibration. TNorm does not encode angle, force or speed.
 The configured limits do not establish a validated foot trajectory.
 
-## Reflex and gait meet at the extension output
+## Fast reflex and normal extension recruitment
 
-Each leg has a separate REFLEX_EXTENSION_BETA, excited only by its local
-REFLEX_HG. Both this Beta and the gait extension Beta excite the existing
-KNEE_NEG output. The reflex therefore bypasses the switch while still passing
-through a motor Beta. Each Beta has one immediate excitatory source; adding the
-sensory reflex does not resize or dilute the gait Beta.
+REFLEX_HG drives a dedicated 24-neuron Beta T5 and inhibits local flexion and
+its extension-veto relay. The Beta drives KNEE_REFLEX_EXTEND, calibrated to
+−0.22 rad at up to 3.0 rad/s. Normal KNEE_NEG remains −0.08 rad at 1.5 rad/s.
 
-REFLEX_HG inhibits its local flexion Beta/output and local extension-veto relay.
-The reflex extension Beta recruits RESET_HG, which inhibits its own reflex and
-clears ACTIVE. No reflex connection targets another leg or any switch node.
+The reflex motor output also excites NORMAL_RELAY_HG T10 (one neuron), which
+excites the actual normal knee extension Beta through STDP3/LTP. Normal phase
+and teaching sources are both high-gamma, with one neuron each. The resulting
+normal extension Beta has four neurons. This small relay carries motor
+activity; the sensory reflex and its motor Beta still have 24 neurons each.
+
+The existing RESET_HG ends the upstream reflex drive. A separate
+KNEE_REFLEX_EXTEND → OUTPUT_RESET_HG → inhibitory return clears the bistable
+fast output from its own activity. No controller timer sets its burst duration.
+Repeated sensory evidence can recruit new bursts. Normal extension persists or
+clears through its existing gait/antagonist/REST paths. ACTIVE remains diagnostic.
+No reflex connection targets another leg or a shared switch node.
 See [REFLEX.md](REFLEX.md).
 
 ## Allocation and operating points
@@ -89,19 +96,21 @@ See [REFLEX.md](REFLEX.md).
 | Feedback Beta | Beta 5 | 7 |
 | Downstream Beta | Beta 5 | 11 |
 | Release | Beta 3 | 15 |
-| Local gait motor Beta | Beta 5 | 2 |
+| Normal knee extension Beta | Beta 5 | 4 |
+| Other local gait motor Beta | Beta 5 | 2 |
 | Local extension-veto relay | High-gamma 3 | 1 |
 | Local reflex | High-gamma 3 | 24 |
 | Reflex extension Beta | Beta 5 | 24 |
 | Reflex reset | High-gamma 3 | 24 |
+| Normal-path relay / output reset | High-gamma 10 | 1 each |
 
 The builder calculates these widths from the declared relationships. T10 is used
 for the small retained command/state relay paths; the sensory reflex uses T3.
 No claim is made that T3 is universally optimal or that larger populations alone
 produce coordination.
 
-The complete graph has 62 OPUs, 39 one-neuron outputs and eight external input
-populations: 109 populations, 441 connections, 520 total neurons and 414,400 bytes
+The complete graph has 70 OPUs, 43 one-neuron outputs and eight external input
+populations: 121 populations, 481 connections, 540 total neurons and 418,096 bytes
 of connection matrices. Build on the device remains authoritative.
 
 ## Learning scope
@@ -112,8 +121,14 @@ the handoff pathway. Eligibility stores recent source/receiver timing; dopamine
 uses that eligibility to adjust the selected inhibitory connections. LTP follows
 eligibility direction; it does not mean every update strengthens inhibition.
 
-All state retention, state interlocks, request capture, motor vetoes, local
-antagonists, reflex paths and excitation are static. `walk` sends no positive
+Four more STDP3/LTP connections excite the normal extension Beta from that leg's
+NORMAL_RELAY_HG. Their source is actual reflex motor output activity. This is
+deliberate adaptation of excitatory recruitment; it can change that relationship's
+computation. It does not create activity without a source or prove anticipation
+before a tilt. The fixed fast branch works before learning.
+
+All state retention, state interlocks, request capture, motor vetoes, antagonists,
+fast reflex excitation and reset remain static. `walk` sends no positive
 reward. `learn` supplies reward from new upright forward progress. A static graph
 can also be authored with `python design_brain.py --static`. First verify the
 behavior, then evaluate adaptation using actual trajectories and weight telemetry.

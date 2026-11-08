@@ -174,7 +174,12 @@ class GraphTests(unittest.TestCase):
                             for (s, t), e in self.edges.items()
                             if t == population and e["type"] == "exc"
                         },
-                        {f"PHASE_{phase}_DRIVE_HG"},
+                        {f"PHASE_{phase}_DRIVE_HG"}
+                        | (
+                            {f"REFLEX_{leg}_NORMAL_RELAY_HG"}
+                            if joint == "KNEE" and side == "NEG"
+                            else set()
+                        ),
                     )
                     self.assertEqual(self.edges[population, channel]["type"], "exc")
                     veto = (

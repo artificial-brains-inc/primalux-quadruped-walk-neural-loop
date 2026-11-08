@@ -41,6 +41,10 @@ choosing between two motor commands.
 
 Static neural dynamics establish retention, switching, competition and reflexes.
 The four optional STDP3/LTP inhibitory returns adjust the release pathway's
-recovery. Reward comes from physical progress. First observe a working static
+recovery. Four excitatory STDP3/LTP edges also let reflex motor activity recruit
+normal knee extension Betas through one-neuron high-gamma relays. This gives
+reward eligible activity on the normal path while the fixed fast branch remains
+available. Learning adjusts recruitment; it does not replace the source of
+firing or guarantee earlier corrective action. Reward comes from physical progress. First observe a working static
 behavior; then test whether learning improves it. Do not label accepted reward
 events as dopamine spikes or proof of useful weight changes.

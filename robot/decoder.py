@@ -14,13 +14,33 @@ def joint_targets(event, config, *, rhythm_only=False):
             if not rhythm_only:
                 positive = channels[f"{leg}_{joint}_POS"]
                 negative = channels[f"{leg}_{joint}_NEG"]
+                fast = joint == "KNEE" and channels[f"{leg}_KNEE_REFLEX_EXTEND"]
+                negative = max(negative, int(fast))
                 # Simultaneous antagonists cancel; no winner or inferred phase.
                 direction = positive - negative
-                q += (
-                    direction
-                    * settings[
+                q += direction * (
+                    config["reflex"]["extension_excursion_rad"]
+                    if fast
+                    else settings[
                         "positive_excursion" if direction > 0 else "negative_excursion"
                     ]
                 )
             targets[(leg, joint)] = q
     return targets
+
+
+def joint_speeds(event, config, *, rhythm_only=False):
+    """Fixed speed calibration of motor outputs, independent of tilt/ACTIVE."""
+    channels = validate_channels(event)
+    return {
+        (leg, joint): (
+            config["reflex"]["extension_speed_rad_s"]
+            if joint == "KNEE"
+            and not rhythm_only
+            and channels[f"{leg}_KNEE_REFLEX_EXTEND"]
+            and not channels[f"{leg}_KNEE_POS"]
+            else config["joint_targets"][joint]["speed_rad_s"]
+        )
+        for leg in LEGS
+        for joint in JOINTS
+    }

@@ -3,12 +3,12 @@ import unittest
 
 from design_brain import create_brain
 from robot.configuration import load_config
-from robot.contracts import REWARD_INPUT
+from robot.contracts import REWARD_INPUT, LEGS, motor_population
 from robot.reward import ProgressReward, RewardPublisher
 
 
 class LearningGraphTests(unittest.TestCase):
-    def test_only_local_release_recovery_paths_are_plastic(self):
+    def test_release_recovery_and_reflex_teaching_paths_are_plastic(self):
         d = create_brain().to_dict()
         plastic = [e for e in d["connections"] if e.get("rule") == "STDP3"]
         expected = {
@@ -16,15 +16,22 @@ class LearningGraphTests(unittest.TestCase):
             for p in ("A", "B")
             for target in ("FEEDBACK_BETA", "BETA")
         }
-        self.assertEqual({(e["from"], e["to"]) for e in plastic}, expected)
+        teaching = {
+            (f"REFLEX_{leg}_NORMAL_RELAY_HG", motor_population(leg, "KNEE", "NEG"))
+            for leg in LEGS
+        }
+        self.assertEqual({(e["from"], e["to"]) for e in plastic}, expected | teaching)
         for edge in plastic:
-            self.assertEqual(edge["type"], "inh")
+            self.assertEqual(
+                edge["type"], "inh" if (edge["from"], edge["to"]) in expected else "exc"
+            )
             self.assertEqual(edge["reward"], "GAIT_REWARD")
             self.assertEqual(edge["reward_type"], "LTP")
-            self.assertEqual(edge["role"], "feedback")
-            self.assertEqual(edge["strength"], 4)
+            if (edge["from"], edge["to"]) in expected:
+                self.assertEqual(edge["role"], "feedback")
+                self.assertEqual(edge["strength"], 4)
         for edge in d["connections"]:
-            if (edge["from"], edge["to"]) not in expected:
+            if (edge["from"], edge["to"]) not in expected | teaching:
                 self.assertNotIn("rule", edge)
 
     def test_reward_does_not_choose_a_phase_or_drive_a_motor(self):

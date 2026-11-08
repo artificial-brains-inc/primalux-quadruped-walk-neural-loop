@@ -226,6 +226,25 @@ class ControllerIntegrationTests(unittest.TestCase):
         )
         self.assertFalse(any(v[0] for v in self.tilt_calls[-1][1].values()))
 
+    def test_fast_motor_speed_is_clamped_then_restored_when_output_clears(self):
+        rows, _, _, _ = self.exercise(
+            [
+                frame(1),
+                frame(2, TRANSPORT_ACK_OUT=1, REST_ACTIVE=1),
+                frame(3),
+                frame(4, TRANSPORT_ACK_OUT=1, WALK_ENABLED=1),
+                frame(5, WALK_ENABLED=1, FL_KNEE_REFLEX_EXTEND=1),
+                frame(6, WALK_ENABLED=1, FL_KNEE_NEG=1),
+            ],
+            {2: ord("W"), 5: ord("Q")},
+            5,
+        )
+        by_step = {r["native_step"]: r for r in rows}
+        self.assertEqual(by_step[5]["joint_speed_limit_rad_s"]["FL_KNEE"], 2)
+        self.assertEqual(by_step[6]["joint_speed_limit_rad_s"]["FL_KNEE"], 1.5)
+        self.assertAlmostEqual(by_step[5]["joint_target_rad"]["FL_KNEE"], -0.22)
+        self.assertAlmostEqual(by_step[6]["joint_target_rad"]["FL_KNEE"], -0.08)
+
     def test_failed_tilt_publication_still_stops_and_saves(self):
         self.exercise([], {}, 1, reject_tilt=True)
 

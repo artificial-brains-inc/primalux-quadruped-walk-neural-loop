@@ -18,10 +18,11 @@ from .contracts import (
     LEG_NAMES,
     LEGS,
     MOTOR_OUTPUTS,
+    REFLEX_MOTOR_OUTPUTS,
     REFLEX_OUTPUTS,
     validate_channels,
 )
-from .decoder import joint_targets
+from .decoder import joint_speeds, joint_targets
 from .exchange import CommandExchange
 from .reward import ProgressReward, RewardPublisher
 from .recovery import Recovery
@@ -207,7 +208,14 @@ def main():
                 targets = joint_targets(
                     event, config, rhythm_only=(mode == "rhythm" or recovery_frame)
                 )
+                commanded_speeds = joint_speeds(
+                    event, config, rhythm_only=(mode == "rhythm" or recovery_frame)
+                )
                 for key, q in targets.items():
+                    commanded_speeds[key] = min(
+                        commanded_speeds[key], motors[key].getMaxVelocity()
+                    )
+                    motors[key].setVelocity(commanded_speeds[key])
                     motors[key].setPosition(q)
                 advance()
                 xyz, rpy = list(gps.getValues()), list(imu.getRollPitchYaw())
@@ -240,6 +248,9 @@ def main():
                         "_".join(k): s.getValue() for k, s in sensors.items()
                     },
                     joint_target_rad={"_".join(k): q for k, q in targets.items()},
+                    joint_speed_limit_rad_s={
+                        "_".join(k): v for k, v in commanded_speeds.items()
+                    },
                     body_xyz_m=xyz,
                     body_rpy_rad=rpy,
                     tilt_inputs=tilt_inputs,
@@ -265,6 +276,11 @@ def main():
                                 recovery=record["recovery_state"],
                                 reflexes=[
                                     name for name in REFLEX_OUTPUTS if channels[name]
+                                ],
+                                reflex_motors=[
+                                    name
+                                    for name in REFLEX_MOTOR_OUTPUTS
+                                    if channels[name]
                                 ],
                                 queued_frames=record["queued_native_frames"],
                                 xyz=record["body_xyz_m"],

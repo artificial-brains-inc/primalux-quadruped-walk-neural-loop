@@ -22,7 +22,9 @@
   },
   "reflex": {
     "enabled": true,
-    "tilt_threshold_rad": 0.15
+    "tilt_threshold_rad": 0.15,
+    "extension_excursion_rad": 0.22,
+    "extension_speed_rad_s": 3.0
   },
   "joint_targets": {
     "ABD": {"neutral_left": -0.1, "neutral_right": 0.1, "positive_excursion": 0.035, "negative_excursion": 0.035, "speed_rad_s": 0.7},

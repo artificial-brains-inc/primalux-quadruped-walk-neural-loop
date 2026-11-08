@@ -112,10 +112,18 @@ omitted. This is sensory quantization, not a controller-side choice of leg or
 support action. Gyro readings remain logged but are not new inputs.
 
 Each local reflex receives compatible signs, inhibits its own knee flexion,
-excites its dedicated reflex extension Beta and ends its own reflex drive. Existing motor
-inhibition clears motor outputs. No reflex inhibits another leg; shared sensory
-evidence can recruit several independent reflexes. The existing motor decoder
-is unchanged. It does not consume `REFLEX_*_ACTIVE` diagnostics. REST and pending
+excites its dedicated reflex extension Beta and ends its own reflex drive.
+The new KNEE_REFLEX_EXTEND output recruits its own output-reset relay and a
+teaching relay into the normal extension Beta. No reflex inhibits another leg;
+shared sensory evidence can recruit several independent reflexes.
+
+The decoder maps the fast motor output to the configured corrective excursion
+and speed. Normal and fast extension do not add their angles. If flexion and
+extension are both commanded, they cancel as before; the graph is responsible
+for suppressing flexion. When fast output clears, normal speed is restored on
+the next frame. `joint_speed_limit_rad_s` records the applied limit, capped by
+the model's maximum; it is not measured joint velocity. `REFLEX_*_ACTIVE` never
+drives a motor. REST and pending
 STOP inhibit the reflex neurally. Only explicit simulator recovery, `rhythm`
 mode or `reflex.enabled=false` suspend tilt publication.
 

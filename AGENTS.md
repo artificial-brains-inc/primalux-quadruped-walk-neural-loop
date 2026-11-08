@@ -15,18 +15,24 @@ Keep private construction code, formulas, compiled images and credentials out.
 - Requests clear the opposite state and feedback path. State relays oppose the
   other state and feedback relay. Keep these interlocks static at strength 4.
   Successful state recruitment clears its own request/helper at strength 64.
-- STDP3/LTP belongs only to the four RELEASE returns to the same phase's
-  FEEDBACK_BETA and BETA, initially strength 4. All other connections are static.
+- STDP3/LTP belongs to four RELEASE returns to the same phase's
+  FEEDBACK_BETA and BETA (initial strength 4), plus four NORMAL_RELAY_HG
+  excitatory connections into the normal knee extension Betas. Other edges are static.
   Start validation in walk mode with reward zero. Do not claim learned walking.
 - Keep 24 local gait Betas and four additional reflex extension Betas. A state
   relay excites each appropriate gait Beta; the opposite state vetoes its Beta
   and output. Each local motor Beta opposes its antagonist and output.
 - Each reflex is high-gamma T3, 24 neurons. Its separate extension Beta T5 has
-  24 neurons and drives that leg's existing knee extension output. Its Beta
+  24 neurons and drives that leg's KNEE_REFLEX_EXTEND output. Its Beta
   recruits a high-gamma T3 reset (24 neurons) that inhibits its own reflex.
+- Reflex motor output recruits NORMAL_RELAY_HG T10 (1 neuron), which excites
+  the existing normal knee extension Beta through STDP3/LTP. It also recruits
+  OUTPUT_RESET_HG T10 (1 neuron) to clear its own bistable output at strength 4.
+  Normal extension Betas have 4 neurons; other gait Betas have 2. Do not connect
+  the full reflex HG directly into the normal Beta and dilute its phase drive.
 - Reflex HG inhibits its own flexion Beta/output and local extension-veto relay
   at strength 64. That relay normally carries the swing phase's veto to both
-  extension Betas and their output. Never inhibit another leg or shared phase.
+  extension Betas and the normal extension output. Never inhibit another leg or shared phase.
 - The reflex has local excitatory feedback. ACTIVE is diagnostic only and has
   no outgoing connection. No guard, corner veto or controller-side reflex timer.
 - Output neurons are bistable and require explicit clearing. Do not alter SDK

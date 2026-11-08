@@ -11,9 +11,12 @@ the other pattern. Independent support reflexes can override a leg's knee motion
 
 Knee targets are **−0.08 rad for extension and +0.35 rad for flexion**, relative
 to neutral. Hip targets are ±0.20 rad. These are actuator calibration values,
-not TNorms or learned amplitudes. They remain editable in `config.json`.
+not TNorms or learned amplitudes. A separate reflex motor output requests
+**−0.22 rad at up to 3.0 rad/s**; ordinary knee motion uses 1.5 rad/s. The
+reflex also excites the normal extension Beta through a learning connection.
+These actuator calibration values remain editable in `config.json`.
 
-There are **520 neurons**, including **52 external neurons across eight named
+There are **540 neurons**, including **52 external neurons across eight named
 inputs**. Four leg groups contain 24 opposing gait Betas. Each leg also has a
 24-neuron high-gamma T3 reflex and a dedicated 24-neuron extension Beta T5.
 No additional external phase, progress or motor-feedback inputs are used.
@@ -29,7 +32,8 @@ in the graph. Webots position servos track the commanded joint angles.
 - Feed actual motor output neurons back into a neural handoff pathway.
 - Let a local reflex excite extension and inhibit flexion without selecting a
   phase in the controller or suppressing another leg.
-- Keep static coordination separate from the inhibitory paths that may learn.
+- Use reflex motor feedback to recruit the normal extension pathway, with STDP3
+  on the teaching connection and on selected inhibitory recovery paths.
 
 Read [goals and interactions](docs/GOALS.md), [the design](docs/DESIGN.md), and
 [the reflex path](docs/REFLEX.md).
@@ -147,7 +151,7 @@ command is an installer or launcher. See [design](docs/DESIGN.md) and
 
 ## Checks and limits
 
-Construction uses 520/10,000 neurons and 414,400 bytes of connection matrices;
+Construction uses 540/10,000 neurons and 418,096 bytes of connection matrices;
 other prepared-image data also consumes memory. The local complete-circuit check
 uses single START/STOP events, internal motor feedback and injected tilt evidence.
 It checks alternation, local overrides, stopping and restarting. It includes

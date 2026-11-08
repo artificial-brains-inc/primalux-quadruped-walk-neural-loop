@@ -30,6 +30,17 @@ def load_config(root=ROOT):
     reflex = c["reflex"]
     if type(reflex["enabled"]) is not bool:
         raise ValueError("reflex.enabled must be true or false")
+    for key in ("extension_excursion_rad", "extension_speed_rad_s"):
+        value = reflex[key]
+        if type(value) not in (int, float) or not math.isfinite(value) or value <= 0:
+            raise ValueError(f"reflex.{key} must be positive and finite")
+    for side in ("left", "right"):
+        endpoint = (
+            c["joint_targets"]["KNEE"]["neutral_" + side]
+            - reflex["extension_excursion_rad"]
+        )
+        if not MODEL_LIMITS["KNEE"][0] <= endpoint <= MODEL_LIMITS["KNEE"][1]:
+            raise ValueError("Reflex extension endpoint exceeds the Spot model limits")
     threshold = reflex["tilt_threshold_rad"]
     if (
         type(threshold) not in (int, float)
