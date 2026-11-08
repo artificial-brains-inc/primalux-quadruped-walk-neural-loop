@@ -5,6 +5,7 @@ EXTERNPROTO "../protos/FloorMarkings.proto"
 WorldInfo {
   title "Prima-Lux - Spot recurrent walking"
   basicTimeStep 16
+  coordinateSystem "ENU"
 }
 Viewpoint {
   # View from the front-left, aimed at (0, 0, 0.45), world +Z up.

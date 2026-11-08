@@ -45,6 +45,27 @@ applied neural frame; network delivery means the reward is consumed later. The
 recorded native step is not a promise of same-step reward application. Excessive
 backlog can damage credit assignment even when command ACK is working.
 
+## Check the local support reflex
+
+Run `learn` or `walk`, press W and correlate measured roll/pitch with the four
+tilt bits, `REFLEX_*_ACTIVE` and each knee's POS/NEG outputs. Follow the
+[reflex checks](REFLEX.md#observe-the-result): appropriate leg recruitment,
+flexion veto, extension, self-clear and renewed response to later evidence.
+Check S while a reflex is active; REST must silence it along with the gait.
+
+The telemetry window shows actual neuron activity. Inspect `GAIT_REWARD_RELAY`
+and `GAIT_REWARD` to verify dopamine firing; the accepted reward event log alone
+does not establish this. Inspect reflex trigger, guard and final reset neurons
+to separate input delivery, recruitment and cutoff failures.
+
+Compare `reflex.enabled=true` with `false` in separate runs using otherwise
+matched configuration and initial neural/body conditions. Record recovery count,
+tilt, forward progress and knee movement. For this comparison a static graph
+avoids ongoing learning as a confound; learned state must also be controlled.
+Record the maximum output backlog and tilt publication duration: a fast neural
+path does not eliminate body/network latency. Do not infer contact from a
+negative knee target or call assisted resets neural recovery.
+
 ## Compare with a static graph
 
 A zero external reward input is not proof that all internal reward/eligibility

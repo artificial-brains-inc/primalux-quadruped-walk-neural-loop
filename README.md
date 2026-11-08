@@ -1,9 +1,11 @@
-# Spot: learning inhibitory coordination
+# Spot: inhibitory coordination and support reflexes
 
 A developer teaching example for Prima-Lux and Webots. One walking nucleus drives
 two neural phase pathways. Each phase inhibits the other; its downstream RELEASE
 inhibits its own inhibitor, making room for the opposite phase. STDP3 modulates
-those inhibitory paths using one reward signal from actual body movement.
+those inhibitory paths using one reward signal from actual body movement. Four local
+high-gamma reflexes respond to body tilt, veto knee flexion, extend the supporting
+leg and terminate through their own inhibitory return paths.
 
 **A and B are phases; the robot has four leg motor cortices.** Each leg has three
 actuators with opposing POS/NEG motor populations: 24 local motor populations.
@@ -13,10 +15,12 @@ actuators with opposing POS/NEG motor populations: 24 local motor populations.
 | A | Front-left + rear-right | Front-right + rear-left |
 | B | Front-right + rear-left | Front-left + rear-right |
 
-There are **four external input neurons total**: START, STOP, ACK and reward.
+There are **eight external input neurons total**: START, STOP, ACK, reward,
+and four signed roll/pitch measurements. The four added neurons are physical
+feedback; leg selection and burst cutoff are neural.
 No phase clock, joint error vector or gait generator runs in Python. The adapter
 maps local motor outputs to Webots joint targets, measures physical outcome, and
-publishes reward. Webots position servos track the targets.
+publishes reward and current tilt evidence. Webots position servos track the targets.
 
 This package passes construction and local integration tests. **Learned walking
 has not been demonstrated here.** The isolated command check exercises START/STOP/restart; neural gait handoff,
@@ -27,6 +31,8 @@ reward timing and physical coordination need testing together on Prima-Lux and W
 - Build a retained goal and an opposing STOP/REST goal.
 - Use inhibition of an inhibitor to release a competing action.
 - Share phase preparation across four leg motor cortices.
+- Add a local support reflex that overrides flexion, then inhibits itself and
+  clears its bistable extension output.
 - Choose which connections should learn and which must retain fixed semantics.
 - Define reward from an outcome, then compare learning with a static circuit.
 
@@ -52,7 +58,7 @@ It does not depend on Webots sample directories or download model assets at Run.
 ## Clone and install
 
 ```bash
-git clone "$HOME/Downloads/primalux-spot-learning-stride.bundle" primalux-spot-learning
+git clone "$HOME/Downloads/primalux-spot-learning-reflex.bundle" primalux-spot-learning
 cd primalux-spot-learning
 bash install.sh
 source .venv/bin/activate
@@ -89,7 +95,10 @@ request capture from goal confirmation. These readouts do not drive the body.
 
 Inspect an inhibitory connection's learning settings: **STDP3**, reward population
 **GAIT_REWARD**, reward type **LTP**. Trace the separate reward input through its
-High-Gamma relay to that dopaminergic population. START, STOP and ACK stay static.
+High-Gamma relay to that dopaminergic population. START, STOP, ACK and the support reflexes stay static.
+
+Below the motor columns, follow TILT_ROLL/PITCH → REFLEX → ACTIVE → GUARD
+→ RESET, including the inhibitory return. See [support reflexes](docs/REFLEX.md).
 
 Close the Designer with Ctrl+C before continuing in that terminal. If editing on
 the Canvas, save/download and replace `brain.abdesign.json` before Build. Install
@@ -102,14 +111,15 @@ ab device --env .env stop
 ab build brain --brain brain.abdesign.json --env .env
 ```
 
-**Wait for READY. The command-request graph requires a new Build.** An older installed
+**Wait for READY. The reflex graph requires a new Build.** An older installed
 brain will fail the package's design-identity check.
 
-The saved graph has 542 total neurons, including four external input neurons,
-86 populations, 299 connections and approximately 0.53 MiB of connection matrices.
+The saved graph has 578 total neurons, including eight external input neurons,
+118 populations, 435 connections and approximately 0.54 MiB of connection matrices.
 Of those connections, 66 inhibitory paths use STDP3. These are connections, not
 66 extra OPUs. [Aggregate resource check](docs/RESOURCE_CHECK.json).
-The device Build remains authoritative.
+The device Build remains authoritative. This is a new design: do not assume
+learned weights from the previous installed graph migrate to it.
 
 ## Run and learn
 
@@ -133,6 +143,15 @@ it sends one START if walking should resume. The brain session and learned weigh
 are retained; recovery supplies no reward. This is simulator assistance, not
 learned self-righting. Set `recovery.automatic` to `false` in `config.json` for
 unassisted trials; R still works. [Recovery details](docs/RECOVERY.md).
+
+The support reflex begins from roll or pitch beyond **0.15 rad (about 8.6°)**.
+Pure sideways tilt recruits the two legs on that side; combined forward/sideways
+tilt recruits the corresponding corner. These relationships are wired in the
+brain. Each reflex uses High-Gamma T10 and static inhibition strength 4; its reset
+also clears the knee extension output. It does not increase motor speed or torque.
+The isolated check produced five-frame bursts, but actual gait interaction and
+balance still need the live test. Set `reflex.enabled` to `false` in `config.json`
+to compare without tilt evidence; that setting applies on the next Run.
 
 The arena is 30 × 30 metres with a **1 metre grid**, heavier lines every 5 metres,
 a blue starting square and a red forward (+X) line with arrows and metre labels.
@@ -195,6 +214,9 @@ Each `logs/run-.../` directory contains:
 - `commands.jsonl`: key receipt, publication, ACK and goal confirmation.
 - `observations.jsonl`: applied frame, resulting joint/body measurements and reward evidence.
 - `rewards.jsonl`: accepted reward events from qualifying physical observations.
+- `tilt-inputs.jsonl`: simultaneous tilt evidence and publication duration.
+  Observations also include all four `REFLEX_*_ACTIVE` readouts; summary reports
+  their active frames and entries. These are readouts, not measured spike counts.
 - `summary.json`: phase entries, motor overlaps, reward frames, progress and STOP checks.
 - `settings.json`: mode and configuration used for this run.
 

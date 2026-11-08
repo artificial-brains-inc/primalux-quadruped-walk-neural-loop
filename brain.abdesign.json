@@ -1,6 +1,6 @@
 {
   "schema": "artificial-brains/design/v1",
-  "name": "Spot - Learning Inhibitory Coordination",
+  "name": "Spot - Learning Coordination and Support Reflexes",
   "nodes": [
     {
       "name": "WALK_START",
@@ -634,6 +634,254 @@
       "x": 3200.0,
       "y": 2690.0,
       "neurons": 1
+    },
+    {
+      "name": "TILT_ROLL_NEG",
+      "kind": "input",
+      "x": 0.0,
+      "y": 3120.0,
+      "neurons": 1
+    },
+    {
+      "name": "TILT_ROLL_NEG_HG",
+      "kind": "opu",
+      "x": 0.0,
+      "y": 3300.0,
+      "rhythm": "high-gamma",
+      "tnorm": 10.0
+    },
+    {
+      "name": "TILT_ROLL_POS",
+      "kind": "input",
+      "x": 900.0,
+      "y": 3120.0,
+      "neurons": 1
+    },
+    {
+      "name": "TILT_ROLL_POS_HG",
+      "kind": "opu",
+      "x": 900.0,
+      "y": 3300.0,
+      "rhythm": "high-gamma",
+      "tnorm": 10.0
+    },
+    {
+      "name": "TILT_PITCH_NEG",
+      "kind": "input",
+      "x": 1800.0,
+      "y": 3120.0,
+      "neurons": 1
+    },
+    {
+      "name": "TILT_PITCH_NEG_HG",
+      "kind": "opu",
+      "x": 1800.0,
+      "y": 3300.0,
+      "rhythm": "high-gamma",
+      "tnorm": 10.0
+    },
+    {
+      "name": "TILT_PITCH_POS",
+      "kind": "input",
+      "x": 2700.0,
+      "y": 3120.0,
+      "neurons": 1
+    },
+    {
+      "name": "TILT_PITCH_POS_HG",
+      "kind": "opu",
+      "x": 2700.0,
+      "y": 3300.0,
+      "rhythm": "high-gamma",
+      "tnorm": 10.0
+    },
+    {
+      "name": "REFLEX_FL_HG",
+      "kind": "opu",
+      "x": 0.0,
+      "y": 3520.0,
+      "rhythm": "high-gamma",
+      "tnorm": 10.0
+    },
+    {
+      "name": "REFLEX_FL_ACTIVE",
+      "kind": "output",
+      "x": 260.0,
+      "y": 3700.0,
+      "neurons": 1
+    },
+    {
+      "name": "REFLEX_FL_GUARD_HG",
+      "kind": "opu",
+      "x": 0.0,
+      "y": 3880.0,
+      "rhythm": "high-gamma",
+      "tnorm": 10.0
+    },
+    {
+      "name": "REFLEX_FL_RESET_1_HG",
+      "kind": "opu",
+      "x": 0.0,
+      "y": 4060.0,
+      "rhythm": "high-gamma",
+      "tnorm": 10.0
+    },
+    {
+      "name": "REFLEX_FL_RESET_2_HG",
+      "kind": "opu",
+      "x": 0.0,
+      "y": 4240.0,
+      "rhythm": "high-gamma",
+      "tnorm": 10.0
+    },
+    {
+      "name": "REFLEX_FL_RESET_3_HG",
+      "kind": "opu",
+      "x": 0.0,
+      "y": 4420.0,
+      "rhythm": "high-gamma",
+      "tnorm": 10.0
+    },
+    {
+      "name": "REFLEX_FR_HG",
+      "kind": "opu",
+      "x": 900.0,
+      "y": 3520.0,
+      "rhythm": "high-gamma",
+      "tnorm": 10.0
+    },
+    {
+      "name": "REFLEX_FR_ACTIVE",
+      "kind": "output",
+      "x": 1160.0,
+      "y": 3700.0,
+      "neurons": 1
+    },
+    {
+      "name": "REFLEX_FR_GUARD_HG",
+      "kind": "opu",
+      "x": 900.0,
+      "y": 3880.0,
+      "rhythm": "high-gamma",
+      "tnorm": 10.0
+    },
+    {
+      "name": "REFLEX_FR_RESET_1_HG",
+      "kind": "opu",
+      "x": 900.0,
+      "y": 4060.0,
+      "rhythm": "high-gamma",
+      "tnorm": 10.0
+    },
+    {
+      "name": "REFLEX_FR_RESET_2_HG",
+      "kind": "opu",
+      "x": 900.0,
+      "y": 4240.0,
+      "rhythm": "high-gamma",
+      "tnorm": 10.0
+    },
+    {
+      "name": "REFLEX_FR_RESET_3_HG",
+      "kind": "opu",
+      "x": 900.0,
+      "y": 4420.0,
+      "rhythm": "high-gamma",
+      "tnorm": 10.0
+    },
+    {
+      "name": "REFLEX_RL_HG",
+      "kind": "opu",
+      "x": 1800.0,
+      "y": 3520.0,
+      "rhythm": "high-gamma",
+      "tnorm": 10.0
+    },
+    {
+      "name": "REFLEX_RL_ACTIVE",
+      "kind": "output",
+      "x": 2060.0,
+      "y": 3700.0,
+      "neurons": 1
+    },
+    {
+      "name": "REFLEX_RL_GUARD_HG",
+      "kind": "opu",
+      "x": 1800.0,
+      "y": 3880.0,
+      "rhythm": "high-gamma",
+      "tnorm": 10.0
+    },
+    {
+      "name": "REFLEX_RL_RESET_1_HG",
+      "kind": "opu",
+      "x": 1800.0,
+      "y": 4060.0,
+      "rhythm": "high-gamma",
+      "tnorm": 10.0
+    },
+    {
+      "name": "REFLEX_RL_RESET_2_HG",
+      "kind": "opu",
+      "x": 1800.0,
+      "y": 4240.0,
+      "rhythm": "high-gamma",
+      "tnorm": 10.0
+    },
+    {
+      "name": "REFLEX_RL_RESET_3_HG",
+      "kind": "opu",
+      "x": 1800.0,
+      "y": 4420.0,
+      "rhythm": "high-gamma",
+      "tnorm": 10.0
+    },
+    {
+      "name": "REFLEX_RR_HG",
+      "kind": "opu",
+      "x": 2700.0,
+      "y": 3520.0,
+      "rhythm": "high-gamma",
+      "tnorm": 10.0
+    },
+    {
+      "name": "REFLEX_RR_ACTIVE",
+      "kind": "output",
+      "x": 2960.0,
+      "y": 3700.0,
+      "neurons": 1
+    },
+    {
+      "name": "REFLEX_RR_GUARD_HG",
+      "kind": "opu",
+      "x": 2700.0,
+      "y": 3880.0,
+      "rhythm": "high-gamma",
+      "tnorm": 10.0
+    },
+    {
+      "name": "REFLEX_RR_RESET_1_HG",
+      "kind": "opu",
+      "x": 2700.0,
+      "y": 4060.0,
+      "rhythm": "high-gamma",
+      "tnorm": 10.0
+    },
+    {
+      "name": "REFLEX_RR_RESET_2_HG",
+      "kind": "opu",
+      "x": 2700.0,
+      "y": 4240.0,
+      "rhythm": "high-gamma",
+      "tnorm": 10.0
+    },
+    {
+      "name": "REFLEX_RR_RESET_3_HG",
+      "kind": "opu",
+      "x": 2700.0,
+      "y": 4420.0,
+      "rhythm": "high-gamma",
+      "tnorm": 10.0
     },
     {
       "name": "TRANSPORT_ACK_OUT",
@@ -2009,6 +2257,790 @@
       "from": "REAR_RIGHT_KNEE_NEG_BETA",
       "to": "RR_KNEE_POS",
       "type": "inh"
+    },
+    {
+      "from": "TILT_ROLL_NEG",
+      "to": "TILT_ROLL_NEG_HG",
+      "type": "exc"
+    },
+    {
+      "from": "TILT_ROLL_POS",
+      "to": "TILT_ROLL_POS_HG",
+      "type": "exc"
+    },
+    {
+      "from": "TILT_PITCH_NEG",
+      "to": "TILT_PITCH_NEG_HG",
+      "type": "exc"
+    },
+    {
+      "from": "TILT_PITCH_POS",
+      "to": "TILT_PITCH_POS_HG",
+      "type": "exc"
+    },
+    {
+      "from": "REFLEX_FL_HG",
+      "to": "REFLEX_FL_ACTIVE",
+      "type": "exc"
+    },
+    {
+      "from": "REFLEX_FL_ACTIVE",
+      "to": "REFLEX_FL_GUARD_HG",
+      "type": "exc"
+    },
+    {
+      "from": "REFLEX_FL_HG",
+      "to": "FL_KNEE_NEG",
+      "type": "exc"
+    },
+    {
+      "from": "REFLEX_FL_HG",
+      "to": "FRONT_LEFT_KNEE_POS_BETA",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REFLEX_FL_HG",
+      "to": "FL_KNEE_POS",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REFLEX_FL_GUARD_HG",
+      "to": "FRONT_LEFT_KNEE_POS_BETA",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REFLEX_FL_GUARD_HG",
+      "to": "FL_KNEE_POS",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "TILT_ROLL_NEG_HG",
+      "to": "REFLEX_FL_HG",
+      "type": "exc"
+    },
+    {
+      "from": "TILT_ROLL_POS_HG",
+      "to": "REFLEX_FL_HG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "TILT_ROLL_POS_HG",
+      "to": "REFLEX_FL_ACTIVE",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "TILT_PITCH_POS_HG",
+      "to": "REFLEX_FL_HG",
+      "type": "exc"
+    },
+    {
+      "from": "TILT_PITCH_NEG_HG",
+      "to": "REFLEX_FL_HG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "TILT_PITCH_NEG_HG",
+      "to": "REFLEX_FL_ACTIVE",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REFLEX_FL_GUARD_HG",
+      "to": "REFLEX_FL_RESET_1_HG",
+      "type": "exc"
+    },
+    {
+      "from": "REFLEX_FL_RESET_1_HG",
+      "to": "REFLEX_FL_RESET_2_HG",
+      "type": "exc"
+    },
+    {
+      "from": "REFLEX_FL_RESET_2_HG",
+      "to": "REFLEX_FL_RESET_3_HG",
+      "type": "exc"
+    },
+    {
+      "from": "REFLEX_FL_RESET_3_HG",
+      "to": "REFLEX_FL_HG",
+      "type": "inh",
+      "strength": 4.0,
+      "role": "feedback"
+    },
+    {
+      "from": "REFLEX_FL_RESET_3_HG",
+      "to": "REFLEX_FL_ACTIVE",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REFLEX_FL_RESET_3_HG",
+      "to": "FL_KNEE_NEG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REFLEX_FR_HG",
+      "to": "REFLEX_FR_ACTIVE",
+      "type": "exc"
+    },
+    {
+      "from": "REFLEX_FR_ACTIVE",
+      "to": "REFLEX_FR_GUARD_HG",
+      "type": "exc"
+    },
+    {
+      "from": "REFLEX_FR_HG",
+      "to": "FR_KNEE_NEG",
+      "type": "exc"
+    },
+    {
+      "from": "REFLEX_FR_HG",
+      "to": "FRONT_RIGHT_KNEE_POS_BETA",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REFLEX_FR_HG",
+      "to": "FR_KNEE_POS",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REFLEX_FR_GUARD_HG",
+      "to": "FRONT_RIGHT_KNEE_POS_BETA",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REFLEX_FR_GUARD_HG",
+      "to": "FR_KNEE_POS",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "TILT_ROLL_POS_HG",
+      "to": "REFLEX_FR_HG",
+      "type": "exc"
+    },
+    {
+      "from": "TILT_ROLL_NEG_HG",
+      "to": "REFLEX_FR_HG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "TILT_ROLL_NEG_HG",
+      "to": "REFLEX_FR_ACTIVE",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "TILT_PITCH_POS_HG",
+      "to": "REFLEX_FR_HG",
+      "type": "exc"
+    },
+    {
+      "from": "TILT_PITCH_NEG_HG",
+      "to": "REFLEX_FR_HG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "TILT_PITCH_NEG_HG",
+      "to": "REFLEX_FR_ACTIVE",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REFLEX_FR_GUARD_HG",
+      "to": "REFLEX_FR_RESET_1_HG",
+      "type": "exc"
+    },
+    {
+      "from": "REFLEX_FR_RESET_1_HG",
+      "to": "REFLEX_FR_RESET_2_HG",
+      "type": "exc"
+    },
+    {
+      "from": "REFLEX_FR_RESET_2_HG",
+      "to": "REFLEX_FR_RESET_3_HG",
+      "type": "exc"
+    },
+    {
+      "from": "REFLEX_FR_RESET_3_HG",
+      "to": "REFLEX_FR_HG",
+      "type": "inh",
+      "strength": 4.0,
+      "role": "feedback"
+    },
+    {
+      "from": "REFLEX_FR_RESET_3_HG",
+      "to": "REFLEX_FR_ACTIVE",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REFLEX_FR_RESET_3_HG",
+      "to": "FR_KNEE_NEG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REFLEX_RL_HG",
+      "to": "REFLEX_RL_ACTIVE",
+      "type": "exc"
+    },
+    {
+      "from": "REFLEX_RL_ACTIVE",
+      "to": "REFLEX_RL_GUARD_HG",
+      "type": "exc"
+    },
+    {
+      "from": "REFLEX_RL_HG",
+      "to": "RL_KNEE_NEG",
+      "type": "exc"
+    },
+    {
+      "from": "REFLEX_RL_HG",
+      "to": "REAR_LEFT_KNEE_POS_BETA",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REFLEX_RL_HG",
+      "to": "RL_KNEE_POS",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REFLEX_RL_GUARD_HG",
+      "to": "REAR_LEFT_KNEE_POS_BETA",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REFLEX_RL_GUARD_HG",
+      "to": "RL_KNEE_POS",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "TILT_ROLL_NEG_HG",
+      "to": "REFLEX_RL_HG",
+      "type": "exc"
+    },
+    {
+      "from": "TILT_ROLL_POS_HG",
+      "to": "REFLEX_RL_HG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "TILT_ROLL_POS_HG",
+      "to": "REFLEX_RL_ACTIVE",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "TILT_PITCH_NEG_HG",
+      "to": "REFLEX_RL_HG",
+      "type": "exc"
+    },
+    {
+      "from": "TILT_PITCH_POS_HG",
+      "to": "REFLEX_RL_HG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "TILT_PITCH_POS_HG",
+      "to": "REFLEX_RL_ACTIVE",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REFLEX_RL_GUARD_HG",
+      "to": "REFLEX_RL_RESET_1_HG",
+      "type": "exc"
+    },
+    {
+      "from": "REFLEX_RL_RESET_1_HG",
+      "to": "REFLEX_RL_RESET_2_HG",
+      "type": "exc"
+    },
+    {
+      "from": "REFLEX_RL_RESET_2_HG",
+      "to": "REFLEX_RL_RESET_3_HG",
+      "type": "exc"
+    },
+    {
+      "from": "REFLEX_RL_RESET_3_HG",
+      "to": "REFLEX_RL_HG",
+      "type": "inh",
+      "strength": 4.0,
+      "role": "feedback"
+    },
+    {
+      "from": "REFLEX_RL_RESET_3_HG",
+      "to": "REFLEX_RL_ACTIVE",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REFLEX_RL_RESET_3_HG",
+      "to": "RL_KNEE_NEG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REFLEX_RR_HG",
+      "to": "REFLEX_RR_ACTIVE",
+      "type": "exc"
+    },
+    {
+      "from": "REFLEX_RR_ACTIVE",
+      "to": "REFLEX_RR_GUARD_HG",
+      "type": "exc"
+    },
+    {
+      "from": "REFLEX_RR_HG",
+      "to": "RR_KNEE_NEG",
+      "type": "exc"
+    },
+    {
+      "from": "REFLEX_RR_HG",
+      "to": "REAR_RIGHT_KNEE_POS_BETA",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REFLEX_RR_HG",
+      "to": "RR_KNEE_POS",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REFLEX_RR_GUARD_HG",
+      "to": "REAR_RIGHT_KNEE_POS_BETA",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REFLEX_RR_GUARD_HG",
+      "to": "RR_KNEE_POS",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "TILT_ROLL_POS_HG",
+      "to": "REFLEX_RR_HG",
+      "type": "exc"
+    },
+    {
+      "from": "TILT_ROLL_NEG_HG",
+      "to": "REFLEX_RR_HG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "TILT_ROLL_NEG_HG",
+      "to": "REFLEX_RR_ACTIVE",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "TILT_PITCH_NEG_HG",
+      "to": "REFLEX_RR_HG",
+      "type": "exc"
+    },
+    {
+      "from": "TILT_PITCH_POS_HG",
+      "to": "REFLEX_RR_HG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "TILT_PITCH_POS_HG",
+      "to": "REFLEX_RR_ACTIVE",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REFLEX_RR_GUARD_HG",
+      "to": "REFLEX_RR_RESET_1_HG",
+      "type": "exc"
+    },
+    {
+      "from": "REFLEX_RR_RESET_1_HG",
+      "to": "REFLEX_RR_RESET_2_HG",
+      "type": "exc"
+    },
+    {
+      "from": "REFLEX_RR_RESET_2_HG",
+      "to": "REFLEX_RR_RESET_3_HG",
+      "type": "exc"
+    },
+    {
+      "from": "REFLEX_RR_RESET_3_HG",
+      "to": "REFLEX_RR_HG",
+      "type": "inh",
+      "strength": 4.0,
+      "role": "feedback"
+    },
+    {
+      "from": "REFLEX_RR_RESET_3_HG",
+      "to": "REFLEX_RR_ACTIVE",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REFLEX_RR_RESET_3_HG",
+      "to": "RR_KNEE_NEG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "TILT_ROLL_NEG_HG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "STOP_REQUEST_HG",
+      "to": "TILT_ROLL_NEG_HG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "TILT_ROLL_POS_HG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "STOP_REQUEST_HG",
+      "to": "TILT_ROLL_POS_HG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "TILT_PITCH_NEG_HG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "STOP_REQUEST_HG",
+      "to": "TILT_PITCH_NEG_HG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "TILT_PITCH_POS_HG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "STOP_REQUEST_HG",
+      "to": "TILT_PITCH_POS_HG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "REFLEX_FL_HG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "STOP_REQUEST_HG",
+      "to": "REFLEX_FL_HG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "REFLEX_FL_ACTIVE",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "STOP_REQUEST_HG",
+      "to": "REFLEX_FL_ACTIVE",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "REFLEX_FL_GUARD_HG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "STOP_REQUEST_HG",
+      "to": "REFLEX_FL_GUARD_HG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "REFLEX_FL_RESET_1_HG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "STOP_REQUEST_HG",
+      "to": "REFLEX_FL_RESET_1_HG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "REFLEX_FL_RESET_2_HG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "STOP_REQUEST_HG",
+      "to": "REFLEX_FL_RESET_2_HG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "REFLEX_FL_RESET_3_HG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "STOP_REQUEST_HG",
+      "to": "REFLEX_FL_RESET_3_HG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "REFLEX_FR_HG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "STOP_REQUEST_HG",
+      "to": "REFLEX_FR_HG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "REFLEX_FR_ACTIVE",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "STOP_REQUEST_HG",
+      "to": "REFLEX_FR_ACTIVE",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "REFLEX_FR_GUARD_HG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "STOP_REQUEST_HG",
+      "to": "REFLEX_FR_GUARD_HG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "REFLEX_FR_RESET_1_HG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "STOP_REQUEST_HG",
+      "to": "REFLEX_FR_RESET_1_HG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "REFLEX_FR_RESET_2_HG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "STOP_REQUEST_HG",
+      "to": "REFLEX_FR_RESET_2_HG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "REFLEX_FR_RESET_3_HG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "STOP_REQUEST_HG",
+      "to": "REFLEX_FR_RESET_3_HG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "REFLEX_RL_HG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "STOP_REQUEST_HG",
+      "to": "REFLEX_RL_HG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "REFLEX_RL_ACTIVE",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "STOP_REQUEST_HG",
+      "to": "REFLEX_RL_ACTIVE",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "REFLEX_RL_GUARD_HG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "STOP_REQUEST_HG",
+      "to": "REFLEX_RL_GUARD_HG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "REFLEX_RL_RESET_1_HG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "STOP_REQUEST_HG",
+      "to": "REFLEX_RL_RESET_1_HG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "REFLEX_RL_RESET_2_HG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "STOP_REQUEST_HG",
+      "to": "REFLEX_RL_RESET_2_HG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "REFLEX_RL_RESET_3_HG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "STOP_REQUEST_HG",
+      "to": "REFLEX_RL_RESET_3_HG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "REFLEX_RR_HG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "STOP_REQUEST_HG",
+      "to": "REFLEX_RR_HG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "REFLEX_RR_ACTIVE",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "STOP_REQUEST_HG",
+      "to": "REFLEX_RR_ACTIVE",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "REFLEX_RR_GUARD_HG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "STOP_REQUEST_HG",
+      "to": "REFLEX_RR_GUARD_HG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "REFLEX_RR_RESET_1_HG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "STOP_REQUEST_HG",
+      "to": "REFLEX_RR_RESET_1_HG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "REFLEX_RR_RESET_2_HG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "STOP_REQUEST_HG",
+      "to": "REFLEX_RR_RESET_2_HG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "REFLEX_RR_RESET_3_HG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "STOP_REQUEST_HG",
+      "to": "REFLEX_RR_RESET_3_HG",
+      "type": "inh",
+      "strength": 4.0
     },
     {
       "from": "REST_NUCLEUS",

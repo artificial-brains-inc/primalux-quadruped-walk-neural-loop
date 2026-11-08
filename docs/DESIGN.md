@@ -12,6 +12,8 @@ Only public SDK relationships appear in this project.
 | WALK_STOP | 1 | One request to inhibit walking; also sent at startup |
 | TRANSPORT_ACK | 1 | Acknowledgement stimulus accompanying that request |
 | GAIT_REWARD_IN | 1 | Binary physical outcome reward while learning |
+| TILT_ROLL_NEG / TILT_ROLL_POS | 1 each | Measured roll beyond the negative/positive deadband |
+| TILT_PITCH_NEG / TILT_PITCH_POS | 1 each | Measured pitch beyond the negative/positive deadband |
 
 Live inputs are one-step events. An atomic command event includes START or STOP
 and ACK. Waiting in Python does not retain the command input on the device.
@@ -48,8 +50,8 @@ recruits. Removing excitation alone is not a stop for bistable motor outputs.
 
 The adapter observes WALK/REST to confirm the transition; it does not simulate
 request retention or choose a motor phase. All request and goal paths stay static.
-The two new request outputs and two high-gamma helpers add four neurons, with
-no new external input. The [isolated command check](COMMAND_CHECK.json) exercises
+The two request outputs and two high-gamma helpers use four neurons and require
+no repeated external command. The [isolated command check](COMMAND_CHECK.json) exercises
 single-event STOP, START and restart. Full body coordination still needs a live run.
 
 ## Each phase releases the other
@@ -192,9 +194,9 @@ to select a phase or move a joint. Only the 24 local motor outputs actuate the b
 Readouts have explicit clearing connections but remain bistable populations;
 they are not a complete view of the OPUs. Compare them with population telemetry.
 
-The saved graph contains 46 OPUs, 36 one-neuron outputs and four one-neuron inputs:
-86 populations and 299 connections. Construction reports 542 total neurons and
-553,056 bytes (about 0.53 MiB) of matrix storage. Other image data also uses the
+The saved graph contains 70 OPUs, 40 one-neuron outputs and eight one-neuron inputs:
+118 populations and 435 connections. Construction reports 578 total neurons and
+563,136 bytes (about 0.54 MiB) of matrix storage. Other image data also uses the
 32 MiB budget. The device Build remains authoritative.
 
 ACK remains input → High-Gamma T10 → output → separate High-Gamma T10 reset,
@@ -204,3 +206,10 @@ Output-to-new-helper connections use ordinary excitation to supply the helper's
 construction path. Returns into already constructed phase/motor OPUs use the
 feedback role. Reinforcement into outputs is ordinary excitation because the
 public feedback role targets OPUs. No dummy external input is added.
+
+## Local support reflexes
+
+The four reflex circuits and four sensory relays add 36 neurons. Their source-to-target
+roles, strong inhibitory return, leg mapping and limits are explained in [REFLEX.md](REFLEX.md).
+All pre-existing gait connections, their TNorms and the 66 STDP3 paths are preserved.
+The saved graph changes, so build this design before running its adapter.

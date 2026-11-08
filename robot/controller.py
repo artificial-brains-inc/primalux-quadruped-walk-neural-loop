@@ -1,7 +1,8 @@
 """Receive neural frames, translate actuator outputs, and step Webots once.
 
-There is no gait clock, phase selector, trajectory generator, or input resend
-inside the running loop. Physical outcome supplies one binary reward in learn mode.
+There is no gait clock, phase selector, trajectory generator, or command resend
+inside the running loop. Physical outcome supplies reward; IMU readings supply
+four signed tilt neurons. Reflex leg selection and cutoff stay inside the brain.
 """
 
 import json
@@ -17,12 +18,14 @@ from .contracts import (
     LEG_NAMES,
     LEGS,
     MOTOR_OUTPUTS,
+    REFLEX_OUTPUTS,
     validate_channels,
 )
 from .decoder import joint_targets
 from .exchange import CommandExchange
 from .reward import ProgressReward, RewardPublisher
 from .recovery import Recovery
+from .reflex import TiltPublisher
 from .transport import EventBuffer, StopRequested
 
 
@@ -101,6 +104,7 @@ def main():
             (directory / "commands.jsonl").open("x", buffering=1) as commands,
             (directory / "observations.jsonl").open("x", buffering=1) as observations,
             (directory / "rewards.jsonl").open("x", buffering=1) as rewards,
+            (directory / "tilt-inputs.jsonl").open("x", buffering=1) as tilt_log,
         ):
             events = EventBuffer(
                 (ROOT / ".stop-request").exists,
@@ -139,6 +143,12 @@ def main():
                 record=record_command,
             )
             exchange.initialize_inputs()
+            tilt_sender = TiltPublisher(
+                session.publish_sensor_frame,
+                config["reflex"],
+                record=lambda e: tilt_log.write(json.dumps(e) + "\n"),
+            )
+            tilt_sender.send([0, 0, 0], suspended=True, force=True)
             reward_sender = RewardPublisher(
                 session.publish_reward,
                 record=lambda e: rewards.write(json.dumps(e) + "\n"),
@@ -201,6 +211,12 @@ def main():
                     motors[key].setPosition(q)
                 advance()
                 xyz, rpy = list(gps.getValues()), list(imu.getRollPitchYaw())
+                tilt_inputs = tilt_sender.send(
+                    rpy,
+                    suspended=(recovery_frame or mode == "rhythm"),
+                    native_step=event["step"],
+                    simulation_time=body.getTime(),
+                )
                 evidence = reward.sample(body.getTime(), xyz, rpy)
                 reward_sender.send(
                     evidence, native_step=event["step"], simulation_time=body.getTime()
@@ -226,6 +242,7 @@ def main():
                     joint_target_rad={"_".join(k): q for k, q in targets.items()},
                     body_xyz_m=xyz,
                     body_rpy_rad=rpy,
+                    tilt_inputs=tilt_inputs,
                     reward=evidence,
                     gyro_rad_s=list(gyro.getValues()),
                     queued_native_frames=events.stats()["queued_frames"],
@@ -246,6 +263,9 @@ def main():
                                 b=channels["PHASE_B_OUT"],
                                 pending=exchange.pending_action,
                                 recovery=record["recovery_state"],
+                                reflexes=[
+                                    name for name in REFLEX_OUTPUTS if channels[name]
+                                ],
                                 queued_frames=record["queued_native_frames"],
                                 xyz=record["body_xyz_m"],
                             )
@@ -339,6 +359,9 @@ def main():
                     # execute if the final reward clear fails during disconnect.
                     RewardPublisher(session.publish_reward).send(
                         dict(value=0, reason="session_end"), force=True
+                    )
+                    TiltPublisher(session.publish_sensor_frame, config["reflex"]).send(
+                        [0, 0, 0], suspended=True, force=True
                     )
                 finally:
                     session.stop()

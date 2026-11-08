@@ -3,7 +3,13 @@ from collections import deque
 from unittest.mock import patch
 
 from robot.configuration import load_config
-from robot.contracts import COMMAND_INPUT_SIZES, INPUT_SIZES, OUTPUT_SIZES, REWARD_INPUT
+from robot.contracts import (
+    COMMAND_INPUT_SIZES,
+    INPUT_SIZES,
+    OUTPUT_SIZES,
+    REWARD_INPUT,
+    TILT_INPUTS,
+)
 from robot.decoder import joint_targets
 from robot.exchange import CommandExchange
 from robot.transport import EventBuffer
@@ -206,11 +212,14 @@ class RuntimeTests(unittest.TestCase):
         with self.assertRaisesRegex(RuntimeError, "Missing Prima-Lux"):
             events.check_health()
 
-    def test_only_one_outcome_neuron_is_added_to_the_command_inputs(self):
+    def test_one_reward_and_four_tilt_neurons_are_separate_from_commands(self):
         self.assertEqual(
             COMMAND_INPUT_SIZES, dict(WALK_START=1, WALK_STOP=1, TRANSPORT_ACK=1)
         )
-        self.assertEqual(INPUT_SIZES, {**COMMAND_INPUT_SIZES, REWARD_INPUT: 1})
+        self.assertEqual(
+            INPUT_SIZES,
+            {**COMMAND_INPUT_SIZES, REWARD_INPUT: 1, **dict.fromkeys(TILT_INPUTS, 1)},
+        )
 
 
 if __name__ == "__main__":

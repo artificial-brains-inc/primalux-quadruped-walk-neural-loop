@@ -1,0 +1,122 @@
+{
+  "scope": "Isolated static high-gamma reflex circuit using native ARM neuron-update source, dense homogeneous populations and explicit initial conditions. This is not a full gait, FPGA or Webots test.",
+  "result": "All eight tilt directions recruited the expected knee extensor readouts; bursts cleared and could retrigger from sustained sensory evidence. Single cues ended, flexion was vetoed during extension, and REST suppressed the circuit.",
+  "case_count": 6,
+  "direction_checks": 48,
+  "cases": [
+    {
+      "case": 1,
+      "directions_checked": [
+        "left",
+        "right",
+        "front",
+        "rear",
+        "front_left",
+        "front_right",
+        "rear_left",
+        "rear_right"
+      ],
+      "burst_length_steps": [
+        5
+      ],
+      "rest_cleared": true,
+      "single_cue_terminated": true
+    },
+    {
+      "case": 2,
+      "directions_checked": [
+        "left",
+        "right",
+        "front",
+        "rear",
+        "front_left",
+        "front_right",
+        "rear_left",
+        "rear_right"
+      ],
+      "burst_length_steps": [
+        5
+      ],
+      "rest_cleared": true,
+      "single_cue_terminated": true
+    },
+    {
+      "case": 3,
+      "directions_checked": [
+        "left",
+        "right",
+        "front",
+        "rear",
+        "front_left",
+        "front_right",
+        "rear_left",
+        "rear_right"
+      ],
+      "burst_length_steps": [
+        5
+      ],
+      "rest_cleared": true,
+      "single_cue_terminated": true
+    },
+    {
+      "case": 4,
+      "directions_checked": [
+        "left",
+        "right",
+        "front",
+        "rear",
+        "front_left",
+        "front_right",
+        "rear_left",
+        "rear_right"
+      ],
+      "burst_length_steps": [
+        5
+      ],
+      "rest_cleared": true,
+      "single_cue_terminated": true
+    },
+    {
+      "case": 5,
+      "directions_checked": [
+        "left",
+        "right",
+        "front",
+        "rear",
+        "front_left",
+        "front_right",
+        "rear_left",
+        "rear_right"
+      ],
+      "burst_length_steps": [
+        5
+      ],
+      "rest_cleared": true,
+      "single_cue_terminated": true
+    },
+    {
+      "case": 6,
+      "directions_checked": [
+        "left",
+        "right",
+        "front",
+        "rear",
+        "front_left",
+        "front_right",
+        "rear_left",
+        "rear_right"
+      ],
+      "burst_length_steps": [
+        5
+      ],
+      "rest_cleared": true,
+      "single_cue_terminated": true
+    }
+  ],
+  "limitations": [
+    "Gait pathways and STDP3 are excluded. A synthetic flexion stimulus tests opposition; learned gait inhibition could still defeat or alter the reflex on hardware.",
+    "The harness uses shared homogeneous state within dense populations, actual population widths and native cell updates. It is not a compiled image or FPGA transport timing test.",
+    "No ground contact, mechanical load or robot physics was simulated. Five-frame bursts in these cases do not guarantee balance or a completed servo stroke.",
+    "Internal readouts are bistable states, not spike telemetry or proof of dopaminergic firing."
+  ]
+}

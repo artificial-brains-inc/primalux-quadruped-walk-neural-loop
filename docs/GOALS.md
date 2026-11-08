@@ -18,7 +18,10 @@ goal, phase interaction and local actuator expression.
 | The taking-over inhibitor clears the opposite release state | Allow the next cycle to recruit inhibition again |
 | Each phase recruits local motor Betas in four leg groups | Coordinate diagonal pairs while retaining separate actuators |
 | Opposing movements at one joint inhibit each other | Put competition at the physical antagonist relationship |
-| REST clears every phase and local motor state | Make STOP apply throughout the recurrent network |
+| Tilt toward a leg recruits its fast support reflex | Add physical evidence to the motor goal |
+| The reflex inhibits local flexion and excites knee extension | Give support priority at the physical antagonist |
+| Its downstream reset inhibits its own trigger and clears both readouts | End the burst and permit later evidence to recruit it again |
+| REST clears phase, local motor and reflex states | Make STOP apply throughout the recurrent network |
 
 When adding a goal, identify what recruits it, what maintains it, what inhibits it,
 and what clears its output. Then decide which other goals should cooperate,
@@ -28,6 +31,8 @@ inhibitory connection; rhythm and TNorm describe the receiving relationship.
 Useful internal activity connects directly to the next population. It does not
 need to become a new input calculated and republished by the controller. The three
 command neurons remain START, STOP and ACK. A fourth neuron carries outcome reward.
+Four more neurons encode signed physical roll/pitch. Their combination is resolved
+inside the neural graph, never translated into leg commands by Python.
 
 ## Decide what should learn
 
@@ -42,7 +47,9 @@ measures outcome only; it never says which leg should move or when A/B should sw
 One common reward is a minimal teaching design, with coarse credit assignment.
 
 Internal recurrence cannot sense contact or slipping. GPS and orientation provide
-physical evidence for the reward, but there is no foot-contact or balance reflex.
+physical evidence for reward, and roll/pitch now supply local support reflexes.
+There is still no foot-contact sensor: an extension can only support the body if
+the foot can reach suitable ground. Read [the reflex goal and its interactions](REFLEX.md).
 The reward can accept upright sliding, so inspect footage and joint/body traces
 before calling the result walking. The servos hold neutral targets when local
 motor outputs clear.

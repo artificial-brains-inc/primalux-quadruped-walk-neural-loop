@@ -3,7 +3,19 @@
 Preserve the public design and input contract unless the user requests a change.
 Use the Artificial Brains building guide's source-to-target relationships.
 
-- External inputs are WALK_START, WALK_STOP, TRANSPORT_ACK and GAIT_REWARD_IN: one neuron each.
+- External inputs are WALK_START, WALK_STOP, TRANSPORT_ACK, GAIT_REWARD_IN and
+  TILT_ROLL_NEG/POS, TILT_PITCH_NEG/POS: eight neurons total, one per channel.
+- The tilt encoder digitizes physical roll/pitch only. Keep leg selection, flexion
+  veto, burst lifetime and self-inhibition in the neural graph. The decoder must
+  not inspect REFLEX readouts to synthesize support commands.
+- Preserve the High-Gamma T10 reflex and guard/reset return; inhibition strength
+  4 clears its own trigger, ACTIVE readout and knee NEG output. No excitatory
+  self-latch may sustain reflex bursts after physical evidence vanishes.
+- Support reflex paths stay static. Negative knee rotation extends this bundled
+  Spot leg in its configured range; do not assume the same for another model.
+- Tilt snapshots and command snapshots are separate. Recovery suspends tilt
+  publication; ordinary WALK/REST gating is neural. Log transport acceptance,
+  but do not claim same-step hardware consumption or actual spike telemetry.
 - Never send phase, gait-progress, oscillator or motor-output states back from
   Python as inputs. Internal populations connect directly in the brain.
 - Physical outcome supplies one binary reward event from GPS/orientation after each qualifying body step.

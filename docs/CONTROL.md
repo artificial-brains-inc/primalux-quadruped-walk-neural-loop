@@ -15,7 +15,7 @@ WALK=0/REST=1 readouts; it supplies no command repeats or phase choices.
 
 The zero ACK event after receipt and all-zero command snapshot after confirmation
 are explicit idle observations. They must not be interpreted as releasing a held
-stimulus. The reward channel is separate and is not included in command snapshots.
+stimulus. Reward and tilt channels are separate and are not included in command snapshots.
 
 Only transport ACK waiting freezes physics. After ACK, each native output frame
 produces one body step, including frames while the command remains pending.
@@ -97,5 +97,26 @@ a second ACK oscillator or select gait phases.
 
 `walk` is not a guaranteed frozen-weight baseline: a plastic graph can retain
 internal reward/eligibility state. Use the explicitly static graph for the
-controlled comparison in TESTING.md. No mode simulates synthetic neurons in Python.
+controlled comparison in TESTING.md. No mode simulates synthetic neurons in Python. `rhythm` also suspends tilt evidence.
 During recovery every mode holds neutral targets and sends no positive reward.
+
+## Physical tilt feedback
+
+After each completed body step, the IMU roll/pitch sample is encoded as four
+single-neuron signs beyond a 0.15 rad deadband. The SDK sends them together in one
+`publish_sensor_frame` call. Each nonzero sample is fresh evidence; repeated
+unchanged tilt is not mistaken for a held input. Repeated all-zero frames are
+omitted. This is sensory quantization, not a controller-side choice of leg or
+support action. Gyro readings remain logged but are not new inputs.
+
+The brain combines these signs, vetoes the opposing side, inhibits local knee
+flexion, excites extension and clears its own burst. The existing motor decoder
+is unchanged. It does not consume `REFLEX_*_ACTIVE` diagnostics. REST and pending
+STOP inhibit the reflex neurally. Only explicit simulator recovery, `rhythm`
+mode or `reflex.enabled=false` suspend tilt publication.
+
+`tilt-inputs.jsonl` includes the source body frame and SDK publication duration.
+Hardware queue acceptance is checked; it is not proof of consumption in that
+same neural step. No added ACK wait or host burst timer is used. Compare queue
+backlog, received outputs and post-step body measurements when assessing latency.
+A publication failure triggers the existing Stop/save cleanup.

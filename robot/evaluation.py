@@ -1,6 +1,6 @@
 """Measurements only. This module never changes neural or physical commands."""
 
-from .contracts import JOINTS, LEGS, MOTOR_OUTPUTS
+from .contracts import JOINTS, LEGS, MOTOR_OUTPUTS, REFLEX_OUTPUTS
 
 
 def summarize(rows):
@@ -57,6 +57,18 @@ def summarize(rows):
         recovery_frames=sum(r.get("recovery_state", "idle") != "idle" for r in rows),
         walking_frames=len(walking),
         reward_active_frames=sum(r.get("reward", {}).get("value", 0) for r in rows),
+        reflex_active_frames={
+            name: sum(bool(r["outputs"].get(name, 0)) for r in rows)
+            for name in REFLEX_OUTPUTS
+        },
+        reflex_entries={
+            name: sum(
+                bool(r["outputs"].get(name, 0))
+                and (i == 0 or not rows[i - 1]["outputs"].get(name, 0))
+                for i, r in enumerate(rows)
+            )
+            for name in REFLEX_OUTPUTS
+        },
         best_reward_forward_progress_m=max(
             (r.get("reward", {}).get("forward_high_water_m", 0.0) for r in rows),
             default=0.0,

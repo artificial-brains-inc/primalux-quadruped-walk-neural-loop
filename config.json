@@ -20,6 +20,10 @@
     "min_body_height_m": 0.45,
     "progress_epsilon_m": 0.00001
   },
+  "reflex": {
+    "enabled": true,
+    "tilt_threshold_rad": 0.15
+  },
   "joint_targets": {
     "ABD": {"neutral_left": -0.1, "neutral_right": 0.1, "positive_excursion": 0.035, "negative_excursion": 0.035, "speed_rad_s": 0.7},
     "HIP": {"neutral_left": 0.0, "neutral_right": 0.0, "positive_excursion": 0.2, "negative_excursion": 0.2, "speed_rad_s": 1.2},

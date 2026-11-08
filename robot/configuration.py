@@ -27,6 +27,18 @@ def load_config(root=ROOT):
             raise ValueError(f"{key} must be positive and finite")
     if set(c["joint_targets"]) != set(JOINTS):
         raise ValueError("Expected ABD, HIP and KNEE actuator settings")
+    reflex = c["reflex"]
+    if type(reflex["enabled"]) is not bool:
+        raise ValueError("reflex.enabled must be true or false")
+    threshold = reflex["tilt_threshold_rad"]
+    if (
+        type(threshold) not in (int, float)
+        or not math.isfinite(threshold)
+        or not 0 < threshold < c["recovery"]["fall_tilt_rad"]
+    ):
+        raise ValueError(
+            "Reflex tilt threshold must be finite, positive and below fall tilt"
+        )
     recovery = c["recovery"]
     if type(recovery["automatic"]) is not bool:
         raise ValueError("recovery.automatic must be true or false")

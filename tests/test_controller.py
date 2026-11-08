@@ -11,6 +11,7 @@ from unittest.mock import MagicMock, patch
 from test_runtime import Frames, frame
 
 from robot.configuration import ROOT
+from robot.contracts import COMMAND_INPUT_SIZES, TILT_INPUTS
 
 
 class ControllerIntegrationTests(unittest.TestCase):
@@ -26,6 +27,8 @@ class ControllerIntegrationTests(unittest.TestCase):
         recovery_settings=None,
         fallen_from_step=None,
         physics_step_ms=32,
+        tilt_rpy=None,
+        reject_tilt=False,
     ):
         with tempfile.TemporaryDirectory() as tmp, contextlib.ExitStack() as stack:
             root = Path(tmp)
@@ -58,7 +61,11 @@ class ControllerIntegrationTests(unittest.TestCase):
                         and not body.restored
                     ):
                         return [3.14, 0, 0]
-                    return [0, 0, 0]
+                    return (
+                        tilt_rpy
+                        if tilt_rpy and body.steps >= 3 and not body.restored
+                        else [0, 0, 0]
+                    )
 
             class Keyboard(Device):
                 last_read_step = -1
@@ -127,6 +134,8 @@ class ControllerIntegrationTests(unittest.TestCase):
 
             def publish(payload, **kw):
                 sent.append((body.steps, payload))
+                if reject_tilt and set(payload) == set(TILT_INPUTS):
+                    return dict(ok=False)
                 return dict(ok=True, queued_for_hardware=True, atomic_frame=True)
 
             session.publish_sensor_frame.side_effect = publish
@@ -157,8 +166,10 @@ class ControllerIntegrationTests(unittest.TestCase):
             if recovery_settings:
                 config["recovery"].update(recovery_settings)
             module.load_config = lambda: config
-            if reject_reward:
-                with self.assertRaisesRegex(RuntimeError, "Reward input"):
+            if reject_reward or reject_tilt:
+                with self.assertRaisesRegex(
+                    RuntimeError, "Reward input" if reject_reward else "Tilt inputs"
+                ):
                     module.main()
             else:
                 module.main()
@@ -174,10 +185,46 @@ class ControllerIntegrationTests(unittest.TestCase):
             client.close.assert_called_once()
             self.assertEqual(
                 json.loads((root / "logs/run_state.json").read_text())["state"],
-                "ERROR" if reject_reward else "STOPPED",
+                "ERROR" if reject_reward or reject_tilt else "STOPPED",
             )
 
-            return rows, sent, calls, output.getvalue()
+            self.tilt_calls = [
+                (step, p) for step, p in sent if set(p) == set(TILT_INPUTS)
+            ]
+            command_calls = [
+                (step, p) for step, p in sent if set(p) <= set(COMMAND_INPUT_SIZES)
+            ]
+            self.assertEqual(len(command_calls) + len(self.tilt_calls), len(sent))
+            return rows, command_calls, calls, output.getvalue()
+
+    def test_real_tilt_samples_reach_neurons_without_decoding_a_leg_in_python(self):
+        rows, sent, calls, output = self.exercise(
+            [
+                frame(1),
+                frame(2, TRANSPORT_ACK_OUT=1, REST_ACTIVE=1),
+                frame(3),
+                frame(4, TRANSPORT_ACK_OUT=1, WALK_ENABLED=1),
+                frame(5, WALK_ENABLED=1, REFLEX_FL_ACTIVE=1, FL_KNEE_NEG=1),
+                frame(6, WALK_ENABLED=1),
+            ],
+            {2: ord("W"), 5: ord("Q")},
+            5,
+            tilt_rpy=[-0.2, 0.2, 0],
+        )
+        evidence = [
+            (step, p) for step, p in self.tilt_calls if any(v[0] for v in p.values())
+        ]
+        self.assertEqual([s for s, _ in evidence], [3, 4, 5])
+        self.assertTrue(
+            all(p["TILT_ROLL_NEG"] == p["TILT_PITCH_POS"] == [1] for _, p in evidence)
+        )
+        self.assertEqual(
+            [r["joint_target_rad"]["FL_KNEE"] for r in rows], [0, 0, -0.08, 0]
+        )
+        self.assertFalse(any(v[0] for v in self.tilt_calls[-1][1].values()))
+
+    def test_failed_tilt_publication_still_stops_and_saves(self):
+        self.exercise([], {}, 1, reject_tilt=True)
 
     def test_64_ms_advance_keeps_one_body_step_per_native_frame(self):
         rows, sent, calls, _ = self.exercise(

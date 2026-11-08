@@ -29,9 +29,9 @@ class GraphTests(unittest.TestCase):
         self.assertEqual(edge["type"], "inh")
         self.assertGreaterEqual(edge.get("strength", 1), minimum)
 
-    def test_four_input_neurons_and_matching_saved_design(self):
+    def test_eight_input_neurons_and_matching_saved_design(self):
         self.assertEqual(self.brain.validate(), [])
-        self.assertEqual(sum(INPUT_SIZES.values()), 4)
+        self.assertEqual(sum(INPUT_SIZES.values()), 8)
         for kind, expected in (("input", INPUT_SIZES), ("output", OUTPUT_SIZES)):
             self.assertEqual(
                 {
