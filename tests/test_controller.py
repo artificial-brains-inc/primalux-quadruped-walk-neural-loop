@@ -25,6 +25,7 @@ class ControllerIntegrationTests(unittest.TestCase):
         reject_reward=False,
         recovery_settings=None,
         fallen_from_step=None,
+        physics_step_ms=32,
     ):
         with tempfile.TemporaryDirectory() as tmp, contextlib.ExitStack() as stack:
             root = Path(tmp)
@@ -71,6 +72,7 @@ class ControllerIntegrationTests(unittest.TestCase):
             class Body:
                 steps = 0
                 restored = False
+                elapsed = 0.0
 
                 def getSelf(self):
                     return self
@@ -89,10 +91,11 @@ class ControllerIntegrationTests(unittest.TestCase):
                     return Keyboard()
 
                 def getTime(self):
-                    return self.steps * 0.032
+                    return self.elapsed
 
                 def step(self, dt):
                     self.steps += 1
+                    self.elapsed = self.steps * dt / 1000
                     calls.append("physics")
                     if self.steps > last_body_step:
                         raise AssertionError("Controller did not honor Q")
@@ -149,10 +152,11 @@ class ControllerIntegrationTests(unittest.TestCase):
             module = importlib.util.module_from_spec(spec)
             spec.loader.exec_module(module)
             module.ROOT, module.EventBuffer = root, Buffer
+            config = module.load_config()
+            config["physics_step_ms"] = physics_step_ms
             if recovery_settings:
-                config = module.load_config()
                 config["recovery"].update(recovery_settings)
-                module.load_config = lambda: config
+            module.load_config = lambda: config
             if reject_reward:
                 with self.assertRaisesRegex(RuntimeError, "Reward input"):
                     module.main()
@@ -174,6 +178,31 @@ class ControllerIntegrationTests(unittest.TestCase):
             )
 
             return rows, sent, calls, output.getvalue()
+
+    def test_64_ms_advance_keeps_one_body_step_per_native_frame(self):
+        rows, sent, calls, _ = self.exercise(
+            [
+                frame(1),
+                frame(2, TRANSPORT_ACK_OUT=1, REST_ACTIVE=1),
+                frame(3),
+                frame(4, TRANSPORT_ACK_OUT=1, WALK_ENABLED=1, FL_HIP_POS=1),
+                frame(5, WALK_ENABLED=1, FL_HIP_POS=1),
+                frame(6, WALK_ENABLED=1),
+            ],
+            {2: ord("W"), 5: ord("Q")},
+            5,
+            physics_step_ms=64,
+        )
+        self.assertEqual(
+            [r["simulation_time"] for r in rows], [0.128, 0.192, 0.256, 0.32]
+        )
+        self.assertEqual(calls.count("physics"), len(rows) + 1)
+        # A missing neural motor command still takes effect on the next frame;
+        # no host minimum duration or completion latch extends a stroke.
+        self.assertEqual(
+            [r["joint_target_rad"]["FL_HIP"] for r in rows], [0, 0.2, 0.2, 0]
+        )
+        self.assertEqual(sum(p.get("WALK_START", [0])[0] for _, p in sent), 1)
 
     def recovery_trial(self, *, automatic=False, cancel_resume=False):
         frames = [

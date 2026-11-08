@@ -55,7 +55,8 @@ def launch(mode):
     env = webots_environment(ROOT)
     env["SPOT_RUN_MODE"] = mode
     print(
-        "Focus the Webots 3D view: W starts stepping, S inhibits walking, Q ends the run.",
+        "Focus the Webots 3D view: W starts stepping, S inhibits walking, "
+        "R restores upright, Q ends the run.",
         flush=True,
     )
     process = None
@@ -65,7 +66,9 @@ def launch(mode):
                 executable,
                 "--stdout",
                 "--stderr",
-                "--mode=realtime",
+                # The neural stream paces the adapter. Realtime mode would add
+                # a wall-clock wait to every 64 ms simulated body advance.
+                "--mode=fast",
                 str(ROOT / "worlds/spot_neural_walk.wbt"),
             ],
             cwd=ROOT,

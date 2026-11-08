@@ -23,6 +23,12 @@ produces one body step, including frames while the command remains pending.
 Failure reports WALK, REST and both request readouts and triggers SDK Stop/save.
 An explicit S can replace pending START; a new W keypress can issue a fresh event.
 
+One native output frame now advances 64 ms of simulation time (four 16 ms physics
+substeps). Webots runs in fast mode with rendering, so this duration does not add
+a realtime sleep. The motor readout remains authoritative on every native frame;
+there is no host minimum stroke duration or wait-until-target rule. Queue depth
+is printed and logged. [Timing and measured cutoffs](../TIMING.md).
+
 ## Actuator decoding
 
 For every joint independently, the adapter calculates the difference between its

@@ -62,6 +62,7 @@ def summarize(rows):
             default=0.0,
         ),
         motor_active_walking_frames=active,
+        motor_quiet_walking_frames=len(walking) - active,
         phase_a_entries=sum(p == "A" for _, p in entries),
         phase_b_entries=sum(p == "B" for _, p in entries),
         alternating_phase_entries=alternations,

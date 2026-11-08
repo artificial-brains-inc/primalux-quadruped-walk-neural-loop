@@ -52,7 +52,7 @@ It does not depend on Webots sample directories or download model assets at Run.
 ## Clone and install
 
 ```bash
-git clone "$HOME/Downloads/primalux-spot-learning-recovery.bundle" primalux-spot-learning
+git clone "$HOME/Downloads/primalux-spot-learning-stride.bundle" primalux-spot-learning
 cd primalux-spot-learning
 bash install.sh
 source .venv/bin/activate
@@ -134,9 +134,19 @@ are retained; recovery supplies no reward. This is simulator assistance, not
 learned self-righting. Set `recovery.automatic` to `false` in `config.json` for
 unassisted trials; R still works. [Recovery details](docs/RECOVERY.md).
 
-The arena is 30 × 30 metres. The five onboard camera devices are removed, while
-the GPS and orientation sensors remain. The opening view looks toward Spot from
-the front-left and follows its position with an upright horizon.
+The arena is 30 × 30 metres with a **1 metre grid**, heavier lines every 5 metres,
+a blue starting square and a red forward (+X) line with arrows and metre labels.
+The five onboard camera devices are removed; GPS and orientation sensors remain.
+The wider opening view looks toward Spot from the front-left and follows its
+position with an upright horizon. The floor markings stay fixed in the world.
+
+Each native neural frame advances **64 ms of simulated body time**, using four
+16 ms physics substeps. Webots opens in fast mode with rendering enabled, so it
+does not impose realtime pacing on top of the neural stream. The adapter still
+consumes each frame once, in order, and uses the current neural motor outputs.
+A five-frame motor command now has 0.32 simulated seconds instead of 0.16 to
+move the joint. This is actuator/simulation calibration; it does not extend a
+neural output or guarantee a completed stroke. [Measured findings and timing](TIMING.md).
 
 Startup is standing/resting. The console separately reports key receipt, command
 publication, transport ACK and WALK/REST confirmation. After ACK, the body advances

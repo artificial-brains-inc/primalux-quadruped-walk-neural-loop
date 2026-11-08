@@ -246,6 +246,7 @@ def main():
                                 b=channels["PHASE_B_OUT"],
                                 pending=exchange.pending_action,
                                 recovery=record["recovery_state"],
+                                queued_frames=record["queued_native_frames"],
                                 xyz=record["body_xyz_m"],
                             )
                         ),

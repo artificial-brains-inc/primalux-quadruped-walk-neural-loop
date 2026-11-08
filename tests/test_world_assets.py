@@ -9,11 +9,34 @@ from unittest.mock import patch
 
 from robot import application
 from world_assets import check_world_assets
+from tools.generate_floor_markings import build
 
 ROOT = Path(__file__).resolve().parents[1]
 
 
 class WorldAssetsTests(unittest.TestCase):
+    def test_floor_markings_are_local_noncollision_geometry_with_valid_faces(self):
+        source = (ROOT / "protos/FloorMarkings.proto").read_text()
+        self.assertEqual(source, build())
+        self.assertNotIn("boundingObject", source)
+        self.assertNotIn("Physics {", source)
+        geometries = source.split("geometry IndexedFaceSet {")[1:]
+        self.assertEqual(len(geometries), 4)
+        for geometry in geometries:
+            points_text = geometry.split("point [", 1)[1].split("]", 1)[0]
+            vertices = [
+                [float(v) for v in line.split()]
+                for line in points_text.strip().split(",")
+            ]
+            for x, y, z in vertices:
+                self.assertTrue(-15.02 <= x <= 15.02 and -15.02 <= y <= 15.02)
+                self.assertTrue(0 < z < 0.01)
+            faces = geometry.split("coordIndex [", 1)[1].split("]", 1)[0]
+            for face in faces.strip().split(","):
+                indices = [int(v) for v in face.split()]
+                self.assertEqual(indices[-1], -1)
+                self.assertTrue(all(0 <= i < len(vertices) for i in indices[:-1]))
+
     def test_opening_view_aims_at_spot_with_level_horizon(self):
         world = (ROOT / "worlds/spot_neural_walk.wbt").read_text()
         block = world.split("Viewpoint {", 1)[1].split("}", 1)[0]

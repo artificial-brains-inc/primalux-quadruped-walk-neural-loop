@@ -50,7 +50,7 @@ episodes do not demonstrate balance or learned self-righting.
 
 The world uses `supervisor TRUE` only for this explicit simulation assistance.
 Its onboard cameras are removed; the main Webots Viewpoint remains. The viewpoint
-starts at `(2.6, 2.6, 1.65)`, aims at `(0, 0, 0.45)` and uses Tracking Shot to follow
+starts at `(3.5, 3.5, 2.1)`, aims at `(0, 0, 0.45)` and uses Tracking Shot to follow
 translation without rolling with the robot. The world and all its dependencies
 remain local to the package.
 

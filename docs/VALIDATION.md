@@ -1,6 +1,6 @@
 # Validation performed
 
-- **68 local tests passed** using Python 3.12 and SDK 0.4.2.
+- **71 local tests passed** using Python 3.12 and SDK 0.4.2.
 - A fresh `bash install.sh` installed SDK 0.4.2 from PyPI and its dependencies;
   `pip check` reported no broken requirements. Webots was not installed.
 - The public saved graph passes construction with the compatible 0.4.11 builder:
@@ -36,6 +36,10 @@
 - Command tests cover delayed goal confirmation after ACK, ambiguous WALK/REST,
   stale frames, timeout reporting, replacing pending START with STOP and a new W
   press. After ACK, one native frame still produces one body step.
+- The 64 ms body-advance check preserves one advance per native frame and obeys
+  the next neural cutoff without a host completion latch. Launcher coverage checks
+  rendered fast mode and confirmed shutdown. The supplied run's measured short
+  target durations and body displacement are summarized in [Timing](../TIMING.md).
 - SDK Design/Build/Run dispatch, actuator decoding, installer repair, world asset
   integrity and confirmed Stop/save remain covered.
 - Python syntax/name checks and `git diff --check` passed. The published snapshot
@@ -46,12 +50,14 @@
 - All 86 bundled Webots dependencies resolve locally and match their updated
   integrity manifest. Spot's five Camera devices are removed; its geometry,
   joints, masses, actuator settings and third-party licenses are preserved.
-  The arena measures 30 × 30 metres. The opening viewpoint's rotation is checked
+  The arena measures 30 × 30 metres with a local, noncollision FloorMarkings PROTO.
+  Its generated grid/arrow/number meshes have valid face indices and floor heights.
+  The wider opening viewpoint's rotation is checked
   mathematically against its target and an upright horizon; it has not been
   rendered in Webots here. World SHA-256:
-  `29dcda4ef0c5d763b711e50a60c2911828fab1712ce5ab166b3e6d304d64454b`.
+  `2cbfa37b962323847e51ca4600454c04df9186937bd785021292387aeaddbe85`.
 - The saved neural graph, STDP3 paths and command/ACK transport are unchanged by
-  the recovery update. Updating the adapter/world requires no brain rebuild.
+  these adapter/world changes. Updating requires no brain rebuild.
 
 These checks establish construction compatibility and adapter behavior. They do
 not establish full-gait neural alternation, useful stepping, weight changes or

@@ -1,5 +1,6 @@
 #VRML_SIM R2025a utf8
 EXTERNPROTO "../protos/spot/Spot.proto"
+EXTERNPROTO "../protos/FloorMarkings.proto"
 
 WorldInfo {
   title "Prima-Lux - Spot recurrent walking"
@@ -7,8 +8,8 @@ WorldInfo {
 }
 Viewpoint {
   # View from the front-left, aimed at (0, 0, 0.45), world +Z up.
-  orientation 0.156744757670 0.064925804458 -0.985502775673 2.366467295550
-  position 2.6 2.6 1.65
+  orientation 0.159838323967 0.066207201574 -0.984920462094 2.366880831382
+  position 3.5 3.5 2.1
   follow "Spot"
   followType "Tracking Shot"
   followSmoothness 0
@@ -74,6 +75,7 @@ Solid {
   name "west wall"
   boundingObject USE WALL_Y
 }
+FloorMarkings {}
 Spot {
   translation 0 0 0.624
   name "Spot"
