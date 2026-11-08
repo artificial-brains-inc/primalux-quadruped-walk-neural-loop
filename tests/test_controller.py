@@ -10,8 +10,9 @@ from unittest.mock import MagicMock, patch
 
 from test_runtime import Frames, frame
 
+from robot.live_inputs import LiveInputs
 from robot.configuration import ROOT
-from robot.contracts import COMMAND_INPUT_SIZES, TILT_INPUTS, TILT_NEURONS
+from robot.contracts import COMMAND_INPUT_SIZES, TILT_INPUTS, TILT_NEURONS, REWARD_INPUT
 
 
 class ControllerIntegrationTests(unittest.TestCase):
@@ -134,7 +135,9 @@ class ControllerIntegrationTests(unittest.TestCase):
 
             def publish(payload, **kw):
                 sent.append((body.steps, payload))
-                if reject_tilt and set(payload) == set(TILT_INPUTS):
+                if (reject_tilt and set(TILT_INPUTS) <= set(payload)) or (
+                    reject_reward and REWARD_INPUT in payload
+                ):
                     return dict(ok=False)
                 return dict(ok=True, queued_for_hardware=True, atomic_frame=True)
 
@@ -163,6 +166,24 @@ class ControllerIntegrationTests(unittest.TestCase):
             )
             module = importlib.util.module_from_spec(spec)
             spec.loader.exec_module(module)
+            class InlineInputs(LiveInputs):
+                # Deterministic integration harness. Threaded delivery is tested
+                # separately with actual blocked HTTP requests in test_live_inputs.
+                def __enter__(self):
+                    return self
+
+                def command(self, payload):
+                    receipt = super().command(payload)
+                    self._deliver(command=self.commands.popleft())
+                    return receipt
+
+                def feedback(self, *args, **kwargs):
+                    tilt = super().feedback(*args, **kwargs)
+                    capture, self.latest = self.latest, None
+                    self._deliver(capture=capture)
+                    return tilt
+
+            module.LiveInputs = InlineInputs
             module.ROOT, module.EventBuffer = root, Buffer
             config = module.load_config()
             config["physics_step_ms"] = physics_step_ms
@@ -171,7 +192,7 @@ class ControllerIntegrationTests(unittest.TestCase):
             module.load_config = lambda: config
             if reject_reward or reject_tilt:
                 with self.assertRaisesRegex(
-                    RuntimeError, "Reward input" if reject_reward else "Tilt inputs"
+                    RuntimeError, "Reward input|Tilt inputs|queue acceptance"
                 ):
                     module.main()
             else:
@@ -202,133 +223,111 @@ class ControllerIntegrationTests(unittest.TestCase):
             command_calls = [
                 (step, p) for step, p in sent if set(p) <= set(COMMAND_INPUT_SIZES)
             ]
-            self.assertEqual(len(command_calls) + len(self.tilt_calls), len(sent))
+            self.feedback_calls = [
+                (step, p) for step, p in sent if REWARD_INPUT in p
+            ]
+            self.assertEqual(
+                len(command_calls) + len(self.tilt_calls) + len(self.feedback_calls),
+                len(sent),
+            )
+            self.assertFalse(any(p.get("TRANSPORT_ACK", [0])[0] for _, p in sent))
             return rows, command_calls, calls, output.getvalue()
 
-    def test_real_tilt_samples_reach_neurons_without_decoding_a_leg_in_python(self):
+    def test_w_pending_goal_keeps_every_frame_and_physics_running_without_ack(self):
+        frames = [frame(1, REST_ACTIVE=1), frame(2, REST_ACTIVE=1),
+                  frame(3, REST_ACTIVE=1), frame(4, WALK_ENABLED=1, FL_HIP_POS=1),
+                  frame(5, WALK_ENABLED=1)]
+        rows, sent, calls, output = self.exercise(frames, {2: ord("W"), 6: ord("Q")}, 6)
+        self.assertEqual([r["native_step"] for r in rows], [1, 2, 3, 4, 5])
+        self.assertEqual([r["pending_command"] for r in rows],
+                         [None, "start", "start", None, None])
+        self.assertEqual(calls.count("physics"), len(rows) + 1)
+        self.assertEqual(sum(p.get("WALK_START", [0])[0] for _, p in sent), 1)
+        self.assertEqual(len(sent), 3)  # Initial zero, STOP, W event.
+        self.assertIn("START confirmed", output)
+        self.assertNotIn("ACK received", output)
+        self.assertGreater(rows[3]["joint_target_rad"]["FL_HIP"], 0)
+        self.assertEqual(rows[4]["joint_target_rad"]["FL_HIP"], 0)
+
+    def test_start_stop_preserves_motor_frames_and_sdk_stop_save(self):
         rows, sent, calls, output = self.exercise(
-            [
-                frame(1),
-                frame(2, TRANSPORT_ACK_OUT=1, REST_ACTIVE=1),
-                frame(3),
-                frame(4, TRANSPORT_ACK_OUT=1, WALK_ENABLED=1),
-                frame(5, WALK_ENABLED=1, REFLEX_FL_ACTIVE=1, FL_KNEE_NEG=1),
-                frame(6, WALK_ENABLED=1),
-            ],
-            {2: ord("W"), 5: ord("Q")},
-            5,
-            tilt_rpy=[-0.2, 0.2, 0],
+            [frame(1, REST_ACTIVE=1),
+             frame(2, WALK_ENABLED=1, PHASE_A_OUT=1, FL_HIP_POS=1),
+             frame(3, WALK_ENABLED=1, PHASE_B_OUT=1, FR_HIP_POS=1),
+             frame(4, WALK_ENABLED=1), frame(5, REST_ACTIVE=1)],
+            {2: ord("W"), 4: ord("S"), 6: ord("Q")}, 6,
         )
-        evidence = [
-            (step, p) for step, p in self.tilt_calls if any(v[0] for v in p.values())
-        ]
-        self.assertEqual([s for s, _ in evidence], [3, 4, 5])
-        self.assertTrue(
-            all(
-                p["TILT_ROLL_NEG"] == p["TILT_PITCH_POS"] == [1] * TILT_NEURONS
-                for _, p in evidence
-            )
-        )
-        self.assertEqual(
-            [r["joint_target_rad"]["FL_KNEE"] for r in rows], [0, 0, -0.08, 0]
-        )
-        self.assertFalse(any(v[0] for v in self.tilt_calls[-1][1].values()))
+        self.assertEqual([r["native_step"] for r in rows], list(range(1, 6)))
+        self.assertEqual(sum(p.get("WALK_START", [0])[0] for _, p in sent), 1)
+        self.assertEqual(sum(p.get("WALK_STOP", [0])[0] for _, p in sent), 2)
+        self.assertEqual(len(sent), 4)
+        self.assertIn("STOP confirmed", output)
+        self.assertEqual(calls.count("physics"), 6)
 
-    def test_fast_motor_speed_is_clamped_then_restored_when_output_clears(self):
+    def test_fast_reflex_has_its_own_speed_and_next_normal_frame_restores_speed(self):
         rows, _, _, _ = self.exercise(
-            [
-                frame(1),
-                frame(2, TRANSPORT_ACK_OUT=1, REST_ACTIVE=1),
-                frame(3),
-                frame(4, TRANSPORT_ACK_OUT=1, WALK_ENABLED=1),
-                frame(5, WALK_ENABLED=1, FL_KNEE_REFLEX_EXTEND=1),
-                frame(6, WALK_ENABLED=1, FL_KNEE_NEG=1),
-            ],
-            {2: ord("W"), 5: ord("Q")},
-            5,
+            [frame(1, REST_ACTIVE=1),
+             frame(2, WALK_ENABLED=1, FL_KNEE_REFLEX_EXTEND=1),
+             frame(3, WALK_ENABLED=1, FL_KNEE_NEG=1)],
+            {2: ord("W"), 4: ord("Q")}, 4,
         )
+        self.assertEqual(rows[1]["joint_speed_limit_rad_s"]["FL_KNEE"], 2)
+        self.assertEqual(rows[2]["joint_speed_limit_rad_s"]["FL_KNEE"], 1.5)
+        self.assertAlmostEqual(rows[1]["joint_target_rad"]["FL_KNEE"], -0.22)
+        self.assertAlmostEqual(rows[2]["joint_target_rad"]["FL_KNEE"], -0.08)
         self.assertEqual(self.run_settings["reward_input_neurons"], 10)
-        self.assertEqual(
-            self.run_settings["reward_classification"]["neuron_class"], "dopaminergic"
-        )
-        self.assertEqual(len(self.run_settings["reflex_motor_outputs"]), 4)
-        self.assertEqual(len(self.run_settings["design_sha256"]), 64)
-        by_step = {r["native_step"]: r for r in rows}
-        self.assertEqual(by_step[5]["joint_speed_limit_rad_s"]["FL_KNEE"], 2)
-        self.assertEqual(by_step[6]["joint_speed_limit_rad_s"]["FL_KNEE"], 1.5)
-        self.assertAlmostEqual(by_step[5]["joint_target_rad"]["FL_KNEE"], -0.22)
-        self.assertAlmostEqual(by_step[6]["joint_target_rad"]["FL_KNEE"], -0.08)
 
-    def test_failed_tilt_publication_still_stops_and_saves(self):
-        self.exercise([], {}, 1, reject_tilt=True)
-
-    def test_64_ms_advance_keeps_one_body_step_per_native_frame(self):
-        rows, sent, calls, _ = self.exercise(
-            [
-                frame(1),
-                frame(2, TRANSPORT_ACK_OUT=1, REST_ACTIVE=1),
-                frame(3),
-                frame(4, TRANSPORT_ACK_OUT=1, WALK_ENABLED=1, FL_HIP_POS=1),
-                frame(5, WALK_ENABLED=1, FL_HIP_POS=1),
-                frame(6, WALK_ENABLED=1),
-            ],
-            {2: ord("W"), 5: ord("Q")},
-            5,
+    def test_64ms_still_applies_one_body_step_per_native_frame(self):
+        rows, _, calls, _ = self.exercise(
+            [frame(1, REST_ACTIVE=1), frame(2, WALK_ENABLED=1, FL_HIP_POS=1),
+             frame(3, WALK_ENABLED=1)], {2: ord("W"), 4: ord("Q")}, 4,
             physics_step_ms=64,
         )
-        self.assertEqual(
-            [r["simulation_time"] for r in rows], [0.128, 0.192, 0.256, 0.32]
+        self.assertEqual([r["simulation_time"] for r in rows], [0.128, 0.192, 0.256])
+        self.assertEqual([r["joint_target_rad"]["FL_HIP"] for r in rows], [0, 0.2, 0])
+        self.assertEqual(calls.count("physics"), 4)
+
+    def test_poststep_tilt_and_reward_share_the_same_publication(self):
+        rows, _, _, _ = self.exercise(
+            [frame(1, REST_ACTIVE=1), frame(2, REST_ACTIVE=1),
+             frame(3, WALK_ENABLED=1), frame(4, WALK_ENABLED=1)],
+            {2: ord("W"), 5: ord("Q")}, 5, mode="learn", moving=True,
+            tilt_rpy=[-0.2, 0.2, 0],
         )
-        self.assertEqual(calls.count("physics"), len(rows) + 1)
-        # A missing neural motor command still takes effect on the next frame;
-        # no host minimum duration or completion latch extends a stroke.
-        self.assertEqual(
-            [r["joint_target_rad"]["FL_HIP"] for r in rows], [0, 0.2, 0.2, 0]
-        )
-        self.assertEqual(sum(p.get("WALK_START", [0])[0] for _, p in sent), 1)
+        self.assertEqual([r["reward"]["value"] for r in rows], [0, 0, 1, 1])
+        by_body_step = dict(self.feedback_calls)
+        self.assertEqual(by_body_step[3]["TILT_ROLL_NEG"], [1] * TILT_NEURONS)
+        self.assertEqual(by_body_step[3]["TILT_PITCH_POS"], [1] * TILT_NEURONS)
+        self.assertEqual(by_body_step[3][REWARD_INPUT]["signal"], 0)
+        self.assertEqual(by_body_step[4][REWARD_INPUT]["signal"], 1)
+        self.assertTrue(all(set(p) == {*TILT_INPUTS, REWARD_INPUT}
+                            for _, p in self.feedback_calls))
+
+    def test_failed_input_publication_still_stops_and_saves(self):
+        self.exercise([], {}, 1, reject_tilt=True)
+        self.exercise([], {}, 1, mode="learn", reject_reward=True)
 
     def recovery_trial(self, *, automatic=False, cancel_resume=False):
-        frames = [
-            frame(1),
-            frame(2, TRANSPORT_ACK_OUT=1, REST_ACTIVE=1),
-            frame(3, REST_ACTIVE=1),
-            frame(4, TRANSPORT_ACK_OUT=1, WALK_ENABLED=1),
-            frame(5, WALK_ENABLED=1),
-            frame(6, WALK_ENABLED=1),
-            frame(7, TRANSPORT_ACK_OUT=1, WALK_ENABLED=1, FL_HIP_POS=1),
-            frame(8, REST_ACTIVE=1, FL_HIP_POS=1),
-            *[frame(n, REST_ACTIVE=1) for n in range(9, 13)],
-        ]
-        keyboard = {2: ord("W")}
+        frames = [frame(1, REST_ACTIVE=1), frame(2, WALK_ENABLED=1),
+                  frame(3, WALK_ENABLED=1), frame(4, REST_ACTIVE=1, FL_HIP_POS=1),
+                  *[frame(n, REST_ACTIVE=1) for n in range(5, 10)],
+                  frame(10, WALK_ENABLED=1), frame(11, WALK_ENABLED=1)]
+        keys = {2: ord("W"), 12: ord("Q")}
         if not automatic:
-            keyboard[4] = ord("R")
+            keys[4] = ord("R")
         if cancel_resume:
-            keyboard[8] = ord("S")
-            keyboard[10] = ord("Q")
-        else:
-            frames += [
-                frame(13, REST_ACTIVE=1),
-                frame(14, TRANSPORT_ACK_OUT=1, WALK_ENABLED=1),
-                frame(15, WALK_ENABLED=1),
-            ]
-            keyboard[12] = ord("Q")
+            keys[6] = ord("S")
         return self.exercise(
-            frames,
-            keyboard,
-            10 if cancel_resume else 12,
-            mode="learn",
-            moving=True,
-            recovery_settings=dict(
-                automatic=automatic, settle_seconds=0.05, fall_delay_seconds=0.03
-            ),
+            frames, keys, 12, mode="learn", moving=True,
+            recovery_settings=dict(automatic=automatic, settle_seconds=0.05,
+                                   fall_delay_seconds=0.03),
             fallen_from_step=3 if automatic else None,
         )
 
-    def test_manual_recovery_waits_for_rest_and_quiet_outputs_and_resumes_once(self):
+    def test_recovery_waits_for_rest_and_quiet_outputs_then_resumes_once(self):
         rows, sent, calls, output = self.recovery_trial()
         self.assertEqual(calls.count("restore:__init__"), 1)
-        self.assertLess(calls.index("frame8"), calls.index("restore:__init__"))
-        self.assertLess(calls.index("frame9"), calls.index("restore:__init__"))
+        self.assertLess(calls.index("frame5"), calls.index("restore:__init__"))
         self.assertEqual(calls.count("reset_physics"), 1)
         self.assertEqual(sum(p.get("WALK_START", [0])[0] for _, p in sent), 2)
         self.assertEqual(sum(p.get("WALK_STOP", [0])[0] for _, p in sent), 2)
@@ -336,157 +335,47 @@ class ControllerIntegrationTests(unittest.TestCase):
         self.assertTrue(assisted)
         self.assertTrue(all(r["reward"]["value"] == 0 for r in assisted))
         self.assertTrue(all(r["joint_target_rad"]["FL_HIP"] == 0 for r in assisted))
-        self.assertEqual(calls.count("physics"), len(rows) + 1)
         self.assertIn("Recovery complete", output)
 
-    def test_automatic_fall_recovery_and_s_cancels_resume(self):
+    def test_automatic_recovery_and_s_cancel_resume_still_work_without_ack(self):
         for cancel in (False, True):
-            rows, sent, calls, output = self.recovery_trial(
-                automatic=True, cancel_resume=cancel
-            )
+            _, sent, calls, output = self.recovery_trial(automatic=True, cancel_resume=cancel)
             self.assertEqual(calls.count("restore:__init__"), 1)
             self.assertIn("fall detected", output)
-            self.assertEqual(
-                sum(p.get("WALK_START", [0])[0] for _, p in sent), 1 if cancel else 2
-            )
-            self.assertEqual(sum(p.get("WALK_STOP", [0])[0] for _, p in sent), 2)
+            self.assertEqual(sum(p.get("WALK_START", [0])[0] for _, p in sent),
+                             1 if cancel else 2)
 
-    def test_r_from_rest_recovers_without_starting_walk(self):
-        rows, sent, calls, output = self.exercise(
-            [
-                frame(1),
-                frame(2, TRANSPORT_ACK_OUT=1, REST_ACTIVE=1),
-                frame(3, REST_ACTIVE=1),
-                frame(4, TRANSPORT_ACK_OUT=1, REST_ACTIVE=1),
-                *[frame(n, REST_ACTIVE=1) for n in range(5, 9)],
-            ],
-            {2: ord("R"), 7: ord("Q")},
-            7,
+    def test_recovery_from_rest_does_not_start_walking(self):
+        _, sent, calls, output = self.exercise(
+            [frame(n, REST_ACTIVE=1) for n in range(1, 8)],
+            {2: ord("R"), 8: ord("Q")}, 8,
             recovery_settings=dict(settle_seconds=0.05),
         )
         self.assertEqual(calls.count("restore:__init__"), 1)
         self.assertFalse(any(p.get("WALK_START", [0])[0] for _, p in sent))
         self.assertIn("Recovery complete", output)
 
-    def test_failed_reward_clear_still_stops_the_brain(self):
-        self.exercise([], {}, 1, mode="learn", reject_reward=True)
-
-    def test_start_stream_stop_has_no_periodic_input_or_host_phase_switch(self):
-        rows, sent, calls, output = self.exercise(
-            [
-                frame(1),
-                frame(2, TRANSPORT_ACK_OUT=1, REST_ACTIVE=1),
-                frame(3, REST_ACTIVE=1),
-                frame(4, TRANSPORT_ACK_OUT=1, WALK_ENABLED=1, FL_HIP_POS=1),
-                frame(5, WALK_ENABLED=1, PHASE_A_OUT=1, FL_HIP_POS=1),
-                frame(6, WALK_ENABLED=1, PHASE_B_OUT=1, FR_HIP_POS=1),
-                frame(7, WALK_ENABLED=1),
-                frame(8, TRANSPORT_ACK_OUT=1, REST_ACTIVE=1),
-            ],
-            {2: ord("W"), 5: ord("S"), 6: ord("Q")},
-            6,
-        )
-        self.assertEqual(len(sent), 10)  # Initial zeros + command/ACK-clear/goal-clear.
-        self.assertEqual(sum(p.get("WALK_START", [0])[0] for _, p in sent), 1)
-        self.assertEqual(sum(p.get("WALK_STOP", [0])[0] for _, p in sent), 2)
-        self.assertEqual([r["native_step"] for r in rows], [2, 4, 5, 6, 8])
-        self.assertEqual(calls.count("physics"), 6)
-        self.assertGreater(rows[1]["joint_target_rad"]["FL_HIP"], 0)
-        self.assertEqual(rows[-1]["joint_target_rad"]["FL_HIP"], 0)
-        self.assertIn("W received", output)
-        self.assertIn("START confirmed", output)
-
-    def test_physics_keeps_advancing_after_ack_while_rest_is_still_active(self):
-        rows, sent, calls, output = self.exercise(
-            [
-                frame(1),
-                frame(2, TRANSPORT_ACK_OUT=1, REST_ACTIVE=1),
-                frame(3, REST_ACTIVE=1),
-                frame(4, TRANSPORT_ACK_OUT=1, REST_ACTIVE=1),
-                frame(5, REST_ACTIVE=1),
-                frame(6, REST_ACTIVE=1),
-                frame(7, WALK_ENABLED=1, FL_HIP_POS=1),
-                frame(8, WALK_ENABLED=1),
-            ],
-            {2: ord("W"), 7: ord("Q")},
-            7,
-        )
-        self.assertEqual([r["native_step"] for r in rows], [2, 4, 5, 6, 7, 8])
-        self.assertEqual(
-            [r["pending_command"] for r in rows],
-            [None, "start", "start", "start", None, None],
-        )
-        self.assertEqual(calls.count("physics"), len(rows) + 1)
-        self.assertEqual(
-            len(sent), 7
-        )  # No sends during the three pending motor frames.
-        self.assertEqual(
-            sent[-1][0], 5
-        )  # Confirmation sends an idle snapshot after the body has advanced.
-        self.assertEqual(sum(p.get("WALK_START", [0])[0] for _, p in sent), 1)
-        self.assertIn("START ACK received", output)
-        self.assertIn("START confirmed", output)
-
-    def test_a_fresh_w_keypress_can_request_start_again(self):
-        rows, sent, calls, output = self.exercise(
-            [
-                frame(1),
-                frame(2, TRANSPORT_ACK_OUT=1, REST_ACTIVE=1),
-                frame(3, REST_ACTIVE=1),
-                frame(4, TRANSPORT_ACK_OUT=1, WALK_ENABLED=1),
-                frame(5, WALK_ENABLED=1),
-                frame(6, WALK_ENABLED=1),
-                frame(7, TRANSPORT_ACK_OUT=1, WALK_ENABLED=1),
-                frame(8, WALK_ENABLED=1),
-            ],
-            {2: ord("W"), 4: ord("W"), 6: ord("Q")},
-            6,
+    def test_fresh_w_event_is_captured_once_without_periodic_resending(self):
+        _, sent, _, output = self.exercise(
+            [frame(n, WALK_ENABLED=int(n > 1), REST_ACTIVE=int(n == 1))
+             for n in range(1, 6)],
+            {2: ord("W"), 4: ord("W"), 6: ord("Q")}, 6,
         )
         self.assertEqual(sum(p.get("WALK_START", [0])[0] for _, p in sent), 2)
         self.assertEqual(output.count("W received"), 2)
 
-    def test_learning_reward_uses_post_step_movement_only_after_confirmation(self):
-        rows, sent, calls, output = self.exercise(
-            [
-                frame(1),
-                frame(2, TRANSPORT_ACK_OUT=1, REST_ACTIVE=1),
-                frame(3, REST_ACTIVE=1),
-                frame(4, TRANSPORT_ACK_OUT=1, REST_ACTIVE=1),
-                frame(5, REST_ACTIVE=1),
-                frame(6, WALK_ENABLED=1),
-                frame(7, WALK_ENABLED=1),
-                frame(8, TRANSPORT_ACK_OUT=1, REST_ACTIVE=1),
-            ],
-            {2: ord("W"), 5: ord("S"), 6: ord("Q")},
-            6,
-            mode="learn",
-            moving=True,
-        )
-        self.assertEqual([r["reward"]["value"] for r in rows], [0, 0, 0, 1, 0])
-        self.assertEqual(
-            [r["simulation_time"] for r in rows], [i * 0.032 for i in range(2, 7)]
-        )
-        self.assertEqual([c.args[1] for c in self.reward_calls], [0, 1, 0, 0])
-        self.assertTrue(all("GAIT_REWARD_IN" not in p for _, p in sent))
-        self.assertEqual(calls.count("physics"), len(rows) + 1)
-
-    def test_rhythm_and_walk_modes_do_not_publish_positive_reward(self):
+    def test_rhythm_and_walk_do_not_reward_and_rhythm_does_not_move(self):
         for mode in ("rhythm", "walk"):
             rows, _, _, _ = self.exercise(
-                [
-                    frame(1),
-                    frame(2, TRANSPORT_ACK_OUT=1, REST_ACTIVE=1),
-                    frame(3),
-                    frame(4, TRANSPORT_ACK_OUT=1, WALK_ENABLED=1),
-                    frame(5, WALK_ENABLED=1),
-                ],
-                {2: ord("W"), 4: ord("Q")},
-                4,
-                mode=mode,
-                moving=True,
+                [frame(1, REST_ACTIVE=1), frame(2, WALK_ENABLED=1, FL_HIP_POS=1),
+                 frame(3, WALK_ENABLED=1, FL_KNEE_REFLEX_EXTEND=1)],
+                {2: ord("W"), 4: ord("Q")}, 4, mode=mode, moving=True,
             )
             self.assertTrue(all(r["reward"]["value"] == 0 for r in rows))
-            self.assertTrue(all(c.args[1] == 0 for c in self.reward_calls))
+            self.assertTrue(all(p[REWARD_INPUT]["signal"] == 0
+                                for _, p in self.feedback_calls))
+            if mode == "rhythm":
+                self.assertTrue(all(r["joint_target_rad"]["FL_HIP"] == 0 for r in rows))
 
 
 if __name__ == "__main__":

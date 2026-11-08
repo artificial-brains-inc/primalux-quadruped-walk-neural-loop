@@ -2,8 +2,18 @@
 
 Each native output frame advances 32 ms of Webots time through two 16 ms physics
 substeps. Fast mode removes realtime rendering pacing; no output frame is
-deliberately dropped. Queue depth is logged. ACK waiting pauses physics; after
-ACK the body consumes neural frames while goal confirmation is pending.
+deliberately dropped. Queue depth is logged. There is no neural ACK handshake.
+START/STOP publication and sensor publication run on one separate worker, so
+HTTP latency does not block the motor loop. WALK/REST confirmation is observed
+while every native output frame continues through actuation.
+
+The worker retains one latest unsent feedback capture, not a queue of old tilt
+and reward readings. Both are encoded in one atomic public SDK input frame.
+A request already in flight cannot be replaced; network and device latency still
+exist. Logs record capture age, publication duration and replaced unsent samples.
+No changes to neural timing, rhythms, TNorms, graph edges or motor calibration
+are made by removing ACK. The dormant isolated ACK nodes remain in the saved
+design for compatibility, so this adapter update requires no brain rebuild.
 
 Local MOVE_HG recruits an early push alongside the existing motor Betas. Hip
 Beta activity recruits retained readiness, which clears the push. Knee flexion
@@ -28,7 +38,7 @@ all local motor outputs are zero, the configured neutral target is applied.
 Speed is capped by the model. Tilt publication starts beyond 0.08 rad. Compare
 `joint_target_rad`, `joint_speed_limit_rad_s` and `joint_position_rad`: a command
 is not proof that a stroke finished. Changing body step changes simulated body
-time per neural frame; it does not change neural rhythms or ACK semantics.
+time per neural frame; it does not change neural rhythms.
 
 The floor has 1 m cells and 5 m reference lines. Assess body displacement rather
 than camera motion. Neural readiness and return do not establish unloading,

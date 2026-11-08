@@ -45,9 +45,14 @@ Keep proprietary construction code, equations, compiled images and credentials o
   actuator limits. No IK, phase choice, target-completion wait or min-stroke hold.
   Same-direction extension outputs use the largest configured excursion, not
   summed angles. Opposing commands cancel. Body step is 32 ms, threshold 0.08 rad.
-- Preserve event command capture, transport ACK, separate goal confirmation,
-  Q/close Stop/save and explicit simulator recovery. Never resend commands
-  periodically. Supervisor recovery is not neural self-righting.
+- No neural ACK handshake: clear the legacy ACK input at startup, never stimulate
+  it or wait for its readout. Keep the installed graph and dormant ACK population
+  contract unchanged. Observe WALK/REST without consuming or withholding motor
+  frames. Publish inputs on a separate worker; one latest unsent feedback capture
+  replaces older unsent captures. Do not queue stale sensor history or replay it.
+- Preserve event command capture, Q/close Stop/save and explicit simulator
+  recovery. Never resend commands periodically. Supervisor recovery sends
+  STOP/START and changes neural activity; it is not neural self-righting.
 - Runs have no elapsed-time cutoff. The user decides when to stop; do not add
   a maximum duration or replace it with a large finite limit.
 - Installer never installs Webots or regenerates the design. Keep install,

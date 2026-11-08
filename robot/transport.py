@@ -103,7 +103,7 @@ class EventBuffer:
                 )
 
     def take_one(self):
-        """Deliver at most one frame to the ACK/readout exchange; retain the rest."""
+        """Deliver at most one motor frame; retain the rest."""
         with self.condition:
             self.check_health()
             return [self.events.popleft()] if self.events else []
@@ -122,7 +122,7 @@ class EventBuffer:
             while True:
                 if self.clock() >= deadline:
                     raise TimeoutError(
-                        "Neural acknowledgement/decision deadline expired."
+                        "Native motor-frame deadline expired."
                     )
                 received = self.take_one()
                 if received:

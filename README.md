@@ -27,6 +27,16 @@ These are editable actuator settings in `config.json`, not TNorms or learned
 amplitudes. The adapter caps speed at the model's maximum. The body advances
 32 ms per native output frame; signed tilt evidence begins at 0.08 rad.
 
+There is **no neural ACK handshake**. Input HTTP requests run separately from
+motor delivery; the newest unsent tilt/reward capture replaces older unsent
+captures. WALK/REST confirmation is observed without pausing body steps. Every
+native motor frame is retained. The graph, TNorms and motor settings are unchanged;
+its isolated ACK populations remain dormant for installed-brain compatibility.
+
+Automatic fall recovery is still enabled. It requests STOP, restores the robot
+and requests START after settling. Removing ACK does not disable that separate
+source of apparent restarts. See [recovery](docs/RECOVERY.md).
+
 There are **503 neurons**, including **61 external neurons across eight named
 inputs**. Each leg's reflex remains **24 high-gamma T5 neurons**, directly
 exciting its fast output and its **24-neuron regular extension Beta T5**. The
@@ -69,7 +79,7 @@ See [requirements](docs/REQUIREMENTS.md).
 ## Clone and install
 
 ```bash
-git clone "$HOME/Downloads/primalux-spot-continuous.bundle" primalux-spot-switch
+git clone "$HOME/Downloads/primalux-spot-no-ack.bundle" primalux-spot-switch
 cd primalux-spot-switch
 bash install.sh
 source .venv/bin/activate
@@ -87,6 +97,8 @@ WEBOTS_EXECUTABLE=/absolute/path/to/webots
 `WEBOTS_EXECUTABLE` names the executable file, not its containing folder.
 Keep `.env` out of Git. For an existing checkout, stop the application with Q,
 then fetch the bundle and merge its main branch using `--ff-only`.
+If the previous continuous-run design is already installed, this adapter update
+requires no brain rebuild. The following design/build steps are for a new install.
 
 ## Inspect the design
 

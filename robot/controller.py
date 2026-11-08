@@ -8,6 +8,7 @@ four signed tilt populations. Reflex leg selection and cutoff stay inside the br
 import json
 import os
 import time
+from contextlib import ExitStack
 
 from controller import Supervisor
 
@@ -27,6 +28,7 @@ from .contracts import (
 )
 from .decoder import joint_speeds, joint_targets
 from .exchange import CommandExchange
+from .live_inputs import LiveInputs
 from .reward import ProgressReward, RewardPublisher
 from .recovery import Recovery
 from .reflex import TiltPublisher
@@ -137,6 +139,7 @@ def main():
             (directory / "observations.jsonl").open("x", buffering=1) as observations,
             (directory / "rewards.jsonl").open("x", buffering=1) as rewards,
             (directory / "tilt-inputs.jsonl").open("x", buffering=1) as tilt_log,
+            ExitStack() as workers,
         ):
             events = EventBuffer(
                 (ROOT / ".stop-request").exists,
@@ -152,41 +155,27 @@ def main():
                     + "\n"
                 )
                 kind, action = event["kind"], event.get("action", "").upper()
-                if kind == "command_sent":
-                    print(
-                        f"[SPOT] {action} sent; waiting for transport ACK.", flush=True
-                    )
-                elif kind == "command_ack":
-                    print(
-                        f"[SPOT] {action} ACK received; waiting for WALK/REST confirmation.",
-                        flush=True,
-                    )
+                if kind == "command_queued":
+                    print(f"[SPOT] {action} queued; no neural ACK handshake.", flush=True)
                 elif kind == "command_confirmed":
                     print(
                         f"[SPOT] {action} confirmed: WALK_ENABLED={event['walk']}, "
-                        f"REST_ACTIVE={event['rest']}; idle input snapshot sent.",
-                        flush=True,
+                        f"REST_ACTIVE={event['rest']}.", flush=True,
                     )
 
-            exchange = CommandExchange(
+            inputs = workers.enter_context(LiveInputs(
                 session.publish_sensor_frame,
-                events,
-                config["ack_timeout_seconds"],
-                record=record_command,
+                lambda: events.stats()["last_received_step"], config["reflex"],
+                tilt_record=lambda e: tilt_log.write(json.dumps(e) + "\n"),
+                reward_record=lambda e: rewards.write(json.dumps(e) + "\n"),
+            ))
+            exchange = CommandExchange(
+                inputs.command, config["command_timeout_seconds"], record=record_command,
             )
             exchange.initialize_inputs()
-            tilt_sender = TiltPublisher(
-                session.publish_sensor_frame,
-                config["reflex"],
-                record=lambda e: tilt_log.write(json.dumps(e) + "\n"),
-            )
-            tilt_sender.send([0, 0, 0], suspended=True, force=True)
-            reward_sender = RewardPublisher(
-                session.publish_reward,
-                record=lambda e: rewards.write(json.dumps(e) + "\n"),
-            )
-            reward_sender.send(dict(value=0, reason="startup"), force=True)
-            event = exchange.command("stop")
+            exchange.command("stop")
+            inputs.feedback([0, 0, 0], dict(value=0, reason="startup"), suspended=True)
+            event = events.wait_one(time.monotonic() + config["output_timeout_seconds"])
             action = "stop"
             pressed_before = set()
             tick = 0
@@ -201,6 +190,7 @@ def main():
             )
             while True:
                 events.check_health()
+                inputs.check_health()
                 confirmed = exchange.observe(event)
                 channels = validate_channels(event)
                 recovery_frame = recovery.active
@@ -250,15 +240,10 @@ def main():
                     motors[key].setPosition(q)
                 advance()
                 xyz, rpy = list(gps.getValues()), list(imu.getRollPitchYaw())
-                tilt_inputs = tilt_sender.send(
-                    rpy,
-                    suspended=(recovery_frame or mode == "rhythm"),
-                    native_step=event["step"],
-                    simulation_time=body.getTime(),
-                )
                 evidence = reward.sample(body.getTime(), xyz, rpy)
-                reward_sender.send(
-                    evidence, native_step=event["step"], simulation_time=body.getTime()
+                tilt_inputs = inputs.feedback(
+                    rpy, evidence, suspended=(recovery_frame or mode == "rhythm"),
+                    native_step=event["step"], simulation_time=body.getTime(),
                 )
                 record = dict(
                     native_step=event["step"],
@@ -288,6 +273,7 @@ def main():
                     reward=evidence,
                     gyro_rad_s=list(gyro.getValues()),
                     queued_native_frames=events.stats()["queued_frames"],
+                    input_transport=inputs.stats(),
                 )
                 observations.write(json.dumps(record) + "\n")
                 rows.append(record)
@@ -363,11 +349,6 @@ def main():
                     requested = "start"
                 if requested is not None:
                     reward.disarm()
-                    reward_sender.send(
-                        dict(value=0, reason="command_" + requested),
-                        native_step=event["step"],
-                        simulation_time=body.getTime(),
-                    )
                     if (requested == "start" and ord("W") in new) or (
                         requested == "stop" and ord("S") in new
                     ):
@@ -378,15 +359,13 @@ def main():
                             )
                         )
                         print(f"[SPOT] {key_name} received.", flush=True)
-                    # Only transport ACK blocks here. Neural goal confirmation
-                    # is observed above while frame-synchronized physics continues.
-                    event = exchange.command(requested)
+                    exchange.command(requested)
                     action = requested
-                else:
-                    # No periodic stimulus. One next native frame, one step.
-                    event = events.wait_one(
-                        time.monotonic() + config["output_timeout_seconds"]
-                    )
+                # Every native frame remains available for actuation. Input
+                # HTTP work runs separately; neither side waits for neural ACK.
+                event = events.wait_one(
+                    time.monotonic() + config["output_timeout_seconds"]
+                )
     except (StopRequested, KeyboardInterrupt):
         print("Stopping Spot session.", flush=True)
     except Exception as exc:

@@ -20,7 +20,7 @@ def load_config(root=ROOT):
         raise ValueError("physics_step_ms must be a positive multiple of 16")
     for key in (
         "output_timeout_seconds",
-        "ack_timeout_seconds",
+        "command_timeout_seconds",
     ):
         if type(c[key]) not in (int, float) or not math.isfinite(c[key]) or c[key] <= 0:
             raise ValueError(f"{key} must be positive and finite")

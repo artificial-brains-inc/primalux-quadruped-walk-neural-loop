@@ -27,13 +27,15 @@ STOP request; a momentary wobble does not. Invalid sensor readings do not trigge
 teleportation. Automatic recovery has a cooldown; R bypasses that cooldown.
 Set `automatic` to `false` and restart the run to disable automatic intervention.
 
-Recovery waits for the command's transport ACK, exclusive REST confirmation and
-all 24 motor outputs to become quiet. The body continues one step per native
-frame after ACK, using neutral targets during assistance. Only then does the
+Recovery waits for exclusive REST confirmation and all 24 motor outputs to become
+quiet. No neural ACK is used. The body continues one step per native frame, using
+neutral targets during assistance. Only then does the
 Webots Supervisor restore this robot with `loadState("__init__")` and
 `resetPhysics()`. Motor speed settings are reapplied after state restoration.
-Other objects, simulation time and the brain session continue. There is no neural
-rebuild, device restart, weight reset, learned gait change or new external input.
+Other objects, simulation time and the brain session continue. Recovery sends
+STOP/START and therefore changes neural activity and the goal sequence. It does
+not rebuild the brain, restart the device or reset learned weights. Removing the
+ACK handshake does not disable this separate recovery mechanism.
 
 Before resuming, Spot must remain within the existing upright reward thresholds
 for `settle_seconds`: roll and pitch within 0.35 rad and body height at least

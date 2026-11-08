@@ -40,142 +40,73 @@ class Frames:
 
 
 class RuntimeTests(unittest.TestCase):
-    def test_ack_does_not_clear_start_while_rest_is_still_active(self):
-        events = Frames(
-            [
-                frame(1),
-                frame(2, TRANSPORT_ACK_OUT=1, REST_ACTIVE=1),
-                frame(3, REST_ACTIVE=1),
-                frame(4, WALK_ENABLED=1, REST_ACTIVE=1),
-                frame(5, WALK_ENABLED=1),
-                frame(6, PHASE_A_OUT=1),
-            ]
-        )
-        sends, records = [], []
+    def sender(self, cursor=10):
+        from robot.live_inputs import Receipt
+        import time
+        self.sent = []
+        def submit(payload):
+            self.sent.append(payload)
+            receipt = Receipt()
+            receipt.after_step = cursor
+            receipt.accepted_at = time.monotonic()
+            receipt.ready.set()
+            return receipt
+        return submit
 
-        def publish(payload, **kw):
-            sends.append(payload)
-            self.assertEqual(kw, dict(mode="vector_f32"))
-            return dict(ok=True, queued_for_hardware=True, atomic_frame=True)
-
-        exchange = CommandExchange(publish, events, 1, record=records.append)
+    def test_command_is_one_event_with_no_ack_or_confirmation_resend(self):
+        exchange = CommandExchange(self.sender(), 30)
         exchange.initialize_inputs()
-        ack = exchange.command("start")
-        self.assertEqual(ack["step"], 2)
-        self.assertEqual(
-            sends[1], dict(WALK_START=[1.0], WALK_STOP=[0.0], TRANSPORT_ACK=[1.0])
-        )
-        self.assertEqual(sends[2], {"TRANSPORT_ACK": [0.0]})
-        self.assertIsNone(exchange.observe(ack))
-        self.assertIsNone(exchange.observe(events.wait_one(99)))
-        self.assertIsNone(exchange.observe(events.wait_one(99)))
-        self.assertEqual(len(sends), 3)  # No refreshes or premature goal clearing.
-        self.assertEqual(exchange.pending_action, "start")
-        self.assertEqual(exchange.observe(events.wait_one(99)), "start")
-        self.assertTrue(all(v == [0.0] for v in sends[3].values()))
-        self.assertIsNone(exchange.pending_action)
-        self.assertIsNone(exchange.observe(events.wait_one(99)))
-        self.assertEqual(len(sends), 4)
-        self.assertTrue(all(REWARD_INPUT not in payload for payload in sends))
-        self.assertEqual(
-            [r["step"] for r in records if r["kind"] == "command_confirmed"], [5]
-        )
-
-    def test_stop_waits_for_walk_to_clear_before_releasing_its_request(self):
-        sends = []
-
-        def publish(payload, **kw):
-            sends.append(payload)
-            return dict(ok=True, queued_for_hardware=True, atomic_frame=True)
-
-        events = Frames([frame(1), frame(2, TRANSPORT_ACK_OUT=1, WALK_ENABLED=1)])
-        exchange = CommandExchange(publish, events, 1)
-        exchange.command("stop")
-        self.assertIsNone(exchange.observe(frame(3, WALK_ENABLED=1, REST_ACTIVE=1)))
-        self.assertEqual(len(sends), 2)
-        self.assertEqual(exchange.observe(frame(4, REST_ACTIVE=1)), "stop")
-        self.assertEqual(len(sends), 3)
-
-    def test_old_readout_cannot_confirm_a_fresh_command(self):
-        exchange = CommandExchange(
-            lambda *a, **k: dict(ok=True, queued_for_hardware=True, atomic_frame=True),
-            Frames([frame(10), frame(11, TRANSPORT_ACK_OUT=1)]),
-            1,
-        )
         exchange.command("start")
-        self.assertIsNone(exchange.observe(frame(9, WALK_ENABLED=1)))
+        self.assertEqual(self.sent, [dict.fromkeys(COMMAND_INPUT_SIZES, [0.0]),
+                                     dict(WALK_START=[1.0], WALK_STOP=[0.0])])
+        self.assertIsNone(exchange.observe(frame(11, REST_ACTIVE=1)))
+        self.assertIsNone(exchange.observe(frame(12, WALK_ENABLED=1, REST_ACTIVE=1)))
+        self.assertEqual(exchange.observe(frame(13, WALK_ENABLED=1)), "start")
+        self.assertIsNone(exchange.observe(frame(14, WALK_ENABLED=1)))
+        self.assertEqual(len(self.sent), 2)
+
+    def test_ack_output_is_irrelevant_and_old_goals_do_not_confirm(self):
+        exchange = CommandExchange(self.sender(), 30)
+        exchange.command("start")
+        self.assertIsNone(exchange.observe(frame(10, WALK_ENABLED=1, TRANSPORT_ACK_OUT=1)))
+        self.assertIsNone(exchange.observe(frame(11, REST_ACTIVE=1, TRANSPORT_ACK_OUT=1)))
+        self.assertEqual(exchange.observe(frame(12, WALK_ENABLED=1)), "start")
+
+    def test_body_can_observe_frames_while_http_request_is_pending(self):
+        from robot.live_inputs import Receipt
+        receipt = Receipt()
+        exchange = CommandExchange(lambda _: receipt, 30)
+        exchange.command("start")
+        for i in range(20):
+            self.assertIsNone(exchange.observe(frame(i, WALK_ENABLED=1)))
         self.assertEqual(exchange.pending_action, "start")
 
-    def test_goal_timeout_reports_rest_lock_and_fails_without_retrying(self):
-        sends, records = [], []
+    def test_stop_replaces_pending_start_without_ack_wait(self):
+        records = []
+        exchange = CommandExchange(self.sender(), 30, records.append)
+        exchange.command("start")
+        exchange.command("stop")
+        self.assertEqual(exchange.observe(frame(11, REST_ACTIVE=1)), "stop")
+        self.assertEqual([r['replacement'] for r in records if r['kind']=='command_superseded'], ['stop'])
+        self.assertEqual(len(self.sent), 2)
 
-        def publish(payload, **kw):
-            sends.append(payload)
-            return dict(ok=True, queued_for_hardware=True, atomic_frame=True)
-
-        exchange = CommandExchange(
-            publish,
-            Frames([frame(1), frame(2, TRANSPORT_ACK_OUT=1)]),
-            30,
-            record=records.append,
-        )
-        with patch("robot.exchange.time.monotonic", return_value=100):
-            exchange.command("start")
+    def test_goal_timeout_reports_state_without_resending(self):
+        exchange = CommandExchange(self.sender(), 30)
+        exchange.command("start")
+        exchange.receipt.accepted_at = 100
         with patch("robot.exchange.time.monotonic", return_value=130):
             with self.assertRaisesRegex(TimeoutError, "WALK_ENABLED=0, REST_ACTIVE=1"):
-                exchange.observe(frame(3, REST_ACTIVE=1))
-        self.assertEqual(len(sends), 2)
-        self.assertEqual(records[-1]["kind"], "command_timeout")
+                exchange.observe(frame(11, REST_ACTIVE=1))
+        self.assertEqual(len(self.sent), 1)
         with self.assertRaises(RuntimeError):
             exchange.command("start")
 
-    def test_stop_can_replace_a_start_that_has_not_confirmed(self):
-        sends, records = [], []
-
-        def publish(payload, **kw):
-            sends.append(payload)
-            return dict(ok=True, queued_for_hardware=True, atomic_frame=True)
-
-        events = Frames(
-            [
-                frame(1),
-                frame(2, TRANSPORT_ACK_OUT=1, REST_ACTIVE=1),
-                frame(3, REST_ACTIVE=1),
-                frame(4, TRANSPORT_ACK_OUT=1, REST_ACTIVE=1),
-            ]
-        )
-        exchange = CommandExchange(publish, events, 1, record=records.append)
-        exchange.command("start")
-        ack = exchange.command("stop")
-        self.assertEqual(
-            sends[2], dict(WALK_START=[0.0], WALK_STOP=[1.0], TRANSPORT_ACK=[1.0])
-        )
-        self.assertEqual(exchange.observe(ack), "stop")
-        self.assertEqual(
-            [r["replacement"] for r in records if r["kind"] == "command_superseded"],
-            ["stop"],
-        )
-
-    def test_ack_failure_cannot_release_a_command_or_retry_it(self):
-        sent = []
-
-        def publish(payload, **kw):
-            sent.append(payload)
-            return dict(ok=True, queued_for_hardware=True, atomic_frame=True)
-
-        exchange = CommandExchange(
-            publish, Frames([frame(1), frame(2, FL_HIP_POS=1)]), 1
-        )
-        with self.assertRaises(TimeoutError):
-            exchange.command("start")
-        with self.assertRaises(RuntimeError):
-            exchange.command("start")
-        self.assertEqual(len(sent), 1)
-
-    def test_queue_acceptance_is_not_neural_ack(self):
-        exchange = CommandExchange(lambda *a, **k: dict(ok=True), Frames([frame(1)]), 1)
-        with self.assertRaisesRegex(RuntimeError, "acceptance"):
-            exchange.command("stop")
+    def test_publication_error_is_not_treated_as_goal_acceptance(self):
+        exchange = CommandExchange(self.sender(), 30)
+        exchange.command("stop")
+        exchange.receipt.error = "request rejected"
+        with self.assertRaisesRegex(RuntimeError, "request rejected"):
+            exchange.observe(frame(11, REST_ACTIVE=1))
 
     def test_decoder_never_uses_phase_or_enable_as_a_gait_selector(self):
         config = load_config()

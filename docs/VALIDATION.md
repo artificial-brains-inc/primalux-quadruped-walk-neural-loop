@@ -5,10 +5,19 @@ construction. [RESOURCE_CHECK.json](RESOURCE_CHECK.json) records 503 total
 neurons and 292,796 bytes of connection matrices; other image data also consumes
 the 32 MiB budget. Device preparation remains authoritative.
 
-96 application tests cover command/ACK/goal confirmation, SDK dispatch, motor
-calibration, input encoding, reward, recovery, Stop/save, installer behavior,
-assets, graph/source agreement and recording. Tests exercise push/fast/normal
-outputs, conflicting commands and return to normal speed after clearing.
+98 application tests pass. They cover event commands without neural ACK, goal observation,
+SDK dispatch, motor calibration, input encoding, reward, recovery, Stop/save,
+installer behavior, assets, graph/source agreement and recording. Tests exercise
+push/fast/normal outputs, conflicting commands and return to normal speed.
+
+A blocked HTTP test delivers all 30 consecutive native motor frames while an
+input request is stalled. Only the newest of 30 unsent captures is transmitted
+after the request finishes. Other tests check command priority, in-flight request
+shutdown and real SDK encoding of 48 tilt and 10 reward neurons in one frame.
+Controller integration tests use a deterministic input sender; concurrent behavior
+is tested separately with the real worker. These tests do not establish device
+latency or stable Webots walking. The neural design is unchanged by this adapter
+update; the graph checks below apply to the same design.
 
 [SWITCH_CHECK.json](SWITCH_CHECK.json) records four complete-circuit local cases:
 aligned initial phases, varied phases/coupling/floor, left tilt and right tilt.

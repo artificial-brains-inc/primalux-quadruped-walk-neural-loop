@@ -6,26 +6,38 @@ the session through Stop/save.
 
 ## What crosses the boundary
 
-The adapter publishes one atomic START-or-STOP event together with ACK at startup
-or on a W/S keypress. Explicit simulator recovery also requests one STOP and,
-if requested, one START after settling. The device consumes the input event in a neural step; it does
-not maintain START as a level until a later zero event. A fresh transport ACK
-confirms entry into its separate pathway, not the WALK/REST transition.
+The adapter queues one atomic START-or-STOP event at startup or on a W/S
+keypress. Explicit simulator recovery also requests one STOP and, if requested,
+one START after settling. The device consumes each input event in a neural step;
+it does not maintain START as a level until a later zero event.
+
+There is no neural ACK handshake. The legacy isolated ACK input is cleared once
+at startup and never stimulated. Its output is never used for synchronization.
+The saved graph and input/output contract remain unchanged, avoiding a rebuild
+or replacement of learned state for this adapter update.
 
 Neural request latches capture the command and maintain its drive internally.
 The corresponding goal nucleus clears the request after taking over. An opposite
-command cue can cancel it. Python waits for START's WALK=1/REST=0 or STOP's
-WALK=0/REST=1 readouts; it supplies no command repeats or phase choices.
+command cue can cancel it. Python observes START's WALK=1/REST=0 or STOP's
+WALK=0/REST=1 readouts. It supplies no command repeats or phase choices, and
+confirmation does not send another input snapshot. An explicit S can supersede
+a pending START; a fresh W keypress can issue a new event.
 
-The zero ACK event after receipt and all-zero command snapshot after confirmation
-are explicit idle observations. They must not be interpreted as releasing a held
-stimulus. Reward and tilt channels are separate and are not included in command snapshots.
-
-Only transport ACK waiting freezes physics. After ACK, each native output frame
-produces one body step, including frames while the command remains pending.
-`ack_timeout_seconds` separately bounds ACK waiting and goal confirmation.
+One worker handles input HTTP requests. Commands have priority over unsent
+feedback, and command submission discards any pre-command unsent feedback.
+The motor loop keeps applying every native frame while a request is in flight
+or goal confirmation is pending. Only frames newer than the output cursor at
+HTTP acceptance can confirm a command. `command_timeout_seconds` bounds goal
+confirmation after HTTP acceptance; it is not a gait duration or ACK timeout.
 Failure reports WALK, REST and both request readouts and triggers SDK Stop/save.
-An explicit S can replace pending START; a new W keypress can issue a fresh event.
+
+Tilt and reward are captured after each body step and submitted together through
+`publish_sensor_frame`, using the SDK's `reward_population` encoder for reward.
+If publication is slower than sensing, each new capture replaces the previous
+unsent capture. No motor frames are dropped. An in-flight HTTP request cannot be
+cancelled; the worker does not claim zero transport latency. The worker is joined
+before final input clears, log closure and Stop/save, so it cannot publish after
+shutdown. Input failures propagate to the normal error cleanup.
 
 One native output frame advances 32 ms of simulation time (two 16 ms physics
 substeps). Webots runs in fast mode with rendering, so this duration does not add
@@ -98,14 +110,18 @@ Ten active input neurons do not prove that all 17 dopamine neurons fired. Check
 individual neuron telemetry for that. A larger population also does not prove
 that learning improves balance. The fixed reflex remains active without reward.
 
-The adapter calls the SDK's `session.publish_reward("GAIT_REWARD_IN", value)`
-for every qualifying body step. Each event represents a newly measured outcome;
-a prior 1 is not held by the device. Repeated zeros are omitted. Startup, W/S
-commands and shutdown send an explicit zero event.
-Command clearing affects only START, STOP and ACK, never the reward input.
-`rewards.jsonl` records accepted events; every observation records its evidence.
-A reward clear is attempted on exit even if Webots closes; SDK Stop/save still runs
-if that clear fails.
+The adapter encodes the newest available reward evidence with its matching tilt
+capture in one atomic SDK frame. Each transmitted 1 represents a newly measured
+outcome; a prior 1 is not held by the device. Repeated all-zero feedback captures
+are omitted. Startup and shutdown clear reward explicitly; pending commands and
+recovery disarm new reward evidence. A command discards unsent pre-command
+feedback but cannot retract a request already in flight.
+
+`rewards.jsonl` records accepted transmitted events; every observation records
+its measured evidence, including captures replaced before publication. There is
+no deferred reward backlog or replay. This changes sensory sampling under a slow
+transport, not graph weights, TNorms or neuron dynamics. A reward clear is
+attempted on exit even if Webots closes; SDK Stop/save still runs if it fails.
 
 Reward measurements follow body steps; reward delivery and neural eligibility
 have transport delay. The recorded `native_step` identifies the frame that was
@@ -130,10 +146,10 @@ During recovery every mode holds neutral targets and sends no positive reward.
 After each completed body step, the IMU roll/pitch sample is encoded as four
 signed populations beyond a 0.08 rad deadband. Each population carries twelve
 identical binary values, matching its 12-neuron design width. The SDK sends them
-together in one
-`publish_sensor_frame` call. Each nonzero sample is fresh evidence; repeated
-unchanged tilt is not mistaken for a held input. Repeated all-zero frames are
-omitted. This is sensory quantization, not a controller-side choice of leg or
+with the same capture's reward in one `publish_sensor_frame` call. Each transmitted
+nonzero capture is fresh evidence; the worker never repeats a held capture.
+New readings can replace older unsent readings while HTTP is busy. Repeated
+all-zero feedback captures are omitted. This is sensory quantization, not a controller-side choice of leg or
 support action. Gyro readings remain logged but are not new inputs.
 
 Each local reflex receives compatible signs, inhibits its own knee flexion,
@@ -163,7 +179,9 @@ drives a motor. REST and pending
 STOP inhibit the reflex neurally. Only explicit simulator recovery, `rhythm`
 mode or `reflex.enabled=false` suspend tilt publication.
 
-`tilt-inputs.jsonl` includes the source body frame and SDK publication duration.
+`tilt-inputs.jsonl` includes the source body frame, capture age at send and SDK
+publication duration. Observations include pending feedback, replaced unsent
+captures and completed publication counts in `input_transport`.
 Hardware queue acceptance is checked; it is not proof of consumption in that
 same neural step. No added ACK wait or host burst timer is used. Compare queue
 backlog, received outputs and post-step body measurements when assessing latency.

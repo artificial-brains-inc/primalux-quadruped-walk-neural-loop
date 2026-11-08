@@ -9,7 +9,8 @@ relationships before selecting rhythms and TNorms.
 A brief START event recruits a retained request. That request activates WALK
 and opposes REST. WALK reinforces itself and clears the request. STOP uses the
 same pattern in the opposite direction. REST clears movement and motor outputs.
-Transport ACK confirms input-path activity, not completion of the walking goal.
+Goal confirmation is observed from WALK/REST while motor delivery continues.
+No transport ACK is stimulated or awaited.
 
 ## Prepare, move and return
 
