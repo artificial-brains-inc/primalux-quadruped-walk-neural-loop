@@ -128,7 +128,7 @@ class ReflexGraphTests(unittest.TestCase):
         for leg in LEGS:
             stem = "REFLEX_" + leg
             trigger, reset, active = stem + "_HG", stem + "_RESET_HG", stem + "_ACTIVE"
-            extension = motor_population(leg, "KNEE", "NEG")
+            extension = f"REFLEX_{leg}_EXTENSION_BETA"
             for cue in REFLEX_CUES[leg]:
                 self.assertEqual(self.nodes[cue]["neurons"], 12)
                 self.assertEqual(self.edges[(cue, trigger)]["type"], "exc")
@@ -143,7 +143,7 @@ class ReflexGraphTests(unittest.TestCase):
             # No reflex can bypass the motor population to excite a motor output.
             self.assertFalse(
                 any(
-                    source.startswith("REFLEX_")
+                    source == trigger
                     and target == f"{leg}_KNEE_NEG"
                     and edge["type"] == "exc"
                     for (source, target), edge in self.edges.items()
@@ -171,47 +171,50 @@ class ReflexGraphTests(unittest.TestCase):
             )
             gate = stem + "_EXTENSION_VETO_HG"
             self.assertEqual(self.edges[(trigger, gate)]["strength"], 64)
-            for name in (trigger, reset, active, gate):
+            for name in (trigger, reset, active, gate, extension):
                 for source in ("REST_NUCLEUS", "STOP_REQUEST_HG"):
                     self.assertEqual(self.edges[(source, name)]["strength"], 4)
         for (source, target), edge in self.edges.items():
             if source.startswith(("REFLEX_", "TILT_")) or target.startswith("REFLEX_"):
-                if source.endswith("_EXTENSION_VETO_HG"):
-                    self.assertEqual(edge["rule"], "STDP3")
-                else:
-                    self.assertNotIn("rule", edge)
+                self.assertNotIn("rule", edge)
         self.assertFalse(any("GUARD" in n or "RESET_1" in n for n in self.nodes))
         self.assertFalse(any(s in REFLEX_OUTPUTS for s, _ in self.edges))
 
-    def test_extension_beta_has_compatible_sources_and_retains_output_clearing(self):
+    def test_reflex_and_gait_share_extension_output_through_separate_betas(self):
         for leg in LEGS:
             stance = "B" if SWING_PHASE[leg] == "A" else "A"
-            relay = f"PHASE_{stance}_KNEE_DRIVE_HG"
-            extension = motor_population(leg, "KNEE", "NEG")
-            sources = {
-                s
-                for (s, t), e in self.edges.items()
-                if t == extension and e["type"] == "exc"
-            }
-            self.assertEqual(sources, {relay, f"REFLEX_{leg}_HG"})
-            self.assertEqual({self.nodes[s]["rhythm"] for s in sources}, {"high-gamma"})
-            self.assertEqual(self.edges[(f"PHASE_{stance}_BETA", relay)]["type"], "exc")
+            gait = motor_population(leg, "KNEE", "NEG")
+            reflex = f"REFLEX_{leg}_EXTENSION_BETA"
+            output = f"{leg}_KNEE_NEG"
+            for target, expected in (
+                (gait, {f"PHASE_{stance}_DRIVE_HG"}),
+                (reflex, {f"REFLEX_{leg}_HG"}),
+                (output, {gait, reflex}),
+            ):
+                self.assertEqual(
+                    {
+                        s
+                        for (s, t), e in self.edges.items()
+                        if t == target and e["type"] == "exc"
+                    },
+                    expected,
+                )
+            for motor in (gait, reflex):
+                self.assertEqual(
+                    (self.nodes[motor]["rhythm"], self.nodes[motor]["tnorm"]),
+                    ("beta", 5),
+                )
             gate = f"REFLEX_{leg}_EXTENSION_VETO_HG"
             self.assertEqual(
-                self.edges[(f"PHASE_{SWING_PHASE[leg]}_INHIBITOR", gate)]["type"], "exc"
+                self.edges[f"PHASE_{SWING_PHASE[leg]}_DRIVE_HG", gate]["type"], "exc"
             )
-            self.assertEqual(self.nodes[gate]["rhythm"], "high-gamma")
-            self.assertEqual(self.nodes[gate]["tnorm"], 3)
             self.assertEqual(
-                {t for s, t in self.edges if s == gate}, {extension, f"{leg}_KNEE_NEG"}
+                {t for s, t in self.edges if s == gate}, {gait, reflex, output}
             )
-            for source in (
-                "REST_NUCLEUS",
-                motor_population(leg, "KNEE", "POS"),
-                f"REFLEX_{leg}_EXTENSION_VETO_HG",
-            ):
-                for target in (extension, f"{leg}_KNEE_NEG"):
-                    self.assertEqual(self.edges[(source, target)]["type"], "inh")
+            self.assertEqual(self.nodes[gate]["tnorm"], 3)
+            for target in (gait, reflex, output):
+                self.assertEqual(self.edges[gate, target]["type"], "inh")
+                self.assertEqual(self.edges["REST_NUCLEUS", target]["type"], "inh")
 
     def test_reflex_never_targets_another_leg_or_a_phase(self):
         for leg in LEGS:

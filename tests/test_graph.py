@@ -98,147 +98,126 @@ class GraphTests(unittest.TestCase):
                 opposing_goal = "REST_NUCLEUS" if action == "START" else "WALK_NUCLEUS"
                 self.assertNotIn((opposing_goal, target), self.edges)
 
-    def test_continuing_phase_drive_and_preparation_are_symmetric(self):
+    def test_switch_retains_states_and_captures_the_next_handoff(self):
         for phase, other in (("A", "B"), ("B", "A")):
-            sources = {
-                s: e
-                for (s, t), e in self.edges.items()
-                if t == f"PHASE_{phase}_T1" and e["type"] == "exc"
-            }
-            self.assertEqual(set(sources), {"WALK_DRIVE", f"PHASE_{other}_T2"})
-            self.assertNotIn("role", sources["WALK_DRIVE"])
-            self.assertEqual(sources[f"PHASE_{other}_T2"]["role"], "feedback")
-            self.assertEqual(
-                {(self.nodes[s]["rhythm"], self.nodes[s]["tnorm"]) for s in sources},
-                {("theta", 2.01)},
-            )
-            for suffix, rhythm, tnorm in (
-                ("T1", "theta", 3),
-                ("T2", "theta", 2.01),
-                ("BETA", "beta", 5),
-                ("INHIBITOR", "beta", 5),
-                ("RELEASE", "beta", 3),
+            stem, opp = f"PHASE_{phase}", f"PHASE_{other}"
+            for source, target in (
+                (stem + "_REQUEST", stem + "_REQUEST_HG"),
+                (stem + "_REQUEST_HG", stem + "_REQUEST"),
+                (stem + "_REQUEST_HG", stem + "_OUT"),
+                (stem + "_OUT", stem + "_DRIVE_HG"),
+                (stem + "_DRIVE_HG", stem + "_OUT"),
+                (stem + "_RELEASE", opp + "_REQUEST"),
             ):
-                node = self.nodes[f"PHASE_{phase}_{suffix}"]
-                self.assertEqual((node["rhythm"], node["tnorm"]), (rhythm, tnorm))
+                self.assertEqual(self.edges[source, target]["type"], "exc")
+                self.assertNotIn("rule", self.edges[source, target])
+            for target in (opp + "_OUT", opp + "_DRIVE_HG"):
+                for source in (stem + "_DRIVE_HG", stem + "_REQUEST_HG"):
+                    self.assert_inhibits(source, target, 4)
+                    self.assertNotIn("rule", self.edges[source, target])
+            for target in (stem + "_REQUEST", stem + "_REQUEST_HG"):
+                self.assert_inhibits(stem + "_DRIVE_HG", target, 64)
+        self.assertIn(("START_REQUEST_HG", "PHASE_A_REQUEST"), self.edges)
+        self.assertNotIn(("START_REQUEST_HG", "PHASE_B_REQUEST"), self.edges)
 
-    def test_downstream_releases_opposite_phase_by_inhibiting_own_inhibitor(self):
-        for phase, other in (("A", "B"), ("B", "A")):
+    def test_handoff_uses_internal_motor_activity_not_external_progress(self):
+        expected = {
+            "A": {"FL_HIP_NEG", "RR_HIP_NEG", "FR_HIP_POS", "RL_HIP_POS"},
+            "B": {"FL_HIP_POS", "RR_HIP_POS", "FR_HIP_NEG", "RL_HIP_NEG"},
+        }
+        for phase, sources in expected.items():
             stem = f"PHASE_{phase}"
-            inhibitor, release = stem + "_INHIBITOR", stem + "_RELEASE"
-            self.assertEqual(self.edges[(stem + "_T2", inhibitor)]["type"], "exc")
-            self.assertEqual(self.edges[(stem + "_BETA", release)]["type"], "exc")
-            self.assert_inhibits(release, inhibitor, 1)
-            self.assertEqual(self.edges[(release, inhibitor)]["role"], "feedback")
-            self.assert_inhibits(release, inhibitor + "_OUT", 1)
-            for suffix in (
-                "T2",
-                "BETA",
-                "INHIBITOR",
-                "RELEASE",
-                "OUT",
-                "INHIBITOR_OUT",
-                "RELEASE_OUT",
-            ):
-                self.assert_inhibits(inhibitor, f"PHASE_{other}_{suffix}", 1)
-            # No remaining direct Beta veto can defeat the intended release.
-            self.assertFalse(
-                any(
-                    s == stem + "_BETA" and e["type"] == "inh"
-                    for (s, _), e in self.edges.items()
-                )
-            )
+            target = stem + "_MOTOR_FEEDBACK_HG"
             self.assertEqual(
                 {
-                    t
+                    s
                     for (s, t), e in self.edges.items()
-                    if s == release and e["type"] == "inh"
+                    if t == target and e["type"] == "exc"
                 },
-                {inhibitor, inhibitor + "_OUT"},
+                sources,
             )
+            for a, b in (
+                ("MOTOR_FEEDBACK_HG", "FEEDBACK_BETA"),
+                ("FEEDBACK_BETA", "BETA"),
+                ("BETA", "RELEASE"),
+            ):
+                self.assertEqual(
+                    self.edges[stem + "_" + a, stem + "_" + b]["type"], "exc"
+                )
+            for suffix, tnorm in (("FEEDBACK_BETA", 5), ("BETA", 5), ("RELEASE", 3)):
+                n = self.nodes[stem + "_" + suffix]
+                self.assertEqual((n["rhythm"], n["tnorm"]), ("beta", tnorm))
 
-    def test_start_bias_is_cleared_by_inhibitor_recruitment(self):
-        for suffix in ("T2", "BETA", "INHIBITOR"):
-            self.assert_inhibits("START_A_BIAS_HG", "PHASE_B_" + suffix, 1)
-        for source in ("PHASE_A_INHIBITOR", "STOP_REQUEST_HG", "REST_NUCLEUS"):
-            self.assert_inhibits(
-                source, "START_A_BIAS", 1 if source == "PHASE_A_INHIBITOR" else 4
-            )
-        self.assertFalse(
-            any(
-                s.startswith("START_A_BIAS") and t.startswith("PHASE_A")
-                for s, t in self.edges
-            )
-        )
-
-    def test_four_leg_groups_keep_all_24_opposing_motor_populations(self):
-        self.assertEqual(SWING_PHASE, dict(FL="A", RR="A", FR="B", RL="B"))
+    def test_switch_drives_complementary_patterns_through_motor_betas(self):
+        self.assertEqual(SWING_PHASE, dict(FL="B", RR="B", FR="A", RL="A"))
         populations = set()
         for leg in LEGS:
             for joint in JOINTS:
                 swing_side = "NEG" if joint == "ABD" and leg in ("FL", "RL") else "POS"
                 for side, opposite_side in (("POS", "NEG"), ("NEG", "POS")):
-                    population = motor_population(leg, joint, side)
+                    population, channel = (
+                        motor_population(leg, joint, side),
+                        f"{leg}_{joint}_{side}",
+                    )
                     populations.add(population)
-                    channel = f"{leg}_{joint}_{side}"
                     phase = (
                         SWING_PHASE[leg]
                         if side == swing_side
                         else ("B" if SWING_PHASE[leg] == "A" else "A")
                     )
                     other = "B" if phase == "A" else "A"
-                    node = self.nodes[population]
-                    self.assertEqual((node["rhythm"], node["tnorm"]), ("beta", 5))
+                    n = self.nodes[population]
+                    self.assertEqual((n["rhythm"], n["tnorm"]), ("beta", 5))
                     self.assertEqual(
                         {
                             s
                             for (s, t), e in self.edges.items()
                             if t == population and e["type"] == "exc"
                         },
-                        (
-                            {f"PHASE_{phase}_KNEE_DRIVE_HG", f"REFLEX_{leg}_HG"}
-                            if joint == "KNEE" and side == "NEG"
-                            else {f"PHASE_{phase}_BETA"}
-                        ),
+                        {f"PHASE_{phase}_DRIVE_HG"},
                     )
-                    self.assertEqual(self.edges[(population, channel)]["type"], "exc")
+                    self.assertEqual(self.edges[population, channel]["type"], "exc")
+                    veto = (
+                        f"REFLEX_{leg}_EXTENSION_VETO_HG"
+                        if joint == "KNEE" and side == "NEG"
+                        else f"PHASE_{other}_DRIVE_HG"
+                    )
                     for target in (population, channel):
-                        self.assert_inhibits(
-                            f"REFLEX_{leg}_EXTENSION_VETO_HG"
-                            if joint == "KNEE" and side == "NEG"
-                            else f"PHASE_{other}_INHIBITOR",
-                            target,
-                            1,
-                        )
+                        self.assert_inhibits(veto, target, 4)
+                        self.assertNotIn("rule", self.edges[veto, target])
                         self.assert_inhibits("REST_NUCLEUS", target, 4)
                         self.assert_inhibits(
                             motor_population(leg, joint, opposite_side), target
                         )
         self.assertEqual(len(populations), 24)
-        self.assertEqual(len(MOTOR_OUTPUTS), 24)
 
-    def test_stop_clears_all_phase_motor_states_and_retained_start_bias(self):
+    def test_stop_clears_switch_requests_and_all_motor_outputs(self):
         for name in self.nodes:
             if (
-                name.startswith("PHASE_")
-                or name in MOTOR_OUTPUTS
-                or name.startswith(
-                    ("FRONT_LEFT_", "FRONT_RIGHT_", "REAR_LEFT_", "REAR_RIGHT_")
+                name.startswith(
+                    (
+                        "PHASE_",
+                        "REFLEX_",
+                        "FRONT_LEFT_",
+                        "FRONT_RIGHT_",
+                        "REAR_LEFT_",
+                        "REAR_RIGHT_",
+                    )
                 )
+                or name in MOTOR_OUTPUTS
             ):
                 self.assert_inhibits("REST_NUCLEUS", name, 4)
         for target in (
             "WALK_ENABLED",
             "WALK_NUCLEUS",
-            "START_A_BIAS",
-            "PHASE_A_T2",
-            "PHASE_B_T2",
-            "PHASE_A_BETA",
-            "PHASE_B_BETA",
+            "PHASE_A_REQUEST",
+            "PHASE_B_REQUEST",
+            "PHASE_A_OUT",
+            "PHASE_B_OUT",
         ):
             self.assert_inhibits("STOP_REQUEST_HG", target, 4)
-        self.assert_inhibits("START_REQUEST_HG", "REST_ACTIVE", 4)
-        self.assert_inhibits("START_REQUEST_HG", "REST_NUCLEUS", 4)
+        for target in ("REST_ACTIVE", "REST_NUCLEUS"):
+            self.assert_inhibits("START_REQUEST_HG", target, 4)
 
     def test_ack_is_isolated_from_behavior(self):
         for source, target in self.edges:

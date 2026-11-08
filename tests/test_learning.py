@@ -3,44 +3,28 @@ import unittest
 
 from design_brain import create_brain
 from robot.configuration import load_config
-from robot.contracts import REWARD_INPUT, LEGS
+from robot.contracts import REWARD_INPUT
 from robot.reward import ProgressReward, RewardPublisher
 
 
 class LearningGraphTests(unittest.TestCase):
-    def test_only_the_complete_gait_inhibition_paths_are_plastic(self):
+    def test_only_local_release_recovery_paths_are_plastic(self):
         d = create_brain().to_dict()
         plastic = [e for e in d["connections"] if e.get("rule") == "STDP3"]
-        self.assertEqual(len(plastic), 66)
+        expected = {
+            (f"PHASE_{p}_RELEASE", f"PHASE_{p}_{target}")
+            for p in ("A", "B")
+            for target in ("FEEDBACK_BETA", "BETA")
+        }
+        self.assertEqual({(e["from"], e["to"]) for e in plastic}, expected)
         for edge in plastic:
             self.assertEqual(edge["type"], "inh")
             self.assertEqual(edge["reward"], "GAIT_REWARD")
             self.assertEqual(edge["reward_type"], "LTP")
-            self.assertEqual(edge.get("strength", 1.0), 1.0)
-            self.assertIn(
-                edge["from"],
-                {
-                    "PHASE_A_RELEASE",
-                    "PHASE_B_RELEASE",
-                    "PHASE_A_INHIBITOR",
-                    "PHASE_B_INHIBITOR",
-                    *(f"REFLEX_{leg}_EXTENSION_VETO_HG" for leg in LEGS),
-                },
-            )
+            self.assertEqual(edge["role"], "feedback")
+            self.assertEqual(edge["strength"], 4)
         for edge in d["connections"]:
-            source = edge["from"]
-            if source in {
-                "PHASE_A_RELEASE",
-                "PHASE_B_RELEASE",
-                "PHASE_A_INHIBITOR",
-                "PHASE_B_INHIBITOR",
-                *(f"REFLEX_{leg}_EXTENSION_VETO_HG" for leg in LEGS),
-            }:
-                if edge["type"] == "inh" and edge["to"] != "START_A_BIAS":
-                    self.assertIn(edge, plastic)
-            if source.startswith(("WALK_", "REST_", "TRANSPORT_", "START_", "STOP_")):
-                self.assertNotIn("rule", edge)
-            if edge["type"] == "exc":
+            if (edge["from"], edge["to"]) not in expected:
                 self.assertNotIn("rule", edge)
 
     def test_reward_does_not_choose_a_phase_or_drive_a_motor(self):

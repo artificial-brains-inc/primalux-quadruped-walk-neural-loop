@@ -5,7 +5,10 @@ LEG_NAMES = dict(FL="front left", FR="front right", RL="rear left", RR="rear rig
 LEG_PREFIXES = {leg: name.upper().replace(" ", "_") for leg, name in LEG_NAMES.items()}
 JOINTS = ("ABD", "HIP", "KNEE")
 JOINT_NAMES = dict(ABD="shoulder abduction", HIP="shoulder rotation", KNEE="elbow")
-SWING_PHASE = dict(FL="A", RR="A", FR="B", RL="B")
+SUPPORT_PHASE = dict(FL="A", RR="A", FR="B", RL="B")
+SWING_PHASE = {
+    leg: "B" if phase == "A" else "A" for leg, phase in SUPPORT_PHASE.items()
+}
 COMMAND_INPUT_SIZES = {"WALK_START": 1, "WALK_STOP": 1, "TRANSPORT_ACK": 1}
 REWARD_INPUT = "GAIT_REWARD_IN"
 TILT_INPUTS = ("TILT_ROLL_NEG", "TILT_ROLL_POS", "TILT_PITCH_NEG", "TILT_PITCH_POS")
@@ -39,11 +42,10 @@ OUTPUT_SIZES = {
         "REST_ACTIVE",
         "START_REQUEST",
         "STOP_REQUEST",
-        "START_A_BIAS",
         "PHASE_A_OUT",
         "PHASE_B_OUT",
-        "PHASE_A_INHIBITOR_OUT",
-        "PHASE_B_INHIBITOR_OUT",
+        "PHASE_A_REQUEST",
+        "PHASE_B_REQUEST",
         "PHASE_A_RELEASE_OUT",
         "PHASE_B_RELEASE_OUT",
         "TRANSPORT_ACK_OUT",

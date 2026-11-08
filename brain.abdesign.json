@@ -1,6 +1,6 @@
 {
   "schema": "artificial-brains/design/v1",
-  "name": "Spot - Learning Coordination and Support Reflexes",
+  "name": "Spot - Neural Switch with Learning and Local Reflexes",
   "nodes": [
     {
       "name": "WALK_START",
@@ -131,171 +131,148 @@
       "tnorm": 10.0
     },
     {
-      "name": "WALK_DRIVE",
+      "name": "PHASE_A_REQUEST_HG",
       "kind": "opu",
-      "x": 1660.0,
-      "y": 0.0,
-      "rhythm": "theta",
-      "tnorm": 2.01
-    },
-    {
-      "name": "START_A_BIAS",
-      "kind": "output",
-      "x": 500.0,
-      "y": 540.0,
-      "neurons": 1
-    },
-    {
-      "name": "START_A_BIAS_HG",
-      "kind": "opu",
-      "x": 780.0,
-      "y": 540.0,
+      "x": 280.0,
+      "y": 760.0,
       "rhythm": "high-gamma",
       "tnorm": 10.0
     },
     {
-      "name": "PHASE_A_T1",
+      "name": "PHASE_A_DRIVE_HG",
+      "kind": "opu",
+      "x": 900.0,
+      "y": 760.0,
+      "rhythm": "high-gamma",
+      "tnorm": 10.0
+    },
+    {
+      "name": "PHASE_A_MOTOR_FEEDBACK_HG",
       "kind": "opu",
       "x": 0.0,
-      "y": 780.0,
-      "rhythm": "theta",
-      "tnorm": 3.0
+      "y": 1010.0,
+      "rhythm": "high-gamma",
+      "tnorm": 10.0
     },
     {
-      "name": "PHASE_A_T2",
+      "name": "PHASE_A_FEEDBACK_BETA",
       "kind": "opu",
-      "x": 300.0,
-      "y": 780.0,
-      "rhythm": "theta",
-      "tnorm": 2.01
-    },
-    {
-      "name": "PHASE_A_BETA",
-      "kind": "opu",
-      "x": 620.0,
-      "y": 780.0,
+      "x": 330.0,
+      "y": 1010.0,
       "rhythm": "beta",
       "tnorm": 5.0
     },
     {
-      "name": "PHASE_A_INHIBITOR",
+      "name": "PHASE_A_BETA",
       "kind": "opu",
-      "x": 620.0,
-      "y": 960.0,
+      "x": 660.0,
+      "y": 1010.0,
       "rhythm": "beta",
       "tnorm": 5.0
     },
     {
       "name": "PHASE_A_RELEASE",
       "kind": "opu",
-      "x": 960.0,
-      "y": 780.0,
+      "x": 990.0,
+      "y": 1010.0,
       "rhythm": "beta",
       "tnorm": 3.0
     },
     {
-      "name": "PHASE_A_OUT",
+      "name": "PHASE_A_REQUEST",
       "kind": "output",
-      "x": 1320.0,
-      "y": 780.0,
+      "x": 0.0,
+      "y": 760.0,
       "neurons": 1
     },
     {
-      "name": "PHASE_A_INHIBITOR_OUT",
+      "name": "PHASE_A_OUT",
       "kind": "output",
-      "x": 960.0,
-      "y": 960.0,
+      "x": 600.0,
+      "y": 760.0,
       "neurons": 1
     },
     {
       "name": "PHASE_A_RELEASE_OUT",
       "kind": "output",
-      "x": 1320.0,
-      "y": 960.0,
+      "x": 1310.0,
+      "y": 1010.0,
       "neurons": 1
     },
     {
-      "name": "PHASE_B_T1",
+      "name": "PHASE_B_REQUEST_HG",
+      "kind": "opu",
+      "x": 280.0,
+      "y": 1370.0,
+      "rhythm": "high-gamma",
+      "tnorm": 10.0
+    },
+    {
+      "name": "PHASE_B_DRIVE_HG",
+      "kind": "opu",
+      "x": 900.0,
+      "y": 1370.0,
+      "rhythm": "high-gamma",
+      "tnorm": 10.0
+    },
+    {
+      "name": "PHASE_B_MOTOR_FEEDBACK_HG",
       "kind": "opu",
       "x": 0.0,
-      "y": 1200.0,
-      "rhythm": "theta",
-      "tnorm": 3.0
+      "y": 1620.0,
+      "rhythm": "high-gamma",
+      "tnorm": 10.0
     },
     {
-      "name": "PHASE_B_T2",
+      "name": "PHASE_B_FEEDBACK_BETA",
       "kind": "opu",
-      "x": 300.0,
-      "y": 1200.0,
-      "rhythm": "theta",
-      "tnorm": 2.01
-    },
-    {
-      "name": "PHASE_B_BETA",
-      "kind": "opu",
-      "x": 620.0,
-      "y": 1200.0,
+      "x": 330.0,
+      "y": 1620.0,
       "rhythm": "beta",
       "tnorm": 5.0
     },
     {
-      "name": "PHASE_B_INHIBITOR",
+      "name": "PHASE_B_BETA",
       "kind": "opu",
-      "x": 620.0,
-      "y": 1380.0,
+      "x": 660.0,
+      "y": 1620.0,
       "rhythm": "beta",
       "tnorm": 5.0
     },
     {
       "name": "PHASE_B_RELEASE",
       "kind": "opu",
-      "x": 960.0,
-      "y": 1200.0,
+      "x": 990.0,
+      "y": 1620.0,
       "rhythm": "beta",
       "tnorm": 3.0
     },
     {
-      "name": "PHASE_B_OUT",
+      "name": "PHASE_B_REQUEST",
       "kind": "output",
-      "x": 1320.0,
-      "y": 1200.0,
+      "x": 0.0,
+      "y": 1370.0,
       "neurons": 1
     },
     {
-      "name": "PHASE_B_INHIBITOR_OUT",
+      "name": "PHASE_B_OUT",
       "kind": "output",
-      "x": 960.0,
-      "y": 1380.0,
+      "x": 600.0,
+      "y": 1370.0,
       "neurons": 1
     },
     {
       "name": "PHASE_B_RELEASE_OUT",
       "kind": "output",
-      "x": 1320.0,
-      "y": 1380.0,
+      "x": 1310.0,
+      "y": 1620.0,
       "neurons": 1
-    },
-    {
-      "name": "PHASE_A_KNEE_DRIVE_HG",
-      "kind": "opu",
-      "x": 1600.0,
-      "y": 780.0,
-      "rhythm": "high-gamma",
-      "tnorm": 3.0
-    },
-    {
-      "name": "PHASE_B_KNEE_DRIVE_HG",
-      "kind": "opu",
-      "x": 1600.0,
-      "y": 1200.0,
-      "rhythm": "high-gamma",
-      "tnorm": 3.0
     },
     {
       "name": "REFLEX_FL_EXTENSION_VETO_HG",
       "kind": "opu",
-      "x": 300.0,
-      "y": 3000.0,
+      "x": 0.0,
+      "y": 3250.0,
       "rhythm": "high-gamma",
       "tnorm": 3.0
     },
@@ -303,97 +280,97 @@
       "name": "FRONT_LEFT_ABD_POS_BETA",
       "kind": "opu",
       "x": 0.0,
-      "y": 1760.0,
+      "y": 2100.0,
       "rhythm": "beta",
       "tnorm": 5.0
     },
     {
       "name": "FL_ABD_POS",
       "kind": "output",
-      "x": 500.0,
-      "y": 1760.0,
+      "x": 470.0,
+      "y": 2100.0,
       "neurons": 1
     },
     {
       "name": "FRONT_LEFT_ABD_NEG_BETA",
       "kind": "opu",
       "x": 0.0,
-      "y": 1930.0,
+      "y": 2270.0,
       "rhythm": "beta",
       "tnorm": 5.0
     },
     {
       "name": "FL_ABD_NEG",
       "kind": "output",
-      "x": 500.0,
-      "y": 1930.0,
+      "x": 470.0,
+      "y": 2270.0,
       "neurons": 1
     },
     {
       "name": "FRONT_LEFT_HIP_POS_BETA",
       "kind": "opu",
       "x": 0.0,
-      "y": 2140.0,
+      "y": 2480.0,
       "rhythm": "beta",
       "tnorm": 5.0
     },
     {
       "name": "FL_HIP_POS",
       "kind": "output",
-      "x": 500.0,
-      "y": 2140.0,
+      "x": 470.0,
+      "y": 2480.0,
       "neurons": 1
     },
     {
       "name": "FRONT_LEFT_HIP_NEG_BETA",
       "kind": "opu",
       "x": 0.0,
-      "y": 2310.0,
+      "y": 2650.0,
       "rhythm": "beta",
       "tnorm": 5.0
     },
     {
       "name": "FL_HIP_NEG",
       "kind": "output",
-      "x": 500.0,
-      "y": 2310.0,
+      "x": 470.0,
+      "y": 2650.0,
       "neurons": 1
     },
     {
       "name": "FRONT_LEFT_KNEE_POS_BETA",
       "kind": "opu",
       "x": 0.0,
-      "y": 2520.0,
+      "y": 2860.0,
       "rhythm": "beta",
       "tnorm": 5.0
     },
     {
       "name": "FL_KNEE_POS",
       "kind": "output",
-      "x": 500.0,
-      "y": 2520.0,
+      "x": 470.0,
+      "y": 2860.0,
       "neurons": 1
     },
     {
       "name": "FRONT_LEFT_KNEE_NEG_BETA",
       "kind": "opu",
       "x": 0.0,
-      "y": 2690.0,
+      "y": 3030.0,
       "rhythm": "beta",
       "tnorm": 5.0
     },
     {
       "name": "FL_KNEE_NEG",
       "kind": "output",
-      "x": 500.0,
-      "y": 2690.0,
+      "x": 470.0,
+      "y": 3030.0,
       "neurons": 1
     },
     {
       "name": "REFLEX_FR_EXTENSION_VETO_HG",
       "kind": "opu",
-      "x": 1200.0,
-      "y": 3000.0,
+      "x": 900.0,
+      "y": 3250.0,
       "rhythm": "high-gamma",
       "tnorm": 3.0
     },
@@ -401,97 +378,97 @@
       "name": "FRONT_RIGHT_ABD_POS_BETA",
       "kind": "opu",
       "x": 900.0,
-      "y": 1760.0,
+      "y": 2100.0,
       "rhythm": "beta",
       "tnorm": 5.0
     },
     {
       "name": "FR_ABD_POS",
       "kind": "output",
-      "x": 1400.0,
-      "y": 1760.0,
+      "x": 1370.0,
+      "y": 2100.0,
       "neurons": 1
     },
     {
       "name": "FRONT_RIGHT_ABD_NEG_BETA",
       "kind": "opu",
       "x": 900.0,
-      "y": 1930.0,
+      "y": 2270.0,
       "rhythm": "beta",
       "tnorm": 5.0
     },
     {
       "name": "FR_ABD_NEG",
       "kind": "output",
-      "x": 1400.0,
-      "y": 1930.0,
+      "x": 1370.0,
+      "y": 2270.0,
       "neurons": 1
     },
     {
       "name": "FRONT_RIGHT_HIP_POS_BETA",
       "kind": "opu",
       "x": 900.0,
-      "y": 2140.0,
+      "y": 2480.0,
       "rhythm": "beta",
       "tnorm": 5.0
     },
     {
       "name": "FR_HIP_POS",
       "kind": "output",
-      "x": 1400.0,
-      "y": 2140.0,
+      "x": 1370.0,
+      "y": 2480.0,
       "neurons": 1
     },
     {
       "name": "FRONT_RIGHT_HIP_NEG_BETA",
       "kind": "opu",
       "x": 900.0,
-      "y": 2310.0,
+      "y": 2650.0,
       "rhythm": "beta",
       "tnorm": 5.0
     },
     {
       "name": "FR_HIP_NEG",
       "kind": "output",
-      "x": 1400.0,
-      "y": 2310.0,
+      "x": 1370.0,
+      "y": 2650.0,
       "neurons": 1
     },
     {
       "name": "FRONT_RIGHT_KNEE_POS_BETA",
       "kind": "opu",
       "x": 900.0,
-      "y": 2520.0,
+      "y": 2860.0,
       "rhythm": "beta",
       "tnorm": 5.0
     },
     {
       "name": "FR_KNEE_POS",
       "kind": "output",
-      "x": 1400.0,
-      "y": 2520.0,
+      "x": 1370.0,
+      "y": 2860.0,
       "neurons": 1
     },
     {
       "name": "FRONT_RIGHT_KNEE_NEG_BETA",
       "kind": "opu",
       "x": 900.0,
-      "y": 2690.0,
+      "y": 3030.0,
       "rhythm": "beta",
       "tnorm": 5.0
     },
     {
       "name": "FR_KNEE_NEG",
       "kind": "output",
-      "x": 1400.0,
-      "y": 2690.0,
+      "x": 1370.0,
+      "y": 3030.0,
       "neurons": 1
     },
     {
       "name": "REFLEX_RL_EXTENSION_VETO_HG",
       "kind": "opu",
-      "x": 2100.0,
-      "y": 3000.0,
+      "x": 1800.0,
+      "y": 3250.0,
       "rhythm": "high-gamma",
       "tnorm": 3.0
     },
@@ -499,97 +476,97 @@
       "name": "REAR_LEFT_ABD_POS_BETA",
       "kind": "opu",
       "x": 1800.0,
-      "y": 1760.0,
+      "y": 2100.0,
       "rhythm": "beta",
       "tnorm": 5.0
     },
     {
       "name": "RL_ABD_POS",
       "kind": "output",
-      "x": 2300.0,
-      "y": 1760.0,
+      "x": 2270.0,
+      "y": 2100.0,
       "neurons": 1
     },
     {
       "name": "REAR_LEFT_ABD_NEG_BETA",
       "kind": "opu",
       "x": 1800.0,
-      "y": 1930.0,
+      "y": 2270.0,
       "rhythm": "beta",
       "tnorm": 5.0
     },
     {
       "name": "RL_ABD_NEG",
       "kind": "output",
-      "x": 2300.0,
-      "y": 1930.0,
+      "x": 2270.0,
+      "y": 2270.0,
       "neurons": 1
     },
     {
       "name": "REAR_LEFT_HIP_POS_BETA",
       "kind": "opu",
       "x": 1800.0,
-      "y": 2140.0,
+      "y": 2480.0,
       "rhythm": "beta",
       "tnorm": 5.0
     },
     {
       "name": "RL_HIP_POS",
       "kind": "output",
-      "x": 2300.0,
-      "y": 2140.0,
+      "x": 2270.0,
+      "y": 2480.0,
       "neurons": 1
     },
     {
       "name": "REAR_LEFT_HIP_NEG_BETA",
       "kind": "opu",
       "x": 1800.0,
-      "y": 2310.0,
+      "y": 2650.0,
       "rhythm": "beta",
       "tnorm": 5.0
     },
     {
       "name": "RL_HIP_NEG",
       "kind": "output",
-      "x": 2300.0,
-      "y": 2310.0,
+      "x": 2270.0,
+      "y": 2650.0,
       "neurons": 1
     },
     {
       "name": "REAR_LEFT_KNEE_POS_BETA",
       "kind": "opu",
       "x": 1800.0,
-      "y": 2520.0,
+      "y": 2860.0,
       "rhythm": "beta",
       "tnorm": 5.0
     },
     {
       "name": "RL_KNEE_POS",
       "kind": "output",
-      "x": 2300.0,
-      "y": 2520.0,
+      "x": 2270.0,
+      "y": 2860.0,
       "neurons": 1
     },
     {
       "name": "REAR_LEFT_KNEE_NEG_BETA",
       "kind": "opu",
       "x": 1800.0,
-      "y": 2690.0,
+      "y": 3030.0,
       "rhythm": "beta",
       "tnorm": 5.0
     },
     {
       "name": "RL_KNEE_NEG",
       "kind": "output",
-      "x": 2300.0,
-      "y": 2690.0,
+      "x": 2270.0,
+      "y": 3030.0,
       "neurons": 1
     },
     {
       "name": "REFLEX_RR_EXTENSION_VETO_HG",
       "kind": "opu",
-      "x": 3000.0,
-      "y": 3000.0,
+      "x": 2700.0,
+      "y": 3250.0,
       "rhythm": "high-gamma",
       "tnorm": 3.0
     },
@@ -597,210 +574,242 @@
       "name": "REAR_RIGHT_ABD_POS_BETA",
       "kind": "opu",
       "x": 2700.0,
-      "y": 1760.0,
+      "y": 2100.0,
       "rhythm": "beta",
       "tnorm": 5.0
     },
     {
       "name": "RR_ABD_POS",
       "kind": "output",
-      "x": 3200.0,
-      "y": 1760.0,
+      "x": 3170.0,
+      "y": 2100.0,
       "neurons": 1
     },
     {
       "name": "REAR_RIGHT_ABD_NEG_BETA",
       "kind": "opu",
       "x": 2700.0,
-      "y": 1930.0,
+      "y": 2270.0,
       "rhythm": "beta",
       "tnorm": 5.0
     },
     {
       "name": "RR_ABD_NEG",
       "kind": "output",
-      "x": 3200.0,
-      "y": 1930.0,
+      "x": 3170.0,
+      "y": 2270.0,
       "neurons": 1
     },
     {
       "name": "REAR_RIGHT_HIP_POS_BETA",
       "kind": "opu",
       "x": 2700.0,
-      "y": 2140.0,
+      "y": 2480.0,
       "rhythm": "beta",
       "tnorm": 5.0
     },
     {
       "name": "RR_HIP_POS",
       "kind": "output",
-      "x": 3200.0,
-      "y": 2140.0,
+      "x": 3170.0,
+      "y": 2480.0,
       "neurons": 1
     },
     {
       "name": "REAR_RIGHT_HIP_NEG_BETA",
       "kind": "opu",
       "x": 2700.0,
-      "y": 2310.0,
+      "y": 2650.0,
       "rhythm": "beta",
       "tnorm": 5.0
     },
     {
       "name": "RR_HIP_NEG",
       "kind": "output",
-      "x": 3200.0,
-      "y": 2310.0,
+      "x": 3170.0,
+      "y": 2650.0,
       "neurons": 1
     },
     {
       "name": "REAR_RIGHT_KNEE_POS_BETA",
       "kind": "opu",
       "x": 2700.0,
-      "y": 2520.0,
+      "y": 2860.0,
       "rhythm": "beta",
       "tnorm": 5.0
     },
     {
       "name": "RR_KNEE_POS",
       "kind": "output",
-      "x": 3200.0,
-      "y": 2520.0,
+      "x": 3170.0,
+      "y": 2860.0,
       "neurons": 1
     },
     {
       "name": "REAR_RIGHT_KNEE_NEG_BETA",
       "kind": "opu",
       "x": 2700.0,
-      "y": 2690.0,
+      "y": 3030.0,
       "rhythm": "beta",
       "tnorm": 5.0
     },
     {
       "name": "RR_KNEE_NEG",
       "kind": "output",
-      "x": 3200.0,
-      "y": 2690.0,
+      "x": 3170.0,
+      "y": 3030.0,
       "neurons": 1
     },
     {
       "name": "TILT_ROLL_NEG",
       "kind": "input",
       "x": 0.0,
-      "y": 3120.0,
+      "y": 3510.0,
       "neurons": 12
     },
     {
       "name": "TILT_ROLL_POS",
       "kind": "input",
       "x": 900.0,
-      "y": 3120.0,
+      "y": 3510.0,
       "neurons": 12
     },
     {
       "name": "TILT_PITCH_NEG",
       "kind": "input",
       "x": 1800.0,
-      "y": 3120.0,
+      "y": 3510.0,
       "neurons": 12
     },
     {
       "name": "TILT_PITCH_POS",
       "kind": "input",
       "x": 2700.0,
-      "y": 3120.0,
+      "y": 3510.0,
       "neurons": 12
     },
     {
       "name": "REFLEX_FL_HG",
       "kind": "opu",
       "x": 0.0,
-      "y": 3340.0,
+      "y": 3720.0,
       "rhythm": "high-gamma",
       "tnorm": 3.0
     },
     {
-      "name": "REFLEX_FL_RESET_HG",
+      "name": "REFLEX_FL_EXTENSION_BETA",
       "kind": "opu",
       "x": 0.0,
-      "y": 3580.0,
+      "y": 3980.0,
+      "rhythm": "beta",
+      "tnorm": 5.0
+    },
+    {
+      "name": "REFLEX_FL_RESET_HG",
+      "kind": "opu",
+      "x": 470.0,
+      "y": 3980.0,
       "rhythm": "high-gamma",
       "tnorm": 3.0
     },
     {
       "name": "REFLEX_FL_ACTIVE",
       "kind": "output",
-      "x": 580.0,
-      "y": 3340.0,
+      "x": 470.0,
+      "y": 3720.0,
       "neurons": 1
     },
     {
       "name": "REFLEX_FR_HG",
       "kind": "opu",
       "x": 900.0,
-      "y": 3340.0,
+      "y": 3720.0,
       "rhythm": "high-gamma",
       "tnorm": 3.0
     },
     {
-      "name": "REFLEX_FR_RESET_HG",
+      "name": "REFLEX_FR_EXTENSION_BETA",
       "kind": "opu",
       "x": 900.0,
-      "y": 3580.0,
+      "y": 3980.0,
+      "rhythm": "beta",
+      "tnorm": 5.0
+    },
+    {
+      "name": "REFLEX_FR_RESET_HG",
+      "kind": "opu",
+      "x": 1370.0,
+      "y": 3980.0,
       "rhythm": "high-gamma",
       "tnorm": 3.0
     },
     {
       "name": "REFLEX_FR_ACTIVE",
       "kind": "output",
-      "x": 1480.0,
-      "y": 3340.0,
+      "x": 1370.0,
+      "y": 3720.0,
       "neurons": 1
     },
     {
       "name": "REFLEX_RL_HG",
       "kind": "opu",
       "x": 1800.0,
-      "y": 3340.0,
+      "y": 3720.0,
       "rhythm": "high-gamma",
       "tnorm": 3.0
     },
     {
-      "name": "REFLEX_RL_RESET_HG",
+      "name": "REFLEX_RL_EXTENSION_BETA",
       "kind": "opu",
       "x": 1800.0,
-      "y": 3580.0,
+      "y": 3980.0,
+      "rhythm": "beta",
+      "tnorm": 5.0
+    },
+    {
+      "name": "REFLEX_RL_RESET_HG",
+      "kind": "opu",
+      "x": 2270.0,
+      "y": 3980.0,
       "rhythm": "high-gamma",
       "tnorm": 3.0
     },
     {
       "name": "REFLEX_RL_ACTIVE",
       "kind": "output",
-      "x": 2380.0,
-      "y": 3340.0,
+      "x": 2270.0,
+      "y": 3720.0,
       "neurons": 1
     },
     {
       "name": "REFLEX_RR_HG",
       "kind": "opu",
       "x": 2700.0,
-      "y": 3340.0,
+      "y": 3720.0,
       "rhythm": "high-gamma",
       "tnorm": 3.0
     },
     {
-      "name": "REFLEX_RR_RESET_HG",
+      "name": "REFLEX_RR_EXTENSION_BETA",
       "kind": "opu",
       "x": 2700.0,
-      "y": 3580.0,
+      "y": 3980.0,
+      "rhythm": "beta",
+      "tnorm": 5.0
+    },
+    {
+      "name": "REFLEX_RR_RESET_HG",
+      "kind": "opu",
+      "x": 3170.0,
+      "y": 3980.0,
       "rhythm": "high-gamma",
       "tnorm": 3.0
     },
     {
       "name": "REFLEX_RR_ACTIVE",
       "kind": "output",
-      "x": 3280.0,
-      "y": 3340.0,
+      "x": 3170.0,
+      "y": 3720.0,
       "neurons": 1
     },
     {
@@ -1004,59 +1013,48 @@
       "role": "feedback"
     },
     {
-      "from": "WALK_NUCLEUS",
-      "to": "WALK_DRIVE",
-      "type": "exc"
-    },
-    {
       "from": "START_REQUEST_HG",
-      "to": "START_A_BIAS",
+      "to": "PHASE_A_REQUEST",
       "type": "exc"
     },
     {
-      "from": "START_A_BIAS",
-      "to": "START_A_BIAS_HG",
+      "from": "PHASE_A_REQUEST",
+      "to": "PHASE_A_REQUEST_HG",
       "type": "exc"
     },
     {
-      "from": "STOP_REQUEST_HG",
-      "to": "START_A_BIAS",
-      "type": "inh",
-      "strength": 4.0
-    },
-    {
-      "from": "WALK_DRIVE",
-      "to": "PHASE_A_T1",
+      "from": "PHASE_A_REQUEST_HG",
+      "to": "PHASE_A_REQUEST",
       "type": "exc"
     },
     {
-      "from": "PHASE_A_T1",
-      "to": "PHASE_A_T2",
-      "type": "exc"
-    },
-    {
-      "from": "PHASE_A_T2",
-      "to": "PHASE_A_BETA",
-      "type": "exc"
-    },
-    {
-      "from": "PHASE_A_T2",
-      "to": "PHASE_A_INHIBITOR",
-      "type": "exc"
-    },
-    {
-      "from": "PHASE_A_BETA",
+      "from": "PHASE_A_REQUEST_HG",
       "to": "PHASE_A_OUT",
+      "type": "exc"
+    },
+    {
+      "from": "PHASE_A_OUT",
+      "to": "PHASE_A_DRIVE_HG",
+      "type": "exc"
+    },
+    {
+      "from": "PHASE_A_DRIVE_HG",
+      "to": "PHASE_A_OUT",
+      "type": "exc"
+    },
+    {
+      "from": "PHASE_A_MOTOR_FEEDBACK_HG",
+      "to": "PHASE_A_FEEDBACK_BETA",
+      "type": "exc"
+    },
+    {
+      "from": "PHASE_A_FEEDBACK_BETA",
+      "to": "PHASE_A_BETA",
       "type": "exc"
     },
     {
       "from": "PHASE_A_BETA",
       "to": "PHASE_A_RELEASE",
-      "type": "exc"
-    },
-    {
-      "from": "PHASE_A_INHIBITOR",
-      "to": "PHASE_A_INHIBITOR_OUT",
       "type": "exc"
     },
     {
@@ -1066,259 +1064,262 @@
     },
     {
       "from": "PHASE_A_RELEASE",
-      "to": "PHASE_A_INHIBITOR",
+      "to": "PHASE_B_REQUEST",
+      "type": "exc"
+    },
+    {
+      "from": "PHASE_A_DRIVE_HG",
+      "to": "PHASE_A_REQUEST",
+      "type": "inh",
+      "strength": 64.0
+    },
+    {
+      "from": "PHASE_A_DRIVE_HG",
+      "to": "PHASE_A_REQUEST_HG",
+      "type": "inh",
+      "strength": 64.0
+    },
+    {
+      "from": "PHASE_A_REQUEST_HG",
+      "to": "PHASE_B_OUT",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "PHASE_A_REQUEST_HG",
+      "to": "PHASE_B_DRIVE_HG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "PHASE_A_REQUEST_HG",
+      "to": "PHASE_B_MOTOR_FEEDBACK_HG",
+      "type": "inh",
+      "strength": 4.0,
+      "role": "feedback"
+    },
+    {
+      "from": "PHASE_A_REQUEST_HG",
+      "to": "PHASE_B_FEEDBACK_BETA",
+      "type": "inh",
+      "strength": 4.0,
+      "role": "feedback"
+    },
+    {
+      "from": "PHASE_A_REQUEST_HG",
+      "to": "PHASE_B_BETA",
+      "type": "inh",
+      "strength": 4.0,
+      "role": "feedback"
+    },
+    {
+      "from": "PHASE_A_REQUEST_HG",
+      "to": "PHASE_B_RELEASE",
+      "type": "inh",
+      "strength": 4.0,
+      "role": "feedback"
+    },
+    {
+      "from": "PHASE_A_DRIVE_HG",
+      "to": "PHASE_B_OUT",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "PHASE_A_DRIVE_HG",
+      "to": "PHASE_B_DRIVE_HG",
+      "type": "inh",
+      "strength": 4.0,
+      "role": "feedback"
+    },
+    {
+      "from": "PHASE_A_DRIVE_HG",
+      "to": "PHASE_B_MOTOR_FEEDBACK_HG",
+      "type": "inh",
+      "strength": 4.0,
+      "role": "feedback"
+    },
+    {
+      "from": "PHASE_A_DRIVE_HG",
+      "to": "PHASE_B_RELEASE_OUT",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "PHASE_A_RELEASE",
+      "to": "PHASE_A_FEEDBACK_BETA",
       "type": "inh",
       "rule": "STDP3",
       "reward": "GAIT_REWARD",
       "reward_type": "LTP",
+      "strength": 4.0,
       "role": "feedback"
     },
     {
       "from": "PHASE_A_RELEASE",
-      "to": "PHASE_A_INHIBITOR_OUT",
-      "type": "inh",
-      "rule": "STDP3",
-      "reward": "GAIT_REWARD",
-      "reward_type": "LTP"
-    },
-    {
-      "from": "WALK_DRIVE",
-      "to": "PHASE_B_T1",
-      "type": "exc"
-    },
-    {
-      "from": "PHASE_B_T1",
-      "to": "PHASE_B_T2",
-      "type": "exc"
-    },
-    {
-      "from": "PHASE_B_T2",
-      "to": "PHASE_B_BETA",
-      "type": "exc"
-    },
-    {
-      "from": "PHASE_B_T2",
-      "to": "PHASE_B_INHIBITOR",
-      "type": "exc"
-    },
-    {
-      "from": "PHASE_B_BETA",
-      "to": "PHASE_B_OUT",
-      "type": "exc"
-    },
-    {
-      "from": "PHASE_B_BETA",
-      "to": "PHASE_B_RELEASE",
-      "type": "exc"
-    },
-    {
-      "from": "PHASE_B_INHIBITOR",
-      "to": "PHASE_B_INHIBITOR_OUT",
-      "type": "exc"
-    },
-    {
-      "from": "PHASE_B_RELEASE",
-      "to": "PHASE_B_RELEASE_OUT",
-      "type": "exc"
-    },
-    {
-      "from": "PHASE_B_RELEASE",
-      "to": "PHASE_B_INHIBITOR",
-      "type": "inh",
-      "rule": "STDP3",
-      "reward": "GAIT_REWARD",
-      "reward_type": "LTP",
-      "role": "feedback"
-    },
-    {
-      "from": "PHASE_B_RELEASE",
-      "to": "PHASE_B_INHIBITOR_OUT",
-      "type": "inh",
-      "rule": "STDP3",
-      "reward": "GAIT_REWARD",
-      "reward_type": "LTP"
-    },
-    {
-      "from": "START_A_BIAS_HG",
-      "to": "PHASE_B_T2",
-      "type": "inh"
-    },
-    {
-      "from": "START_A_BIAS_HG",
-      "to": "PHASE_B_BETA",
-      "type": "inh"
-    },
-    {
-      "from": "START_A_BIAS_HG",
-      "to": "PHASE_B_INHIBITOR",
-      "type": "inh"
-    },
-    {
-      "from": "PHASE_A_INHIBITOR",
-      "to": "START_A_BIAS",
-      "type": "inh"
-    },
-    {
-      "from": "PHASE_A_T2",
-      "to": "PHASE_B_T1",
-      "type": "exc",
-      "role": "feedback"
-    },
-    {
-      "from": "PHASE_A_INHIBITOR",
-      "to": "PHASE_B_T2",
-      "type": "inh",
-      "rule": "STDP3",
-      "reward": "GAIT_REWARD",
-      "reward_type": "LTP",
-      "role": "feedback"
-    },
-    {
-      "from": "PHASE_A_INHIBITOR",
-      "to": "PHASE_B_BETA",
-      "type": "inh",
-      "rule": "STDP3",
-      "reward": "GAIT_REWARD",
-      "reward_type": "LTP",
-      "role": "feedback"
-    },
-    {
-      "from": "PHASE_A_INHIBITOR",
-      "to": "PHASE_B_INHIBITOR",
-      "type": "inh",
-      "rule": "STDP3",
-      "reward": "GAIT_REWARD",
-      "reward_type": "LTP",
-      "role": "feedback"
-    },
-    {
-      "from": "PHASE_A_INHIBITOR",
-      "to": "PHASE_B_RELEASE",
-      "type": "inh",
-      "rule": "STDP3",
-      "reward": "GAIT_REWARD",
-      "reward_type": "LTP",
-      "role": "feedback"
-    },
-    {
-      "from": "PHASE_A_INHIBITOR",
-      "to": "PHASE_B_OUT",
-      "type": "inh",
-      "rule": "STDP3",
-      "reward": "GAIT_REWARD",
-      "reward_type": "LTP"
-    },
-    {
-      "from": "PHASE_A_INHIBITOR",
-      "to": "PHASE_B_INHIBITOR_OUT",
-      "type": "inh",
-      "rule": "STDP3",
-      "reward": "GAIT_REWARD",
-      "reward_type": "LTP"
-    },
-    {
-      "from": "PHASE_A_INHIBITOR",
-      "to": "PHASE_B_RELEASE_OUT",
-      "type": "inh",
-      "rule": "STDP3",
-      "reward": "GAIT_REWARD",
-      "reward_type": "LTP"
-    },
-    {
-      "from": "PHASE_B_T2",
-      "to": "PHASE_A_T1",
-      "type": "exc",
-      "role": "feedback"
-    },
-    {
-      "from": "PHASE_B_INHIBITOR",
-      "to": "PHASE_A_T2",
-      "type": "inh",
-      "rule": "STDP3",
-      "reward": "GAIT_REWARD",
-      "reward_type": "LTP",
-      "role": "feedback"
-    },
-    {
-      "from": "PHASE_B_INHIBITOR",
       "to": "PHASE_A_BETA",
       "type": "inh",
       "rule": "STDP3",
       "reward": "GAIT_REWARD",
       "reward_type": "LTP",
+      "strength": 4.0,
       "role": "feedback"
     },
     {
-      "from": "PHASE_B_INHIBITOR",
-      "to": "PHASE_A_INHIBITOR",
-      "type": "inh",
-      "rule": "STDP3",
-      "reward": "GAIT_REWARD",
-      "reward_type": "LTP",
-      "role": "feedback"
-    },
-    {
-      "from": "PHASE_B_INHIBITOR",
-      "to": "PHASE_A_RELEASE",
-      "type": "inh",
-      "rule": "STDP3",
-      "reward": "GAIT_REWARD",
-      "reward_type": "LTP",
-      "role": "feedback"
-    },
-    {
-      "from": "PHASE_B_INHIBITOR",
-      "to": "PHASE_A_OUT",
-      "type": "inh",
-      "rule": "STDP3",
-      "reward": "GAIT_REWARD",
-      "reward_type": "LTP"
-    },
-    {
-      "from": "PHASE_B_INHIBITOR",
-      "to": "PHASE_A_INHIBITOR_OUT",
-      "type": "inh",
-      "rule": "STDP3",
-      "reward": "GAIT_REWARD",
-      "reward_type": "LTP"
-    },
-    {
-      "from": "PHASE_B_INHIBITOR",
-      "to": "PHASE_A_RELEASE_OUT",
-      "type": "inh",
-      "rule": "STDP3",
-      "reward": "GAIT_REWARD",
-      "reward_type": "LTP"
-    },
-    {
-      "from": "PHASE_A_BETA",
-      "to": "PHASE_A_KNEE_DRIVE_HG",
+      "from": "PHASE_B_REQUEST",
+      "to": "PHASE_B_REQUEST_HG",
       "type": "exc"
     },
     {
-      "from": "STOP_REQUEST_HG",
-      "to": "PHASE_A_KNEE_DRIVE_HG",
-      "type": "inh",
-      "strength": 4.0
+      "from": "PHASE_B_REQUEST_HG",
+      "to": "PHASE_B_REQUEST",
+      "type": "exc"
+    },
+    {
+      "from": "PHASE_B_REQUEST_HG",
+      "to": "PHASE_B_OUT",
+      "type": "exc"
+    },
+    {
+      "from": "PHASE_B_OUT",
+      "to": "PHASE_B_DRIVE_HG",
+      "type": "exc"
+    },
+    {
+      "from": "PHASE_B_DRIVE_HG",
+      "to": "PHASE_B_OUT",
+      "type": "exc"
+    },
+    {
+      "from": "PHASE_B_MOTOR_FEEDBACK_HG",
+      "to": "PHASE_B_FEEDBACK_BETA",
+      "type": "exc"
+    },
+    {
+      "from": "PHASE_B_FEEDBACK_BETA",
+      "to": "PHASE_B_BETA",
+      "type": "exc"
     },
     {
       "from": "PHASE_B_BETA",
-      "to": "PHASE_B_KNEE_DRIVE_HG",
+      "to": "PHASE_B_RELEASE",
       "type": "exc"
     },
     {
-      "from": "STOP_REQUEST_HG",
-      "to": "PHASE_B_KNEE_DRIVE_HG",
+      "from": "PHASE_B_RELEASE",
+      "to": "PHASE_B_RELEASE_OUT",
+      "type": "exc"
+    },
+    {
+      "from": "PHASE_B_RELEASE",
+      "to": "PHASE_A_REQUEST",
+      "type": "exc"
+    },
+    {
+      "from": "PHASE_B_DRIVE_HG",
+      "to": "PHASE_B_REQUEST",
+      "type": "inh",
+      "strength": 64.0
+    },
+    {
+      "from": "PHASE_B_DRIVE_HG",
+      "to": "PHASE_B_REQUEST_HG",
+      "type": "inh",
+      "strength": 64.0
+    },
+    {
+      "from": "PHASE_B_REQUEST_HG",
+      "to": "PHASE_A_OUT",
       "type": "inh",
       "strength": 4.0
     },
     {
-      "from": "PHASE_A_INHIBITOR",
+      "from": "PHASE_B_REQUEST_HG",
+      "to": "PHASE_A_DRIVE_HG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "PHASE_B_REQUEST_HG",
+      "to": "PHASE_A_MOTOR_FEEDBACK_HG",
+      "type": "inh",
+      "strength": 4.0,
+      "role": "feedback"
+    },
+    {
+      "from": "PHASE_B_REQUEST_HG",
+      "to": "PHASE_A_FEEDBACK_BETA",
+      "type": "inh",
+      "strength": 4.0,
+      "role": "feedback"
+    },
+    {
+      "from": "PHASE_B_REQUEST_HG",
+      "to": "PHASE_A_BETA",
+      "type": "inh",
+      "strength": 4.0,
+      "role": "feedback"
+    },
+    {
+      "from": "PHASE_B_REQUEST_HG",
+      "to": "PHASE_A_RELEASE",
+      "type": "inh",
+      "strength": 4.0,
+      "role": "feedback"
+    },
+    {
+      "from": "PHASE_B_DRIVE_HG",
+      "to": "PHASE_A_OUT",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "PHASE_B_DRIVE_HG",
+      "to": "PHASE_A_DRIVE_HG",
+      "type": "inh",
+      "strength": 4.0,
+      "role": "feedback"
+    },
+    {
+      "from": "PHASE_B_DRIVE_HG",
+      "to": "PHASE_A_MOTOR_FEEDBACK_HG",
+      "type": "inh",
+      "strength": 4.0,
+      "role": "feedback"
+    },
+    {
+      "from": "PHASE_B_DRIVE_HG",
+      "to": "PHASE_A_RELEASE_OUT",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "PHASE_B_RELEASE",
+      "to": "PHASE_B_FEEDBACK_BETA",
+      "type": "inh",
+      "rule": "STDP3",
+      "reward": "GAIT_REWARD",
+      "reward_type": "LTP",
+      "strength": 4.0,
+      "role": "feedback"
+    },
+    {
+      "from": "PHASE_B_RELEASE",
+      "to": "PHASE_B_BETA",
+      "type": "inh",
+      "rule": "STDP3",
+      "reward": "GAIT_REWARD",
+      "reward_type": "LTP",
+      "strength": 4.0,
+      "role": "feedback"
+    },
+    {
+      "from": "PHASE_B_DRIVE_HG",
       "to": "REFLEX_FL_EXTENSION_VETO_HG",
       "type": "exc"
     },
     {
-      "from": "PHASE_B_BETA",
+      "from": "PHASE_A_DRIVE_HG",
       "to": "FRONT_LEFT_ABD_POS_BETA",
       "type": "exc"
     },
@@ -1328,23 +1329,19 @@
       "type": "exc"
     },
     {
-      "from": "PHASE_A_INHIBITOR",
+      "from": "PHASE_B_DRIVE_HG",
       "to": "FRONT_LEFT_ABD_POS_BETA",
       "type": "inh",
-      "rule": "STDP3",
-      "reward": "GAIT_REWARD",
-      "reward_type": "LTP"
+      "strength": 4.0
     },
     {
-      "from": "PHASE_A_INHIBITOR",
+      "from": "PHASE_B_DRIVE_HG",
       "to": "FL_ABD_POS",
       "type": "inh",
-      "rule": "STDP3",
-      "reward": "GAIT_REWARD",
-      "reward_type": "LTP"
+      "strength": 4.0
     },
     {
-      "from": "PHASE_A_BETA",
+      "from": "PHASE_B_DRIVE_HG",
       "to": "FRONT_LEFT_ABD_NEG_BETA",
       "type": "exc"
     },
@@ -1354,20 +1351,16 @@
       "type": "exc"
     },
     {
-      "from": "PHASE_B_INHIBITOR",
+      "from": "PHASE_A_DRIVE_HG",
       "to": "FRONT_LEFT_ABD_NEG_BETA",
       "type": "inh",
-      "rule": "STDP3",
-      "reward": "GAIT_REWARD",
-      "reward_type": "LTP"
+      "strength": 4.0
     },
     {
-      "from": "PHASE_B_INHIBITOR",
+      "from": "PHASE_A_DRIVE_HG",
       "to": "FL_ABD_NEG",
       "type": "inh",
-      "rule": "STDP3",
-      "reward": "GAIT_REWARD",
-      "reward_type": "LTP"
+      "strength": 4.0
     },
     {
       "from": "FRONT_LEFT_ABD_POS_BETA",
@@ -1392,7 +1385,7 @@
       "type": "inh"
     },
     {
-      "from": "PHASE_A_BETA",
+      "from": "PHASE_B_DRIVE_HG",
       "to": "FRONT_LEFT_HIP_POS_BETA",
       "type": "exc"
     },
@@ -1402,23 +1395,19 @@
       "type": "exc"
     },
     {
-      "from": "PHASE_B_INHIBITOR",
+      "from": "PHASE_A_DRIVE_HG",
       "to": "FRONT_LEFT_HIP_POS_BETA",
       "type": "inh",
-      "rule": "STDP3",
-      "reward": "GAIT_REWARD",
-      "reward_type": "LTP"
+      "strength": 4.0
     },
     {
-      "from": "PHASE_B_INHIBITOR",
+      "from": "PHASE_A_DRIVE_HG",
       "to": "FL_HIP_POS",
       "type": "inh",
-      "rule": "STDP3",
-      "reward": "GAIT_REWARD",
-      "reward_type": "LTP"
+      "strength": 4.0
     },
     {
-      "from": "PHASE_B_BETA",
+      "from": "PHASE_A_DRIVE_HG",
       "to": "FRONT_LEFT_HIP_NEG_BETA",
       "type": "exc"
     },
@@ -1428,20 +1417,16 @@
       "type": "exc"
     },
     {
-      "from": "PHASE_A_INHIBITOR",
+      "from": "PHASE_B_DRIVE_HG",
       "to": "FRONT_LEFT_HIP_NEG_BETA",
       "type": "inh",
-      "rule": "STDP3",
-      "reward": "GAIT_REWARD",
-      "reward_type": "LTP"
+      "strength": 4.0
     },
     {
-      "from": "PHASE_A_INHIBITOR",
+      "from": "PHASE_B_DRIVE_HG",
       "to": "FL_HIP_NEG",
       "type": "inh",
-      "rule": "STDP3",
-      "reward": "GAIT_REWARD",
-      "reward_type": "LTP"
+      "strength": 4.0
     },
     {
       "from": "FRONT_LEFT_HIP_POS_BETA",
@@ -1466,7 +1451,7 @@
       "type": "inh"
     },
     {
-      "from": "PHASE_A_BETA",
+      "from": "PHASE_B_DRIVE_HG",
       "to": "FRONT_LEFT_KNEE_POS_BETA",
       "type": "exc"
     },
@@ -1476,23 +1461,19 @@
       "type": "exc"
     },
     {
-      "from": "PHASE_B_INHIBITOR",
+      "from": "PHASE_A_DRIVE_HG",
       "to": "FRONT_LEFT_KNEE_POS_BETA",
       "type": "inh",
-      "rule": "STDP3",
-      "reward": "GAIT_REWARD",
-      "reward_type": "LTP"
+      "strength": 4.0
     },
     {
-      "from": "PHASE_B_INHIBITOR",
+      "from": "PHASE_A_DRIVE_HG",
       "to": "FL_KNEE_POS",
       "type": "inh",
-      "rule": "STDP3",
-      "reward": "GAIT_REWARD",
-      "reward_type": "LTP"
+      "strength": 4.0
     },
     {
-      "from": "PHASE_B_KNEE_DRIVE_HG",
+      "from": "PHASE_A_DRIVE_HG",
       "to": "FRONT_LEFT_KNEE_NEG_BETA",
       "type": "exc"
     },
@@ -1505,17 +1486,13 @@
       "from": "REFLEX_FL_EXTENSION_VETO_HG",
       "to": "FRONT_LEFT_KNEE_NEG_BETA",
       "type": "inh",
-      "rule": "STDP3",
-      "reward": "GAIT_REWARD",
-      "reward_type": "LTP"
+      "strength": 4.0
     },
     {
       "from": "REFLEX_FL_EXTENSION_VETO_HG",
       "to": "FL_KNEE_NEG",
       "type": "inh",
-      "rule": "STDP3",
-      "reward": "GAIT_REWARD",
-      "reward_type": "LTP"
+      "strength": 4.0
     },
     {
       "from": "FRONT_LEFT_KNEE_POS_BETA",
@@ -1540,12 +1517,12 @@
       "type": "inh"
     },
     {
-      "from": "PHASE_B_INHIBITOR",
+      "from": "PHASE_A_DRIVE_HG",
       "to": "REFLEX_FR_EXTENSION_VETO_HG",
       "type": "exc"
     },
     {
-      "from": "PHASE_B_BETA",
+      "from": "PHASE_A_DRIVE_HG",
       "to": "FRONT_RIGHT_ABD_POS_BETA",
       "type": "exc"
     },
@@ -1555,23 +1532,19 @@
       "type": "exc"
     },
     {
-      "from": "PHASE_A_INHIBITOR",
+      "from": "PHASE_B_DRIVE_HG",
       "to": "FRONT_RIGHT_ABD_POS_BETA",
       "type": "inh",
-      "rule": "STDP3",
-      "reward": "GAIT_REWARD",
-      "reward_type": "LTP"
+      "strength": 4.0
     },
     {
-      "from": "PHASE_A_INHIBITOR",
+      "from": "PHASE_B_DRIVE_HG",
       "to": "FR_ABD_POS",
       "type": "inh",
-      "rule": "STDP3",
-      "reward": "GAIT_REWARD",
-      "reward_type": "LTP"
+      "strength": 4.0
     },
     {
-      "from": "PHASE_A_BETA",
+      "from": "PHASE_B_DRIVE_HG",
       "to": "FRONT_RIGHT_ABD_NEG_BETA",
       "type": "exc"
     },
@@ -1581,20 +1554,16 @@
       "type": "exc"
     },
     {
-      "from": "PHASE_B_INHIBITOR",
+      "from": "PHASE_A_DRIVE_HG",
       "to": "FRONT_RIGHT_ABD_NEG_BETA",
       "type": "inh",
-      "rule": "STDP3",
-      "reward": "GAIT_REWARD",
-      "reward_type": "LTP"
+      "strength": 4.0
     },
     {
-      "from": "PHASE_B_INHIBITOR",
+      "from": "PHASE_A_DRIVE_HG",
       "to": "FR_ABD_NEG",
       "type": "inh",
-      "rule": "STDP3",
-      "reward": "GAIT_REWARD",
-      "reward_type": "LTP"
+      "strength": 4.0
     },
     {
       "from": "FRONT_RIGHT_ABD_POS_BETA",
@@ -1619,7 +1588,7 @@
       "type": "inh"
     },
     {
-      "from": "PHASE_B_BETA",
+      "from": "PHASE_A_DRIVE_HG",
       "to": "FRONT_RIGHT_HIP_POS_BETA",
       "type": "exc"
     },
@@ -1629,23 +1598,19 @@
       "type": "exc"
     },
     {
-      "from": "PHASE_A_INHIBITOR",
+      "from": "PHASE_B_DRIVE_HG",
       "to": "FRONT_RIGHT_HIP_POS_BETA",
       "type": "inh",
-      "rule": "STDP3",
-      "reward": "GAIT_REWARD",
-      "reward_type": "LTP"
+      "strength": 4.0
     },
     {
-      "from": "PHASE_A_INHIBITOR",
+      "from": "PHASE_B_DRIVE_HG",
       "to": "FR_HIP_POS",
       "type": "inh",
-      "rule": "STDP3",
-      "reward": "GAIT_REWARD",
-      "reward_type": "LTP"
+      "strength": 4.0
     },
     {
-      "from": "PHASE_A_BETA",
+      "from": "PHASE_B_DRIVE_HG",
       "to": "FRONT_RIGHT_HIP_NEG_BETA",
       "type": "exc"
     },
@@ -1655,20 +1620,16 @@
       "type": "exc"
     },
     {
-      "from": "PHASE_B_INHIBITOR",
+      "from": "PHASE_A_DRIVE_HG",
       "to": "FRONT_RIGHT_HIP_NEG_BETA",
       "type": "inh",
-      "rule": "STDP3",
-      "reward": "GAIT_REWARD",
-      "reward_type": "LTP"
+      "strength": 4.0
     },
     {
-      "from": "PHASE_B_INHIBITOR",
+      "from": "PHASE_A_DRIVE_HG",
       "to": "FR_HIP_NEG",
       "type": "inh",
-      "rule": "STDP3",
-      "reward": "GAIT_REWARD",
-      "reward_type": "LTP"
+      "strength": 4.0
     },
     {
       "from": "FRONT_RIGHT_HIP_POS_BETA",
@@ -1693,7 +1654,7 @@
       "type": "inh"
     },
     {
-      "from": "PHASE_B_BETA",
+      "from": "PHASE_A_DRIVE_HG",
       "to": "FRONT_RIGHT_KNEE_POS_BETA",
       "type": "exc"
     },
@@ -1703,23 +1664,19 @@
       "type": "exc"
     },
     {
-      "from": "PHASE_A_INHIBITOR",
+      "from": "PHASE_B_DRIVE_HG",
       "to": "FRONT_RIGHT_KNEE_POS_BETA",
       "type": "inh",
-      "rule": "STDP3",
-      "reward": "GAIT_REWARD",
-      "reward_type": "LTP"
+      "strength": 4.0
     },
     {
-      "from": "PHASE_A_INHIBITOR",
+      "from": "PHASE_B_DRIVE_HG",
       "to": "FR_KNEE_POS",
       "type": "inh",
-      "rule": "STDP3",
-      "reward": "GAIT_REWARD",
-      "reward_type": "LTP"
+      "strength": 4.0
     },
     {
-      "from": "PHASE_A_KNEE_DRIVE_HG",
+      "from": "PHASE_B_DRIVE_HG",
       "to": "FRONT_RIGHT_KNEE_NEG_BETA",
       "type": "exc"
     },
@@ -1732,17 +1689,13 @@
       "from": "REFLEX_FR_EXTENSION_VETO_HG",
       "to": "FRONT_RIGHT_KNEE_NEG_BETA",
       "type": "inh",
-      "rule": "STDP3",
-      "reward": "GAIT_REWARD",
-      "reward_type": "LTP"
+      "strength": 4.0
     },
     {
       "from": "REFLEX_FR_EXTENSION_VETO_HG",
       "to": "FR_KNEE_NEG",
       "type": "inh",
-      "rule": "STDP3",
-      "reward": "GAIT_REWARD",
-      "reward_type": "LTP"
+      "strength": 4.0
     },
     {
       "from": "FRONT_RIGHT_KNEE_POS_BETA",
@@ -1767,12 +1720,12 @@
       "type": "inh"
     },
     {
-      "from": "PHASE_B_INHIBITOR",
+      "from": "PHASE_A_DRIVE_HG",
       "to": "REFLEX_RL_EXTENSION_VETO_HG",
       "type": "exc"
     },
     {
-      "from": "PHASE_A_BETA",
+      "from": "PHASE_B_DRIVE_HG",
       "to": "REAR_LEFT_ABD_POS_BETA",
       "type": "exc"
     },
@@ -1782,23 +1735,19 @@
       "type": "exc"
     },
     {
-      "from": "PHASE_B_INHIBITOR",
+      "from": "PHASE_A_DRIVE_HG",
       "to": "REAR_LEFT_ABD_POS_BETA",
       "type": "inh",
-      "rule": "STDP3",
-      "reward": "GAIT_REWARD",
-      "reward_type": "LTP"
+      "strength": 4.0
     },
     {
-      "from": "PHASE_B_INHIBITOR",
+      "from": "PHASE_A_DRIVE_HG",
       "to": "RL_ABD_POS",
       "type": "inh",
-      "rule": "STDP3",
-      "reward": "GAIT_REWARD",
-      "reward_type": "LTP"
+      "strength": 4.0
     },
     {
-      "from": "PHASE_B_BETA",
+      "from": "PHASE_A_DRIVE_HG",
       "to": "REAR_LEFT_ABD_NEG_BETA",
       "type": "exc"
     },
@@ -1808,20 +1757,16 @@
       "type": "exc"
     },
     {
-      "from": "PHASE_A_INHIBITOR",
+      "from": "PHASE_B_DRIVE_HG",
       "to": "REAR_LEFT_ABD_NEG_BETA",
       "type": "inh",
-      "rule": "STDP3",
-      "reward": "GAIT_REWARD",
-      "reward_type": "LTP"
+      "strength": 4.0
     },
     {
-      "from": "PHASE_A_INHIBITOR",
+      "from": "PHASE_B_DRIVE_HG",
       "to": "RL_ABD_NEG",
       "type": "inh",
-      "rule": "STDP3",
-      "reward": "GAIT_REWARD",
-      "reward_type": "LTP"
+      "strength": 4.0
     },
     {
       "from": "REAR_LEFT_ABD_POS_BETA",
@@ -1846,7 +1791,7 @@
       "type": "inh"
     },
     {
-      "from": "PHASE_B_BETA",
+      "from": "PHASE_A_DRIVE_HG",
       "to": "REAR_LEFT_HIP_POS_BETA",
       "type": "exc"
     },
@@ -1856,23 +1801,19 @@
       "type": "exc"
     },
     {
-      "from": "PHASE_A_INHIBITOR",
+      "from": "PHASE_B_DRIVE_HG",
       "to": "REAR_LEFT_HIP_POS_BETA",
       "type": "inh",
-      "rule": "STDP3",
-      "reward": "GAIT_REWARD",
-      "reward_type": "LTP"
+      "strength": 4.0
     },
     {
-      "from": "PHASE_A_INHIBITOR",
+      "from": "PHASE_B_DRIVE_HG",
       "to": "RL_HIP_POS",
       "type": "inh",
-      "rule": "STDP3",
-      "reward": "GAIT_REWARD",
-      "reward_type": "LTP"
+      "strength": 4.0
     },
     {
-      "from": "PHASE_A_BETA",
+      "from": "PHASE_B_DRIVE_HG",
       "to": "REAR_LEFT_HIP_NEG_BETA",
       "type": "exc"
     },
@@ -1882,20 +1823,16 @@
       "type": "exc"
     },
     {
-      "from": "PHASE_B_INHIBITOR",
+      "from": "PHASE_A_DRIVE_HG",
       "to": "REAR_LEFT_HIP_NEG_BETA",
       "type": "inh",
-      "rule": "STDP3",
-      "reward": "GAIT_REWARD",
-      "reward_type": "LTP"
+      "strength": 4.0
     },
     {
-      "from": "PHASE_B_INHIBITOR",
+      "from": "PHASE_A_DRIVE_HG",
       "to": "RL_HIP_NEG",
       "type": "inh",
-      "rule": "STDP3",
-      "reward": "GAIT_REWARD",
-      "reward_type": "LTP"
+      "strength": 4.0
     },
     {
       "from": "REAR_LEFT_HIP_POS_BETA",
@@ -1920,7 +1857,7 @@
       "type": "inh"
     },
     {
-      "from": "PHASE_B_BETA",
+      "from": "PHASE_A_DRIVE_HG",
       "to": "REAR_LEFT_KNEE_POS_BETA",
       "type": "exc"
     },
@@ -1930,23 +1867,19 @@
       "type": "exc"
     },
     {
-      "from": "PHASE_A_INHIBITOR",
+      "from": "PHASE_B_DRIVE_HG",
       "to": "REAR_LEFT_KNEE_POS_BETA",
       "type": "inh",
-      "rule": "STDP3",
-      "reward": "GAIT_REWARD",
-      "reward_type": "LTP"
+      "strength": 4.0
     },
     {
-      "from": "PHASE_A_INHIBITOR",
+      "from": "PHASE_B_DRIVE_HG",
       "to": "RL_KNEE_POS",
       "type": "inh",
-      "rule": "STDP3",
-      "reward": "GAIT_REWARD",
-      "reward_type": "LTP"
+      "strength": 4.0
     },
     {
-      "from": "PHASE_A_KNEE_DRIVE_HG",
+      "from": "PHASE_B_DRIVE_HG",
       "to": "REAR_LEFT_KNEE_NEG_BETA",
       "type": "exc"
     },
@@ -1959,17 +1892,13 @@
       "from": "REFLEX_RL_EXTENSION_VETO_HG",
       "to": "REAR_LEFT_KNEE_NEG_BETA",
       "type": "inh",
-      "rule": "STDP3",
-      "reward": "GAIT_REWARD",
-      "reward_type": "LTP"
+      "strength": 4.0
     },
     {
       "from": "REFLEX_RL_EXTENSION_VETO_HG",
       "to": "RL_KNEE_NEG",
       "type": "inh",
-      "rule": "STDP3",
-      "reward": "GAIT_REWARD",
-      "reward_type": "LTP"
+      "strength": 4.0
     },
     {
       "from": "REAR_LEFT_KNEE_POS_BETA",
@@ -1994,12 +1923,12 @@
       "type": "inh"
     },
     {
-      "from": "PHASE_A_INHIBITOR",
+      "from": "PHASE_B_DRIVE_HG",
       "to": "REFLEX_RR_EXTENSION_VETO_HG",
       "type": "exc"
     },
     {
-      "from": "PHASE_A_BETA",
+      "from": "PHASE_B_DRIVE_HG",
       "to": "REAR_RIGHT_ABD_POS_BETA",
       "type": "exc"
     },
@@ -2009,23 +1938,19 @@
       "type": "exc"
     },
     {
-      "from": "PHASE_B_INHIBITOR",
+      "from": "PHASE_A_DRIVE_HG",
       "to": "REAR_RIGHT_ABD_POS_BETA",
       "type": "inh",
-      "rule": "STDP3",
-      "reward": "GAIT_REWARD",
-      "reward_type": "LTP"
+      "strength": 4.0
     },
     {
-      "from": "PHASE_B_INHIBITOR",
+      "from": "PHASE_A_DRIVE_HG",
       "to": "RR_ABD_POS",
       "type": "inh",
-      "rule": "STDP3",
-      "reward": "GAIT_REWARD",
-      "reward_type": "LTP"
+      "strength": 4.0
     },
     {
-      "from": "PHASE_B_BETA",
+      "from": "PHASE_A_DRIVE_HG",
       "to": "REAR_RIGHT_ABD_NEG_BETA",
       "type": "exc"
     },
@@ -2035,20 +1960,16 @@
       "type": "exc"
     },
     {
-      "from": "PHASE_A_INHIBITOR",
+      "from": "PHASE_B_DRIVE_HG",
       "to": "REAR_RIGHT_ABD_NEG_BETA",
       "type": "inh",
-      "rule": "STDP3",
-      "reward": "GAIT_REWARD",
-      "reward_type": "LTP"
+      "strength": 4.0
     },
     {
-      "from": "PHASE_A_INHIBITOR",
+      "from": "PHASE_B_DRIVE_HG",
       "to": "RR_ABD_NEG",
       "type": "inh",
-      "rule": "STDP3",
-      "reward": "GAIT_REWARD",
-      "reward_type": "LTP"
+      "strength": 4.0
     },
     {
       "from": "REAR_RIGHT_ABD_POS_BETA",
@@ -2073,7 +1994,7 @@
       "type": "inh"
     },
     {
-      "from": "PHASE_A_BETA",
+      "from": "PHASE_B_DRIVE_HG",
       "to": "REAR_RIGHT_HIP_POS_BETA",
       "type": "exc"
     },
@@ -2083,23 +2004,19 @@
       "type": "exc"
     },
     {
-      "from": "PHASE_B_INHIBITOR",
+      "from": "PHASE_A_DRIVE_HG",
       "to": "REAR_RIGHT_HIP_POS_BETA",
       "type": "inh",
-      "rule": "STDP3",
-      "reward": "GAIT_REWARD",
-      "reward_type": "LTP"
+      "strength": 4.0
     },
     {
-      "from": "PHASE_B_INHIBITOR",
+      "from": "PHASE_A_DRIVE_HG",
       "to": "RR_HIP_POS",
       "type": "inh",
-      "rule": "STDP3",
-      "reward": "GAIT_REWARD",
-      "reward_type": "LTP"
+      "strength": 4.0
     },
     {
-      "from": "PHASE_B_BETA",
+      "from": "PHASE_A_DRIVE_HG",
       "to": "REAR_RIGHT_HIP_NEG_BETA",
       "type": "exc"
     },
@@ -2109,20 +2026,16 @@
       "type": "exc"
     },
     {
-      "from": "PHASE_A_INHIBITOR",
+      "from": "PHASE_B_DRIVE_HG",
       "to": "REAR_RIGHT_HIP_NEG_BETA",
       "type": "inh",
-      "rule": "STDP3",
-      "reward": "GAIT_REWARD",
-      "reward_type": "LTP"
+      "strength": 4.0
     },
     {
-      "from": "PHASE_A_INHIBITOR",
+      "from": "PHASE_B_DRIVE_HG",
       "to": "RR_HIP_NEG",
       "type": "inh",
-      "rule": "STDP3",
-      "reward": "GAIT_REWARD",
-      "reward_type": "LTP"
+      "strength": 4.0
     },
     {
       "from": "REAR_RIGHT_HIP_POS_BETA",
@@ -2147,7 +2060,7 @@
       "type": "inh"
     },
     {
-      "from": "PHASE_A_BETA",
+      "from": "PHASE_B_DRIVE_HG",
       "to": "REAR_RIGHT_KNEE_POS_BETA",
       "type": "exc"
     },
@@ -2157,23 +2070,19 @@
       "type": "exc"
     },
     {
-      "from": "PHASE_B_INHIBITOR",
+      "from": "PHASE_A_DRIVE_HG",
       "to": "REAR_RIGHT_KNEE_POS_BETA",
       "type": "inh",
-      "rule": "STDP3",
-      "reward": "GAIT_REWARD",
-      "reward_type": "LTP"
+      "strength": 4.0
     },
     {
-      "from": "PHASE_B_INHIBITOR",
+      "from": "PHASE_A_DRIVE_HG",
       "to": "RR_KNEE_POS",
       "type": "inh",
-      "rule": "STDP3",
-      "reward": "GAIT_REWARD",
-      "reward_type": "LTP"
+      "strength": 4.0
     },
     {
-      "from": "PHASE_B_KNEE_DRIVE_HG",
+      "from": "PHASE_A_DRIVE_HG",
       "to": "REAR_RIGHT_KNEE_NEG_BETA",
       "type": "exc"
     },
@@ -2186,17 +2095,13 @@
       "from": "REFLEX_RR_EXTENSION_VETO_HG",
       "to": "REAR_RIGHT_KNEE_NEG_BETA",
       "type": "inh",
-      "rule": "STDP3",
-      "reward": "GAIT_REWARD",
-      "reward_type": "LTP"
+      "strength": 4.0
     },
     {
       "from": "REFLEX_RR_EXTENSION_VETO_HG",
       "to": "RR_KNEE_NEG",
       "type": "inh",
-      "rule": "STDP3",
-      "reward": "GAIT_REWARD",
-      "reward_type": "LTP"
+      "strength": 4.0
     },
     {
       "from": "REAR_RIGHT_KNEE_POS_BETA",
@@ -2219,6 +2124,46 @@
       "from": "REAR_RIGHT_KNEE_NEG_BETA",
       "to": "RR_KNEE_POS",
       "type": "inh"
+    },
+    {
+      "from": "FL_HIP_POS",
+      "to": "PHASE_B_MOTOR_FEEDBACK_HG",
+      "type": "exc"
+    },
+    {
+      "from": "FL_HIP_NEG",
+      "to": "PHASE_A_MOTOR_FEEDBACK_HG",
+      "type": "exc"
+    },
+    {
+      "from": "FR_HIP_POS",
+      "to": "PHASE_A_MOTOR_FEEDBACK_HG",
+      "type": "exc"
+    },
+    {
+      "from": "FR_HIP_NEG",
+      "to": "PHASE_B_MOTOR_FEEDBACK_HG",
+      "type": "exc"
+    },
+    {
+      "from": "RL_HIP_POS",
+      "to": "PHASE_A_MOTOR_FEEDBACK_HG",
+      "type": "exc"
+    },
+    {
+      "from": "RL_HIP_NEG",
+      "to": "PHASE_B_MOTOR_FEEDBACK_HG",
+      "type": "exc"
+    },
+    {
+      "from": "RR_HIP_POS",
+      "to": "PHASE_B_MOTOR_FEEDBACK_HG",
+      "type": "exc"
+    },
+    {
+      "from": "RR_HIP_NEG",
+      "to": "PHASE_A_MOTOR_FEEDBACK_HG",
+      "type": "exc"
     },
     {
       "from": "TILT_ROLL_NEG",
@@ -2232,7 +2177,28 @@
     },
     {
       "from": "REFLEX_FL_HG",
-      "to": "FRONT_LEFT_KNEE_NEG_BETA",
+      "to": "REFLEX_FL_HG",
+      "type": "exc",
+      "role": "feedback"
+    },
+    {
+      "from": "REFLEX_FL_HG",
+      "to": "REFLEX_FL_EXTENSION_BETA",
+      "type": "exc"
+    },
+    {
+      "from": "REFLEX_FL_EXTENSION_BETA",
+      "to": "FL_KNEE_NEG",
+      "type": "exc"
+    },
+    {
+      "from": "REFLEX_FL_EXTENSION_BETA",
+      "to": "REFLEX_FL_RESET_HG",
+      "type": "exc"
+    },
+    {
+      "from": "REFLEX_FL_HG",
+      "to": "REFLEX_FL_ACTIVE",
       "type": "exc"
     },
     {
@@ -2254,20 +2220,10 @@
       "strength": 64.0
     },
     {
-      "from": "REFLEX_FL_HG",
-      "to": "REFLEX_FL_ACTIVE",
-      "type": "exc"
-    },
-    {
-      "from": "REFLEX_FL_HG",
-      "to": "REFLEX_FL_HG",
-      "type": "exc",
-      "role": "feedback"
-    },
-    {
-      "from": "FRONT_LEFT_KNEE_NEG_BETA",
-      "to": "REFLEX_FL_RESET_HG",
-      "type": "exc"
+      "from": "REFLEX_FL_EXTENSION_VETO_HG",
+      "to": "REFLEX_FL_EXTENSION_BETA",
+      "type": "inh",
+      "strength": 4.0
     },
     {
       "from": "REFLEX_FL_RESET_HG",
@@ -2294,7 +2250,28 @@
     },
     {
       "from": "REFLEX_FR_HG",
-      "to": "FRONT_RIGHT_KNEE_NEG_BETA",
+      "to": "REFLEX_FR_HG",
+      "type": "exc",
+      "role": "feedback"
+    },
+    {
+      "from": "REFLEX_FR_HG",
+      "to": "REFLEX_FR_EXTENSION_BETA",
+      "type": "exc"
+    },
+    {
+      "from": "REFLEX_FR_EXTENSION_BETA",
+      "to": "FR_KNEE_NEG",
+      "type": "exc"
+    },
+    {
+      "from": "REFLEX_FR_EXTENSION_BETA",
+      "to": "REFLEX_FR_RESET_HG",
+      "type": "exc"
+    },
+    {
+      "from": "REFLEX_FR_HG",
+      "to": "REFLEX_FR_ACTIVE",
       "type": "exc"
     },
     {
@@ -2316,20 +2293,10 @@
       "strength": 64.0
     },
     {
-      "from": "REFLEX_FR_HG",
-      "to": "REFLEX_FR_ACTIVE",
-      "type": "exc"
-    },
-    {
-      "from": "REFLEX_FR_HG",
-      "to": "REFLEX_FR_HG",
-      "type": "exc",
-      "role": "feedback"
-    },
-    {
-      "from": "FRONT_RIGHT_KNEE_NEG_BETA",
-      "to": "REFLEX_FR_RESET_HG",
-      "type": "exc"
+      "from": "REFLEX_FR_EXTENSION_VETO_HG",
+      "to": "REFLEX_FR_EXTENSION_BETA",
+      "type": "inh",
+      "strength": 4.0
     },
     {
       "from": "REFLEX_FR_RESET_HG",
@@ -2356,7 +2323,28 @@
     },
     {
       "from": "REFLEX_RL_HG",
-      "to": "REAR_LEFT_KNEE_NEG_BETA",
+      "to": "REFLEX_RL_HG",
+      "type": "exc",
+      "role": "feedback"
+    },
+    {
+      "from": "REFLEX_RL_HG",
+      "to": "REFLEX_RL_EXTENSION_BETA",
+      "type": "exc"
+    },
+    {
+      "from": "REFLEX_RL_EXTENSION_BETA",
+      "to": "RL_KNEE_NEG",
+      "type": "exc"
+    },
+    {
+      "from": "REFLEX_RL_EXTENSION_BETA",
+      "to": "REFLEX_RL_RESET_HG",
+      "type": "exc"
+    },
+    {
+      "from": "REFLEX_RL_HG",
+      "to": "REFLEX_RL_ACTIVE",
       "type": "exc"
     },
     {
@@ -2378,20 +2366,10 @@
       "strength": 64.0
     },
     {
-      "from": "REFLEX_RL_HG",
-      "to": "REFLEX_RL_ACTIVE",
-      "type": "exc"
-    },
-    {
-      "from": "REFLEX_RL_HG",
-      "to": "REFLEX_RL_HG",
-      "type": "exc",
-      "role": "feedback"
-    },
-    {
-      "from": "REAR_LEFT_KNEE_NEG_BETA",
-      "to": "REFLEX_RL_RESET_HG",
-      "type": "exc"
+      "from": "REFLEX_RL_EXTENSION_VETO_HG",
+      "to": "REFLEX_RL_EXTENSION_BETA",
+      "type": "inh",
+      "strength": 4.0
     },
     {
       "from": "REFLEX_RL_RESET_HG",
@@ -2418,7 +2396,28 @@
     },
     {
       "from": "REFLEX_RR_HG",
-      "to": "REAR_RIGHT_KNEE_NEG_BETA",
+      "to": "REFLEX_RR_HG",
+      "type": "exc",
+      "role": "feedback"
+    },
+    {
+      "from": "REFLEX_RR_HG",
+      "to": "REFLEX_RR_EXTENSION_BETA",
+      "type": "exc"
+    },
+    {
+      "from": "REFLEX_RR_EXTENSION_BETA",
+      "to": "RR_KNEE_NEG",
+      "type": "exc"
+    },
+    {
+      "from": "REFLEX_RR_EXTENSION_BETA",
+      "to": "REFLEX_RR_RESET_HG",
+      "type": "exc"
+    },
+    {
+      "from": "REFLEX_RR_HG",
+      "to": "REFLEX_RR_ACTIVE",
       "type": "exc"
     },
     {
@@ -2440,20 +2439,10 @@
       "strength": 64.0
     },
     {
-      "from": "REFLEX_RR_HG",
-      "to": "REFLEX_RR_ACTIVE",
-      "type": "exc"
-    },
-    {
-      "from": "REFLEX_RR_HG",
-      "to": "REFLEX_RR_HG",
-      "type": "exc",
-      "role": "feedback"
-    },
-    {
-      "from": "REAR_RIGHT_KNEE_NEG_BETA",
-      "to": "REFLEX_RR_RESET_HG",
-      "type": "exc"
+      "from": "REFLEX_RR_EXTENSION_VETO_HG",
+      "to": "REFLEX_RR_EXTENSION_BETA",
+      "type": "inh",
+      "strength": 4.0
     },
     {
       "from": "REFLEX_RR_RESET_HG",
@@ -2470,223 +2459,49 @@
     },
     {
       "from": "REST_NUCLEUS",
-      "to": "REFLEX_FL_HG",
+      "to": "PHASE_A_REQUEST_HG",
       "type": "inh",
       "strength": 4.0
     },
     {
       "from": "STOP_REQUEST_HG",
-      "to": "REFLEX_FL_HG",
+      "to": "PHASE_A_REQUEST_HG",
       "type": "inh",
       "strength": 4.0
     },
     {
       "from": "REST_NUCLEUS",
-      "to": "REFLEX_FL_RESET_HG",
+      "to": "PHASE_A_DRIVE_HG",
       "type": "inh",
       "strength": 4.0
     },
     {
       "from": "STOP_REQUEST_HG",
-      "to": "REFLEX_FL_RESET_HG",
+      "to": "PHASE_A_DRIVE_HG",
       "type": "inh",
       "strength": 4.0
     },
     {
       "from": "REST_NUCLEUS",
-      "to": "REFLEX_FL_ACTIVE",
+      "to": "PHASE_A_MOTOR_FEEDBACK_HG",
       "type": "inh",
       "strength": 4.0
     },
     {
       "from": "STOP_REQUEST_HG",
-      "to": "REFLEX_FL_ACTIVE",
+      "to": "PHASE_A_MOTOR_FEEDBACK_HG",
       "type": "inh",
       "strength": 4.0
     },
     {
       "from": "REST_NUCLEUS",
-      "to": "REFLEX_FL_EXTENSION_VETO_HG",
+      "to": "PHASE_A_FEEDBACK_BETA",
       "type": "inh",
       "strength": 4.0
     },
     {
       "from": "STOP_REQUEST_HG",
-      "to": "REFLEX_FL_EXTENSION_VETO_HG",
-      "type": "inh",
-      "strength": 4.0
-    },
-    {
-      "from": "REST_NUCLEUS",
-      "to": "REFLEX_FR_HG",
-      "type": "inh",
-      "strength": 4.0
-    },
-    {
-      "from": "STOP_REQUEST_HG",
-      "to": "REFLEX_FR_HG",
-      "type": "inh",
-      "strength": 4.0
-    },
-    {
-      "from": "REST_NUCLEUS",
-      "to": "REFLEX_FR_RESET_HG",
-      "type": "inh",
-      "strength": 4.0
-    },
-    {
-      "from": "STOP_REQUEST_HG",
-      "to": "REFLEX_FR_RESET_HG",
-      "type": "inh",
-      "strength": 4.0
-    },
-    {
-      "from": "REST_NUCLEUS",
-      "to": "REFLEX_FR_ACTIVE",
-      "type": "inh",
-      "strength": 4.0
-    },
-    {
-      "from": "STOP_REQUEST_HG",
-      "to": "REFLEX_FR_ACTIVE",
-      "type": "inh",
-      "strength": 4.0
-    },
-    {
-      "from": "REST_NUCLEUS",
-      "to": "REFLEX_FR_EXTENSION_VETO_HG",
-      "type": "inh",
-      "strength": 4.0
-    },
-    {
-      "from": "STOP_REQUEST_HG",
-      "to": "REFLEX_FR_EXTENSION_VETO_HG",
-      "type": "inh",
-      "strength": 4.0
-    },
-    {
-      "from": "REST_NUCLEUS",
-      "to": "REFLEX_RL_HG",
-      "type": "inh",
-      "strength": 4.0
-    },
-    {
-      "from": "STOP_REQUEST_HG",
-      "to": "REFLEX_RL_HG",
-      "type": "inh",
-      "strength": 4.0
-    },
-    {
-      "from": "REST_NUCLEUS",
-      "to": "REFLEX_RL_RESET_HG",
-      "type": "inh",
-      "strength": 4.0
-    },
-    {
-      "from": "STOP_REQUEST_HG",
-      "to": "REFLEX_RL_RESET_HG",
-      "type": "inh",
-      "strength": 4.0
-    },
-    {
-      "from": "REST_NUCLEUS",
-      "to": "REFLEX_RL_ACTIVE",
-      "type": "inh",
-      "strength": 4.0
-    },
-    {
-      "from": "STOP_REQUEST_HG",
-      "to": "REFLEX_RL_ACTIVE",
-      "type": "inh",
-      "strength": 4.0
-    },
-    {
-      "from": "REST_NUCLEUS",
-      "to": "REFLEX_RL_EXTENSION_VETO_HG",
-      "type": "inh",
-      "strength": 4.0
-    },
-    {
-      "from": "STOP_REQUEST_HG",
-      "to": "REFLEX_RL_EXTENSION_VETO_HG",
-      "type": "inh",
-      "strength": 4.0
-    },
-    {
-      "from": "REST_NUCLEUS",
-      "to": "REFLEX_RR_HG",
-      "type": "inh",
-      "strength": 4.0
-    },
-    {
-      "from": "STOP_REQUEST_HG",
-      "to": "REFLEX_RR_HG",
-      "type": "inh",
-      "strength": 4.0
-    },
-    {
-      "from": "REST_NUCLEUS",
-      "to": "REFLEX_RR_RESET_HG",
-      "type": "inh",
-      "strength": 4.0
-    },
-    {
-      "from": "STOP_REQUEST_HG",
-      "to": "REFLEX_RR_RESET_HG",
-      "type": "inh",
-      "strength": 4.0
-    },
-    {
-      "from": "REST_NUCLEUS",
-      "to": "REFLEX_RR_ACTIVE",
-      "type": "inh",
-      "strength": 4.0
-    },
-    {
-      "from": "STOP_REQUEST_HG",
-      "to": "REFLEX_RR_ACTIVE",
-      "type": "inh",
-      "strength": 4.0
-    },
-    {
-      "from": "REST_NUCLEUS",
-      "to": "REFLEX_RR_EXTENSION_VETO_HG",
-      "type": "inh",
-      "strength": 4.0
-    },
-    {
-      "from": "STOP_REQUEST_HG",
-      "to": "REFLEX_RR_EXTENSION_VETO_HG",
-      "type": "inh",
-      "strength": 4.0
-    },
-    {
-      "from": "REST_NUCLEUS",
-      "to": "WALK_DRIVE",
-      "type": "inh",
-      "strength": 4.0
-    },
-    {
-      "from": "REST_NUCLEUS",
-      "to": "START_A_BIAS",
-      "type": "inh",
-      "strength": 4.0
-    },
-    {
-      "from": "REST_NUCLEUS",
-      "to": "START_A_BIAS_HG",
-      "type": "inh",
-      "strength": 4.0
-    },
-    {
-      "from": "REST_NUCLEUS",
-      "to": "PHASE_A_T1",
-      "type": "inh",
-      "strength": 4.0
-    },
-    {
-      "from": "REST_NUCLEUS",
-      "to": "PHASE_A_T2",
+      "to": "PHASE_A_FEEDBACK_BETA",
       "type": "inh",
       "strength": 4.0
     },
@@ -2697,8 +2512,8 @@
       "strength": 4.0
     },
     {
-      "from": "REST_NUCLEUS",
-      "to": "PHASE_A_INHIBITOR",
+      "from": "STOP_REQUEST_HG",
+      "to": "PHASE_A_BETA",
       "type": "inh",
       "strength": 4.0
     },
@@ -2709,14 +2524,32 @@
       "strength": 4.0
     },
     {
+      "from": "STOP_REQUEST_HG",
+      "to": "PHASE_A_RELEASE",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "PHASE_A_REQUEST",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "STOP_REQUEST_HG",
+      "to": "PHASE_A_REQUEST",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
       "from": "REST_NUCLEUS",
       "to": "PHASE_A_OUT",
       "type": "inh",
       "strength": 4.0
     },
     {
-      "from": "REST_NUCLEUS",
-      "to": "PHASE_A_INHIBITOR_OUT",
+      "from": "STOP_REQUEST_HG",
+      "to": "PHASE_A_OUT",
       "type": "inh",
       "strength": 4.0
     },
@@ -2727,14 +2560,56 @@
       "strength": 4.0
     },
     {
-      "from": "REST_NUCLEUS",
-      "to": "PHASE_B_T1",
+      "from": "STOP_REQUEST_HG",
+      "to": "PHASE_A_RELEASE_OUT",
       "type": "inh",
       "strength": 4.0
     },
     {
       "from": "REST_NUCLEUS",
-      "to": "PHASE_B_T2",
+      "to": "PHASE_B_REQUEST_HG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "STOP_REQUEST_HG",
+      "to": "PHASE_B_REQUEST_HG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "PHASE_B_DRIVE_HG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "STOP_REQUEST_HG",
+      "to": "PHASE_B_DRIVE_HG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "PHASE_B_MOTOR_FEEDBACK_HG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "STOP_REQUEST_HG",
+      "to": "PHASE_B_MOTOR_FEEDBACK_HG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "PHASE_B_FEEDBACK_BETA",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "STOP_REQUEST_HG",
+      "to": "PHASE_B_FEEDBACK_BETA",
       "type": "inh",
       "strength": 4.0
     },
@@ -2745,8 +2620,8 @@
       "strength": 4.0
     },
     {
-      "from": "REST_NUCLEUS",
-      "to": "PHASE_B_INHIBITOR",
+      "from": "STOP_REQUEST_HG",
+      "to": "PHASE_B_BETA",
       "type": "inh",
       "strength": 4.0
     },
@@ -2757,14 +2632,32 @@
       "strength": 4.0
     },
     {
+      "from": "STOP_REQUEST_HG",
+      "to": "PHASE_B_RELEASE",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "PHASE_B_REQUEST",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "STOP_REQUEST_HG",
+      "to": "PHASE_B_REQUEST",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
       "from": "REST_NUCLEUS",
       "to": "PHASE_B_OUT",
       "type": "inh",
       "strength": 4.0
     },
     {
-      "from": "REST_NUCLEUS",
-      "to": "PHASE_B_INHIBITOR_OUT",
+      "from": "STOP_REQUEST_HG",
+      "to": "PHASE_B_OUT",
       "type": "inh",
       "strength": 4.0
     },
@@ -2775,19 +2668,19 @@
       "strength": 4.0
     },
     {
-      "from": "REST_NUCLEUS",
-      "to": "PHASE_A_KNEE_DRIVE_HG",
+      "from": "STOP_REQUEST_HG",
+      "to": "PHASE_B_RELEASE_OUT",
       "type": "inh",
       "strength": 4.0
     },
     {
       "from": "REST_NUCLEUS",
-      "to": "PHASE_B_KNEE_DRIVE_HG",
+      "to": "FRONT_LEFT_ABD_POS_BETA",
       "type": "inh",
       "strength": 4.0
     },
     {
-      "from": "REST_NUCLEUS",
+      "from": "STOP_REQUEST_HG",
       "to": "FRONT_LEFT_ABD_POS_BETA",
       "type": "inh",
       "strength": 4.0
@@ -2799,7 +2692,19 @@
       "strength": 4.0
     },
     {
+      "from": "STOP_REQUEST_HG",
+      "to": "FRONT_LEFT_ABD_NEG_BETA",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
       "from": "REST_NUCLEUS",
+      "to": "FRONT_LEFT_HIP_POS_BETA",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "STOP_REQUEST_HG",
       "to": "FRONT_LEFT_HIP_POS_BETA",
       "type": "inh",
       "strength": 4.0
@@ -2811,7 +2716,19 @@
       "strength": 4.0
     },
     {
+      "from": "STOP_REQUEST_HG",
+      "to": "FRONT_LEFT_HIP_NEG_BETA",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
       "from": "REST_NUCLEUS",
+      "to": "FRONT_LEFT_KNEE_POS_BETA",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "STOP_REQUEST_HG",
       "to": "FRONT_LEFT_KNEE_POS_BETA",
       "type": "inh",
       "strength": 4.0
@@ -2823,7 +2740,19 @@
       "strength": 4.0
     },
     {
+      "from": "STOP_REQUEST_HG",
+      "to": "FRONT_LEFT_KNEE_NEG_BETA",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
       "from": "REST_NUCLEUS",
+      "to": "FRONT_RIGHT_ABD_POS_BETA",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "STOP_REQUEST_HG",
       "to": "FRONT_RIGHT_ABD_POS_BETA",
       "type": "inh",
       "strength": 4.0
@@ -2835,7 +2764,19 @@
       "strength": 4.0
     },
     {
+      "from": "STOP_REQUEST_HG",
+      "to": "FRONT_RIGHT_ABD_NEG_BETA",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
       "from": "REST_NUCLEUS",
+      "to": "FRONT_RIGHT_HIP_POS_BETA",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "STOP_REQUEST_HG",
       "to": "FRONT_RIGHT_HIP_POS_BETA",
       "type": "inh",
       "strength": 4.0
@@ -2847,7 +2788,19 @@
       "strength": 4.0
     },
     {
+      "from": "STOP_REQUEST_HG",
+      "to": "FRONT_RIGHT_HIP_NEG_BETA",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
       "from": "REST_NUCLEUS",
+      "to": "FRONT_RIGHT_KNEE_POS_BETA",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "STOP_REQUEST_HG",
       "to": "FRONT_RIGHT_KNEE_POS_BETA",
       "type": "inh",
       "strength": 4.0
@@ -2859,7 +2812,19 @@
       "strength": 4.0
     },
     {
+      "from": "STOP_REQUEST_HG",
+      "to": "FRONT_RIGHT_KNEE_NEG_BETA",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
       "from": "REST_NUCLEUS",
+      "to": "REAR_LEFT_ABD_POS_BETA",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "STOP_REQUEST_HG",
       "to": "REAR_LEFT_ABD_POS_BETA",
       "type": "inh",
       "strength": 4.0
@@ -2871,7 +2836,19 @@
       "strength": 4.0
     },
     {
+      "from": "STOP_REQUEST_HG",
+      "to": "REAR_LEFT_ABD_NEG_BETA",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
       "from": "REST_NUCLEUS",
+      "to": "REAR_LEFT_HIP_POS_BETA",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "STOP_REQUEST_HG",
       "to": "REAR_LEFT_HIP_POS_BETA",
       "type": "inh",
       "strength": 4.0
@@ -2883,7 +2860,19 @@
       "strength": 4.0
     },
     {
+      "from": "STOP_REQUEST_HG",
+      "to": "REAR_LEFT_HIP_NEG_BETA",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
       "from": "REST_NUCLEUS",
+      "to": "REAR_LEFT_KNEE_POS_BETA",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "STOP_REQUEST_HG",
       "to": "REAR_LEFT_KNEE_POS_BETA",
       "type": "inh",
       "strength": 4.0
@@ -2895,7 +2884,19 @@
       "strength": 4.0
     },
     {
+      "from": "STOP_REQUEST_HG",
+      "to": "REAR_LEFT_KNEE_NEG_BETA",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
       "from": "REST_NUCLEUS",
+      "to": "REAR_RIGHT_ABD_POS_BETA",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "STOP_REQUEST_HG",
       "to": "REAR_RIGHT_ABD_POS_BETA",
       "type": "inh",
       "strength": 4.0
@@ -2907,7 +2908,19 @@
       "strength": 4.0
     },
     {
+      "from": "STOP_REQUEST_HG",
+      "to": "REAR_RIGHT_ABD_NEG_BETA",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
       "from": "REST_NUCLEUS",
+      "to": "REAR_RIGHT_HIP_POS_BETA",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "STOP_REQUEST_HG",
       "to": "REAR_RIGHT_HIP_POS_BETA",
       "type": "inh",
       "strength": 4.0
@@ -2919,7 +2932,19 @@
       "strength": 4.0
     },
     {
+      "from": "STOP_REQUEST_HG",
+      "to": "REAR_RIGHT_HIP_NEG_BETA",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
       "from": "REST_NUCLEUS",
+      "to": "REAR_RIGHT_KNEE_POS_BETA",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "STOP_REQUEST_HG",
       "to": "REAR_RIGHT_KNEE_POS_BETA",
       "type": "inh",
       "strength": 4.0
@@ -2927,6 +2952,252 @@
     {
       "from": "REST_NUCLEUS",
       "to": "REAR_RIGHT_KNEE_NEG_BETA",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "STOP_REQUEST_HG",
+      "to": "REAR_RIGHT_KNEE_NEG_BETA",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "REFLEX_FL_EXTENSION_VETO_HG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "STOP_REQUEST_HG",
+      "to": "REFLEX_FL_EXTENSION_VETO_HG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "REFLEX_FR_EXTENSION_VETO_HG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "STOP_REQUEST_HG",
+      "to": "REFLEX_FR_EXTENSION_VETO_HG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "REFLEX_RL_EXTENSION_VETO_HG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "STOP_REQUEST_HG",
+      "to": "REFLEX_RL_EXTENSION_VETO_HG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "REFLEX_RR_EXTENSION_VETO_HG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "STOP_REQUEST_HG",
+      "to": "REFLEX_RR_EXTENSION_VETO_HG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "REFLEX_FL_HG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "STOP_REQUEST_HG",
+      "to": "REFLEX_FL_HG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "REFLEX_FL_EXTENSION_BETA",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "STOP_REQUEST_HG",
+      "to": "REFLEX_FL_EXTENSION_BETA",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "REFLEX_FL_RESET_HG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "STOP_REQUEST_HG",
+      "to": "REFLEX_FL_RESET_HG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "REFLEX_FL_ACTIVE",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "STOP_REQUEST_HG",
+      "to": "REFLEX_FL_ACTIVE",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "REFLEX_FR_HG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "STOP_REQUEST_HG",
+      "to": "REFLEX_FR_HG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "REFLEX_FR_EXTENSION_BETA",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "STOP_REQUEST_HG",
+      "to": "REFLEX_FR_EXTENSION_BETA",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "REFLEX_FR_RESET_HG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "STOP_REQUEST_HG",
+      "to": "REFLEX_FR_RESET_HG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "REFLEX_FR_ACTIVE",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "STOP_REQUEST_HG",
+      "to": "REFLEX_FR_ACTIVE",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "REFLEX_RL_HG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "STOP_REQUEST_HG",
+      "to": "REFLEX_RL_HG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "REFLEX_RL_EXTENSION_BETA",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "STOP_REQUEST_HG",
+      "to": "REFLEX_RL_EXTENSION_BETA",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "REFLEX_RL_RESET_HG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "STOP_REQUEST_HG",
+      "to": "REFLEX_RL_RESET_HG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "REFLEX_RL_ACTIVE",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "STOP_REQUEST_HG",
+      "to": "REFLEX_RL_ACTIVE",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "REFLEX_RR_HG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "STOP_REQUEST_HG",
+      "to": "REFLEX_RR_HG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "REFLEX_RR_EXTENSION_BETA",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "STOP_REQUEST_HG",
+      "to": "REFLEX_RR_EXTENSION_BETA",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "REFLEX_RR_RESET_HG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "STOP_REQUEST_HG",
+      "to": "REFLEX_RR_RESET_HG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "REFLEX_RR_ACTIVE",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "STOP_REQUEST_HG",
+      "to": "REFLEX_RR_ACTIVE",
       "type": "inh",
       "strength": 4.0
     },
@@ -3071,54 +3342,6 @@
     {
       "from": "REST_NUCLEUS",
       "to": "RR_KNEE_NEG",
-      "type": "inh",
-      "strength": 4.0
-    },
-    {
-      "from": "STOP_REQUEST_HG",
-      "to": "PHASE_A_T2",
-      "type": "inh",
-      "strength": 4.0
-    },
-    {
-      "from": "STOP_REQUEST_HG",
-      "to": "PHASE_A_BETA",
-      "type": "inh",
-      "strength": 4.0
-    },
-    {
-      "from": "STOP_REQUEST_HG",
-      "to": "PHASE_A_INHIBITOR",
-      "type": "inh",
-      "strength": 4.0
-    },
-    {
-      "from": "STOP_REQUEST_HG",
-      "to": "PHASE_A_RELEASE",
-      "type": "inh",
-      "strength": 4.0
-    },
-    {
-      "from": "STOP_REQUEST_HG",
-      "to": "PHASE_B_T2",
-      "type": "inh",
-      "strength": 4.0
-    },
-    {
-      "from": "STOP_REQUEST_HG",
-      "to": "PHASE_B_BETA",
-      "type": "inh",
-      "strength": 4.0
-    },
-    {
-      "from": "STOP_REQUEST_HG",
-      "to": "PHASE_B_INHIBITOR",
-      "type": "inh",
-      "strength": 4.0
-    },
-    {
-      "from": "STOP_REQUEST_HG",
-      "to": "PHASE_B_RELEASE",
       "type": "inh",
       "strength": 4.0
     },

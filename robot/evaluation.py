@@ -1,6 +1,49 @@
 """Measurements only. This module never changes neural or physical commands."""
 
-from .contracts import JOINTS, LEGS, MOTOR_OUTPUTS, REFLEX_OUTPUTS
+from .contracts import JOINTS, LEGS, MOTOR_OUTPUTS, REFLEX_OUTPUTS, SUPPORT_PHASE
+
+
+def motor_pattern_counts(rows):
+    """Count actuator evidence; phase readouts never choose the classification."""
+    confirmed = [
+        r
+        for r in rows
+        if r["outputs"].get("WALK_ENABLED")
+        and not r["outputs"].get("REST_ACTIVE")
+        and r.get("pending_command") is None
+    ]
+    patterns = dict(A=0, B=0)
+    same_side = dict(left=0, right=0)
+    all_flex = 0
+    for row in confirmed:
+        c = row["outputs"]
+        for phase in patterns:
+            match = True
+            for leg in LEGS:
+                side = "NEG" if SUPPORT_PHASE[leg] == phase else "POS"
+                opposite = "POS" if side == "NEG" else "NEG"
+                match &= all(
+                    c[f"{leg}_{joint}_{side}"] == 1
+                    and c[f"{leg}_{joint}_{opposite}"] == 0
+                    for joint in ("HIP", "KNEE")
+                )
+            patterns[phase] += match
+        flex = {
+            leg: bool(c[f"{leg}_KNEE_POS"]) and not c[f"{leg}_KNEE_NEG"] for leg in LEGS
+        }
+        all_flex += all(flex.values())
+        same_side["left"] += (
+            flex["FL"] and flex["RL"] and not (flex["FR"] or flex["RR"])
+        )
+        same_side["right"] += (
+            flex["FR"] and flex["RR"] and not (flex["FL"] or flex["RL"])
+        )
+    return dict(
+        confirmed_walking_frames=len(confirmed),
+        complete_diagonal_motor_pattern_frames=patterns,
+        all_four_knees_flexing_frames=all_flex,
+        same_side_only_knee_flexion_frames=same_side,
+    )
 
 
 def summarize(rows):
@@ -52,6 +95,7 @@ def summarize(rows):
         and a["command_sequence"] != b["command_sequence"]
     }
     return dict(
+        **motor_pattern_counts(walking),
         frames=len(rows),
         recoveries=max(r.get("recovery_count", 0) for r in rows),
         recovery_frames=sum(r.get("recovery_state", "idle") != "idle" for r in rows),
@@ -88,16 +132,13 @@ def summarize(rows):
             for r in walking
         ),
         motor_antagonist_overlap_by_joint=overlapping,
-        start_bias_active_walking_frames=sum(
-            bool(r["outputs"].get("START_A_BIAS", 0)) for r in walking
-        ),
         diagnostic_active_walking_frames={
             name: sum(bool(r["outputs"].get(name, 0)) for r in walking)
             for name in (
                 "WALK_ENABLED",
                 "REST_ACTIVE",
-                "PHASE_A_INHIBITOR_OUT",
-                "PHASE_B_INHIBITOR_OUT",
+                "PHASE_A_REQUEST",
+                "PHASE_B_REQUEST",
                 "PHASE_A_RELEASE_OUT",
                 "PHASE_B_RELEASE_OUT",
             )

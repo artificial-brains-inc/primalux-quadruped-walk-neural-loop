@@ -41,7 +41,7 @@ Neutral positions follow the official Spot sample's standing posture: left
 abduction -0.1 rad, right abduction +0.1 rad, hip and elbow 0 rad. Excursions are
 explicit first-design actuator calibration, within the model's joint limits.
 They are not learned values or a verified foot trajectory. The adapter never
-reads phase, inhibitor, release or startup-bias channels to select a gait.
+reads phase, handoff-request or release channels to select a gait.
 During ordinary walking only local motor outputs move joints. Explicit simulator
 recovery holds neutral targets, waits for exclusive REST and quiet motor outputs,
 then restores the initial robot state. See [Recovery](RECOVERY.md); this assistance
@@ -112,7 +112,7 @@ omitted. This is sensory quantization, not a controller-side choice of leg or
 support action. Gyro readings remain logged but are not new inputs.
 
 Each local reflex receives compatible signs, inhibits its own knee flexion,
-excites its own extension Beta and ends its own reflex drive. Existing motor
+excites its dedicated reflex extension Beta and ends its own reflex drive. Existing motor
 inhibition clears motor outputs. No reflex inhibits another leg; shared sensory
 evidence can recruit several independent reflexes. The existing motor decoder
 is unchanged. It does not consume `REFLEX_*_ACTIVE` diagnostics. REST and pending
