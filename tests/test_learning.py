@@ -36,7 +36,7 @@ class LearningGraphTests(unittest.TestCase):
             }:
                 if edge["type"] == "inh" and edge["to"] != "START_A_BIAS":
                     self.assertIn(edge, plastic)
-            if source.startswith(("WALK_", "REST_", "TRANSPORT_", "START_")):
+            if source.startswith(("WALK_", "REST_", "TRANSPORT_", "START_", "STOP_")):
                 self.assertNotIn("rule", edge)
             if edge["type"] == "exc":
                 self.assertNotIn("rule", edge)
@@ -112,7 +112,7 @@ class OutcomeTests(unittest.TestCase):
         self.reward.disarm()
         self.assertEqual(self.sample(0.032, x=0.2)["value"], 0)
 
-    def test_publisher_sends_transitions_only_and_never_command_channels(self):
+    def test_publisher_sends_each_positive_observation_and_never_command_channels(self):
         calls, logs = [], []
 
         def publish(name, value):
@@ -123,9 +123,15 @@ class OutcomeTests(unittest.TestCase):
         for value in (0, 0, 1, 1, 0):
             sender.send(dict(value=value, reason="test"))
         self.assertEqual(
-            calls, [(REWARD_INPUT, 0.0), (REWARD_INPUT, 1.0), (REWARD_INPUT, 0.0)]
+            calls,
+            [
+                (REWARD_INPUT, 0.0),
+                (REWARD_INPUT, 1.0),
+                (REWARD_INPUT, 1.0),
+                (REWARD_INPUT, 0.0),
+            ],
         )
-        self.assertEqual(len(logs), 3)
+        self.assertEqual(len(logs), 4)
         with self.assertRaises(ValueError):
             sender.send(dict(value=0.5))
         with self.assertRaises(RuntimeError):

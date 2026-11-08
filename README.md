@@ -19,8 +19,8 @@ maps local motor outputs to Webots joint targets, measures physical outcome, and
 publishes reward. Webots position servos track the targets.
 
 This package passes construction and local integration tests. **Learned walking
-has not been demonstrated here.** The neural handoff, reward timing and physical
-coordination need testing together on Prima-Lux and Webots.
+has not been demonstrated here.** The isolated command check exercises START/STOP/restart; neural gait handoff,
+reward timing and physical coordination need testing together on Prima-Lux and Webots.
 
 ## What you learn
 
@@ -52,7 +52,7 @@ It does not depend on Webots sample directories or download model assets at Run.
 ## Clone and install
 
 ```bash
-git clone "$HOME/Downloads/primalux-spot-learning.bundle" primalux-spot-learning
+git clone "$HOME/Downloads/primalux-spot-learning-start-fix.bundle" primalux-spot-learning
 cd primalux-spot-learning
 bash install.sh
 source .venv/bin/activate
@@ -76,10 +76,16 @@ The Webots setting must name an executable file, not a directory. An exported
 ab design --brain brain.abdesign.json --env .env
 ```
 
-Follow START → WALK_ENABLED → WALK_NUCLEUS → WALK_DRIVE, then both phase pathways.
+Follow START → START_REQUEST → START_REQUEST_HG → WALK_ENABLED → WALK_NUCLEUS
+→ WALK_DRIVE, then both phase pathways. START_REQUEST captures one input event;
+its helper retains the request until WALK takes over and clears it. STOP mirrors
+this path. Opposite command cues cancel pending requests.
 Follow A_RELEASE back to A_INHIBITOR and A_INHIBITOR across to B. B mirrors A.
 Inspect the four leg columns below the phase core. Each has POS/NEG populations
 for ABD, HIP and KNEE.
+
+The console includes `start_request` and `stop_request` readouts to distinguish
+request capture from goal confirmation. These readouts do not drive the body.
 
 Inspect an inhibitory connection's learning settings: **STDP3**, reward population
 **GAIT_REWARD**, reward type **LTP**. Trace the separate reward input through its
@@ -96,11 +102,11 @@ ab device --env .env stop
 ab build brain --brain brain.abdesign.json --env .env
 ```
 
-**Wait for READY. This learning graph requires a new Build.** An older installed
+**Wait for READY. The command-request graph requires a new Build.** An older installed
 brain will fail the package's design-identity check.
 
-The saved graph has 538 total neurons, including four external input neurons,
-82 populations, 285 connections and approximately 0.53 MiB of connection matrices.
+The saved graph has 542 total neurons, including four external input neurons,
+86 populations, 299 connections and approximately 0.53 MiB of connection matrices.
 Of those connections, 66 inhibitory paths use STDP3. These are connections, not
 66 extra OPUs. [Aggregate resource check](docs/RESOURCE_CHECK.json).
 The device Build remains authoritative.
@@ -119,7 +125,8 @@ Focus the Webots 3D view:
 
 Startup is standing/resting. The console separately reports key receipt, command
 publication, transport ACK and WALK/REST confirmation. After ACK, the body advances
-once per native neural frame while waiting for confirmation. No command resends
+once per native neural frame while waiting for confirmation. The input event is not held by the device: the neural
+request latch supplies the continuing command drive. No command resends
 or host phase switching occur. Holding W does not publish on every frame.
 
 Reward is **1** for new forward progress while upright and **0** otherwise.
@@ -143,9 +150,8 @@ contact or balance. Inspect body motion and logs before calling the result walki
 ab run -ab --env .env rhythm
 ```
 
-`rhythm` runs the brain with neutral joint targets and reward held at zero.
-`ab run -ab --env .env walk` applies motor outputs with external reward held at
-zero. Neither is a guaranteed frozen-weight baseline for a previously active
+`rhythm` runs the brain with neutral joint targets and no positive reward events.
+`ab run -ab --env .env walk` applies motor outputs with no positive external reward events. Neither is a guaranteed frozen-weight baseline for a previously active
 plastic graph. [Testing](docs/TESTING.md) includes an explicitly static comparison.
 End each session before starting another.
 
@@ -163,7 +169,7 @@ Each `logs/run-.../` directory contains:
 - `native-outputs.jsonl`: received native frames, including command waits.
 - `commands.jsonl`: key receipt, publication, ACK and goal confirmation.
 - `observations.jsonl`: applied frame, resulting joint/body measurements and reward evidence.
-- `rewards.jsonl`: accepted changes to the external reward input.
+- `rewards.jsonl`: accepted reward events from qualifying physical observations.
 - `summary.json`: phase entries, motor overlaps, reward frames, progress and STOP checks.
 - `settings.json`: mode and configuration used for this run.
 

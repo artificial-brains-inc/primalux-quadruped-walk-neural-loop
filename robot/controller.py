@@ -115,7 +115,7 @@ def main():
                 elif kind == "command_confirmed":
                     print(
                         f"[SPOT] {action} confirmed: WALK_ENABLED={event['walk']}, "
-                        f"REST_ACTIVE={event['rest']}; command inputs cleared.",
+                        f"REST_ACTIVE={event['rest']}; idle input snapshot sent.",
                         flush=True,
                     )
 
@@ -194,6 +194,8 @@ def main():
                                 step=event["step"],
                                 walk=channels["WALK_ENABLED"],
                                 rest=channels["REST_ACTIVE"],
+                                start_request=channels["START_REQUEST"],
+                                stop_request=channels["STOP_REQUEST"],
                                 a=channels["PHASE_A_OUT"],
                                 b=channels["PHASE_B_OUT"],
                                 pending=exchange.pending_action,

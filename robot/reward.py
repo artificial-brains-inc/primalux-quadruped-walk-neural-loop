@@ -70,7 +70,7 @@ class ProgressReward:
 
 
 class RewardPublisher:
-    """Own only GAIT_REWARD_IN; command clears never touch this channel."""
+    """Publish each qualifying physical observation as a live reward event."""
 
     def __init__(self, publish, record=lambda event: None):
         self.publish = publish
@@ -81,7 +81,9 @@ class RewardPublisher:
         value = evidence["value"]
         if type(value) is not int or value not in (0, 1):
             raise ValueError("The single reward neuron accepts binary outcomes")
-        if not force and value == self.value:
+        # Inputs are consumed as events; a preceding positive value is not held.
+        # Each qualifying body step is fresh evidence, even if its value is also 1.
+        if not force and value == self.value == 0:
             return
         response = self.publish(REWARD_INPUT, float(value))
         if not (

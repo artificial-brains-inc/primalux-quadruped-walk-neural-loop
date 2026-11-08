@@ -16,7 +16,8 @@ https://github.com/cyberbotics/webots/releases/tag/R2025a.
 | Missing bundled Webots asset | Restore the complete project including `protos/` and `assets/`; Run checks these before contacting the device |
 | `webots://` fallback / skipped Spot PROTO | Open this project's `worlds/spot_neural_walk.wbt`; its Spot declaration must be `../protos/spot/Spot.proto` |
 | Installed brain mismatch | Build this folder's saved design and wait for READY |
-| W/S do nothing | Click the Webots 3D view; check commands.jsonl and ACK status |
+| W is received and ACKed, but REST stays active | Build the request-latch graph from this package; updating Python alone does not replace the installed brain. Inspect start_request/stop_request alongside WALK/REST |
+| No W/S key event appears | Click the Webots 3D view; check commands.jsonl |
 | Neural activity but no motion | Rhythm mode intentionally holds standing targets; inspect local motor outputs in normal mode |
 | Motion but no useful gait | Compare phase ordering, joint directions, clearances and body tilt; the first composition is not a validated gait |
 | Stop/save unconfirmed | Keep the terminal open and inspect `ab device --env .env status` |

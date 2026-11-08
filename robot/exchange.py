@@ -1,4 +1,4 @@
-"""Send a command once; clear it after its neural goal readout confirms it.
+"""Send one command event and observe its separate neural goal confirmation.
 
 Transport ACK and goal acceptance are separate events. Waiting for the goal does
 not block the controller's native-frame/physics loop or publish periodic inputs.
@@ -89,8 +89,9 @@ class CommandExchange:
                     step=event["step"],
                 )
             )
-            # The native frame API accepts named-population updates. Clear ACK
-            # alone: do not drop START/STOP before the competing goal clears.
+            # Live inputs are one-step events. This zero event is explicit ACK
+            # hygiene, not a claim that the preceding command remained asserted.
+            # Request retention belongs to START_REQUEST / STOP_REQUEST in the graph.
             self._send({"TRANSPORT_ACK": [0.0]})
             self.record(dict(kind="ack_input_cleared", sequence=self.sequence))
             self.pending_action = action
@@ -114,7 +115,12 @@ class CommandExchange:
             if event["step"] < self.ack_step:
                 return None
             action = self.pending_action
-            values = dict(walk=c["WALK_ENABLED"], rest=c["REST_ACTIVE"])
+            values = dict(
+                walk=c["WALK_ENABLED"],
+                rest=c["REST_ACTIVE"],
+                start_request=c["START_REQUEST"],
+                stop_request=c["STOP_REQUEST"],
+            )
             if time.monotonic() >= self.goal_deadline:
                 self.record(
                     dict(
@@ -128,7 +134,9 @@ class CommandExchange:
                 raise TimeoutError(
                     f"{action.upper()} was acknowledged, but its goal did not confirm "
                     f"within {self.timeout:g}s: WALK_ENABLED={values['walk']}, "
-                    f"REST_ACTIVE={values['rest']}. Inspect the WALK/REST circuit."
+                    f"REST_ACTIVE={values['rest']}, "
+                    f"START_REQUEST={values['start_request']}, "
+                    f"STOP_REQUEST={values['stop_request']}. Inspect the command circuit."
                 )
             expected = (1, 0) if action == "start" else (0, 1)
             if (values["walk"], values["rest"]) != expected:

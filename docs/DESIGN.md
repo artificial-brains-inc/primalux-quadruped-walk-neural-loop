@@ -13,31 +13,44 @@ Only public SDK relationships appear in this project.
 | TRANSPORT_ACK | 1 | Acknowledgement stimulus accompanying that request |
 | GAIT_REWARD_IN | 1 | Binary physical outcome reward while learning |
 
-After a fresh transport ACK the adapter clears ACK alone. START or STOP remains
-asserted until the requested WALK/REST readouts confirm, then the three command inputs clear.
-There are no periodic refreshes or phase, clock, target or joint-progress inputs.
-Internal populations connect directly. Physical outcome enters only through the
-reward input; no joint, phase or oscillator state is republished as a stimulus.
+Live inputs are one-step events. An atomic command event includes START or STOP
+and ACK. Waiting in Python does not retain the command input on the device.
+The graph itself captures the event and carries the request through the switch.
+No phase, clock, target or joint-progress inputs are added.
 
-## One walking nucleus with a neural STOP
+## Capture a request, then retain the goal
 
-START → High-Gamma T10 → WALK_ENABLED → WALK_NUCLEUS (High-Gamma T10).
-WALK_NUCLEUS feeds back to WALK_ENABLED and recruits WALK_DRIVE (Theta T2.01).
-The same WALK_DRIVE supplies both phase T1 populations equally.
+START → High-Gamma T10 → START_REQUEST (bistable output) → START_REQUEST_HG
+(High-Gamma T10). The helper reinforces START_REQUEST, excites WALK_ENABLED,
+and inhibits REST_ACTIVE and REST_NUCLEUS. Its continuing neural activity can
+clear the old REST state and recruit WALK even though the input event has ended.
 
-STOP → High-Gamma T10 → REST_ACTIVE → REST_NUCLEUS (High-Gamma T10), with a
-reinforcing connection from REST_NUCLEUS to REST_ACTIVE. WALK and REST nuclei
-inhibit each other's nucleus and output. START directly clears both REST states;
-STOP directly clears both WALK states. This lets a new command oppose an already
-active reinforcing loop without periodic controller resends.
+WALK_ENABLED → WALK_NUCLEUS (High-Gamma T10) reinforces WALK_ENABLED and supplies
+WALK_DRIVE (Theta T2.01). Once WALK_NUCLEUS recruits, it clears START_REQUEST and
+START_REQUEST_HG. The retained goal then supplies both phase T1 populations equally.
 
-REST also inhibits WALK_DRIVE, startup bias, all phase states, and all local motor
-populations and outputs. STOP directly opposes phase T2, Beta, inhibitor and release
-populations while REST recruits. Clearing recurrent activity and bistable outputs
-is part of the neural stop mechanism. Merely removing WALK excitation is insufficient.
+STOP has the same structure through STOP_REQUEST and STOP_REQUEST_HG to REST.
+Each incoming command cue also clears the opposite request and its helper.
+The initial cue relay is not inhibited by the currently active goal: an existing
+REST state must not prevent a new START request from being captured.
 
-These reinforcing command loops are design hypotheses. Their persistence after input clearing and their
-response to an opposing command must be measured on Prima-Lux.
+| State | Retaining path | Clearing paths |
+| --- | --- | --- |
+| START_REQUEST | START_REQUEST_HG → START_REQUEST | WALK_NUCLEUS or incoming STOP cue |
+| STOP_REQUEST | STOP_REQUEST_HG → STOP_REQUEST | REST_NUCLEUS or incoming START cue |
+| WALK_ENABLED | WALK_NUCLEUS → WALK_ENABLED | STOP_REQUEST_HG and REST_NUCLEUS |
+| REST_ACTIVE | REST_NUCLEUS → REST_ACTIVE | START_REQUEST_HG and WALK_NUCLEUS |
+
+WALK and REST nuclei inhibit each other's nucleus and output. REST also inhibits
+WALK_DRIVE, startup bias, phase states, and local motor populations and outputs.
+STOP_REQUEST_HG directly opposes phase T2, Beta, inhibitor and release while REST
+recruits. Removing excitation alone is not a stop for bistable motor outputs.
+
+The adapter observes WALK/REST to confirm the transition; it does not simulate
+request retention or choose a motor phase. All request and goal paths stay static.
+The two new request outputs and two high-gamma helpers add four neurons, with
+no new external input. The [isolated command check](COMMAND_CHECK.json) exercises
+single-event STOP, START and restart. Full body coordination still needs a live run.
 
 ## Each phase releases the other
 
@@ -140,7 +153,7 @@ This overwrites the saved design; preserve Canvas edits first.
 
 ## A starts through a temporary bias
 
-START also recruits START_A_BIAS → High-Gamma T10. The helper inhibits B's T2,
+START_REQUEST_HG also recruits START_A_BIAS → High-Gamma T10. The helper inhibits B's T2,
 BETA and INHIBITOR. A's INHIBITOR clears the bias once it recruits; STOP and REST
 also clear it. The bias gives A an initial opportunity without extra continuing
 excitation to A, a controller timer or another external input. Observe its clearing
@@ -179,9 +192,9 @@ to select a phase or move a joint. Only the 24 local motor outputs actuate the b
 Readouts have explicit clearing connections but remain bistable populations;
 they are not a complete view of the OPUs. Compare them with population telemetry.
 
-The saved graph contains 44 OPUs, 34 one-neuron outputs and four one-neuron inputs:
-82 populations and 285 connections. Construction reports 538 total neurons and
-552,664 bytes (about 0.53 MiB) of matrix storage. Other image data also uses the
+The saved graph contains 46 OPUs, 36 one-neuron outputs and four one-neuron inputs:
+86 populations and 299 connections. Construction reports 542 total neurons and
+553,056 bytes (about 0.53 MiB) of matrix storage. Other image data also uses the
 32 MiB budget. The device Build remains authoritative.
 
 ACK remains input → High-Gamma T10 → output → separate High-Gamma T10 reset,

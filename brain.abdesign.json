@@ -50,14 +50,14 @@
     {
       "name": "GAIT_REWARD_IN",
       "kind": "input",
-      "x": 1800.0,
+      "x": 2200.0,
       "y": 0.0,
       "neurons": 1
     },
     {
       "name": "GAIT_REWARD_RELAY",
       "kind": "opu",
-      "x": 2100.0,
+      "x": 2500.0,
       "y": 0.0,
       "rhythm": "high-gamma",
       "tnorm": 10.0
@@ -65,7 +65,7 @@
     {
       "name": "GAIT_REWARD",
       "kind": "opu",
-      "x": 2400.0,
+      "x": 2800.0,
       "y": 0.0,
       "rhythm": "dopaminergic",
       "tnorm": 3.0
@@ -73,19 +73,42 @@
     {
       "name": "WALK_ENABLED",
       "kind": "output",
-      "x": 500.0,
+      "x": 1080.0,
       "y": 0.0,
       "neurons": 1
     },
     {
       "name": "REST_ACTIVE",
       "kind": "output",
-      "x": 500.0,
+      "x": 1080.0,
       "y": 180.0,
       "neurons": 1
     },
     {
       "name": "WALK_NUCLEUS",
+      "kind": "opu",
+      "x": 1360.0,
+      "y": 0.0,
+      "rhythm": "high-gamma",
+      "tnorm": 10.0
+    },
+    {
+      "name": "REST_NUCLEUS",
+      "kind": "opu",
+      "x": 1360.0,
+      "y": 180.0,
+      "rhythm": "high-gamma",
+      "tnorm": 10.0
+    },
+    {
+      "name": "START_REQUEST",
+      "kind": "output",
+      "x": 500.0,
+      "y": 0.0,
+      "neurons": 1
+    },
+    {
+      "name": "START_REQUEST_HG",
       "kind": "opu",
       "x": 780.0,
       "y": 0.0,
@@ -93,7 +116,14 @@
       "tnorm": 10.0
     },
     {
-      "name": "REST_NUCLEUS",
+      "name": "STOP_REQUEST",
+      "kind": "output",
+      "x": 500.0,
+      "y": 180.0,
+      "neurons": 1
+    },
+    {
+      "name": "STOP_REQUEST_HG",
       "kind": "opu",
       "x": 780.0,
       "y": 180.0,
@@ -103,7 +133,7 @@
     {
       "name": "WALK_DRIVE",
       "kind": "opu",
-      "x": 1080.0,
+      "x": 1660.0,
       "y": 0.0,
       "rhythm": "theta",
       "tnorm": 2.01
@@ -649,6 +679,84 @@
     },
     {
       "from": "WALK_START_HG",
+      "to": "START_REQUEST",
+      "type": "exc"
+    },
+    {
+      "from": "START_REQUEST",
+      "to": "START_REQUEST_HG",
+      "type": "exc"
+    },
+    {
+      "from": "START_REQUEST_HG",
+      "to": "START_REQUEST",
+      "type": "exc"
+    },
+    {
+      "from": "WALK_STOP_HG",
+      "to": "START_REQUEST",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "WALK_NUCLEUS",
+      "to": "START_REQUEST",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "WALK_STOP_HG",
+      "to": "START_REQUEST_HG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "WALK_NUCLEUS",
+      "to": "START_REQUEST_HG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "WALK_STOP_HG",
+      "to": "STOP_REQUEST",
+      "type": "exc"
+    },
+    {
+      "from": "STOP_REQUEST",
+      "to": "STOP_REQUEST_HG",
+      "type": "exc"
+    },
+    {
+      "from": "STOP_REQUEST_HG",
+      "to": "STOP_REQUEST",
+      "type": "exc"
+    },
+    {
+      "from": "WALK_START_HG",
+      "to": "STOP_REQUEST",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "STOP_REQUEST",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "WALK_START_HG",
+      "to": "STOP_REQUEST_HG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "STOP_REQUEST_HG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "START_REQUEST_HG",
       "to": "WALK_ENABLED",
       "type": "exc"
     },
@@ -663,19 +771,19 @@
       "type": "exc"
     },
     {
-      "from": "WALK_STOP_HG",
+      "from": "STOP_REQUEST_HG",
       "to": "WALK_ENABLED",
       "type": "inh",
       "strength": 4.0
     },
     {
-      "from": "WALK_STOP_HG",
+      "from": "STOP_REQUEST_HG",
       "to": "WALK_NUCLEUS",
       "type": "inh",
       "strength": 4.0
     },
     {
-      "from": "WALK_STOP_HG",
+      "from": "STOP_REQUEST_HG",
       "to": "REST_ACTIVE",
       "type": "exc"
     },
@@ -690,13 +798,13 @@
       "type": "exc"
     },
     {
-      "from": "WALK_START_HG",
+      "from": "START_REQUEST_HG",
       "to": "REST_ACTIVE",
       "type": "inh",
       "strength": 4.0
     },
     {
-      "from": "WALK_START_HG",
+      "from": "START_REQUEST_HG",
       "to": "REST_NUCLEUS",
       "type": "inh",
       "strength": 4.0
@@ -733,7 +841,7 @@
       "type": "exc"
     },
     {
-      "from": "WALK_START_HG",
+      "from": "START_REQUEST_HG",
       "to": "START_A_BIAS",
       "type": "exc"
     },
@@ -743,7 +851,7 @@
       "type": "exc"
     },
     {
-      "from": "WALK_STOP_HG",
+      "from": "STOP_REQUEST_HG",
       "to": "START_A_BIAS",
       "type": "inh",
       "strength": 4.0
@@ -2305,49 +2413,49 @@
       "strength": 4.0
     },
     {
-      "from": "WALK_STOP_HG",
+      "from": "STOP_REQUEST_HG",
       "to": "PHASE_A_T2",
       "type": "inh",
       "strength": 4.0
     },
     {
-      "from": "WALK_STOP_HG",
+      "from": "STOP_REQUEST_HG",
       "to": "PHASE_A_BETA",
       "type": "inh",
       "strength": 4.0
     },
     {
-      "from": "WALK_STOP_HG",
+      "from": "STOP_REQUEST_HG",
       "to": "PHASE_A_INHIBITOR",
       "type": "inh",
       "strength": 4.0
     },
     {
-      "from": "WALK_STOP_HG",
+      "from": "STOP_REQUEST_HG",
       "to": "PHASE_A_RELEASE",
       "type": "inh",
       "strength": 4.0
     },
     {
-      "from": "WALK_STOP_HG",
+      "from": "STOP_REQUEST_HG",
       "to": "PHASE_B_T2",
       "type": "inh",
       "strength": 4.0
     },
     {
-      "from": "WALK_STOP_HG",
+      "from": "STOP_REQUEST_HG",
       "to": "PHASE_B_BETA",
       "type": "inh",
       "strength": 4.0
     },
     {
-      "from": "WALK_STOP_HG",
+      "from": "STOP_REQUEST_HG",
       "to": "PHASE_B_INHIBITOR",
       "type": "inh",
       "strength": 4.0
     },
     {
-      "from": "WALK_STOP_HG",
+      "from": "STOP_REQUEST_HG",
       "to": "PHASE_B_RELEASE",
       "type": "inh",
       "strength": 4.0

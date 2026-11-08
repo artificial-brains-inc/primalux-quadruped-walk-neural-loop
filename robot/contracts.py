@@ -21,6 +21,8 @@ OUTPUT_SIZES = {
         *MOTOR_OUTPUTS,
         "WALK_ENABLED",
         "REST_ACTIVE",
+        "START_REQUEST",
+        "STOP_REQUEST",
         "START_A_BIAS",
         "PHASE_A_OUT",
         "PHASE_B_OUT",

@@ -206,7 +206,7 @@ class ControllerIntegrationTests(unittest.TestCase):
         )  # No sends during the three pending motor frames.
         self.assertEqual(
             sent[-1][0], 5
-        )  # Confirmation clears START after body has advanced.
+        )  # Confirmation sends an idle snapshot after the body has advanced.
         self.assertEqual(sum(p.get("WALK_START", [0])[0] for _, p in sent), 1)
         self.assertIn("START ACK received", output)
         self.assertIn("START confirmed", output)

@@ -8,8 +8,9 @@ Keep the bundled world and `config.json` unchanged for initial comparisons.
 1. Run `ab run -ab --env .env rhythm`. The actual brain runs while the body holds
    neutral targets and external reward stays zero.
 2. Press W once. Check the separate key, command, ACK and goal-confirmation events.
-   WALK=1 and REST=0 must confirm before START clears. Inspect whether activity
-   persists after clearing, without a periodic external command.
+   WALK=1 and REST=0 confirm the transition. Inspect START_REQUEST capturing the
+   event, its helper carrying the request, and WALK_NUCLEUS clearing the request
+   after takeover. Goal activity must persist without periodic external commands.
 3. Follow A_T2 → A_INHIBITOR, A_BETA → A_RELEASE, and A_RELEASE inhibiting
    A_INHIBITOR. Inspect the mirrored B paths and the startup bias clearing.
 4. Observe repeated cycles and all four leg groups. Look for both phases active,
@@ -19,7 +20,8 @@ Keep the bundled world and `config.json` unchanged for initial comparisons.
    Stop/save confirmation. Startup STOP alone does not test stopping a gait.
 
 If REST stays active, `commands.jsonl` distinguishes a missing W key event from a
-command that was sent and ACKed but never confirmed. Learning does not repair a
+command that was sent and ACKed but never confirmed. Inspect START_REQUEST and
+STOP_REQUEST to locate capture or takeover failures. Learning does not repair a
 failed command path; those paths are intentionally static. Keep the native trace
 and inspect the actual WALK/REST competition instead of increasing reward.
 

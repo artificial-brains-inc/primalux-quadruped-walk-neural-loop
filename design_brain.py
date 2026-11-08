@@ -70,21 +70,39 @@ def create_brain(*, learning=True):
         b.connect(name, name + "_HG")
 
     b.input(REWARD_INPUT, 1)
-    coordinates[REWARD_INPUT] = (1800, 0)
-    opu("GAIT_REWARD_RELAY", "high-gamma", 10, 2100, 0)
-    opu("GAIT_REWARD", "dopaminergic", 3, 2400, 0)
+    coordinates[REWARD_INPUT] = (2200, 0)
+    opu("GAIT_REWARD_RELAY", "high-gamma", 10, 2500, 0)
+    opu("GAIT_REWARD", "dopaminergic", 3, 2800, 0)
     b.connect(REWARD_INPUT, "GAIT_REWARD_RELAY")
     b.connect("GAIT_REWARD_RELAY", "GAIT_REWARD")
 
-    output("WALK_ENABLED", 500, 0)
-    output("REST_ACTIVE", 500, 180)
-    opu("WALK_NUCLEUS", "high-gamma", 10, 780, 0)
-    opu("REST_NUCLEUS", "high-gamma", 10, 780, 180)
+    output("WALK_ENABLED", 1080, 0)
+    output("REST_ACTIVE", 1080, 180)
+    opu("WALK_NUCLEUS", "high-gamma", 10, 1360, 0)
+    opu("REST_NUCLEUS", "high-gamma", 10, 1360, 180)
+    # A live input is one event, not a held level. Capture it in an unopposed
+    # request latch, then retain its drive neurally until the goal takes over.
+    for i, (action, opposite, success) in enumerate(
+        (
+            ("START", "STOP", "WALK_NUCLEUS"),
+            ("STOP", "START", "REST_NUCLEUS"),
+        )
+    ):
+        request, driver = action + "_REQUEST", action + "_REQUEST_HG"
+        output(request, 500, i * 180)
+        opu(driver, "high-gamma", 10, 780, i * 180)
+        b.connect("WALK_" + action + "_HG", request)
+        b.connect(request, driver)
+        b.connect(driver, request)
+        for target in (request, driver):
+            inhibit("WALK_" + opposite + "_HG", target, STOP_INHIBITION)
+            inhibit(success, target, STOP_INHIBITION)
+
     # Reinforcement lives inside the graph, never in periodic host resends.
     # Ordinary output-to-helper edges provide the helper construction path.
     for state, nucleus, command, opposite_command in (
-        ("WALK_ENABLED", "WALK_NUCLEUS", "WALK_START_HG", "WALK_STOP_HG"),
-        ("REST_ACTIVE", "REST_NUCLEUS", "WALK_STOP_HG", "WALK_START_HG"),
+        ("WALK_ENABLED", "WALK_NUCLEUS", "START_REQUEST_HG", "STOP_REQUEST_HG"),
+        ("REST_ACTIVE", "REST_NUCLEUS", "STOP_REQUEST_HG", "START_REQUEST_HG"),
     ):
         b.connect(command, state)
         b.connect(state, nucleus)
@@ -97,14 +115,14 @@ def create_brain(*, learning=True):
     ):
         inhibit(source, state, STOP_INHIBITION)
         inhibit(source, nucleus, STOP_INHIBITION, feedback=True)
-    opu("WALK_DRIVE", "theta", 2.01, 1080, 0)
+    opu("WALK_DRIVE", "theta", 2.01, 1660, 0)
     b.connect("WALK_NUCLEUS", "WALK_DRIVE")
 
     output("START_A_BIAS", 500, 540)
     opu("START_A_BIAS_HG", "high-gamma", 10, 780, 540)
-    b.connect("WALK_START_HG", "START_A_BIAS")
+    b.connect("START_REQUEST_HG", "START_A_BIAS")
     b.connect("START_A_BIAS", "START_A_BIAS_HG")
-    inhibit("WALK_STOP_HG", "START_A_BIAS", STOP_INHIBITION)
+    inhibit("STOP_REQUEST_HG", "START_A_BIAS", STOP_INHIBITION)
 
     for i, phase in enumerate(("A", "B")):
         stem = "PHASE_" + phase
@@ -204,7 +222,7 @@ def create_brain(*, learning=True):
         inhibit("REST_NUCLEUS", target, STOP_INHIBITION)
     for phase in ("A", "B"):
         for suffix in ("T2", "BETA", "INHIBITOR", "RELEASE"):
-            inhibit("WALK_STOP_HG", f"PHASE_{phase}_{suffix}", STOP_INHIBITION)
+            inhibit("STOP_REQUEST_HG", f"PHASE_{phase}_{suffix}", STOP_INHIBITION)
 
     output("TRANSPORT_ACK_OUT", 500, 360)
     opu("TRANSPORT_ACK_RESET", "high-gamma", 10, 780, 360)

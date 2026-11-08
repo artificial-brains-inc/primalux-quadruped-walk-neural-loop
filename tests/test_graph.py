@@ -64,14 +64,38 @@ class GraphTests(unittest.TestCase):
 
     def test_command_reinforcement_has_explicit_opposing_clear_paths(self):
         for state, nucleus, clear, opposite in (
-            ("WALK_ENABLED", "WALK_NUCLEUS", "WALK_STOP_HG", "REST_NUCLEUS"),
-            ("REST_ACTIVE", "REST_NUCLEUS", "WALK_START_HG", "WALK_NUCLEUS"),
+            ("WALK_ENABLED", "WALK_NUCLEUS", "STOP_REQUEST_HG", "REST_NUCLEUS"),
+            ("REST_ACTIVE", "REST_NUCLEUS", "START_REQUEST_HG", "WALK_NUCLEUS"),
         ):
             for source, target in ((state, nucleus), (nucleus, state)):
                 self.assertEqual(self.edges[(source, target)]["type"], "exc")
             for source in (clear, opposite):
                 for target in (state, nucleus):
                     self.assert_inhibits(source, target, 4)
+
+    def test_command_event_has_an_unopposed_neural_capture_path(self):
+        for action, other, success in (
+            ("START", "STOP", "WALK_NUCLEUS"),
+            ("STOP", "START", "REST_NUCLEUS"),
+        ):
+            cue = "WALK_" + action + "_HG"
+            request, driver = action + "_REQUEST", action + "_REQUEST_HG"
+            for source, target in (
+                (cue, request),
+                (request, driver),
+                (driver, request),
+            ):
+                self.assertEqual(self.edges[(source, target)]["type"], "exc")
+                self.assertNotIn("rule", self.edges[(source, target)])
+            self.assertFalse(
+                any(t == cue and e["type"] == "inh" for (s, t), e in self.edges.items())
+            )
+            for target in (request, driver):
+                self.assert_inhibits(success, target, 4)
+                self.assert_inhibits("WALK_" + other + "_HG", target, 4)
+                # REST must not prevent capture of a new START, or vice versa.
+                opposing_goal = "REST_NUCLEUS" if action == "START" else "WALK_NUCLEUS"
+                self.assertNotIn((opposing_goal, target), self.edges)
 
     def test_continuing_phase_drive_and_preparation_are_symmetric(self):
         for phase, other in (("A", "B"), ("B", "A")):
@@ -135,7 +159,7 @@ class GraphTests(unittest.TestCase):
     def test_start_bias_is_cleared_by_inhibitor_recruitment(self):
         for suffix in ("T2", "BETA", "INHIBITOR"):
             self.assert_inhibits("START_A_BIAS_HG", "PHASE_B_" + suffix, 1)
-        for source in ("PHASE_A_INHIBITOR", "WALK_STOP_HG", "REST_NUCLEUS"):
+        for source in ("PHASE_A_INHIBITOR", "STOP_REQUEST_HG", "REST_NUCLEUS"):
             self.assert_inhibits(
                 source, "START_A_BIAS", 1 if source == "PHASE_A_INHIBITOR" else 4
             )
@@ -201,9 +225,9 @@ class GraphTests(unittest.TestCase):
             "PHASE_A_BETA",
             "PHASE_B_BETA",
         ):
-            self.assert_inhibits("WALK_STOP_HG", target, 4)
-        self.assert_inhibits("WALK_START_HG", "REST_ACTIVE", 4)
-        self.assert_inhibits("WALK_START_HG", "REST_NUCLEUS", 4)
+            self.assert_inhibits("STOP_REQUEST_HG", target, 4)
+        self.assert_inhibits("START_REQUEST_HG", "REST_ACTIVE", 4)
+        self.assert_inhibits("START_REQUEST_HG", "REST_NUCLEUS", 4)
 
     def test_ack_is_isolated_from_behavior(self):
         for source, target in self.edges:

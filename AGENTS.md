@@ -6,7 +6,7 @@ Use the Artificial Brains building guide's source-to-target relationships.
 - External inputs are WALK_START, WALK_STOP, TRANSPORT_ACK and GAIT_REWARD_IN: one neuron each.
 - Never send phase, gait-progress, oscillator or motor-output states back from
   Python as inputs. Internal populations connect directly in the brain.
-- Physical outcome supplies one binary reward from GPS/orientation after a body step.
+- Physical outcome supplies one binary reward event from GPS/orientation after each qualifying body step.
   Never use reward measurement to choose a gait phase or actuator target.
 - Keep STDP3/LTP on the 66 phase/release/motor veto paths. START, STOP, local
   antagonists, excitation and transport ACK stay static. Initial gait strength is
@@ -19,9 +19,13 @@ Use the Artificial Brains building guide's source-to-target relationships.
   inhibits that INHIBITOR, releasing the opposite phase. Preserve this topology.
 - RELEASE does not directly clear its own motors. The opposite INHIBITOR does.
 - WALK_DRIVE supplies both phases equally. A's inhibitor clears the startup bias.
+- Live inputs are single-step events, not held levels. Capture START and STOP in
+  neural request latches with high-gamma reinforcement. Success and opposite
+  command cues clear both the request output and its helper. Never let REST block
+  the initial START capture path or WALK block the initial STOP capture path.
 - Reinforce WALK and REST internally, with explicit opposing command clear paths.
-- Transport ACK is not goal confirmation. Clear ACK on receipt; clear START/STOP
-  only after the corresponding exclusive WALK/REST readouts confirm.
+- Transport ACK is not goal confirmation. ACK zero and the post-confirmation idle snapshot are explicit hygiene events;
+  they do not establish a held input. Observe exclusive WALK/REST confirmation.
 - After ACK, keep stepping the body once per real neural frame while awaiting
   goal confirmation. Never republish periodic command stimuli or choose a phase.
 - Use connection strength for inhibitory intensity; do not use TNorm as strength.

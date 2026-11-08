@@ -1,14 +1,14 @@
 # Build the walking goal and decide its interactions
 
 Start with the behavioral requirement: a START request should enable coordinated
-stepping, and a STOP request should suppress it. The adapter holds each request
-until its goal readouts confirm, then clears it without periodic resends. Separate the retained goal, the
-phase interaction and the local actuator expression.
+stepping, and a STOP request should suppress it. The adapter publishes one input event. A neural request latch retains the request
+until the new goal takes over and clears it. Separate request capture, the retained
+goal, phase interaction and local actuator expression.
 
 | Relationship | Purpose |
 | --- | --- |
-| START recruits WALK and clears REST | Enable a persistent goal through an internal reinforcing loop |
-| STOP recruits REST and clears WALK | Oppose the goal and its recurrence, including held outputs |
+| START request latch recruits WALK and clears REST | Enable a persistent goal through an internal reinforcing loop |
+| STOP request latch recruits REST and clears WALK | Oppose the goal and its recurrence, including held outputs |
 | WALK_DRIVE excites A and B equally | Supply both candidate phases without permanently favoring one |
 | Startup bias inhibits B until A's inhibitor recruits | Give A an initial opportunity without host timing |
 | Intermediate A prepares B, and B prepares A | Make the next action available through internal feedback |

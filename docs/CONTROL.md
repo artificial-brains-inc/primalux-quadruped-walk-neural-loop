@@ -2,37 +2,25 @@
 
 ## What crosses the boundary
 
-The adapter sends one atomic START-or-STOP snapshot together with ACK, at startup
-or on an explicit W/S keypress. A fresh transport ACK establishes receipt. The
-adapter then clears only the ACK input through the SDK's named-population update;
-it leaves the requested command asserted without republishing it.
+The adapter publishes one atomic START-or-STOP event together with ACK at startup
+or on a W/S keypress. The device consumes the input event in a neural step; it does
+not maintain START as a level until a later zero event. A fresh transport ACK
+confirms entry into its separate pathway, not the WALK/REST transition.
 
-Each subsequent native output frame is applied to the body and inspected for
-command confirmation. START requires WALK_ENABLED=1 and REST_ACTIVE=0; STOP
-requires WALK_ENABLED=0 and REST_ACTIVE=1. Only then does the adapter clear the
-command inputs. These checks confirm goal readouts; they do not select gait phases,
-choose joint movements or claim the entire neural circuit has settled.
+Neural request latches capture the command and maintain its drive internally.
+The corresponding goal nucleus clears the request after taking over. An opposite
+command cue can cancel it. Python waits for START's WALK=1/REST=0 or STOP's
+WALK=0/REST=1 readouts; it supplies no command repeats or phase choices.
 
-No phase, motor state or body-derived movement command is sent as an input. Once the goal
-confirms, neural reinforcement and recurrence maintain activity. The regular loop
-publishes no periodic command refresh. Holding a keyboard key does not resend it each frame;
-a deliberate release and new press can issue another command. An explicit S can
-replace a START still awaiting confirmation.
+The zero ACK event after receipt and all-zero command snapshot after confirmation
+are explicit idle observations. They must not be interpreted as releasing a held
+stimulus. The reward channel is separate and is not included in command snapshots.
 
-Only the transport ACK wait freezes physics. After ACK, the body advances exactly
-once per native frame while the neural goal switches, including frames where REST
-is still active. The adapter never fabricates a motor state or skips those frames
-to wait for WALK. Diagnostic readouts cannot make the robot move; local motor
-outputs alone drive the joints.
-
-`ack_timeout_seconds` bounds the transport wait, then separately bounds goal
-confirmation after ACK. Failure reports the requested command and latest WALK/REST
-readouts and ends the session through SDK Stop/save. Missing native frames or an
-output-stream timeout also stop the session. There is no automatic retry.
-
-ACK confirms receipt, not completion of a neural decision. Clearing START on ACK
-alone can withdraw its excitation and REST inhibition before the command circuit
-has switched. The adapter separates transport receipt from goal confirmation.
+Only transport ACK waiting freezes physics. After ACK, each native output frame
+produces one body step, including frames while the command remains pending.
+`ack_timeout_seconds` separately bounds ACK waiting and goal confirmation.
+Failure reports WALK, REST and both request readouts and triggers SDK Stop/save.
+An explicit S can replace pending START; a new W keypress can issue a fresh event.
 
 ## Actuator decoding
 
@@ -76,10 +64,11 @@ zero. Invalid measurements and simulation-time resets disarm reward until a new
 START. Loss of exclusive WALK readout also disarms it; W can start a new episode.
 
 The adapter calls the SDK's `session.publish_reward("GAIT_REWARD_IN", value)`
-only when the binary value changes. The input holds that value between changes;
-it is not a fabricated spike train. Startup, W/S commands and shutdown clear it.
+for every qualifying body step. Each event represents a newly measured outcome;
+a prior 1 is not held by the device. Repeated zeros are omitted. Startup, W/S
+commands and shutdown send an explicit zero event.
 Command clearing affects only START, STOP and ACK, never the reward input.
-`rewards.jsonl` records accepted changes; every observation records its evidence.
+`rewards.jsonl` records accepted events; every observation records its evidence.
 A reward clear is attempted on exit even if Webots closes; SDK Stop/save still runs
 if that clear fails.
 
