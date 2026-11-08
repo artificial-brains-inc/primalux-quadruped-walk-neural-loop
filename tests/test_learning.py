@@ -3,7 +3,7 @@ import unittest
 
 from design_brain import create_brain
 from robot.configuration import load_config
-from robot.contracts import REWARD_INPUT, LEGS, motor_population
+from robot.contracts import LEGS, REWARD_INPUT, motor_population
 from robot.reward import ProgressReward, RewardPublisher
 
 
@@ -17,8 +17,7 @@ class LearningGraphTests(unittest.TestCase):
             for target in ("FEEDBACK_BETA", "BETA")
         }
         teaching = {
-            (f"REFLEX_{leg}_NORMAL_RELAY_HG", motor_population(leg, "KNEE", "NEG"))
-            for leg in LEGS
+            (f"REFLEX_{leg}_HG", motor_population(leg, "KNEE", "NEG")) for leg in LEGS
         }
         self.assertEqual({(e["from"], e["to"]) for e in plastic}, expected | teaching)
         for edge in plastic:

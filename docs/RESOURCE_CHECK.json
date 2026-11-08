@@ -1,35 +1,645 @@
 {
-  "schema": "artificial-brains/build-feedback/v1",
-  "design_sha256": "19f2dcab60a41091c96bbacf5fa288ee0b7bebbb4ce66c06ac3ad702125bc82b",
+  "schema": "primalux-spot/construction-check/v1",
+  "design_sha256": "7449acf0b487ff5b23a1172ff0073bfdadf74262f5f9f61563d0f65649178d5a",
   "code": "CONSTRUCTION_OK",
   "populations": [
     {
+      "name": "WALK_START",
+      "classification": "input",
+      "neurons": 1
+    },
+    {
+      "name": "WALK_START_HG",
+      "classification": "high-gamma",
+      "neurons": 1,
+      "tnorm": 10.0
+    },
+    {
+      "name": "WALK_STOP",
+      "classification": "input",
+      "neurons": 1
+    },
+    {
+      "name": "WALK_STOP_HG",
+      "classification": "high-gamma",
+      "neurons": 1,
+      "tnorm": 10.0
+    },
+    {
+      "name": "TRANSPORT_ACK",
+      "classification": "input",
+      "neurons": 1
+    },
+    {
+      "name": "TRANSPORT_ACK_HG",
+      "classification": "high-gamma",
+      "neurons": 1,
+      "tnorm": 10.0
+    },
+    {
       "name": "GAIT_REWARD_IN",
-      "classification": "outcome_input",
+      "classification": "input",
       "neurons": 10
     },
     {
       "name": "GAIT_REWARD_RELAY",
       "classification": "high-gamma",
-      "tnorm": 10,
-      "neurons": 10
+      "neurons": 10,
+      "tnorm": 10.0
     },
     {
       "name": "GAIT_REWARD",
       "classification": "dopaminergic",
-      "tnorm": 3,
-      "neurons": 17
+      "neurons": 17,
+      "tnorm": 3.0
+    },
+    {
+      "name": "WALK_ENABLED",
+      "classification": "output",
+      "neurons": 1
+    },
+    {
+      "name": "REST_ACTIVE",
+      "classification": "output",
+      "neurons": 1
+    },
+    {
+      "name": "WALK_NUCLEUS",
+      "classification": "high-gamma",
+      "neurons": 1,
+      "tnorm": 10.0
+    },
+    {
+      "name": "REST_NUCLEUS",
+      "classification": "high-gamma",
+      "neurons": 1,
+      "tnorm": 10.0
+    },
+    {
+      "name": "START_REQUEST",
+      "classification": "output",
+      "neurons": 1
+    },
+    {
+      "name": "START_REQUEST_HG",
+      "classification": "high-gamma",
+      "neurons": 1,
+      "tnorm": 10.0
+    },
+    {
+      "name": "STOP_REQUEST",
+      "classification": "output",
+      "neurons": 1
+    },
+    {
+      "name": "STOP_REQUEST_HG",
+      "classification": "high-gamma",
+      "neurons": 1,
+      "tnorm": 10.0
+    },
+    {
+      "name": "PHASE_A_REQUEST_HG",
+      "classification": "high-gamma",
+      "neurons": 1,
+      "tnorm": 10.0
+    },
+    {
+      "name": "PHASE_A_DRIVE_HG",
+      "classification": "high-gamma",
+      "neurons": 1,
+      "tnorm": 10.0
+    },
+    {
+      "name": "PHASE_A_MOTOR_FEEDBACK_HG",
+      "classification": "high-gamma",
+      "neurons": 4,
+      "tnorm": 10.0
+    },
+    {
+      "name": "PHASE_A_FEEDBACK_BETA",
+      "classification": "beta",
+      "neurons": 7,
+      "tnorm": 5.0
+    },
+    {
+      "name": "PHASE_A_BETA",
+      "classification": "beta",
+      "neurons": 11,
+      "tnorm": 5.0
+    },
+    {
+      "name": "PHASE_A_RELEASE",
+      "classification": "beta",
+      "neurons": 15,
+      "tnorm": 3.0
+    },
+    {
+      "name": "PHASE_A_REQUEST",
+      "classification": "output",
+      "neurons": 1
+    },
+    {
+      "name": "PHASE_A_OUT",
+      "classification": "output",
+      "neurons": 1
+    },
+    {
+      "name": "PHASE_A_RELEASE_OUT",
+      "classification": "output",
+      "neurons": 1
+    },
+    {
+      "name": "PHASE_B_REQUEST_HG",
+      "classification": "high-gamma",
+      "neurons": 1,
+      "tnorm": 10.0
+    },
+    {
+      "name": "PHASE_B_DRIVE_HG",
+      "classification": "high-gamma",
+      "neurons": 1,
+      "tnorm": 10.0
+    },
+    {
+      "name": "PHASE_B_MOTOR_FEEDBACK_HG",
+      "classification": "high-gamma",
+      "neurons": 4,
+      "tnorm": 10.0
+    },
+    {
+      "name": "PHASE_B_FEEDBACK_BETA",
+      "classification": "beta",
+      "neurons": 7,
+      "tnorm": 5.0
+    },
+    {
+      "name": "PHASE_B_BETA",
+      "classification": "beta",
+      "neurons": 11,
+      "tnorm": 5.0
+    },
+    {
+      "name": "PHASE_B_RELEASE",
+      "classification": "beta",
+      "neurons": 15,
+      "tnorm": 3.0
+    },
+    {
+      "name": "PHASE_B_REQUEST",
+      "classification": "output",
+      "neurons": 1
+    },
+    {
+      "name": "PHASE_B_OUT",
+      "classification": "output",
+      "neurons": 1
+    },
+    {
+      "name": "PHASE_B_RELEASE_OUT",
+      "classification": "output",
+      "neurons": 1
+    },
+    {
+      "name": "REAR_RL_A_RELAY_HG",
+      "classification": "high-gamma",
+      "neurons": 1,
+      "tnorm": 10.0
+    },
+    {
+      "name": "REAR_RL_B_RELAY_HG",
+      "classification": "high-gamma",
+      "neurons": 1,
+      "tnorm": 10.0
+    },
+    {
+      "name": "REAR_RR_A_RELAY_HG",
+      "classification": "high-gamma",
+      "neurons": 1,
+      "tnorm": 10.0
+    },
+    {
+      "name": "REAR_RR_B_RELAY_HG",
+      "classification": "high-gamma",
+      "neurons": 1,
+      "tnorm": 10.0
+    },
+    {
+      "name": "REFLEX_FL_EXTENSION_VETO_HG",
+      "classification": "high-gamma",
+      "neurons": 1,
+      "tnorm": 3.0
+    },
+    {
+      "name": "FRONT_LEFT_ABD_POS_BETA",
+      "classification": "beta",
+      "neurons": 2,
+      "tnorm": 5.0
+    },
+    {
+      "name": "FL_ABD_POS",
+      "classification": "output",
+      "neurons": 1
+    },
+    {
+      "name": "FRONT_LEFT_ABD_NEG_BETA",
+      "classification": "beta",
+      "neurons": 2,
+      "tnorm": 5.0
+    },
+    {
+      "name": "FL_ABD_NEG",
+      "classification": "output",
+      "neurons": 1
+    },
+    {
+      "name": "FRONT_LEFT_HIP_POS_BETA",
+      "classification": "beta",
+      "neurons": 2,
+      "tnorm": 5.0
+    },
+    {
+      "name": "FL_HIP_POS",
+      "classification": "output",
+      "neurons": 1
+    },
+    {
+      "name": "FRONT_LEFT_HIP_NEG_BETA",
+      "classification": "beta",
+      "neurons": 2,
+      "tnorm": 5.0
+    },
+    {
+      "name": "FL_HIP_NEG",
+      "classification": "output",
+      "neurons": 1
+    },
+    {
+      "name": "FRONT_LEFT_KNEE_POS_BETA",
+      "classification": "beta",
+      "neurons": 2,
+      "tnorm": 5.0
+    },
+    {
+      "name": "FL_KNEE_POS",
+      "classification": "output",
+      "neurons": 1
+    },
+    {
+      "name": "FRONT_LEFT_KNEE_NEG_BETA",
+      "classification": "beta",
+      "neurons": 24,
+      "tnorm": 5.0
+    },
+    {
+      "name": "FL_KNEE_NEG",
+      "classification": "output",
+      "neurons": 1
+    },
+    {
+      "name": "REFLEX_FR_EXTENSION_VETO_HG",
+      "classification": "high-gamma",
+      "neurons": 1,
+      "tnorm": 3.0
+    },
+    {
+      "name": "FRONT_RIGHT_ABD_POS_BETA",
+      "classification": "beta",
+      "neurons": 2,
+      "tnorm": 5.0
+    },
+    {
+      "name": "FR_ABD_POS",
+      "classification": "output",
+      "neurons": 1
+    },
+    {
+      "name": "FRONT_RIGHT_ABD_NEG_BETA",
+      "classification": "beta",
+      "neurons": 2,
+      "tnorm": 5.0
+    },
+    {
+      "name": "FR_ABD_NEG",
+      "classification": "output",
+      "neurons": 1
+    },
+    {
+      "name": "FRONT_RIGHT_HIP_POS_BETA",
+      "classification": "beta",
+      "neurons": 2,
+      "tnorm": 5.0
+    },
+    {
+      "name": "FR_HIP_POS",
+      "classification": "output",
+      "neurons": 1
+    },
+    {
+      "name": "FRONT_RIGHT_HIP_NEG_BETA",
+      "classification": "beta",
+      "neurons": 2,
+      "tnorm": 5.0
+    },
+    {
+      "name": "FR_HIP_NEG",
+      "classification": "output",
+      "neurons": 1
+    },
+    {
+      "name": "FRONT_RIGHT_KNEE_POS_BETA",
+      "classification": "beta",
+      "neurons": 2,
+      "tnorm": 5.0
+    },
+    {
+      "name": "FR_KNEE_POS",
+      "classification": "output",
+      "neurons": 1
+    },
+    {
+      "name": "FRONT_RIGHT_KNEE_NEG_BETA",
+      "classification": "beta",
+      "neurons": 24,
+      "tnorm": 5.0
+    },
+    {
+      "name": "FR_KNEE_NEG",
+      "classification": "output",
+      "neurons": 1
+    },
+    {
+      "name": "REFLEX_RL_EXTENSION_VETO_HG",
+      "classification": "high-gamma",
+      "neurons": 1,
+      "tnorm": 3.0
+    },
+    {
+      "name": "REAR_LEFT_ABD_POS_BETA",
+      "classification": "beta",
+      "neurons": 2,
+      "tnorm": 5.0
+    },
+    {
+      "name": "RL_ABD_POS",
+      "classification": "output",
+      "neurons": 1
+    },
+    {
+      "name": "REAR_LEFT_ABD_NEG_BETA",
+      "classification": "beta",
+      "neurons": 2,
+      "tnorm": 5.0
+    },
+    {
+      "name": "RL_ABD_NEG",
+      "classification": "output",
+      "neurons": 1
+    },
+    {
+      "name": "REAR_LEFT_HIP_POS_BETA",
+      "classification": "beta",
+      "neurons": 2,
+      "tnorm": 5.0
+    },
+    {
+      "name": "RL_HIP_POS",
+      "classification": "output",
+      "neurons": 1
+    },
+    {
+      "name": "REAR_LEFT_HIP_NEG_BETA",
+      "classification": "beta",
+      "neurons": 2,
+      "tnorm": 5.0
+    },
+    {
+      "name": "RL_HIP_NEG",
+      "classification": "output",
+      "neurons": 1
+    },
+    {
+      "name": "REAR_LEFT_KNEE_POS_BETA",
+      "classification": "beta",
+      "neurons": 2,
+      "tnorm": 5.0
+    },
+    {
+      "name": "RL_KNEE_POS",
+      "classification": "output",
+      "neurons": 1
+    },
+    {
+      "name": "REAR_LEFT_KNEE_NEG_BETA",
+      "classification": "beta",
+      "neurons": 24,
+      "tnorm": 5.0
+    },
+    {
+      "name": "RL_KNEE_NEG",
+      "classification": "output",
+      "neurons": 1
+    },
+    {
+      "name": "REFLEX_RR_EXTENSION_VETO_HG",
+      "classification": "high-gamma",
+      "neurons": 1,
+      "tnorm": 3.0
+    },
+    {
+      "name": "REAR_RIGHT_ABD_POS_BETA",
+      "classification": "beta",
+      "neurons": 2,
+      "tnorm": 5.0
+    },
+    {
+      "name": "RR_ABD_POS",
+      "classification": "output",
+      "neurons": 1
+    },
+    {
+      "name": "REAR_RIGHT_ABD_NEG_BETA",
+      "classification": "beta",
+      "neurons": 2,
+      "tnorm": 5.0
+    },
+    {
+      "name": "RR_ABD_NEG",
+      "classification": "output",
+      "neurons": 1
+    },
+    {
+      "name": "REAR_RIGHT_HIP_POS_BETA",
+      "classification": "beta",
+      "neurons": 2,
+      "tnorm": 5.0
+    },
+    {
+      "name": "RR_HIP_POS",
+      "classification": "output",
+      "neurons": 1
+    },
+    {
+      "name": "REAR_RIGHT_HIP_NEG_BETA",
+      "classification": "beta",
+      "neurons": 2,
+      "tnorm": 5.0
+    },
+    {
+      "name": "RR_HIP_NEG",
+      "classification": "output",
+      "neurons": 1
+    },
+    {
+      "name": "REAR_RIGHT_KNEE_POS_BETA",
+      "classification": "beta",
+      "neurons": 2,
+      "tnorm": 5.0
+    },
+    {
+      "name": "RR_KNEE_POS",
+      "classification": "output",
+      "neurons": 1
+    },
+    {
+      "name": "REAR_RIGHT_KNEE_NEG_BETA",
+      "classification": "beta",
+      "neurons": 24,
+      "tnorm": 5.0
+    },
+    {
+      "name": "RR_KNEE_NEG",
+      "classification": "output",
+      "neurons": 1
+    },
+    {
+      "name": "TILT_ROLL_NEG",
+      "classification": "input",
+      "neurons": 12
+    },
+    {
+      "name": "TILT_ROLL_POS",
+      "classification": "input",
+      "neurons": 12
+    },
+    {
+      "name": "TILT_PITCH_NEG",
+      "classification": "input",
+      "neurons": 12
+    },
+    {
+      "name": "TILT_PITCH_POS",
+      "classification": "input",
+      "neurons": 12
+    },
+    {
+      "name": "REFLEX_FL_HG",
+      "classification": "high-gamma",
+      "neurons": 24,
+      "tnorm": 5.0
+    },
+    {
+      "name": "REFLEX_FL_ACTIVE",
+      "classification": "output",
+      "neurons": 1
+    },
+    {
+      "name": "FL_KNEE_REFLEX_EXTEND",
+      "classification": "output",
+      "neurons": 1
+    },
+    {
+      "name": "REFLEX_FL_OUTPUT_RESET_HG",
+      "classification": "high-gamma",
+      "neurons": 1,
+      "tnorm": 10.0
+    },
+    {
+      "name": "REFLEX_FR_HG",
+      "classification": "high-gamma",
+      "neurons": 24,
+      "tnorm": 5.0
+    },
+    {
+      "name": "REFLEX_FR_ACTIVE",
+      "classification": "output",
+      "neurons": 1
+    },
+    {
+      "name": "FR_KNEE_REFLEX_EXTEND",
+      "classification": "output",
+      "neurons": 1
+    },
+    {
+      "name": "REFLEX_FR_OUTPUT_RESET_HG",
+      "classification": "high-gamma",
+      "neurons": 1,
+      "tnorm": 10.0
+    },
+    {
+      "name": "REFLEX_RL_HG",
+      "classification": "high-gamma",
+      "neurons": 24,
+      "tnorm": 5.0
+    },
+    {
+      "name": "REFLEX_RL_ACTIVE",
+      "classification": "output",
+      "neurons": 1
+    },
+    {
+      "name": "RL_KNEE_REFLEX_EXTEND",
+      "classification": "output",
+      "neurons": 1
+    },
+    {
+      "name": "REFLEX_RL_OUTPUT_RESET_HG",
+      "classification": "high-gamma",
+      "neurons": 1,
+      "tnorm": 10.0
+    },
+    {
+      "name": "REFLEX_RR_HG",
+      "classification": "high-gamma",
+      "neurons": 24,
+      "tnorm": 5.0
+    },
+    {
+      "name": "REFLEX_RR_ACTIVE",
+      "classification": "output",
+      "neurons": 1
+    },
+    {
+      "name": "RR_KNEE_REFLEX_EXTEND",
+      "classification": "output",
+      "neurons": 1
+    },
+    {
+      "name": "REFLEX_RR_OUTPUT_RESET_HG",
+      "classification": "high-gamma",
+      "neurons": 1,
+      "tnorm": 10.0
+    },
+    {
+      "name": "TRANSPORT_ACK_OUT",
+      "classification": "output",
+      "neurons": 1
+    },
+    {
+      "name": "TRANSPORT_ACK_RESET",
+      "classification": "high-gamma",
+      "neurons": 1,
+      "tnorm": 10.0
     }
   ],
   "resources": {
-    "design_populations": 121,
-    "design_connections": 481,
+    "design_populations": 113,
+    "design_connections": 457,
     "input_neurons": 61,
-    "neural_neurons": 512,
-    "total_neurons": 573,
+    "neural_neurons": 400,
+    "total_neurons": 461,
     "neuron_budget": 10000,
-    "dense_matrix_cells": 15199,
-    "matrix_storage_bytes": 425572,
+    "dense_matrix_cells": 10903,
+    "matrix_storage_bytes": 305284,
     "image_budget_bytes": 33554432
   }
 }

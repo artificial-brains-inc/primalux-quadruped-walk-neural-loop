@@ -133,9 +133,10 @@ omitted. This is sensory quantization, not a controller-side choice of leg or
 support action. Gyro readings remain logged but are not new inputs.
 
 Each local reflex receives compatible signs, inhibits its own knee flexion,
-excites its dedicated reflex extension Beta and ends its own reflex drive.
-The new KNEE_REFLEX_EXTEND output recruits its own output-reset relay and a
-teaching relay into the normal extension Beta. No reflex inhibits another leg;
+directly excites its fast extension output from high-gamma T5.
+KNEE_REFLEX_EXTEND recruits an output-reset relay that clears the output and
+inhibits its trigger. The same high-gamma directly excites the regular extension
+Beta through STDP3/LTP. No reflex inhibits another leg;
 shared sensory evidence can recruit several independent reflexes.
 
 The decoder maps the fast motor output to the configured corrective excursion
@@ -153,3 +154,17 @@ Hardware queue acceptance is checked; it is not proof of consumption in that
 same neural step. No added ACK wait or host burst timer is used. Compare queue
 backlog, received outputs and post-step body measurements when assessing latency.
 A publication failure triggers the existing Stop/save cleanup.
+
+## Internal neuron recording
+
+`neuron-telemetry.jsonl` is read from the same authenticated completed-frame
+stream used by the SDK's neuron viewer. Its `hello` record includes all neuron
+identities. Each available `frame` preserves raw neuron/input bitsets and includes
+`native_step` and `spike_counts` per population. Counts include zero-activity
+populations. They are spike counts in that frame, not firing rates or proof of
+physical support. A missing telemetry sample is `null`, not a zero-spike sample.
+
+The observer runs independently of the motor loop. It never publishes inputs or
+waits for a target. A recording gap, changed run or connection error is logged
+and printed; it does not silently invent missing firing data. It does not restart
+the brain. Send this file alongside observations and settings for diagnosis.

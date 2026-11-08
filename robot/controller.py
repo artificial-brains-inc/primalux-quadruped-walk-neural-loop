@@ -29,6 +29,7 @@ from .exchange import CommandExchange
 from .reward import ProgressReward, RewardPublisher
 from .recovery import Recovery
 from .reflex import TiltPublisher
+from .neuron_recording import NeuronRecorder
 from .transport import EventBuffer, StopRequested
 
 
@@ -104,7 +105,7 @@ def main():
         f"design: {design_hash}; project: {ROOT}",
         flush=True,
     )
-    client = session = None
+    client = session = recorder = None
     failed = False
     started = time.monotonic()
     rows = []
@@ -123,6 +124,10 @@ def main():
         verify_installed()
         client = ABClient.from_env(env_path=environment_path())
         session = client.start_from_env(env_path=environment_path())
+        recorder = NeuronRecorder(
+            directory / "neuron-telemetry.jsonl", environment_path()
+        )
+        recorder.start()
         with (
             (directory / "native-outputs.jsonl").open("x", buffering=1) as native,
             (directory / "commands.jsonl").open("x", buffering=1) as commands,
@@ -413,6 +418,8 @@ def main():
             write_state("ERROR", neural_stop_confirmed=False, message=str(exc))
             raise
         finally:
+            if recorder is not None:
+                recorder.stop()
             if client is not None:
                 client.close()
             report = summarize(rows)

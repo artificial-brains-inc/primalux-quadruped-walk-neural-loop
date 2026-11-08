@@ -2,10 +2,10 @@
 
 The saved design is generated through SDK 0.4.2 public fields. The compatible
 0.4.11 builder accepts its construction. [RESOURCE_CHECK.json](RESOURCE_CHECK.json)
-records the design hash, 573 total neurons and 425,572 bytes of matrix storage.
+records the design hash, 461 total neurons and 305,284 bytes of matrix storage.
 Other prepared-image data also uses the 32 MiB image budget.
 
-88 application tests pass. They cover command/ACK/goal confirmation, SDK dispatch, local motor
+93 application tests pass. They cover command/ACK/goal confirmation, SDK dispatch, local motor
 decoding, tilt encoding, reward evidence, Stop/save, recovery, installer behavior,
 asset resolution, graph/source agreement and the new I/O contract.
 
@@ -25,3 +25,9 @@ weight changes, physical stability or proof of learned walking.
 Use `walk` first, with reward disabled and reflexes enabled. Compare state
 readouts with actual hip/knee outputs and joint positions. Then enable `learn`
 and compare physical progress, falls and observed changes on the selected paths.
+
+Local initialized-cell checks cannot resolve a mismatch with observed device
+behavior. The direct HG motor branch and regular Beta branch must both be
+observed on the device. Use the internal neuron recording to locate inactive
+stages; output-only logs cannot establish whether an upstream OPU fired. The
+rear relay orders command recruitment, not completion of a physical stroke.

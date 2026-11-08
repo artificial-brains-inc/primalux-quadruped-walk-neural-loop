@@ -6,6 +6,7 @@ LEG_PREFIXES = {leg: name.upper().replace(" ", "_") for leg, name in LEG_NAMES.i
 JOINTS = ("ABD", "HIP", "KNEE")
 JOINT_NAMES = dict(ABD="shoulder abduction", HIP="shoulder rotation", KNEE="elbow")
 SUPPORT_PHASE = dict(FL="A", RR="A", FR="B", RL="B")
+REAR_FRONT_PARTNER = {"RL": "FR", "RR": "FL"}
 SWING_PHASE = {
     leg: "B" if phase == "A" else "A" for leg, phase in SUPPORT_PHASE.items()
 }
@@ -66,6 +67,14 @@ OUTPUT_SIZES = {
 
 def motor_population(leg, joint, side):
     return f"{LEG_PREFIXES[leg]}_{joint}_{side}_BETA"
+
+
+def gait_drive(leg, phase):
+    return (
+        f"REAR_{leg}_{phase}_RELAY_HG"
+        if leg in REAR_FRONT_PARTNER
+        else f"PHASE_{phase}_DRIVE_HG"
+    )
 
 
 def validate_channels(event):

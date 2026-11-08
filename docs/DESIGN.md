@@ -56,7 +56,12 @@ adapter always applies the current motor frame, including quiet frames.
 Positive hip rotation advances the foot in the bundled Spot model. Knee POS
 flexes and NEG extends in the configured range. Abduction is mirrored: swing
 uses NEG on left legs and POS on right legs. Each state relay excites the
-appropriate local Beta T5, which excites its named actuator output.
+appropriate front-leg Beta T5, which excites its named actuator output.
+The rear legs instead receive their corresponding front hip output through a
+one-neuron high-gamma T10 relay: RR follows FL and RL follows FR. Each rear leg
+has a relay for each switch state. The opposite state, STOP and REST clear
+these relays. Reflexes do not pass through them. This orders command activity;
+it does not measure when the front foot has completed a stroke.
 
 The opposite state inhibits that Beta and output at strength 4. Local opposing
 Betas also inhibit one another and their opposite outputs at the reference
@@ -67,24 +72,27 @@ Knee flexion is +0.35 rad and extension −0.08 rad relative to neutral. This is
 mechanical amplitude calibration. TNorm does not encode angle, force or speed.
 The configured limits do not establish a validated foot trajectory.
 
-## Fast reflex and normal extension recruitment
+## Direct reflex and normal extension recruitment
 
-REFLEX_HG drives a dedicated 24-neuron Beta T5 and inhibits local flexion and
-its extension-veto relay. The Beta drives KNEE_REFLEX_EXTEND, calibrated to
-−0.22 rad at up to 3.0 rad/s. Normal KNEE_NEG remains −0.08 rad at 1.5 rad/s.
+REFLEX_HG contains 24 high-gamma T5 neurons. It directly excites
+KNEE_REFLEX_EXTEND, calibrated to −0.22 rad at up to 3.0 rad/s. The reflex does
+not wait for a Beta. Normal KNEE_NEG remains −0.08 rad at 1.5 rad/s.
 
-The reflex motor output also excites NORMAL_RELAY_HG T10 (one neuron), which
-excites the actual normal knee extension Beta through STDP3/LTP. Normal phase
-and teaching sources are both high-gamma, with one neuron each. The resulting
-normal extension Beta has four neurons. This small relay carries motor
-activity; the sensory reflex and its motor Beta still have 24 neurons each.
+The same REFLEX_HG directly excites the actual regular knee extension Beta
+through STDP3/LTP. The normal gait drive and reflex HG both have role `operand`
+and `units=1` into this Beta T5. This is the guide's OR starting construction:
+either gait or reflex evidence can recruit normal extension. Equal canonical
+units express equal contributions despite the different source widths; units
+are not neuron counts or arbitrary gains. The builder allocates 24 neurons to
+each regular extension Beta. Learning can change reflex recruitment from this
+initial relationship. No output-derived teaching relay is present.
 
-The existing RESET_HG ends the upstream reflex drive. A separate
-KNEE_REFLEX_EXTEND → OUTPUT_RESET_HG → inhibitory return clears the bistable
-fast output from its own activity. No controller timer sets its burst duration.
-Repeated sensory evidence can recruit new bursts. Normal extension persists or
-clears through its existing gait/antagonist/REST paths. ACTIVE remains diagnostic.
-No reflex connection targets another leg or a shared switch node.
+KNEE_REFLEX_EXTEND recruits OUTPUT_RESET_HG T10 (one neuron), which clears that
+output and ACTIVE and inhibits the reflex trigger at strength 4. Reset therefore
+begins after the fast output fires. Continued evidence may recruit another burst.
+The trigger also inhibits local flexion Beta/output and the normal extension-veto
+relay at strength 64. ACTIVE has no outgoing edges. There is no dedicated reflex
+Beta, separate upstream reset population, corner veto or controller timer.
 See [REFLEX.md](REFLEX.md).
 
 ## Allocation and operating points
@@ -96,23 +104,22 @@ See [REFLEX.md](REFLEX.md).
 | Feedback Beta | Beta 5 | 7 |
 | Downstream Beta | Beta 5 | 11 |
 | Release | Beta 3 | 15 |
-| Normal knee extension Beta | Beta 5 | 4 |
+| Normal knee extension Beta | Beta 5 | 24 |
 | Other local gait motor Beta | Beta 5 | 2 |
 | Local extension-veto relay | High-gamma 3 | 1 |
-| Local reflex | High-gamma 3 | 24 |
-| Reflex extension Beta | Beta 5 | 24 |
-| Reflex reset | High-gamma 3 | 24 |
+| Local reflex | High-gamma 5 | 24 |
+| Rear gait relays (four) | High-gamma 10 | 1 |
 | Reward relay | High-gamma 10 | 10 |
 | Reward population | Dopaminergic 3 | 17 |
-| Normal-path relay / output reset | High-gamma 10 | 1 each |
+| Reflex output reset | High-gamma 10 | 1 |
 
 The builder calculates these widths from the declared relationships. T10 is used
-for the small retained command/state relay paths; the sensory reflex uses T3.
-No claim is made that T3 is universally optimal or that larger populations alone
+for the small retained command/state relay paths; the sensory reflex uses T5.
+No claim is made that T5 is universally optimal or that larger populations alone
 produce coordination.
 
-The complete graph has 70 OPUs, 43 one-neuron outputs and eight external input
-populations: 121 populations, 481 connections, 573 total neurons and 425,572 bytes
+The complete graph has 62 OPUs, 43 one-neuron outputs and eight external input
+populations: 113 populations, 457 connections, 461 total neurons and 305,284 bytes
 of connection matrices. Build on the device remains authoritative.
 
 ## Learning scope
@@ -128,7 +135,8 @@ uses that eligibility to adjust the selected inhibitory connections. LTP follows
 eligibility direction; it does not mean every update strengthens inhibition.
 
 Four more STDP3/LTP connections excite the normal extension Beta from that leg's
-NORMAL_RELAY_HG. Their source is actual reflex motor output activity. This is
+REFLEX_HG. Their source is the reflex population itself, so pre/post firing at
+that direct connection contributes eligibility. This is
 deliberate adaptation of excitatory recruitment; it can change that relationship's
 computation. It does not create activity without a source or prove anticipation
 before a tilt. The fixed fast branch works before learning.

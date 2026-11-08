@@ -1,5 +1,5 @@
 {
-  "design_sha256": "19f2dcab60a41091c96bbacf5fa288ee0b7bebbb4ce66c06ac3ad702125bc82b",
+  "design_sha256": "7449acf0b487ff5b23a1172ff0073bfdadf74262f5f9f61563d0f65649178d5a",
   "scope": "Whole saved neural circuit with static connections, native ARM cell updates and single-event START/STOP/restart. Sparse adjacency, initial phases, coupling and membrane floor are explicit harness assumptions; this is not a compiled device image, FPGA comparison or Webots physics run. No imposed phase or motor spikes.",
   "case_count": 5,
   "all_passed": true,
@@ -18,12 +18,24 @@
       "both_switch_states_steps": 0,
       "neither_switch_state_steps": 124,
       "alternations": 31,
-      "complete_knee_pattern_a_steps": 442,
-      "complete_knee_pattern_b_steps": 462,
+      "complete_knee_pattern_a_steps": 276,
+      "complete_knee_pattern_b_steps": 287,
       "all_four_flexing_steps": 0,
       "rest_motor_activity": 0,
-      "restart_motor_activity": 3484,
+      "restart_motor_activity": 2810,
       "passed": true,
+      "rear_hip_onset_lags": {
+        "RL": {
+          "onsets": 31,
+          "minimum_neural_steps": 15,
+          "maximum_neural_steps": 15
+        },
+        "RR": {
+          "onsets": 31,
+          "minimum_neural_steps": 15,
+          "maximum_neural_steps": 15
+        }
+      },
       "late_reflex_spikes": 0
     },
     {
@@ -34,31 +46,43 @@
       "both_switch_states_steps": 0,
       "neither_switch_state_steps": 124,
       "alternations": 31,
-      "complete_knee_pattern_a_steps": 355,
-      "complete_knee_pattern_b_steps": 393,
+      "complete_knee_pattern_a_steps": 224,
+      "complete_knee_pattern_b_steps": 241,
       "all_four_flexing_steps": 0,
       "rest_motor_activity": 0,
-      "restart_motor_activity": 3484,
+      "restart_motor_activity": 2810,
       "passed": true,
+      "rear_hip_onset_lags": {
+        "RL": {
+          "onsets": 31,
+          "minimum_neural_steps": 15,
+          "maximum_neural_steps": 15
+        },
+        "RR": {
+          "onsets": 31,
+          "minimum_neural_steps": 15,
+          "maximum_neural_steps": 15
+        }
+      },
       "reflex_leg_outputs": {
         "FL": {
           "POS": 0,
-          "NEG": 130
+          "NEG": 122
         },
         "RL": {
           "POS": 0,
-          "NEG": 130
+          "NEG": 126
         }
       },
       "switch_and_hips_unchanged": true,
       "unaffected_leg_outputs_unchanged": true,
       "normal_extension_beta_spikes": {
-        "FL": 212,
-        "RL": 212
+        "FL": 982,
+        "RL": 1084
       },
       "fast_motor_active_steps": {
-        "FL": 43,
-        "RL": 43
+        "FL": 37,
+        "RL": 37
       },
       "late_fast_motor_steps": 0,
       "unaffected_fast_motor_steps": 0,
@@ -72,31 +96,43 @@
       "both_switch_states_steps": 0,
       "neither_switch_state_steps": 124,
       "alternations": 31,
-      "complete_knee_pattern_a_steps": 355,
-      "complete_knee_pattern_b_steps": 393,
+      "complete_knee_pattern_a_steps": 222,
+      "complete_knee_pattern_b_steps": 241,
       "all_four_flexing_steps": 0,
       "rest_motor_activity": 0,
-      "restart_motor_activity": 3484,
+      "restart_motor_activity": 2810,
       "passed": true,
+      "rear_hip_onset_lags": {
+        "RL": {
+          "onsets": 31,
+          "minimum_neural_steps": 15,
+          "maximum_neural_steps": 15
+        },
+        "RR": {
+          "onsets": 31,
+          "minimum_neural_steps": 15,
+          "maximum_neural_steps": 15
+        }
+      },
       "reflex_leg_outputs": {
         "FR": {
           "POS": 0,
-          "NEG": 130
+          "NEG": 126
         },
         "RR": {
           "POS": 0,
-          "NEG": 130
+          "NEG": 122
         }
       },
       "switch_and_hips_unchanged": true,
       "unaffected_leg_outputs_unchanged": true,
       "normal_extension_beta_spikes": {
-        "FR": 212,
-        "RR": 212
+        "FR": 1098,
+        "RR": 1019
       },
       "fast_motor_active_steps": {
-        "FR": 43,
-        "RR": 43
+        "FR": 37,
+        "RR": 37
       },
       "late_fast_motor_steps": 0,
       "unaffected_fast_motor_steps": 0,
@@ -110,37 +146,49 @@
       "both_switch_states_steps": 0,
       "neither_switch_state_steps": 124,
       "alternations": 31,
-      "complete_knee_pattern_a_steps": 355,
-      "complete_knee_pattern_b_steps": 398,
+      "complete_knee_pattern_a_steps": 222,
+      "complete_knee_pattern_b_steps": 241,
       "all_four_flexing_steps": 0,
       "rest_motor_activity": 0,
-      "restart_motor_activity": 3484,
+      "restart_motor_activity": 2810,
       "passed": true,
+      "rear_hip_onset_lags": {
+        "RL": {
+          "onsets": 31,
+          "minimum_neural_steps": 15,
+          "maximum_neural_steps": 15
+        },
+        "RR": {
+          "onsets": 31,
+          "minimum_neural_steps": 15,
+          "maximum_neural_steps": 15
+        }
+      },
       "reflex_leg_outputs": {
         "FL": {
           "POS": 0,
-          "NEG": 130
+          "NEG": 122
         },
         "FR": {
           "POS": 0,
-          "NEG": 130
+          "NEG": 126
         },
         "RL": {
           "POS": 0,
-          "NEG": 130
+          "NEG": 126
         }
       },
       "switch_and_hips_unchanged": true,
       "unaffected_leg_outputs_unchanged": true,
       "normal_extension_beta_spikes": {
-        "FL": 212,
-        "FR": 212,
-        "RL": 212
+        "FL": 982,
+        "FR": 1098,
+        "RL": 1084
       },
       "fast_motor_active_steps": {
-        "FL": 43,
-        "FR": 43,
-        "RL": 43
+        "FL": 37,
+        "FR": 37,
+        "RL": 37
       },
       "late_fast_motor_steps": 0,
       "unaffected_fast_motor_steps": 0,
@@ -154,12 +202,24 @@
       "both_switch_states_steps": 0,
       "neither_switch_state_steps": 124,
       "alternations": 31,
-      "complete_knee_pattern_a_steps": 415,
-      "complete_knee_pattern_b_steps": 425,
+      "complete_knee_pattern_a_steps": 281,
+      "complete_knee_pattern_b_steps": 291,
       "all_four_flexing_steps": 0,
       "rest_motor_activity": 0,
-      "restart_motor_activity": 3468,
+      "restart_motor_activity": 2814,
       "passed": true,
+      "rear_hip_onset_lags": {
+        "RL": {
+          "onsets": 31,
+          "minimum_neural_steps": 15,
+          "maximum_neural_steps": 15
+        },
+        "RR": {
+          "onsets": 31,
+          "minimum_neural_steps": 15,
+          "maximum_neural_steps": 15
+        }
+      },
       "late_reflex_spikes": 0
     }
   ]

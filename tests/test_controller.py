@@ -153,6 +153,9 @@ class ControllerIntegrationTests(unittest.TestCase):
             stack.enter_context(patch.dict("os.environ", {"SPOT_RUN_MODE": mode}))
             stack.enter_context(patch("ab.ABClient.from_env", return_value=client))
             stack.enter_context(patch("robot.application.verify_installed"))
+            recorder = stack.enter_context(
+                patch("robot.neuron_recording.NeuronRecorder")
+            )
             output = io.StringIO()
             stack.enter_context(contextlib.redirect_stdout(output))
             spec = importlib.util.spec_from_file_location(
@@ -181,6 +184,8 @@ class ControllerIntegrationTests(unittest.TestCase):
             self.run_settings = json.loads(
                 next(root.glob("logs/run-*/settings.json")).read_text()
             )
+            recorder.return_value.start.assert_called_once()
+            recorder.return_value.stop.assert_called_once()
             session.stop.assert_called_once()
             self.reward_calls = list(session.publish_reward.call_args_list)
             self.assertEqual(self.reward_calls[0].args[1], 0.0)

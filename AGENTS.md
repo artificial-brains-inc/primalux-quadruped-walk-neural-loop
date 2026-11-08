@@ -20,25 +20,27 @@ Keep private construction code, formulas, compiled images and credentials out.
   other state and feedback relay. Keep these interlocks static at strength 4.
   Successful state recruitment clears its own request/helper at strength 64.
 - STDP3/LTP belongs to four RELEASE returns to the same phase's
-  FEEDBACK_BETA and BETA (initial strength 4), plus four NORMAL_RELAY_HG
+  FEEDBACK_BETA and BETA (initial strength 4), plus four REFLEX_HG
   excitatory connections into the normal knee extension Betas. Other edges are static.
   Start validation in walk mode with reward zero. Do not claim learned walking.
-- Keep 24 local gait Betas and four additional reflex extension Betas. A state
-  relay excites each appropriate gait Beta; the opposite state vetoes its Beta
-  and output. Each local motor Beta opposes its antagonist and output.
-- Each reflex is high-gamma T3, 24 neurons. Its separate extension Beta T5 has
-  24 neurons and drives that leg's KNEE_REFLEX_EXTEND output. Its Beta
-  recruits a high-gamma T3 reset (24 neurons) that inhibits its own reflex.
-- Reflex motor output recruits NORMAL_RELAY_HG T10 (1 neuron), which excites
-  the existing normal knee extension Beta through STDP3/LTP. It also recruits
-  OUTPUT_RESET_HG T10 (1 neuron) to clear its own bistable output at strength 4.
-  Normal extension Betas have 4 neurons; other gait Betas have 2. Do not connect
-  the full reflex HG directly into the normal Beta and dilute its phase drive.
+- Keep 24 local gait Betas. Front Betas receive the shared phase drive. Each
+  rear leg has two one-neuron high-gamma T10 relays, driven by the diagonal
+  front partner's appropriate HIP output: RR follows FL, RL follows FR.
+  Rear Betas receive those relays. No Python delay; reflexes bypass the relays.
+- Each reflex trigger is high-gamma T5, 24 neurons, directly exciting that
+  leg's KNEE_REFLEX_EXTEND output. There is no dedicated reflex motor Beta.
+- Reflex HG also directly excites the regular knee extension Beta T5 through
+  STDP3/LTP. Both this edge and its gait-drive edge have role operand, units 1:
+  the initial Beta T5 OR construction accepts either source. There is no
+  output-derived teaching relay. Normal extension Betas have 24 neurons;
+  other gait Betas have 2. Learning deliberately changes reflex recruitment.
+- Fast output also recruits OUTPUT_RESET_HG T10 (1 neuron). At strength 4 it
+  clears the fast output and ACTIVE, and inhibits its own reflex trigger.
+  Thus reset follows actual fast output activation, not an earlier Beta stage.
 - Reflex HG inhibits its own flexion Beta/output and local extension-veto relay
-  at strength 64. That relay normally carries the swing phase's veto to both
-  extension Betas and the normal extension output. Never inhibit another leg or shared phase.
-- The reflex has local excitatory feedback. ACTIVE is diagnostic only and has
-  no outgoing connection. No guard, corner veto or controller-side reflex timer.
+  at strength 64. The local relay vetoes normal extension Beta/output only.
+  Never inhibit another leg or a shared phase. ACTIVE is diagnostic only.
+- The reflex has local excitatory feedback. No guard, corner veto or host timer.
 - Output neurons are bistable and require explicit clearing. Do not alter SDK
   output semantics, delay motor commands in Python, or infer commands from phases.
 - Python reads sensors, encodes signed tilt, publishes physical reward, applies
@@ -54,3 +56,6 @@ Keep private construction code, formulas, compiled images and credentials out.
   design, build and run as separate SDK steps. Use SDK 0.4.2.
 - Construction, mocked SDK tests and the local native-cell check do not prove
   device equivalence, physical balance, successful walking or learning.
+
+Record internal firing through the read-only neuron telemetry stream. Recording
+errors must be visible and must not choose actions or retime the motor loop.

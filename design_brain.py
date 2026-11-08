@@ -1,7 +1,7 @@
 """A retained neural switch coordinates diagonal support and swing.
 
 Hip output neurons recruit the next handoff internally. Local high-gamma
-reflexes reach a dedicated extension Beta without passing through the switch.
+reflexes directly command fast extension and recruit the regular motor path.
 """
 
 from pathlib import Path
@@ -13,13 +13,15 @@ from robot.contracts import (
     JOINTS,
     LEGS,
     MOTOR_OUTPUTS,
+    REAR_FRONT_PARTNER,
     REFLEX_CUES,
     REWARD_INPUT,
     REWARD_INPUT_NEURONS,
-    SWING_PHASE,
     SUPPORT_PHASE,
+    SWING_PHASE,
     TILT_INPUTS,
     TILT_NEURONS,
+    gait_drive,
     motor_population,
 )
 
@@ -31,8 +33,7 @@ RELEASE_INHIBITION = 4.0
 STOP_INHIBITION = 4.0
 REFLEX_INHIBITION = 64.0
 REFLEX_RESET_INHIBITION = 4.0
-REFLEX_TNORM = 3.0
-REFLEX_RESET_TNORM = 3.0
+REFLEX_TNORM = 5.0
 REQUEST_CLEAR_INHIBITION = 64.0
 GAIT_LEARNING_RULE = "STDP3"
 GAIT_REWARD_TYPE = "LTP"
@@ -203,6 +204,17 @@ def create_brain(*, learning=True):
                 plastic=True,
             )
 
+    # Rear gait begins from its diagonal front partner's hip output, not from
+    # the common phase in parallel. Local support reflexes bypass this route.
+    rear_nodes = []
+    for li, rear in enumerate(REAR_FRONT_PARTNER):
+        for pi, phase in enumerate(("A", "B")):
+            relay = gait_drive(rear, phase)
+            opu(relay, "high-gamma", 10, 2200 + li * 700, 1300 + pi * 250)
+            rear_nodes.append(relay)
+            other = "B" if phase == "A" else "A"
+            inhibit(f"PHASE_{other}_DRIVE_HG", relay, CROSS_INHIBITION)
+
     reflex_nodes = []
     for li, leg in enumerate(LEGS):
         swing, support = SWING_PHASE[leg], SUPPORT_PHASE[leg]
@@ -223,7 +235,18 @@ def create_brain(*, learning=True):
                 output(channel, x + 470, y + ji * 380 + si * 170)
                 phase = swing if side == swing_side else support
                 other = "B" if phase == "A" else "A"
-                b.connect(f"PHASE_{phase}_DRIVE_HG", population)
+                # Normal extension accepts gait OR local reflex evidence.
+                # Equal canonical operand units preserve both contributions
+                # despite their different source population widths.
+                b.connect(
+                    gait_drive(leg, phase),
+                    population,
+                    **(
+                        dict(role="operand", units=1)
+                        if joint == "KNEE" and side == "NEG"
+                        else {}
+                    ),
+                )
                 b.connect(population, channel)
                 veto = (
                     gate
@@ -248,61 +271,58 @@ def create_brain(*, learning=True):
         b.connect(f"{leg}_HIP_POS", f"PHASE_{SWING_PHASE[leg]}_MOTOR_FEEDBACK_HG")
         b.connect(f"{leg}_HIP_NEG", f"PHASE_{SUPPORT_PHASE[leg]}_MOTOR_FEEDBACK_HG")
 
+    for rear, front in REAR_FRONT_PARTNER.items():
+        for phase in ("A", "B"):
+            side = "POS" if phase == SWING_PHASE[front] else "NEG"
+            b.connect(f"{front}_HIP_{side}", gait_drive(rear, phase))
+
     for i, name in enumerate(TILT_INPUTS):
         b.input(name, TILT_NEURONS)
         coordinates[name] = (i * 900, 3510)
     for li, leg in enumerate(LEGS):
         x, stem = li * 900, f"REFLEX_{leg}"
-        trigger, reset = stem + "_HG", stem + "_RESET_HG"
-        extension, active, gate = (
-            stem + "_EXTENSION_BETA",
+        trigger = stem + "_HG"
+        active, gate = (
             stem + "_ACTIVE",
             stem + "_EXTENSION_VETO_HG",
         )
         opu(trigger, "high-gamma", REFLEX_TNORM, x, 3720)
-        opu(extension, "beta", 5, x, 3980)
-        opu(reset, "high-gamma", REFLEX_RESET_TNORM, x + 470, 3980)
         output(active, x + 470, 3720)
         fast = f"{leg}_KNEE_REFLEX_EXTEND"
         output(fast, x + 470, 4200)
-        teaching = stem + "_NORMAL_RELAY_HG"
         clear = stem + "_OUTPUT_RESET_HG"
-        opu(teaching, "high-gamma", 10, x + 200, 4440)
         opu(clear, "high-gamma", 10, x + 470, 4440)
-        reflex_nodes.extend((teaching, clear))
-        reflex_nodes.extend((trigger, extension, reset, active))
+        reflex_nodes.extend((trigger, active, clear))
         for cue in REFLEX_CUES[leg]:
             b.connect(cue, trigger)
         b.connect(trigger, trigger, role="feedback")
-        b.connect(trigger, extension)
-        b.connect(extension, fast)
-        # Return actual reflex motor activity into the normal extension path.
-        # This one-neuron relay preserves the small normal pathway's source
-        # scale; it is not the 24-neuron sensory/motor reflex itself.
-        b.connect(fast, teaching)
+        b.connect(trigger, fast)
+        # The same high-gamma neurons directly recruit the regular Beta.
+        # This connection carries eligibility for reward-modulated learning;
+        # the fast reflex output has its own fixed excitatory connection.
         b.connect(
-            teaching,
+            trigger,
             motor_population(leg, "KNEE", "NEG"),
+            role="operand",
+            units=1,
             **(
                 dict(rule="STDP3", reward="GAIT_REWARD", reward_type="LTP")
                 if learning
                 else {}
             ),
         )
-        b.connect(extension, reset)
         b.connect(trigger, active)
         for target in (motor_population(leg, "KNEE", "POS"), f"{leg}_KNEE_POS", gate):
             inhibit(trigger, target, REFLEX_INHIBITION)
-        inhibit(gate, extension, CROSS_INHIBITION)
-        inhibit(reset, trigger, REFLEX_RESET_INHIBITION, feedback=True)
-        inhibit(reset, active, REFLEX_RESET_INHIBITION)
         # Clear the bistable motor command from its own activity, so a late
         # motor spike cannot outlive the upstream reflex-reset burst.
         b.connect(fast, clear)
         inhibit(clear, fast, REFLEX_RESET_INHIBITION)
+        inhibit(clear, trigger, REFLEX_RESET_INHIBITION, feedback=True)
+        inhibit(clear, active, REFLEX_RESET_INHIBITION)
         inhibit("STOP_REQUEST_HG", fast, STOP_INHIBITION)
 
-    for target in (*phase_nodes, *motor_populations, *reflex_nodes):
+    for target in (*phase_nodes, *rear_nodes, *motor_populations, *reflex_nodes):
         inhibit("REST_NUCLEUS", target, STOP_INHIBITION)
         inhibit("STOP_REQUEST_HG", target, STOP_INHIBITION)
     for target in MOTOR_OUTPUTS:

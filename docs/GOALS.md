@@ -26,25 +26,27 @@ Choose the relationships before choosing TNorms:
 
 Here, the selected hip output neurons provide internal evidence for a handoff
 pathway. They indicate motor command activity, not contact or joint completion.
-The resulting RELEASE requests the opposite state. No controller-side timer or
-phase input is needed.
+The resulting RELEASE requests the opposite state. Rear motor commands follow
+the diagonal front partner through a relay, so front commands initiate first.
+No controller-side timer or phase input is needed.
 
 ## A reflex is local priority
 
 Tilt evidence supports extension and contradicts flexion in the affected leg.
-The reflex reaches its own motor Beta directly, releases its own extension veto
-and resets through feedback. It does not ask the gait switch for permission or
-suppress another leg. Local priority is an inhibitory relationship, not Python
-choosing between two motor commands.
+The high-gamma T5 reflex directly drives its fast output, releases the regular
+extension veto and resets through output feedback. The same high-gamma directly
+excites the regular extension Beta through an STDP3 connection. It does not ask
+the gait switch for permission or suppress another leg. Local priority is an
+inhibitory relationship, not Python choosing between two motor commands.
 
 ## Decide what can adapt
 
 Static neural dynamics establish retention, switching, competition and reflexes.
 The four optional STDP3/LTP inhibitory returns adjust the release pathway's
-recovery. Four excitatory STDP3/LTP edges also let reflex motor activity recruit
-normal knee extension Betas through one-neuron high-gamma relays. This gives
-reward eligible activity on the normal path while the fixed fast branch remains
+recovery. Four excitatory STDP3/LTP edges connect reflex high-gamma directly to
+the regular extension Betas. Their pre/post firing can create eligibility on
+those connections; later dopamine can act on it. The fixed fast branch remains
 available. Learning adjusts recruitment; it does not replace the source of
-firing or guarantee earlier corrective action. Reward comes from physical progress. First observe a working static
-behavior; then test whether learning improves it. Do not label accepted reward
+firing or guarantee earlier corrective action. Reward comes from physical
+progress. First observe a working static behavior; then test whether learning improves it. Do not label accepted reward
 events as dopamine spikes or proof of useful weight changes.

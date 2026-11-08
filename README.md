@@ -16,9 +16,11 @@ not TNorms or learned amplitudes. A separate reflex motor output requests
 reflex also excites the normal extension Beta through a learning connection.
 These actuator calibration values remain editable in `config.json`.
 
-There are **573 neurons**, including **61 external neurons across eight named
+There are **461 neurons**, including **61 external neurons across eight named
 inputs**. Four leg groups contain 24 opposing gait Betas. Each leg also has a
-24-neuron high-gamma T3 reflex and a dedicated 24-neuron extension Beta T5.
+24-neuron high-gamma T5 reflex that directly drives its fast extension output.
+The same high-gamma directly excites the regular extension Beta through STDP3.
+Four rear gait relays make RR follow FL and RL follow FR through their neural hip outputs.
 The reward path contains 10 outcome input neurons, 10 high-gamma T10 relay
 neurons and 17 dopaminergic T3 neurons. It classifies positive reward as new
 upright forward progress; zero is no reward. No additional external phase,
@@ -35,8 +37,8 @@ in the graph. Webots position servos track the commanded joint angles.
 - Feed actual motor output neurons back into a neural handoff pathway.
 - Let a local reflex excite extension and inhibit flexion without selecting a
   phase in the controller or suppressing another leg.
-- Use reflex motor feedback to recruit the normal extension pathway, with STDP3
-  on the teaching connection and on selected inhibitory recovery paths.
+- Connect reflex high-gamma directly to regular extension Beta, creating a path
+  for STDP3 eligibility; keep the fast reflex output on its fixed direct branch.
 
 Read [goals and interactions](docs/GOALS.md), [the design](docs/DESIGN.md), and
 [the reflex path](docs/REFLEX.md).
@@ -59,7 +61,7 @@ See [requirements](docs/REQUIREMENTS.md).
 ## Clone and install
 
 ```bash
-git clone "$HOME/Downloads/primalux-spot-fast-reflex-reward10.bundle" primalux-spot-switch
+git clone "$HOME/Downloads/primalux-spot-direct-hg5-rear-relay.bundle" primalux-spot-switch
 cd primalux-spot-switch
 bash install.sh
 source .venv/bin/activate
@@ -89,9 +91,11 @@ OUT and DRIVE_HG retain each switch state. Follow the four hip output neurons
 back to MOTOR_FEEDBACK_HG → FEEDBACK_BETA → BETA → RELEASE → the other request.
 These are internal connections; Python does not republish their activity.
 
-Below the switch, inspect the four leg motor groups. Below each leg, trace tilt
-→ REFLEX_HG → REFLEX_EXTENSION_BETA → the existing knee extension output.
-ACTIVE is only a diagnostic; it does not command a motor.
+Below the switch, inspect the four leg motor groups. Each REFLEX_HG T5 has a
+fixed direct edge to KNEE_REFLEX_EXTEND and a direct STDP3 edge to the regular
+KNEE_NEG_BETA T5. That Beta also receives its normal gait source. Inspect both
+operand edges at one unit each. ACTIVE is only a diagnostic; it does not command
+a motor. Rear gait relays follow the diagonal front hip outputs.
 
 Close the Designer with Ctrl+C before continuing. If you edit on the Canvas,
 save/download `brain.abdesign.json` before Build. Install and Run never
@@ -137,9 +141,11 @@ ab run -ab --env .env learn
 ```
 
 One physical reward signal may adjust **four STDP3/LTP inhibitory returns** from
-RELEASE to its own FEEDBACK_BETA and BETA. State interlocks, motor assignments,
-local antagonists, command paths and reflexes remain static. Learning can alter
-release recovery; it is not a substitute for working coordination.
+RELEASE to its own FEEDBACK_BETA and BETA, plus **four excitatory STDP3/LTP edges**
+from each REFLEX_HG to its regular knee extension Beta. State interlocks, motor
+vetoes, command paths, the fast reflex branch and resets remain static. Learning
+can alter release recovery and reflex recruitment of normal extension; it is not
+a substitute for working coordination.
 
 For a design with no learning metadata, author it explicitly, then inspect and
 build it with the same SDK commands:
@@ -155,10 +161,13 @@ command is an installer or launcher. See [design](docs/DESIGN.md) and
 The startup line prints four fast reflex motor outputs, 10 reward input neurons,
 the design hash and the project folder. `logs/run-*/settings.json` records them
 too. This identifies which local package actually ran.
+`neuron-telemetry.jsonl` now records actual internal neuron activity automatically,
+including the reflex, normal Beta, phase-feedback and reward populations. The
+recorder reads the existing SDK viewer stream and never controls movement.
 
 ## Checks and limits
 
-Construction uses 573/10,000 neurons and 425,572 bytes of connection matrices;
+Construction uses 461/10,000 neurons and 305,284 bytes of connection matrices;
 other prepared-image data also consumes memory. The local complete-circuit check
 uses single START/STOP events, internal motor feedback and injected tilt evidence.
 It checks alternation, local overrides, stopping and restarting. It includes

@@ -4,11 +4,12 @@ import tempfile
 import unittest
 from pathlib import Path
 
+from test_runtime import frame
+
 from design_brain import create_brain
 from robot.configuration import load_config
 from robot.contracts import LEGS, MOTOR_OUTPUTS, motor_population
 from robot.decoder import joint_speeds, joint_targets
-from test_runtime import frame
 
 
 class FastReflexTests(unittest.TestCase):
@@ -49,13 +50,14 @@ class FastReflexTests(unittest.TestCase):
         for leg in LEGS:
             fast = f"{leg}_KNEE_REFLEX_EXTEND"
             reset = f"REFLEX_{leg}_OUTPUT_RESET_HG"
-            relay = f"REFLEX_{leg}_NORMAL_RELAY_HG"
+            relay = f"REFLEX_{leg}_HG"
             self.assertIn(fast, MOTOR_OUTPUTS)
             self.assertEqual(edges[fast, reset]["type"], "exc")
             for source in (reset, "REST_NUCLEUS", "STOP_REQUEST_HG"):
                 self.assertEqual(edges[source, fast]["type"], "inh")
                 self.assertNotIn("rule", edges[source, fast])
-            self.assertEqual(edges[fast, relay]["type"], "exc")
+            self.assertEqual(edges[relay, fast]["type"], "exc")
+            self.assertNotIn("rule", edges[relay, fast])
             teaching = edges[relay, motor_population(leg, "KNEE", "NEG")]
             self.assertEqual(teaching["type"], "exc")
             self.assertEqual(teaching["rule"], "STDP3")

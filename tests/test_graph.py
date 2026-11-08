@@ -12,7 +12,9 @@ from robot.contracts import (
     LEGS,
     MOTOR_OUTPUTS,
     OUTPUT_SIZES,
+    REAR_FRONT_PARTNER,
     SWING_PHASE,
+    gait_drive,
     motor_population,
 )
 
@@ -177,9 +179,9 @@ class GraphTests(unittest.TestCase):
                             for (s, t), e in self.edges.items()
                             if t == population and e["type"] == "exc"
                         },
-                        {f"PHASE_{phase}_DRIVE_HG"}
+                        {gait_drive(leg, phase)}
                         | (
-                            {f"REFLEX_{leg}_NORMAL_RELAY_HG"}
+                            {f"REFLEX_{leg}_HG"}
                             if joint == "KNEE" and side == "NEG"
                             else set()
                         ),
@@ -226,6 +228,32 @@ class GraphTests(unittest.TestCase):
             self.assert_inhibits("STOP_REQUEST_HG", target, 4)
         for target in ("REST_ACTIVE", "REST_NUCLEUS"):
             self.assert_inhibits("START_REQUEST_HG", target, 4)
+
+    def test_rear_relays_require_diagonal_front_hip_commands(self):
+        for rear, front in REAR_FRONT_PARTNER.items():
+            for phase in ("A", "B"):
+                relay = gait_drive(rear, phase)
+                source_side = "POS" if phase == SWING_PHASE[front] else "NEG"
+                sources = {
+                    s
+                    for (s, t), e in self.edges.items()
+                    if t == relay and e["type"] == "exc"
+                }
+                self.assertEqual(sources, {f"{front}_HIP_{source_side}"})
+                self.assertEqual(
+                    (self.nodes[relay]["rhythm"], self.nodes[relay]["tnorm"]),
+                    ("high-gamma", 10),
+                )
+                other = "B" if phase == "A" else "A"
+                for clear in (
+                    f"PHASE_{other}_DRIVE_HG",
+                    "REST_NUCLEUS",
+                    "STOP_REQUEST_HG",
+                ):
+                    self.assert_inhibits(clear, relay, 4)
+                self.assertFalse(
+                    any(s == relay and t.startswith("REFLEX_") for s, t in self.edges)
+                )
 
     def test_ack_is_isolated_from_behavior(self):
         for source, target in self.edges:
