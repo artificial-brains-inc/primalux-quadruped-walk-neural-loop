@@ -13,8 +13,8 @@ it does not maintain START as a level until a later zero event.
 
 There is no neural ACK handshake. The legacy isolated ACK input is cleared once
 at startup and never stimulated. Its output is never used for synchronization.
-The saved graph and input/output contract remain unchanged, avoiding a rebuild
-or replacement of learned state for this adapter update.
+The four contact populations and their four ready readouts change the contract.
+Build the supplied design before running this package.
 
 Neural request latches capture the command and maintain its drive internally.
 The corresponding goal nucleus clears the request after taking over. An opposite
@@ -31,7 +31,7 @@ HTTP acceptance can confirm a command. `command_timeout_seconds` bounds goal
 confirmation after HTTP acceptance; it is not a gait duration or ACK timeout.
 Failure reports WALK, REST and both request readouts and triggers SDK Stop/save.
 
-Tilt and reward are captured after each body step and submitted together through
+Tilt, four foot contacts and reward are captured after each body step and submitted together through
 `publish_sensor_frame`, using the SDK's `reward_population` encoder for reward.
 If publication is slower than sensing, each new capture replaces the previous
 unsent capture. No motor frames are dropped. An in-flight HTTP request cannot be
@@ -113,7 +113,7 @@ Ten active input neurons do not prove that all 17 dopamine neurons fired. Check
 individual neuron telemetry for that. A larger population also does not prove
 that learning improves balance. The fixed reflex remains active without reward.
 
-The adapter encodes the newest available reward evidence with its matching tilt
+The adapter encodes the newest available reward evidence with its matching tilt and foot-contact
 capture in one atomic SDK frame. Each transmitted 1 represents a newly measured
 outcome; a prior 1 is not held by the device. Repeated all-zero feedback captures
 are omitted. Startup and shutdown clear reward explicitly; pending commands and
@@ -141,7 +141,8 @@ a second ACK oscillator or select gait phases.
 
 `walk` is not a guaranteed frozen-weight baseline: a plastic graph can retain
 internal reward/eligibility state. Use the explicitly static graph for the
-controlled comparison in TESTING.md. No mode simulates synthetic neurons in Python. `rhythm` also suspends tilt evidence.
+controlled comparison in TESTING.md. No mode simulates synthetic neurons in Python. `rhythm` suspends tilt evidence
+but still supplies real foot contacts from the standing model; no fake gait contacts are injected.
 During recovery every mode holds neutral targets and sends no positive reward.
 
 ## Physical tilt feedback
@@ -166,7 +167,7 @@ shared sensory evidence can recruit several independent reflexes.
 
 KNEE_PUSH is a separate early extension output, calibrated to −0.12 rad at up to
 3.0 rad/s. Its readiness and clearing are neural. The controller never reads
-LEG_*_SWING_READY or LEG_*_DONE to choose a motor target.
+LEG_*_SWING_READY, LEG_*_DONE or LEG_*_CONTACT_READY to choose a motor target.
 
 Final extension is the existing KNEE_NEG output. RETURN_BETA and DONE_HG drive
 it directly and clear local knee flexion/output veto neurally, alongside the
@@ -191,6 +192,21 @@ Hardware queue acceptance is checked; it is not proof of consumption in that
 same neural step. No added ACK wait or host burst timer is used. Compare queue
 backlog, received outputs and post-step body measurements when assessing latency.
 A publication failure triggers the existing Stop/save cleanup.
+
+## Foot contact feedback
+
+Four enabled bumper TouchSensors report zero or one after each completed body
+step. The controller broadcasts each raw reading over its own four-neuron input
+population, in the same atomic frame as tilt and reward. It does not combine
+contact with phase, select a leg, debounce by time, or wait for touchdown. Missing,
+wrong-type or invalid sensor measurements fail visibly instead of becoming fake
+contact. Recovery suspends contact publication, and shutdown clears it.
+
+`contact-inputs.jsonl` records accepted input events and their capture times;
+`observations.jsonl` preserves every raw measurement even if an unsent capture
+is replaced. The brain receives events, not a held contact level. A current
+nonzero measurement is republished with each fresh transmitted capture.
+[CONTACT.md](CONTACT.md) explains the local neural gate and its clearing paths.
 
 ## Internal neuron recording
 

@@ -24,11 +24,18 @@ legs. Simultaneous roll/pitch cues can recruit three; that is intentional
 independent wiring rather than a single selected corner.
 
 Logs are written under the configured run directory: `observations.jsonl`,
-`native-outputs.jsonl`, `commands.jsonl`, `tilt-inputs.jsonl`, `rewards.jsonl`,
+`native-outputs.jsonl`, `commands.jsonl`, `tilt-inputs.jsonl`, `contact-inputs.jsonl`, `rewards.jsonl`,
 `settings.json` and the run summary. Preserve a complete run when comparing
 changes. The summary counts complete hip/knee patterns, all-four knee flexion,
 and same-side-only knee flexion from actual motor outputs, separately from the
 phase lamps. High queue depth means feedback can be stale relative to the device.
+
+First inspect `contacts` and `contact_ready` in the console. Standing feet
+should report contact; a raised pad should report zero. Compare raw foot contact,
+CONTACT_VETO_HG, CONTACT_MATCH_HG, CONTACT_READY and the downstream handoff in
+telemetry. DONE can be active while CONTACT_READY is still zero: the return is
+commanded but contact has not yet qualified it. Do not bypass that condition
+with a controller phase change. See [CONTACT.md](CONTACT.md).
 
 After static behavior is established, use `learn` to enable physical reward.
 The four selected release inhibitory feedback paths and four regular support
@@ -39,11 +46,12 @@ burst alone does not establish eligibility on the regular connection.
 Accepted reward publications alone do not establish dopamine firing or learning.
 See [VALIDATION.md](VALIDATION.md) for the scope of the bundled check reports.
 
-For the LTD experiment, compare against the corrected LTP design from commit
-17918ee using matched initial weights, initial pose and run duration. Changing
+For the contact experiment, compare against the LTD release design from commit
+72e3abb using matched initial weights, initial pose and run duration. Contact
+changes the graph, so an old learned checkpoint is not an equivalent initialization. Changing
 `learn` to `walk` only suppresses external reward; it does not select LTP or LTD
 or prove a frozen-weight baseline. Rebuild the intended design for each condition.
 Record rearward hip movement overlapping the next leg's swing, forward progress,
 falls and stalled intervals. Preserve the run settings and design hash. This
-comparison tests release-feedback adaptation; the static A/B exclusion and
-motor vetoes are not changed by the LTD selection.
+comparison tests contact-qualified handoff. Evaluate LTD versus LTP separately
+with otherwise identical graphs. Contact and reflex paths stay static.

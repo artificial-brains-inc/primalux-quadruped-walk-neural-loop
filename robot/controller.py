@@ -2,7 +2,8 @@
 
 There is no gait clock, phase selector, trajectory generator, or command resend
 inside the running loop. Physical outcome supplies reward; IMU readings supply
-four signed tilt populations. Reflex leg selection and cutoff stay inside the brain.
+four signed tilt populations. Foot bumpers supply four contact populations.
+Reflex leg selection, contact qualification and handoff stay inside the brain.
 """
 
 import json
@@ -15,6 +16,8 @@ from controller import Supervisor
 from .configuration import ROOT, environment_path, load_config
 from .contracts import (
     JOINT_NAMES,
+    CONTACT_INPUTS,
+    CONTACT_NEURONS,
     JOINTS,
     LEG_NAMES,
     LEGS,
@@ -27,6 +30,7 @@ from .contracts import (
     validate_channels,
 )
 from .decoder import joint_speeds, joint_targets
+from .contact import clear_contacts, encode_contacts, setup_contact_sensors
 from .exchange import CommandExchange
 from .live_inputs import LiveInputs
 from .reward import ProgressReward, RewardPublisher
@@ -79,6 +83,7 @@ def main():
     gps, imu, gyro = [body.getDevice(name) for name in ("gps", "inertial unit", "gyro")]
     for device in (gps, imu, gyro):
         device.enable(dt)
+    contact_sensors = setup_contact_sensors(body, dt)
     directory = (
         ROOT
         / "logs"
@@ -97,6 +102,8 @@ def main():
                 push_motor_outputs=list(PUSH_MOTOR_OUTPUTS),
                 reward_classification=REWARD_CLASSIFICATION,
                 reward_input_neurons=REWARD_INPUT_NEURONS,
+                contact_input_neurons=CONTACT_NEURONS * len(CONTACT_INPUTS),
+                contact_inputs=CONTACT_INPUTS,
             ),
             indent=2,
         )
@@ -106,7 +113,8 @@ def main():
         f"[SPOT] Fast reflex outputs: {len(REFLEX_MOTOR_OUTPUTS)}; "
         f"pre-swing push outputs: {len(PUSH_MOTOR_OUTPUTS)}; "
         f"reward input: {REWARD_INPUT_NEURONS} neurons; "
-        f"reward class: dopaminergic T3 / positive outcome / STDP3-LTP; "
+        f"foot contacts: {len(contact_sensors)} sensors / {CONTACT_NEURONS} neurons each; "
+        f"reward class: dopaminergic T3 / release LTD / support LTP; "
         f"design: {design_hash}; project: {ROOT}",
         flush=True,
     )
@@ -139,6 +147,7 @@ def main():
             (directory / "observations.jsonl").open("x", buffering=1) as observations,
             (directory / "rewards.jsonl").open("x", buffering=1) as rewards,
             (directory / "tilt-inputs.jsonl").open("x", buffering=1) as tilt_log,
+            (directory / "contact-inputs.jsonl").open("x", buffering=1) as contact_log,
             ExitStack() as workers,
         ):
             events = EventBuffer(
@@ -168,6 +177,7 @@ def main():
                 lambda: events.stats()["last_received_step"], config["reflex"],
                 tilt_record=lambda e: tilt_log.write(json.dumps(e) + "\n"),
                 reward_record=lambda e: rewards.write(json.dumps(e) + "\n"),
+                contact_record=lambda e: contact_log.write(json.dumps(e) + "\n"),
             ))
             exchange = CommandExchange(
                 inputs.command, config["command_timeout_seconds"], record=record_command,
@@ -241,8 +251,11 @@ def main():
                 advance()
                 xyz, rpy = list(gps.getValues()), list(imu.getRollPitchYaw())
                 evidence = reward.sample(body.getTime(), xyz, rpy)
+                contact_values = {leg: sensor.getValue() for leg, sensor in contact_sensors.items()}
+                feedback_suspended = recovery_frame
                 tilt_inputs = inputs.feedback(
-                    rpy, evidence, suspended=(recovery_frame or mode == "rhythm"),
+                    rpy, evidence, suspended=feedback_suspended, contacts=contact_values,
+                    tilt_suspended=(mode == "rhythm"),
                     native_step=event["step"], simulation_time=body.getTime(),
                 )
                 record = dict(
@@ -270,6 +283,8 @@ def main():
                     body_xyz_m=xyz,
                     body_rpy_rad=rpy,
                     tilt_inputs=tilt_inputs,
+                    foot_contact=contact_values,
+                    contact_inputs=encode_contacts(contact_values, suspended=feedback_suspended),
                     reward=evidence,
                     gyro_rad_s=list(gyro.getValues()),
                     queued_native_frames=events.stats()["queued_frames"],
@@ -300,6 +315,8 @@ def main():
                                     if channels[name]
                                 ],
                                 queued_frames=record["queued_native_frames"],
+                                contacts=record["foot_contact"],
+                                contact_ready=[leg for leg in LEGS if channels[f"LEG_{leg}_CONTACT_READY"]],
                                 xyz=record["body_xyz_m"],
                             )
                         ),
@@ -389,6 +406,7 @@ def main():
                     TiltPublisher(session.publish_sensor_frame, config["reflex"]).send(
                         [0, 0, 0], suspended=True, force=True
                     )
+                    clear_contacts(session.publish_sensor_frame)
                 finally:
                     session.stop()
             write_state(

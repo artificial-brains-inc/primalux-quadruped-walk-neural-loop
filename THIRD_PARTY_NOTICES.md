@@ -16,9 +16,11 @@ Their original file notices are retained.
 
 Only Spot.proto and SpotLeg.proto were modified: their appearance declarations
 use relative paths to the bundled copies. Spot.proto also removes its five Camera
-devices; their visible housings remain. Each modified file marks those changes.
-The robot's joints, limits, collision geometry, mass and actuator parameters are
-unchanged. Meshes, textures and the appearance PROTOs are unmodified.
+devices; their visible housings remain. SpotLeg.proto moves the existing distal
+foot-pad collision cylinder into a child bumper TouchSensor; it removes the
+parent copy so another collider cannot mask the sensor. Each modified file marks
+those changes. The cylinder shape and pose, joints, limits, masses, inertias and
+actuator parameters are preserved; the bumper adds no separate Physics body. Meshes, textures and the appearance PROTOs are unmodified.
 `assets/webots-assets.json` lists every bundled upstream URL and file digest.
 These third-party assets and the relative-path adaptations retain their upstream
 licenses; the Artificial Brains product restriction does not apply to them.

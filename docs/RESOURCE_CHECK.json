@@ -1,6 +1,6 @@
 {
   "schema": "primalux-spot/construction-check/v1",
-  "design_sha256": "c05e41b54aa4b26a6a318eba91840c11c7758ce87f4214a9f7213a154363452a",
+  "design_sha256": "bba52a05ca75826269dfcc810b0c885a0c32bdaa73eecbd2a1012809c6bc6301",
   "code": "CONSTRUCTION_OK",
   "populations": [
     {
@@ -464,6 +464,74 @@
       "neurons": 1
     },
     {
+      "name": "FOOT_FL_CONTACT",
+      "classification": "input",
+      "neurons": 4
+    },
+    {
+      "name": "FOOT_FL_CONTACT_HG",
+      "classification": "high-gamma",
+      "neurons": 4,
+      "tnorm": 10.0
+    },
+    {
+      "name": "LEG_FL_CONTACT_VETO_HG",
+      "classification": "high-gamma",
+      "neurons": 1,
+      "tnorm": 10.0
+    },
+    {
+      "name": "FOOT_FR_CONTACT",
+      "classification": "input",
+      "neurons": 4
+    },
+    {
+      "name": "FOOT_FR_CONTACT_HG",
+      "classification": "high-gamma",
+      "neurons": 4,
+      "tnorm": 10.0
+    },
+    {
+      "name": "LEG_FR_CONTACT_VETO_HG",
+      "classification": "high-gamma",
+      "neurons": 1,
+      "tnorm": 10.0
+    },
+    {
+      "name": "FOOT_RL_CONTACT",
+      "classification": "input",
+      "neurons": 4
+    },
+    {
+      "name": "FOOT_RL_CONTACT_HG",
+      "classification": "high-gamma",
+      "neurons": 4,
+      "tnorm": 10.0
+    },
+    {
+      "name": "LEG_RL_CONTACT_VETO_HG",
+      "classification": "high-gamma",
+      "neurons": 1,
+      "tnorm": 10.0
+    },
+    {
+      "name": "FOOT_RR_CONTACT",
+      "classification": "input",
+      "neurons": 4
+    },
+    {
+      "name": "FOOT_RR_CONTACT_HG",
+      "classification": "high-gamma",
+      "neurons": 4,
+      "tnorm": 10.0
+    },
+    {
+      "name": "LEG_RR_CONTACT_VETO_HG",
+      "classification": "high-gamma",
+      "neurons": 1,
+      "tnorm": 10.0
+    },
+    {
       "name": "LEG_FL_MOVE_HG",
       "classification": "high-gamma",
       "neurons": 1,
@@ -508,6 +576,23 @@
       "name": "LEG_FL_DONE",
       "classification": "output",
       "neurons": 1
+    },
+    {
+      "name": "LEG_FL_CONTACT_MATCH_HG",
+      "classification": "high-gamma",
+      "neurons": 1,
+      "tnorm": 10.0
+    },
+    {
+      "name": "LEG_FL_CONTACT_READY",
+      "classification": "output",
+      "neurons": 1
+    },
+    {
+      "name": "LEG_FL_CONTACT_READY_HG",
+      "classification": "high-gamma",
+      "neurons": 1,
+      "tnorm": 10.0
     },
     {
       "name": "FL_KNEE_PUSH",
@@ -561,6 +646,23 @@
       "neurons": 1
     },
     {
+      "name": "LEG_FR_CONTACT_MATCH_HG",
+      "classification": "high-gamma",
+      "neurons": 1,
+      "tnorm": 10.0
+    },
+    {
+      "name": "LEG_FR_CONTACT_READY",
+      "classification": "output",
+      "neurons": 1
+    },
+    {
+      "name": "LEG_FR_CONTACT_READY_HG",
+      "classification": "high-gamma",
+      "neurons": 1,
+      "tnorm": 10.0
+    },
+    {
       "name": "FR_KNEE_PUSH",
       "classification": "output",
       "neurons": 1
@@ -606,6 +708,23 @@
       "neurons": 1
     },
     {
+      "name": "LEG_RL_CONTACT_MATCH_HG",
+      "classification": "high-gamma",
+      "neurons": 1,
+      "tnorm": 10.0
+    },
+    {
+      "name": "LEG_RL_CONTACT_READY",
+      "classification": "output",
+      "neurons": 1
+    },
+    {
+      "name": "LEG_RL_CONTACT_READY_HG",
+      "classification": "high-gamma",
+      "neurons": 1,
+      "tnorm": 10.0
+    },
+    {
       "name": "RL_KNEE_PUSH",
       "classification": "output",
       "neurons": 1
@@ -649,6 +768,23 @@
       "name": "LEG_RR_DONE",
       "classification": "output",
       "neurons": 1
+    },
+    {
+      "name": "LEG_RR_CONTACT_MATCH_HG",
+      "classification": "high-gamma",
+      "neurons": 1,
+      "tnorm": 10.0
+    },
+    {
+      "name": "LEG_RR_CONTACT_READY",
+      "classification": "output",
+      "neurons": 1
+    },
+    {
+      "name": "LEG_RR_CONTACT_READY_HG",
+      "classification": "high-gamma",
+      "neurons": 1,
+      "tnorm": 10.0
     },
     {
       "name": "RR_KNEE_PUSH",
@@ -824,14 +960,14 @@
     }
   ],
   "resources": {
-    "design_populations": 147,
-    "design_connections": 663,
-    "input_neurons": 61,
-    "neural_neurons": 442,
-    "total_neurons": 503,
+    "design_populations": 171,
+    "design_connections": 751,
+    "input_neurons": 77,
+    "neural_neurons": 474,
+    "total_neurons": 551,
     "neuron_budget": 10000,
-    "dense_matrix_cells": 10457,
-    "matrix_storage_bytes": 292796,
+    "dense_matrix_cells": 10623,
+    "matrix_storage_bytes": 297444,
     "image_budget_bytes": 33554432
   }
 }

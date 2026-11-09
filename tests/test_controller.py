@@ -12,7 +12,7 @@ from test_runtime import Frames, frame
 
 from robot.live_inputs import LiveInputs
 from robot.configuration import ROOT
-from robot.contracts import COMMAND_INPUT_SIZES, TILT_INPUTS, TILT_NEURONS, REWARD_INPUT
+from robot.contracts import COMMAND_INPUT_SIZES, TILT_INPUTS, TILT_NEURONS, REWARD_INPUT, CONTACT_INPUTS, CONTACT_DEVICE_NAMES, LEGS
 
 
 class ControllerIntegrationTests(unittest.TestCase):
@@ -30,6 +30,7 @@ class ControllerIntegrationTests(unittest.TestCase):
         physics_step_ms=32,
         tilt_rpy=None,
         reject_tilt=False,
+        contact_values=None,
     ):
         with tempfile.TemporaryDirectory() as tmp, contextlib.ExitStack() as stack:
             root = Path(tmp)
@@ -37,6 +38,14 @@ class ControllerIntegrationTests(unittest.TestCase):
             sent = []
 
             class Device:
+                BUMPER = 0
+
+                def __init__(self, name=""):
+                    self.name = name
+
+                def getType(self):
+                    return self.BUMPER
+
                 def enable(self, dt):
                     pass
 
@@ -50,6 +59,9 @@ class ControllerIntegrationTests(unittest.TestCase):
                     pass
 
                 def getValue(self):
+                    for leg, name in CONTACT_DEVICE_NAMES.items():
+                        if self.name == name:
+                            return (contact_values or dict.fromkeys(LEGS, 0))[leg]
                     return 0
 
                 def getValues(self):
@@ -93,7 +105,7 @@ class ControllerIntegrationTests(unittest.TestCase):
                     calls.append("reset_physics")
 
                 def getDevice(self, name):
-                    return Device()
+                    return Device(name)
 
                 def getKeyboard(self):
                     return Keyboard()
@@ -220,6 +232,9 @@ class ControllerIntegrationTests(unittest.TestCase):
             self.tilt_calls = [
                 (step, p) for step, p in sent if set(p) == set(TILT_INPUTS)
             ]
+            self.contact_clear_calls = [
+                (step, p) for step, p in sent if set(p) == set(CONTACT_INPUTS.values())
+            ]
             command_calls = [
                 (step, p) for step, p in sent if set(p) <= set(COMMAND_INPUT_SIZES)
             ]
@@ -227,7 +242,7 @@ class ControllerIntegrationTests(unittest.TestCase):
                 (step, p) for step, p in sent if REWARD_INPUT in p
             ]
             self.assertEqual(
-                len(command_calls) + len(self.tilt_calls) + len(self.feedback_calls),
+                len(command_calls) + len(self.tilt_calls) + len(self.feedback_calls) + len(self.contact_clear_calls),
                 len(sent),
             )
             self.assertFalse(any(p.get("TRANSPORT_ACK", [0])[0] for _, p in sent))
@@ -287,12 +302,12 @@ class ControllerIntegrationTests(unittest.TestCase):
         self.assertEqual([r["joint_target_rad"]["FL_HIP"] for r in rows], [0, 0.2, 0])
         self.assertEqual(calls.count("physics"), 4)
 
-    def test_poststep_tilt_and_reward_share_the_same_publication(self):
+    def test_poststep_tilt_contact_and_reward_share_the_same_publication(self):
         rows, _, _, _ = self.exercise(
             [frame(1, REST_ACTIVE=1), frame(2, REST_ACTIVE=1),
              frame(3, WALK_ENABLED=1), frame(4, WALK_ENABLED=1)],
             {2: ord("W"), 5: ord("Q")}, 5, mode="learn", moving=True,
-            tilt_rpy=[-0.2, 0.2, 0],
+            tilt_rpy=[-0.2, 0.2, 0], contact_values=dict(FL=1, FR=0, RL=1, RR=0),
         )
         self.assertEqual([r["reward"]["value"] for r in rows], [0, 0, 1, 1])
         by_body_step = dict(self.feedback_calls)
@@ -300,7 +315,12 @@ class ControllerIntegrationTests(unittest.TestCase):
         self.assertEqual(by_body_step[3]["TILT_PITCH_POS"], [1] * TILT_NEURONS)
         self.assertEqual(by_body_step[3][REWARD_INPUT]["signal"], 0)
         self.assertEqual(by_body_step[4][REWARD_INPUT]["signal"], 1)
-        self.assertTrue(all(set(p) == {*TILT_INPUTS, REWARD_INPUT}
+        self.assertEqual(rows[-1]["foot_contact"], dict(FL=1, FR=0, RL=1, RR=0))
+        self.assertEqual(by_body_step[4][CONTACT_INPUTS["FL"]], [1] * 4)
+        self.assertEqual(by_body_step[4][CONTACT_INPUTS["FR"]], [0] * 4)
+        self.assertEqual(self.run_settings["contact_input_neurons"], 16)
+        self.assertTrue(all(not any(v) for _, p in self.contact_clear_calls for v in p.values()))
+        self.assertTrue(all(set(p) == {*TILT_INPUTS, *CONTACT_INPUTS.values(), REWARD_INPUT}
                             for _, p in self.feedback_calls))
 
     def test_failed_input_publication_still_stops_and_saves(self):

@@ -5,6 +5,8 @@ from unittest.mock import patch
 from robot.configuration import load_config
 from robot.contracts import (
     COMMAND_INPUT_SIZES,
+    CONTACT_INPUTS,
+    CONTACT_NEURONS,
     INPUT_SIZES,
     OUTPUT_SIZES,
     REWARD_INPUT,
@@ -144,7 +146,7 @@ class RuntimeTests(unittest.TestCase):
         with self.assertRaisesRegex(RuntimeError, "Missing Prima-Lux"):
             events.check_health()
 
-    def test_reward_and_tilt_populations_are_separate_from_commands(self):
+    def test_reward_tilt_and_contact_populations_are_separate_from_commands(self):
         self.assertEqual(
             COMMAND_INPUT_SIZES, dict(WALK_START=1, WALK_STOP=1, TRANSPORT_ACK=1)
         )
@@ -154,6 +156,7 @@ class RuntimeTests(unittest.TestCase):
                 **COMMAND_INPUT_SIZES,
                 REWARD_INPUT: REWARD_INPUT_NEURONS,
                 **dict.fromkeys(TILT_INPUTS, TILT_NEURONS),
+                **dict.fromkeys(CONTACT_INPUTS.values(), CONTACT_NEURONS),
             },
         )
 

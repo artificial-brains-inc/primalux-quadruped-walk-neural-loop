@@ -8,6 +8,8 @@ from design_brain import create_brain
 from robot.configuration import ROOT
 from robot.contracts import (
     INPUT_SIZES,
+    CONTACT_INPUTS,
+    SUPPORT_PHASE,
     JOINTS,
     LEGS,
     MOTOR_OUTPUTS,
@@ -30,10 +32,10 @@ class GraphTests(unittest.TestCase):
         self.assertEqual(edge["type"], "inh")
         self.assertGreaterEqual(edge.get("strength", 1), minimum)
 
-    def test_eight_populations_61_input_neurons_and_matching_saved_design(self):
+    def test_twelve_populations_77_input_neurons_and_matching_saved_design(self):
         self.assertEqual(self.brain.validate(), [])
-        self.assertEqual(len(INPUT_SIZES), 8)
-        self.assertEqual(sum(INPUT_SIZES.values()), 61)
+        self.assertEqual(len(INPUT_SIZES), 12)
+        self.assertEqual(sum(INPUT_SIZES.values()), 77)
         for kind, expected in (("input", INPUT_SIZES), ("output", OUTPUT_SIZES)):
             self.assertEqual(
                 {
@@ -66,6 +68,36 @@ class GraphTests(unittest.TestCase):
                 break
             reached = expanded
         self.assertEqual(reached, set(self.nodes))
+
+    def test_contact_qualifies_return_with_local_static_veto_and_explicit_clear(self):
+        for leg in LEGS:
+            stem = f"LEG_{leg}"
+            sense = CONTACT_INPUTS[leg]
+            self.assertEqual(self.nodes[sense]["neurons"], 4)
+            for source, target in (
+                (sense, sense + "_HG"),
+                ("WALK_NUCLEUS", stem + "_CONTACT_VETO_HG"),
+                (stem + "_DONE_HG", stem + "_CONTACT_MATCH_HG"),
+                (stem + "_CONTACT_MATCH_HG", stem + "_CONTACT_READY"),
+                (stem + "_CONTACT_READY", stem + "_CONTACT_READY_HG"),
+                (stem + "_CONTACT_READY_HG", stem + "_CONTACT_READY"),
+            ):
+                self.assertEqual(self.edges[source, target]["type"], "exc")
+            self.assert_inhibits(sense + "_HG", stem + "_CONTACT_VETO_HG", 64)
+            self.assert_inhibits(stem + "_CONTACT_VETO_HG", stem + "_CONTACT_MATCH_HG", 64)
+            for suffix in ("CONTACT_MATCH_HG", "CONTACT_READY", "CONTACT_READY_HG"):
+                target = stem + "_" + suffix
+                for source in (stem + "_MOVE_HG", f"PHASE_{SUPPORT_PHASE[leg]}_DRIVE_HG", "STOP_REQUEST_HG", "REST_NUCLEUS"):
+                    self.assert_inhibits(source, target, 64)
+            # No direct sensory actuation, no reflex handoff, no learned sensor gate.
+            sense_targets = {t for (s, t) in self.edges if s in (sense, sense + "_HG")}
+            self.assertEqual(sense_targets, {sense + "_HG", stem + "_CONTACT_VETO_HG"})
+            for (source, target), edge in self.edges.items():
+                if "CONTACT" in source or "CONTACT" in target:
+                    self.assertNotIn("rule", edge)
+            destination = (stem + "_HANDOFF_BETA" if leg not in REAR_FRONT_PARTNER
+                           else f"PHASE_{SWING_PHASE[leg]}_MOTOR_FEEDBACK_HG")
+            self.assertNotIn((stem + "_DONE_HG", destination), self.edges)
 
     def test_command_reinforcement_has_explicit_opposing_clear_paths(self):
         for state, nucleus, clear, opposite in (
@@ -124,10 +156,10 @@ class GraphTests(unittest.TestCase):
         self.assertIn(("START_REQUEST_HG", "PHASE_A_REQUEST"), self.edges)
         self.assertNotIn(("START_REQUEST_HG", "PHASE_B_REQUEST"), self.edges)
 
-    def test_handoff_uses_internal_motor_activity_not_external_progress(self):
+    def test_phase_handoff_uses_contact_qualified_return(self):
         expected = {
-            "A": {"LEG_RL_DONE_HG"},
-            "B": {"LEG_RR_DONE_HG"},
+            "A": {"LEG_RL_CONTACT_READY_HG"},
+            "B": {"LEG_RR_CONTACT_READY_HG"},
         }
         for phase, sources in expected.items():
             stem = f"PHASE_{phase}"
@@ -227,7 +259,7 @@ class GraphTests(unittest.TestCase):
         for target in ("REST_ACTIVE", "REST_NUCLEUS"):
             self.assert_inhibits("START_REQUEST_HG", target, 4)
 
-    def test_rear_moves_follow_front_return_without_reflex_triggering_handoff(self):
+    def test_rear_moves_follow_contact_qualified_front_return(self):
         for rear, front in REAR_FRONT_PARTNER.items():
             relay = f"LEG_{rear}_MOVE_HG"
             sources = {
@@ -237,7 +269,7 @@ class GraphTests(unittest.TestCase):
             }
             self.assertEqual(sources, {f"LEG_{front}_HANDOFF_BETA"})
             self.assertEqual(
-                self.edges[f"LEG_{front}_DONE_HG", f"LEG_{front}_HANDOFF_BETA"]["type"],
+                self.edges[f"LEG_{front}_CONTACT_READY_HG", f"LEG_{front}_HANDOFF_BETA"]["type"],
                 "exc",
             )
             self.assertEqual(self.nodes[f"LEG_{front}_HANDOFF_BETA"]["tnorm"], 3)

@@ -1,67 +1,77 @@
 # Validation
 
-SDK 0.4.2 accepts the saved design. The compatible local builder accepts its
-construction. [RESOURCE_CHECK.json](RESOURCE_CHECK.json) records 503 total
-neurons and 292,796 bytes of connection matrices; other image data also consumes
-the 32 MiB budget. Device preparation remains authoritative.
+SDK 0.4.2 validates the saved design, and the compatible local builder accepts
+its construction. [RESOURCE_CHECK.json](RESOURCE_CHECK.json) records **551 total
+neurons**, 77 external neurons, 171 populations, 751 connections and 297,444 bytes
+of connection matrices. Other prepared-image data also consumes the 32 MiB
+budget; device preparation remains authoritative.
 
-98 application tests pass. They cover event commands without neural ACK, goal observation,
-SDK dispatch, motor calibration, input encoding, reward, recovery, Stop/save,
-installer behavior, assets, graph/source agreement and recording. Tests exercise
-push/fast/normal outputs, conflicting commands and return to normal speed.
+**105 application tests pass.** They cover command capture without neural ACK,
+SDK dispatch, actuator calibration, physical-input encoding, reward, recovery,
+Stop/save, installer repair, bundled assets, saved-graph agreement and recording.
+Contact checks cover all four device names, bumper type, invalid measurements,
+suspension, shutdown clearing and the absence of a direct contact-to-motor path.
 
-A blocked HTTP test delivers all 30 consecutive native motor frames while an
-input request is stalled. Only the newest of 30 unsent captures is transmitted
-after the request finishes. Other tests check command priority, in-flight request
-shutdown and real SDK encoding of 48 tilt and 10 reward neurons in one frame.
-Controller integration tests use a deterministic input sender; concurrent behavior
-is tested separately with the real worker. These tests do not establish device
-latency or stable Webots walking.
+The real SDK encoder test preserves 48 tilt, 16 contact and 10 reward neurons in
+one atomic input frame. The blocked-HTTP test delivers all 30 native motor frames
+while input publication is stalled, then sends only the newest unsent capture,
+including its matching contacts. Controller tests verify that raw foot readings,
+transmitted contact vectors and observation records agree. Mocked Webots devices
+cannot establish physical contact or gait stability.
 
-This experiment changes only four connection fields relative to the corrected
-LTP design from commit 17918ee: reward_type becomes LTD on each RELEASE → its
-own FEEDBACK_BETA and BETA inhibitory edge. The design name identifies the LTD
-experiment. SDK validation and local construction pass. All nodes, connectivity
-and constructed initial parameters remain identical; only the four reward
-directions change. The regular support → extension Beta connections retain
-STDP3/LTP. Every reflex edge remains static. The LTD experiment has not been run
-on the device or in Webots and does not establish eligibility, more overlap or
-improved behavior.
+The model tests verify that each SpotLeg instance gets a named bumper around the
+original distal foot cylinder and that its duplicate parent collider is removed.
+The pad dimensions and transform are unchanged. The test also checks every
+bundled asset against its updated manifest. Webots R2025a's documented bumper
+API supports this sensor type without an additional Physics body. Webots is not
+installed by this package and was not run during this validation.
 
-[SWITCH_CHECK.json](SWITCH_CHECK.json) retains the preceding design hash and
-records four complete-circuit local cases with static weights:
-aligned initial phases, varied phases/coupling/floor, left tilt and right tilt.
-The check injects START, STOP and tilt evidence, not phase or motor spikes. It
-uses native ARM cell updates with explicit harness assumptions for initialization
-and connectivity. Weights remain static. It is not the compiled device image,
-an FPGA-equivalence test or a Webots physics run.
+## Neural contact checks
 
-The checks measure push before knee flexion, local return-to-extension latency,
-front support output at rear push and swing onset, phase exclusivity,
-overlapping knee commands, reflex HG and
-regular Beta activity, fast-output clearing, STOP and restart. A corrective
-reflex can interrupt and delay an already prepared swing; the report preserves
-those events instead of labeling every delayed swing a fresh preparation.
+[CONTACT_CHECK.json](CONTACT_CHECK.json) matches the current design hash and
+records seven full-circuit local cases using native cell updates, static weights
+and explicit harness assumptions. Inputs are synthetic START, STOP, contact and
+tilt observations; the harness does not inject gait phases or motor outputs.
 
-In these four local cases, KNEE_NEG became active one neural frame after DONE
-on every recorded return. Front extension was already active at every rear
-push onset. No simultaneous knee flexion/extension commands occurred. These
-are harness observations, not a promise of the same timing on the device.
+| Case | Observed result |
+| --- | --- |
+| All feet report contact | Repeated contact-qualified sequences in all four legs |
+| No foot reports contact | Front return extends; rear handoff and phase B remain blocked |
+| Front-right contact delayed until frame 900 | No earlier confirmation; rear-left movement begins at frame 910 |
+| Varied initial phases and coupling | Repeated sequences and explicit STOP clearing |
+| Contact delivered only every tenth neural frame | Repeated sequences in all four legs |
+| Rear-left contact absent | Rear-left return occurs; its confirmation and phase B stay blocked |
+| Left tilt during walking | Left fast reflex outputs respond; right fast outputs remain inactive |
 
-Local checks cannot resolve an observed model/device mismatch. Record actual
-HG, Beta, reset, readiness and dopamine spikes through `neuron-telemetry.jsonl`.
-Compare with targets, measured angles, tilt and body motion. Command readiness
-and return do not prove foot contact or physical weight transfer. No ground
-forces, stable walking or reward-driven weight changes have been validated here.
+Across these cases, the checked interval had no simultaneous A/B phase readouts
+and no knee flexion/extension output conflicts. Motor and contact-ready activity
+was cleared after STOP. The missing/delayed-contact cases retained front return
+extension while the neural handoff was blocked. These are local harness results,
+not timing guarantees for the device or a measured foot trajectory.
 
-The supplied device run of the preceding graph showed front-right DONE at step
-1528, rear-left PUSH at 1545 and normal front-right extension only at 1558:
-a 30-frame / 0.96-second delay at the recorded 32 ms body step. Internal
-telemetry showed the regular extension Beta first active at 1554. The new
-direct return edges remove that serial dependency. The run used `learn` mode;
-it is evidence of the observed delay, not a controlled static comparison or
-validation of this updated graph on the device.
+An isolated gate check also tested each cue alone, both together, delayed contact,
+contact disappearing after confirmation, and clearing for reuse. Single-cue
+conditions did not activate the ready latch. The qualified event remained latched
+through later contact loss and was cleared by the next movement's clearing path.
 
-Run `walk` first. After the physical behavior works, compare `learn` against it
-using progress, falls and weight observations. Supervisor recovery remains
+The previous [SWITCH_CHECK.json](SWITCH_CHECK.json) retains its earlier design
+hash. It is evidence about the preceding return/reflex circuit, not validation
+of the contact graph. The current contact report does not test dopamine-driven
+weight changes. Release returns retain STDP3/LTD, normal support inputs retain
+STDP3/LTP, and every contact/reflex edge is static.
+
+## Check on the actual system
+
+Run `walk` first. Confirm that planted pads report 1 and lifted pads report 0.
+Compare `contact-inputs.jsonl`, raw observations and individual neural telemetry:
+contact HG, contact veto, match, ready and downstream handoff. Input queue
+acceptance does not prove neural processing or physical support.
+
+A ready latch means a collision was observed during return. It does not prove a
+completed airborne swing, adequate supported load, a backward impulse, successful
+weight transfer or balance. Ground forces and physical walking have not been
+validated here. Evaluate those in Webots before interpreting a learning run.
+
+After the physical behavior works, compare matched runs using progress, falls,
+stalled intervals and available weight observations. Supervisor recovery remains
 explicit simulator assistance and is not learned self-righting.

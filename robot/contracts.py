@@ -1,4 +1,4 @@
-"""Eight named inputs: 3 command, 10 reward and 48 tilt neurons."""
+"""Twelve named inputs: 3 command, 10 reward, 48 tilt and 16 contact neurons."""
 
 LEGS = ("FL", "FR", "RL", "RR")
 LEG_NAMES = dict(FL="front left", FR="front right", RL="rear left", RR="rear right")
@@ -23,10 +23,14 @@ REWARD_CLASSIFICATION = {
 }
 TILT_INPUTS = ("TILT_ROLL_NEG", "TILT_ROLL_POS", "TILT_PITCH_NEG", "TILT_PITCH_POS")
 TILT_NEURONS = 12
+CONTACT_INPUTS = {leg: f"FOOT_{leg}_CONTACT" for leg in LEGS}
+CONTACT_NEURONS = 4
+CONTACT_DEVICE_NAMES = {leg: name + " foot touch" for leg, name in LEG_NAMES.items()}
 INPUT_SIZES = {
     **COMMAND_INPUT_SIZES,
     REWARD_INPUT: REWARD_INPUT_NEURONS,
     **dict.fromkeys(TILT_INPUTS, TILT_NEURONS),
+    **dict.fromkeys(CONTACT_INPUTS.values(), CONTACT_NEURONS),
 }
 # Webots ENU: negative roll lowers the left side; positive pitch lowers the nose.
 # These are neural wiring choices, never a controller-side leg selector.
@@ -53,6 +57,7 @@ OUTPUT_SIZES = {
         *REFLEX_OUTPUTS,
         *(f"LEG_{leg}_DONE" for leg in LEGS),
         *(f"LEG_{leg}_SWING_READY" for leg in LEGS),
+        *(f"LEG_{leg}_CONTACT_READY" for leg in LEGS),
         "WALK_ENABLED",
         "REST_ACTIVE",
         "START_REQUEST",

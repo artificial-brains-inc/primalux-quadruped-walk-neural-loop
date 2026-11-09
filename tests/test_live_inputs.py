@@ -4,7 +4,7 @@ import unittest
 from unittest.mock import MagicMock
 
 from robot.configuration import load_config
-from robot.contracts import REWARD_INPUT, TILT_INPUTS, TILT_NEURONS
+from robot.contracts import REWARD_INPUT, TILT_INPUTS, TILT_NEURONS, CONTACT_INPUTS, CONTACT_NEURONS, LEGS
 from robot.live_inputs import LiveInputs
 from robot.transport import EventBuffer
 from test_runtime import frame
@@ -35,13 +35,13 @@ class LiveInputTests(unittest.TestCase):
         events = EventBuffer()
         with inputs:
             try:
-                inputs.feedback([-0.2, 0, 0], dict(value=0), native_step=0)
+                inputs.feedback([-0.2, 0, 0], dict(value=0), contacts=dict(FL=1, FR=0, RL=1, RR=0), native_step=0)
                 self.assertTrue(entered.wait(1))
                 delivered = []
                 for step in range(1, 31):
                     events.on_output(frame(step, FL_HIP_POS=step % 2))
                     delivered.append(events.wait_one(time.monotonic() + 1)["step"])
-                    inputs.feedback([0.2, 0, 0], dict(value=1), native_step=step)
+                    inputs.feedback([0.2, 0, 0], dict(value=1), contacts=dict(FL=0, FR=1, RL=0, RR=1), native_step=step)
                 self.assertEqual(delivered, list(range(1, 31)))
                 self.assertEqual(events.stats()["queued_frames"], 0)
                 self.assertEqual(inputs.stats()["pending_feedback"], 1)
@@ -53,6 +53,8 @@ class LiveInputTests(unittest.TestCase):
         self.assertEqual([e["native_step"] for e in logs], [0, 30])
         self.assertEqual(len(sent), 2)
         self.assertEqual(sent[-1][REWARD_INPUT]["signal"], 1.0)
+        for leg in LEGS:
+            self.assertEqual(sent[-1][CONTACT_INPUTS[leg]], [int(leg in ("FR", "RR"))] * 4)
 
     def test_command_has_priority_and_discards_precommand_unsent_feedback(self):
         entered, release = threading.Event(), threading.Event()
@@ -66,9 +68,9 @@ class LiveInputTests(unittest.TestCase):
             return dict(ACCEPTED)
         with self.make_sender(publish) as inputs:
             try:
-                inputs.feedback([0.2, 0, 0], dict(value=1))
+                inputs.feedback([0.2, 0, 0], dict(value=1), contacts=dict.fromkeys(LEGS, 0))
                 self.assertTrue(entered.wait(1))
-                inputs.feedback([-0.2, 0, 0], dict(value=1))
+                inputs.feedback([-0.2, 0, 0], dict(value=1), contacts=dict.fromkeys(LEGS, 0))
                 receipt = inputs.command(dict(WALK_START=[0.0], WALK_STOP=[1.0]))
                 self.assertFalse(receipt.ready.is_set())
                 self.assertEqual(inputs.stats()["pending_feedback"], 0)
@@ -102,9 +104,9 @@ class LiveInputTests(unittest.TestCase):
                 raise TimeoutError("test did not release HTTP")
             return dict(ACCEPTED)
         inputs = self.make_sender(publish).__enter__()
-        inputs.feedback([0.2, 0, 0], dict(value=1))
+        inputs.feedback([0.2, 0, 0], dict(value=1), contacts=dict.fromkeys(LEGS, 0))
         self.assertTrue(entered.wait(1))
-        inputs.feedback([-0.2, 0, 0], dict(value=1))
+        inputs.feedback([-0.2, 0, 0], dict(value=1), contacts=dict.fromkeys(LEGS, 0))
         def close():
             inputs.close()
             finished.set()
@@ -120,7 +122,7 @@ class LiveInputTests(unittest.TestCase):
         with self.assertRaisesRegex(RuntimeError, "closed"):
             inputs.command(dict(WALK_STOP=[1.0]))
 
-    def test_public_sdk_encodes_tilt_and_ten_reward_neurons_in_one_atomic_frame(self):
+    def test_public_sdk_encodes_tilt_contact_and_reward_in_one_atomic_frame(self):
         from ab_sdk.encoder import SpikeEncoder
         from ab_sdk.maps import InputSensorMap
         from ab_sdk.session import RealtimeSession
@@ -128,6 +130,8 @@ class LiveInputTests(unittest.TestCase):
         session.compile_id = "test-install"
         session.encoder = SpikeEncoder(InputSensorMap([
             *[dict(inputId=name, sensor=name, n=TILT_NEURONS) for name in TILT_INPUTS],
+            *[dict(inputId=name, sensor=name, n=CONTACT_NEURONS)
+              for name in CONTACT_INPUTS.values()],
             dict(inputId=REWARD_INPUT, sensor=REWARD_INPUT, n=10),
         ]))
         session.input_client = MagicMock()
@@ -135,7 +139,7 @@ class LiveInputTests(unittest.TestCase):
         published = threading.Event()
         with self.make_sender(session.publish_sensor_frame,
                               reward_record=lambda e: published.set()) as inputs:
-            inputs.feedback([-0.2, 0.2, 0], dict(value=1), native_step=7)
+            inputs.feedback([-0.2, 0.2, 0], dict(value=1), contacts=dict(FL=1, FR=0, RL=0, RR=1), native_step=7)
             self.assertTrue(published.wait(1))
             inputs.check_health()
         session.input_client.send_frame.assert_called_once()
@@ -144,6 +148,7 @@ class LiveInputTests(unittest.TestCase):
         self.assertEqual(payload, {
             **{name: [int(name in ("TILT_ROLL_NEG", "TILT_PITCH_POS"))] * 12
                for name in TILT_INPUTS},
+            **{name: [int(leg in ("FL", "RR"))] * 4 for leg, name in CONTACT_INPUTS.items()},
             REWARD_INPUT: [1] * 10,
         })
         self.assertTrue(all("step" not in event for event in events))

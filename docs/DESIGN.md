@@ -28,15 +28,17 @@ reference, not a percentage of neurons suppressed. These paths are static.
 ## What flips the switch
 
 A orders FR then RL; B orders FL then RR. Each leg has MOVE, PUSH, SWING_READY
-and DONE activity. Front DONE recruits a Beta T3 handoff into the rear leg's
-MOVE_HG. Rear DONE_HG supplies the macro state's MOTOR_FEEDBACK_HG →
+and DONE activity. Each DONE is qualified by measured contact in a local static
+veto circuit. Front CONTACT_READY_HG recruits a Beta T3 handoff into the rear
+leg's MOVE_HG. Rear CONTACT_READY_HG supplies the macro state's MOTOR_FEEDBACK_HG →
 FEEDBACK_BETA T5 → BETA T5 → RELEASE T3. RELEASE captures the opposite request.
 The four inhibitory RELEASE returns use STDP3/LTD.
 
 This sequence uses internal neural activity. The return begins from an actual
 knee flexion output rather than from the earlier hip command, so the leg's
 knee command has started before it recruits the return. It is still command
-history, not joint completion or confirmed ground contact.
+history. A separate CONTACT_READY records foot-pad contact during that return;
+it does not measure load transfer or a completed backward push. See [CONTACT.md](CONTACT.md).
 
 ## Early push and local return
 
@@ -95,13 +97,16 @@ one-HG clearing. ACTIVE remains diagnostic. See [REFLEX.md](REFLEX.md).
 | Front swing / rear swing Betas | Beta 5 | 2 / 4 |
 | Other support Betas | Beta 5 | 4 |
 | Local extension-output veto | High-gamma 10 | 1 |
+| Foot contact input / sensory HG | Input / High-gamma 10 | 4 / 4 |
+| Contact veto / match / ready HG | High-gamma 10 | 1 / 1 / 1 |
+| Contact-ready readout | Bistable output | 1 |
 | Local reflex HG | High-gamma 5 | 24 |
 | Reflex recovery / output reset | Beta 3 / Beta 3 | 2 / 4 |
 | Reward relay / reward | High-gamma 10 / Dopaminergic 3 | 10 / 17 |
 
 The compatible builder calculates these widths from the declared relationships.
-The graph has 84 OPUs, 55 one-neuron outputs and eight external populations:
-147 populations, 663 connections, 503 total neurons and 292,796 bytes of
+The graph has 100 OPUs, 59 one-neuron outputs and twelve external populations:
+171 populations, 751 connections, 551 total neurons and 297,444 bytes of
 connection matrices. Device preparation remains authoritative.
 
 ## Learning scope
@@ -111,7 +116,7 @@ extension Beta excitatory connections use STDP3/LTP. Both use GAIT_REWARD.
 Eligibility reflects recent source/receiver timing; dopaminergic activity acts
 on that eligibility. LTP follows its sign and LTD reverses it. The direction
 labels do not guarantee that a connection strengthens or weakens.
-Every reflex connection, fast motor branches, state retention, sequencing, vetoes and resets remain
+Every contact and reflex connection, fast motor branch, state-retention, sequencing, veto and reset connection remains
 static. `walk` sends no positive reward; `learn` rewards new upright forward
 progress. Stationary recovery alone is not that outcome.
 

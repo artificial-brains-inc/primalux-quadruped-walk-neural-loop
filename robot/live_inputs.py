@@ -5,7 +5,8 @@ import threading
 import time
 from collections import deque
 
-from .contracts import REWARD_INPUT, REWARD_INPUT_NEURONS, TILT_INPUTS, TILT_NEURONS
+from .contracts import LEGS, REWARD_INPUT, REWARD_INPUT_NEURONS, TILT_INPUTS, TILT_NEURONS
+from .contact import encode_contacts
 from .reflex import encode_tilt
 
 
@@ -21,9 +22,10 @@ class Receipt:
 
 class LiveInputs:
     def __init__(self, publish, cursor, settings, *, tilt_record=lambda e: None,
-                 reward_record=lambda e: None):
+                 reward_record=lambda e: None, contact_record=lambda e: None):
         self.publish, self.cursor, self.settings = publish, cursor, settings
         self.tilt_record, self.reward_record = tilt_record, reward_record
+        self.contact_record = contact_record
         self.condition = threading.Condition()
         self.commands = deque()
         self.latest = None
@@ -64,14 +66,22 @@ class LiveInputs:
         return receipt
 
     def feedback(self, rpy, evidence, *, suspended=False, native_step=None,
-                 simulation_time=None):
+                 simulation_time=None, contacts=None, tilt_suspended=False):
         value = evidence["value"]
         if type(value) is not int or value not in (0, 1):
             raise ValueError("The reward population accepts binary outcome magnitudes")
         tilt = (encode_tilt(rpy, self.settings)
-                if self.settings["enabled"] and not suspended
+                if self.settings["enabled"] and not (suspended or tilt_suspended)
                 else {name: [0] * TILT_NEURONS for name in TILT_INPUTS})
-        capture = dict(inputs=tilt, measured_rpy_rad=list(rpy), evidence=dict(evidence),
+        if contacts is None:
+            if not suspended:
+                raise ValueError("Live feedback requires measured foot contacts")
+            contacts = dict.fromkeys(LEGS, 0)
+        contact_inputs = encode_contacts(contacts, suspended=suspended)
+        capture = dict(inputs={**tilt, **contact_inputs}, tilt_inputs=tilt,
+                       contact_inputs=contact_inputs, measured_contacts=dict(contacts),
+                       measured_rpy_rad=list(rpy), evidence=dict(evidence),
+                       tilt_suspended=suspended or tilt_suspended,
                        suspended=suspended, native_step=native_step,
                        simulation_time=simulation_time, captured_at=time.monotonic())
         with self.condition:
@@ -116,7 +126,7 @@ class LiveInputs:
         if zero and self.last_zero:
             return
         reward_class = "positive_outcome" if value else "no_reward"
-        # Both observations belong to the same completed physics step. The
+        # All observations belong to the same completed physics step. The
         # public SDK encodes reward_population within this atomic sensor frame.
         payload = dict(capture["inputs"])
         payload[REWARD_INPUT] = dict(signal=float(value), mode="reward_population",
@@ -127,9 +137,12 @@ class LiveInputs:
                       simulation_time=capture["simulation_time"],
                       capture_age_at_send_seconds=started - capture["captured_at"],
                       publish_wall_seconds=time.monotonic() - started)
-        self.tilt_record(dict(**common, inputs=capture["inputs"],
+        self.tilt_record(dict(**common, inputs=capture["tilt_inputs"],
                               measured_rpy_rad=capture["measured_rpy_rad"],
-                              suspended=capture["suspended"]))
+                              suspended=capture["tilt_suspended"]))
+        self.contact_record(dict(**common, inputs=capture["contact_inputs"],
+                                 measured_contacts=capture["measured_contacts"],
+                                 suspended=capture["suspended"]))
         self.reward_record(dict(**common, input=REWARD_INPUT, reward_class=reward_class,
                                 input_population_neurons=REWARD_INPUT_NEURONS,
                                 active_input_neurons=value * REWARD_INPUT_NEURONS,

@@ -8,20 +8,20 @@ HTTP latency does not block the motor loop. WALK/REST confirmation is observed
 while every native output frame continues through actuation.
 
 The worker retains one latest unsent feedback capture, not a queue of old tilt
-and reward readings. Both are encoded in one atomic public SDK input frame.
+contact and reward readings. All are encoded in one atomic public SDK input frame.
 A request already in flight cannot be replaced; network and device latency still
 exist. Logs record capture age, publication duration and replaced unsent samples.
-No changes to neural timing, rhythms, TNorms, graph edges or motor calibration
-are made by removing ACK. The dormant isolated ACK nodes remain in the saved
-design for compatibility, so this adapter update requires no brain rebuild.
+The dormant isolated ACK nodes remain inactive. The touch variant adds local
+contact gates and changes the I/O contract, so it requires a build. It does not
+add a host gait timer, output hold, ACK or change the motor calibration.
 
 Local MOVE_HG recruits an early push alongside the existing motor Betas. Hip
 Beta activity recruits retained readiness, which clears the push. Knee flexion
 output recruits RETURN_BETA, which directly requests final extension and clears
 flexion and the local output veto. DONE_HG retains those commands. This avoids
 waiting for an additional support Beta before landing. A front return pathway
-also recruits its rear partner;
-a rear return recruits the macro handoff. These paths add neural integration
+recruits its rear partner after foot contact qualifies the return;
+a rear contact-qualified return recruits the macro handoff. These paths add neural integration
 and propagation, not a prescribed millisecond schedule.
 
 The reflex has a fixed direct HG motor branch. Its fast output recruits two

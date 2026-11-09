@@ -15,6 +15,24 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class WorldAssetsTests(unittest.TestCase):
+    def test_each_leg_uses_original_distal_pad_as_its_contact_collider(self):
+        source = (ROOT / "protos/spot/SpotLeg.proto").read_text()
+        # The template is instantiated four times with distinct legName values.
+        self.assertEqual(source.count("TouchSensor {"), 1)
+        pad = source.split("TouchSensor {", 1)[1].split("                        Transform {", 1)[0]
+        self.assertIn("legName + ' foot touch", pad)
+        self.assertIn('type "bumper"', pad)
+        self.assertIn("boundingObject Cylinder", pad)
+        for field in ("height 0.039623", "radius 0.035094",
+                      "translation %<=sign * 0.001038>% -0.271321 -0.225038",
+                      "rotation -0.577349 -0.577352 0.577350 2.0944"):
+            self.assertEqual(source.count(field), 1)  # No parent duplicate masking contact.
+            self.assertIn(field, pad)
+        self.assertNotIn("Physics", pad)  # Bumper shares the existing forearm body.
+        spot = (ROOT / "protos/spot/Spot.proto").read_text()
+        for name in ("front left", "front right", "rear left", "rear right"):
+            self.assertIn(f'name "{name}"', spot)
+
     def test_floor_markings_are_local_noncollision_geometry_with_valid_faces(self):
         source = (ROOT / "protos/FloorMarkings.proto").read_text()
         self.assertEqual(source, build())

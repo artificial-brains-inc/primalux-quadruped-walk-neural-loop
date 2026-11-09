@@ -3,8 +3,9 @@
 Build through SDK 0.4.2 public fields and the current Artificial Brains guide.
 Keep proprietary construction code, equations, compiled images and credentials out.
 
-- Eight external populations, 61 neurons: START/STOP/ACK each 1, reward 10,
-  four signed tilt populations each 12. No new phase, gait or progress inputs.
+- Twelve external populations, 77 neurons: START/STOP/ACK each 1, reward 10,
+  four signed tilt populations each 12, four measured foot contacts each 4.
+  No controller-derived phase, gait or handoff inputs.
 - A runs FR then RL; B runs FL then RR. These are ordered diagonal sequences,
   not simultaneous diagonal swings. WALK/REST and A/B retain their neural states.
 - Each leg's MOVE_HG drives its motor Betas and an early PUSH_HG branch.
@@ -17,11 +18,16 @@ Keep proprietary construction code, equations, compiled images and credentials o
   DONE_HG retains the same direct extension and clearing paths. Do not put an
   extra Beta stage between the return signal and the final extension output.
   DONE also ends this leg's movement and recruits its normal support Betas. Front
-  DONE_HG recruits HANDOFF_BETA T3, which starts the diagonal rear MOVE_HG.
+  CONTACT_READY_HG recruits HANDOFF_BETA T3, which starts diagonal rear MOVE_HG.
   Do not trigger rear movement from a front swing or reflex motor output.
-- Rear DONE_HG recruits its phase's MOTOR_FEEDBACK_HG → FEEDBACK_BETA T5 →
+- Rear CONTACT_READY_HG recruits its phase's MOTOR_FEEDBACK_HG → FEEDBACK_BETA T5 →
   BETA T5 → RELEASE T3 → opposite request. No host gait period or leg selection.
-  Return, readiness and handoff are command history, not measured foot contact.
+- Foot contact input 4 → HG T10 4 inhibits local CONTACT_VETO_HG T10 at 64.
+  WALK_NUCLEUS drives this veto; it inhibits CONTACT_MATCH_HG at 64. DONE_HG
+  is MATCH's positive anchor. MATCH recruits CONTACT_READY; READY/output-HG
+  retains the event. MOVE, opposite phase and STOP/REST clear MATCH/READY/HG
+  at 64. Contact does not block extension or independently start handoff.
+  These edges are static. Contact is pad collision, not load or completed push.
 - Each reflex is 24 high-gamma T5 neurons directly exciting a fast motor output
   and its existing regular extension Beta T5 through fixed connections. Keep both
   edges static. STDP3/LTP belongs on PHASE_support_DRIVE_HG → KNEE_NEG_BETA,
@@ -50,8 +56,7 @@ Keep proprietary construction code, equations, compiled images and credentials o
   Same-direction extension outputs use the largest configured excursion, not
   summed angles. Opposing commands cancel. Body step is 32 ms, threshold 0.08 rad.
 - No neural ACK handshake: clear the legacy ACK input at startup, never stimulate
-  it or wait for its readout. Keep the installed graph and dormant ACK population
-  contract unchanged. Observe WALK/REST without consuming or withholding motor
+  it or wait for its readout. Keep dormant ACK populations isolated. Observe WALK/REST without consuming or withholding motor
   frames. Publish inputs on a separate worker; one latest unsent feedback capture
   replaces older unsent captures. Do not queue stale sensor history or replay it.
 - Preserve event command capture, Q/close Stop/save and explicit simulator

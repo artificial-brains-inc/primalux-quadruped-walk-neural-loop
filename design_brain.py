@@ -10,6 +10,8 @@ from ab import Brain
 
 from robot.contracts import (
     COMMAND_INPUT_SIZES,
+    CONTACT_INPUTS,
+    CONTACT_NEURONS,
     JOINTS,
     LEGS,
     MOTOR_OUTPUTS,
@@ -37,11 +39,12 @@ REQUEST_CLEAR_INHIBITION = 64.0
 GAIT_LEARNING_RULE = "STDP3"
 RELEASE_REWARD_TYPE = "LTD"
 SUPPORT_REWARD_TYPE = "LTP"
+CONTACT_CLEAR_INHIBITION = 64.0
 
 
 def create_brain(*, learning=True):
     b = Brain(
-        "Spot - Neural Switch with LTD Release Feedback"
+        "Spot - Touch Feedback with LTD Release Feedback"
         if learning
         else "Spot - Neural Switch and Local Reflexes"
     )
@@ -214,6 +217,22 @@ def create_brain(*, learning=True):
                     f"{leg}_{joint}_{side}", li * 1400 + 650, 3800 + ji * 600 + si * 260
                 )
 
+    # Raw foot contact feeds local sensory relays. Contact has no direct motor
+    # or phase connection; the local return state must also recruit the gate.
+    contact_state_nodes = []
+    for li, leg in enumerate(LEGS):
+        name = CONTACT_INPUTS[leg]
+        b.input(name, CONTACT_NEURONS)
+        coordinates[name] = (li * 1400, 7800)
+        opu(name + "_HG", "high-gamma", 10, li * 1400, 8050)
+        b.connect(name, name + "_HG")
+        veto = f"LEG_{leg}_CONTACT_VETO_HG"
+        opu(veto, "high-gamma", 10, li * 1400 + 350, 8050)
+        # An active neural reference makes missing contact suppressive.
+        # This is a local veto, not a signed arithmetic NOT operator.
+        b.connect("WALK_NUCLEUS", veto)
+        inhibit(name + "_HG", veto, CONTACT_CLEAR_INHIBITION)
+
     # A and B select diagonal sequences: front push/swing/return, then rear.
     # Each local movement has an early push branch beside its motor Betas.
     gait_nodes = []
@@ -232,13 +251,33 @@ def create_brain(*, learning=True):
         if leg not in REAR_FRONT_PARTNER:
             opu(stem + "_HANDOFF_BETA", "beta", 3, x + 650, y + 1400)
             gait_nodes.append(stem + "_HANDOFF_BETA")
-            b.connect(stem + "_DONE_HG", stem + "_HANDOFF_BETA")
             inhibit(
                 f"PHASE_{support}_DRIVE_HG", stem + "_HANDOFF_BETA", CROSS_INHIBITION
             )
         output(stem + "_SWING_READY", x + 650, y + 560)
         gait_nodes.append(stem + "_SWING_READY")
         output(stem + "_DONE", x + 650, y + 1120)
+        opu(stem + "_CONTACT_MATCH_HG", "high-gamma", 10, x, 8300)
+        output(stem + "_CONTACT_READY", x + 650, 8300)
+        opu(stem + "_CONTACT_READY_HG", "high-gamma", 10, x + 650, 8550)
+        contact_state_nodes.extend(
+            stem + "_" + suffix
+            for suffix in ("CONTACT_VETO_HG", "CONTACT_MATCH_HG", "CONTACT_READY", "CONTACT_READY_HG")
+        )
+        # Return is the positive anchor. Missing contact vetoes its gate.
+        # Capture the qualified event separately so brief later contact loss
+        # does not undo a handoff already underway. Clear at the next cycle.
+        b.connect(stem + "_DONE_HG", stem + "_CONTACT_MATCH_HG")
+        inhibit(stem + "_CONTACT_VETO_HG", stem + "_CONTACT_MATCH_HG", CONTACT_CLEAR_INHIBITION)
+        b.connect(stem + "_CONTACT_MATCH_HG", stem + "_CONTACT_READY")
+        b.connect(stem + "_CONTACT_READY", stem + "_CONTACT_READY_HG")
+        b.connect(stem + "_CONTACT_READY_HG", stem + "_CONTACT_READY")
+        if leg not in REAR_FRONT_PARTNER:
+            b.connect(stem + "_CONTACT_READY_HG", stem + "_HANDOFF_BETA")
+        # Clear old confirmation while moving or outside this leg's swing phase.
+        for source in (stem + "_MOVE_HG", f"PHASE_{support}_DRIVE_HG"):
+            for suffix in ("CONTACT_MATCH_HG", "CONTACT_READY", "CONTACT_READY_HG"):
+                inhibit(source, stem + "_" + suffix, CONTACT_CLEAR_INHIBITION)
         output(f"{leg}_KNEE_PUSH", x + 650, y + 280)
         gait_nodes.append(stem + "_DONE")
         source = (
@@ -359,10 +398,10 @@ def create_brain(*, learning=True):
                     )
                     inhibit(source, f"{leg}_{joint}_{opposite_side}", 1)
 
-    # A phase advances only after its rear leg reaches its return state.
-    # This is internal motor history, not a claim of measured foot contact.
+    # A phase advances from its rear leg's contact-qualified return. This
+    # confirms foot-pad contact, not force, unloading or completed propulsion.
     for rear in REAR_FRONT_PARTNER:
-        b.connect(f"LEG_{rear}_DONE_HG", f"PHASE_{SWING_PHASE[rear]}_MOTOR_FEEDBACK_HG")
+        b.connect(f"LEG_{rear}_CONTACT_READY_HG", f"PHASE_{SWING_PHASE[rear]}_MOTOR_FEEDBACK_HG")
 
     for i, name in enumerate(TILT_INPUTS):
         b.input(name, TILT_NEURONS)
@@ -412,6 +451,9 @@ def create_brain(*, learning=True):
     for target in (*phase_nodes, *gait_nodes, *motor_populations, *reflex_nodes):
         inhibit("REST_NUCLEUS", target, STOP_INHIBITION)
         inhibit("STOP_REQUEST_HG", target, STOP_INHIBITION)
+    for target in contact_state_nodes:
+        inhibit("REST_NUCLEUS", target, CONTACT_CLEAR_INHIBITION)
+        inhibit("STOP_REQUEST_HG", target, CONTACT_CLEAR_INHIBITION)
     for target in MOTOR_OUTPUTS:
         inhibit("REST_NUCLEUS", target, STOP_INHIBITION)
         if target.endswith("_KNEE_PUSH"):

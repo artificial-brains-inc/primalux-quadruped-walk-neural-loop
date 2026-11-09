@@ -1,4 +1,4 @@
-# Spot: a neural walking switch and local support reflexes
+# Spot: contact-guided walking and local support reflexes
 
 A developer teaching example for Prima-Lux and Webots. Each leg first gives a
 small extension push, then flexes and advances, then returns to support. Neural
@@ -11,11 +11,11 @@ leg's knee motion.
 | B | Front-left push → swing → return | Rear-right push → swing → return |
 
 The return pathway directly activates final knee extension and clears flexion.
-It also recruits the rear movement through its existing handoff Beta, so final
-extension can start before the next leg's initial push. A front swing
-command does not start the rear swing. The sequence is intended to prepare
-support before a leg lifts; these neural events do not measure actual unloading
-or foot contact.
+Four foot-pad TouchSensors now supply measured contact. The neural handoff
+needs both the local return state and contact at that foot: front confirmation
+recruits its diagonal rear partner; rear confirmation recruits the phase handoff.
+Extension remains available while waiting for contact. Contact indicates a pad
+collision, not the amount of weight supported or completion of backward propulsion.
 
 | Knee output | Excursion from neutral | Requested speed |
 | --- | --- | --- |
@@ -28,16 +28,17 @@ amplitudes. The adapter caps speed at the model's maximum. The body advances
 32 ms per native output frame; signed tilt evidence begins at 0.08 rad.
 
 There is **no neural ACK handshake**. Input HTTP requests run separately from
-motor delivery; the newest unsent tilt/reward capture replaces older unsent
+motor delivery; the newest unsent tilt/contact/reward capture replaces older unsent
 captures. WALK/REST confirmation is observed without pausing body steps. Every
-native motor frame is retained. The graph, TNorms and motor settings are unchanged;
-its isolated ACK populations remain dormant for installed-brain compatibility.
+native motor frame is retained. The isolated ACK populations remain dormant.
+This contact design changes the input/output contract and **requires a rebuild**.
+Existing motor calibration and the independent tilt-reflex paths are preserved.
 
 Automatic fall recovery is still enabled. It requests STOP, restores the robot
 and requests START after settling. Removing ACK does not disable that separate
 source of apparent restarts. See [recovery](docs/RECOVERY.md).
 
-There are **503 neurons**, including **61 external neurons across eight named
+There are **551 neurons**, including **77 external neurons across twelve named
 inputs**. Each leg's reflex remains **24 high-gamma T5 neurons**, directly
 exciting its fast output and its **24-neuron regular extension Beta T5**. The
 two reflex connections are static. STDP3/LTP is on the regular support phase
@@ -46,7 +47,8 @@ output so it does not prevent that Beta from receiving reflex evidence.
 
 The reward path is 10 outcome input neurons → 10 high-gamma T10 neurons →
 17 dopaminergic T3 neurons. Positive reward means new upright forward progress;
-zero means no reward. No new external gait, phase or progress inputs are added.
+zero means no reward. The four new contact inputs each contain four neurons.
+Python transmits measurements; it supplies no phase, gait or handoff decision.
 
 ## What you learn
 
@@ -54,14 +56,17 @@ zero means no reward. No new external gait, phase or progress inputs are added.
 - Start an early push while the existing motor pathway builds activity.
 - Clear that push from retained neural readiness, without a host timer.
 - Start final extension directly from the return pathway, while clearing flexion.
-- Return a front leg to support before recruiting its diagonal rear partner.
+- Combine a return command with measured foot contact inside the brain.
+- Retain that confirmation and clear it before the next local movement.
+- Recruit the diagonal rear partner after front contact is confirmed.
 - Keep local reflexes independent and give them a neural reset long enough to
   avoid the immediate output-clearing loop.
 - Recruit regular Beta through a fixed reflex connection, with STDP3 on its
   normal support input.
 
 Read [goals and interactions](docs/GOALS.md), [the design](docs/DESIGN.md),
-[push before swing](docs/PUSH.md), and [the reflex path](docs/REFLEX.md).
+[foot-contact feedback](docs/CONTACT.md), [push before swing](docs/PUSH.md),
+and [the reflex path](docs/REFLEX.md).
 
 ## Requirements
 
@@ -81,13 +86,15 @@ See [requirements](docs/REQUIREMENTS.md).
 ## Clone and install
 
 ```bash
-git clone "$HOME/Downloads/primalux-spot-no-ack.bundle" primalux-spot-switch
-cd primalux-spot-switch
+git clone /absolute/path/to/the-downloaded-touch.bundle primalux-spot-touch
+cd primalux-spot-touch
 bash install.sh
 source .venv/bin/activate
 ```
 
-After publication, use the repository URL in place of the bundle path. Edit `.env`:
+Replace `/absolute/path/to/the-downloaded-touch.bundle` with the exact path
+provided with the download. After publication, use the repository URL in place
+of the bundle path. Edit `.env`:
 
 ```dotenv
 AB_DEVICE_URL=http://prima-lux.local:8080
@@ -99,8 +106,9 @@ WEBOTS_EXECUTABLE=/absolute/path/to/webots
 `WEBOTS_EXECUTABLE` names the executable file, not its containing folder.
 Keep `.env` out of Git. For an existing checkout, stop the application with Q,
 then fetch the bundle and merge its main branch using `--ff-only`.
-If the previous continuous-run design is already installed, this adapter update
-requires no brain rebuild. The following design/build steps are for a new install.
+Rebuild this design even when the LTD version is already installed. The four
+contact inputs and four contact-ready readouts change the installed contract.
+A new build is a new learning condition; do not assume old learned weights transfer.
 
 ## Inspect the design
 
@@ -112,8 +120,10 @@ Follow START → START_REQUEST → WALK_ENABLED, then PHASE_A_REQUEST → PHASE_
 OUT and DRIVE_HG retain each macro state. Inspect LEG_FR_MOVE_HG: it excites the
 ordinary motor Betas and PUSH_HG in parallel. Follow hip Beta → SWING_READY →
 SWING_READY_HG back to clear the push branch. Then follow KNEE_POS → RETURN_BETA
-→ DONE → DONE_HG. Front DONE feeds HANDOFF_BETA → rear MOVE_HG; rear DONE feeds
-the macro handoff pathway. Python does not republish these internal signals.
+→ DONE → DONE_HG. Inspect FOOT_FR_CONTACT_HG inhibiting LEG_FR_CONTACT_VETO_HG.
+That veto suppresses LEG_FR_CONTACT_MATCH_HG, whose positive drive is DONE_HG.
+The resulting CONTACT_READY loop feeds front HANDOFF_BETA → rear MOVE_HG, or
+rear MOTOR_FEEDBACK_HG for the phase handoff. Python does not compute these states.
 
 Inspect the direct RETURN_BETA → KNEE_NEG and DONE_HG → KNEE_NEG edges. Both
 sources clear KNEE_POS and its extension-output veto at strength 64. The final
@@ -172,15 +182,14 @@ ab run -ab --env .env learn
 One physical reward signal may adjust **four STDP3/LTD inhibitory returns** from
 RELEASE to its own FEEDBACK_BETA and BETA, plus **four excitatory STDP3/LTP edges**
 from each leg's support phase drive to its regular knee extension Beta. All
-reflex connections, local DONE → Beta, Beta → output, state interlocks, motor
+contact and reflex connections, local DONE → Beta, Beta → output, state interlocks, motor
 vetoes, command paths and resets remain static. Reflex activity can recruit the
 postsynaptic Beta while the regular presynaptic drive is active, contributing to
 eligibility on that regular connection. Learning can alter release recovery and
 normal support recruitment; it is not
 a substitute for working coordination.
 
-This LTD experiment changes the reward direction only on the four RELEASE
-feedback connections. LTP follows signed eligibility; LTD reverses it. LTD does
+LTD is selected only on the four RELEASE feedback connections. LTP follows signed eligibility; LTD reverses it. LTD does
 not guarantee weaker inhibition or more overlap. The regular support inputs
 retain LTP, and every reflex connection remains static. Inspect the selected
 edges in the Designer and rebuild before running; changing files does not change
@@ -198,7 +207,7 @@ command is an installer or launcher. See [design](docs/DESIGN.md) and
 [control and reward](docs/CONTROL.md).
 
 The startup line prints four push outputs, four fast reflex outputs, 10 reward input neurons,
-the design hash and the project folder. `logs/run-*/settings.json` records them
+four foot sensors with four neurons each, the design hash and the project folder. `logs/run-*/settings.json` records them
 too. This identifies which local package actually ran.
 `neuron-telemetry.jsonl` now records actual internal neuron activity automatically,
 including the reflex, normal Beta, phase-feedback and reward populations. The
@@ -206,14 +215,18 @@ recorder reads the existing SDK viewer stream and never controls movement.
 
 ## Checks and limits
 
-Construction uses 503/10,000 neurons and 292,796 bytes of connection matrices;
-other prepared-image data also consumes memory. The local complete-circuit check
-uses single START/STOP events, internal motor feedback and injected tilt evidence.
-It checks push/swing order, final extension timing, front support before rear
-push and swing, reflex recruitment,
-clearing, stopping and restarting. It includes
-transition gaps and is not an FPGA or Webots run. Physical balance and learned
-walking still need your device test. See [validation](docs/VALIDATION.md).
+Construction uses 551/10,000 neurons and 297,444 bytes of connection matrices;
+other prepared-image data also consumes memory. Application tests cover actual
+SDK encoding, sensor validation, asynchronous publication, motor delivery and
+Stop/save. Local native-cell checks exercise missing, delayed and intermittent
+contact with static weights. These are not a Webots physics or Prima-Lux device
+run. Physical walking and learning still need your test. See
+[validation](docs/VALIDATION.md).
+
+`contact-inputs.jsonl` records accepted contact publications. Each observation
+also records raw `foot_contact`, encoded `contact_inputs` and neural outputs.
+The periodic console line shows `contacts` and `contact_ready`. Compare all three
+before attributing a stalled handoff to learning.
 
 ## License
 

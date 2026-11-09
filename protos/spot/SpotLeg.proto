@@ -1,5 +1,6 @@
 #VRML_SIM R2025a utf8
 # Modification: bundled appearance URLs use project-relative paths.
+# Modification: existing distal foot collision cylinder belongs to a bumper TouchSensor.
 # tags: hidden
 # template language: javascript
 
@@ -108,6 +109,18 @@ PROTO SpotLeg [
                     endPoint DEF FOREARM Solid {
                       translation %<=sign * 0.1122>% -0.319729 0.182338
                       children [
+                        # Reuse the original foot-pad collision geometry, with
+                        # no duplicate collider, extra mass or force estimate.
+                        TouchSensor {
+                          translation %<=sign * 0.001038>% -0.271321 -0.225038
+                          rotation -0.577349 -0.577352 0.577350 2.0944
+                          name %<= '"' + legName + ' foot touch"' >%
+                          type "bumper"
+                          boundingObject Cylinder {
+                            height 0.039623
+                            radius 0.035094
+                          }
+                        }
                         Transform {
                           translation %<=sign * -0.165>% -1.342041 0.640962
                           scale %<=scale>%
@@ -151,16 +164,6 @@ PROTO SpotLeg [
                       name %<= '"' + legName + ' forearm"' >%
                       boundingObject DEF FOREARM_BO Group {
                         children [
-                          Pose {
-                            translation %<=sign * 0.001038>% -0.271321 -0.225038
-                            rotation -0.577349 -0.577352 0.577350 2.0944
-                            children [
-                              Cylinder {
-                                height 0.039623
-                                radius 0.035094
-                              }
-                            ]
-                          }
                           Pose {
                             translation %<=sign * 0.001038>% -0.227421 -0.230239
                             rotation -1 0 0 0.947675

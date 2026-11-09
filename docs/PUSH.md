@@ -46,7 +46,7 @@ vetoes ordinary extension during the next swing. STOP/REST clears the outputs.
 
 Final extension uses the ordinary **−0.08 rad at up to 1.5 rad/s** calibration.
 The change is when the neural command starts; there is no controller timer,
-additional input, new population or target-completion wait. As with the push,
+target-completion wait for the extension command itself. As with the push,
 a commanded landing does not confirm contact or load transfer.
 
 | Macro state | First movement | Following movement |
@@ -54,12 +54,12 @@ a commanded landing does not confirm contact or load transfer.
 | A | Front-right push, swing, return | Rear-left push, swing, return |
 | B | Front-left push, swing, return | Rear-right push, swing, return |
 
-A front leg's DONE_HG also excites HANDOFF_BETA T3. That pathway recruits the
-rear partner's MOVE_HG after front return has begun. Rear DONE_HG recruits the
-macro handoff pathway. The front's reflex output and ordinary extension output
-are not handoff sources, so a corrective reflex cannot itself request a rear
-step. This is sequencing of motor activity; there are no foot-load inputs or
-claims of confirmed touchdown.
+A front leg's CONTACT_READY_HG excites HANDOFF_BETA T3 after DONE and measured
+foot contact recruit the local gate. That pathway starts the diagonal rear's
+MOVE_HG. Rear CONTACT_READY_HG recruits the macro handoff. Reflex and ordinary
+extension outputs are not direct handoff sources. Contact confirms a pad
+collision during return, without measuring supported load or backward force.
+See [CONTACT.md](CONTACT.md).
 
 The tilt reflex stays independent. It can request the larger **−0.22 rad** fast
 extension of its own leg and inhibit flexion. If push and reflex extension are

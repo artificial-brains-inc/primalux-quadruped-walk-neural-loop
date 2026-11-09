@@ -1,6 +1,6 @@
 {
   "schema": "artificial-brains/design/v1",
-  "name": "Spot - Neural Switch with LTD Release Feedback",
+  "name": "Spot - Touch Feedback with LTD Release Feedback",
   "nodes": [
     {
       "name": "WALK_START",
@@ -629,6 +629,98 @@
       "neurons": 1
     },
     {
+      "name": "FOOT_FL_CONTACT",
+      "kind": "input",
+      "x": 0.0,
+      "y": 7800.0,
+      "neurons": 4
+    },
+    {
+      "name": "FOOT_FL_CONTACT_HG",
+      "kind": "opu",
+      "x": 0.0,
+      "y": 8050.0,
+      "rhythm": "high-gamma",
+      "tnorm": 10.0
+    },
+    {
+      "name": "LEG_FL_CONTACT_VETO_HG",
+      "kind": "opu",
+      "x": 350.0,
+      "y": 8050.0,
+      "rhythm": "high-gamma",
+      "tnorm": 10.0
+    },
+    {
+      "name": "FOOT_FR_CONTACT",
+      "kind": "input",
+      "x": 1400.0,
+      "y": 7800.0,
+      "neurons": 4
+    },
+    {
+      "name": "FOOT_FR_CONTACT_HG",
+      "kind": "opu",
+      "x": 1400.0,
+      "y": 8050.0,
+      "rhythm": "high-gamma",
+      "tnorm": 10.0
+    },
+    {
+      "name": "LEG_FR_CONTACT_VETO_HG",
+      "kind": "opu",
+      "x": 1750.0,
+      "y": 8050.0,
+      "rhythm": "high-gamma",
+      "tnorm": 10.0
+    },
+    {
+      "name": "FOOT_RL_CONTACT",
+      "kind": "input",
+      "x": 2800.0,
+      "y": 7800.0,
+      "neurons": 4
+    },
+    {
+      "name": "FOOT_RL_CONTACT_HG",
+      "kind": "opu",
+      "x": 2800.0,
+      "y": 8050.0,
+      "rhythm": "high-gamma",
+      "tnorm": 10.0
+    },
+    {
+      "name": "LEG_RL_CONTACT_VETO_HG",
+      "kind": "opu",
+      "x": 3150.0,
+      "y": 8050.0,
+      "rhythm": "high-gamma",
+      "tnorm": 10.0
+    },
+    {
+      "name": "FOOT_RR_CONTACT",
+      "kind": "input",
+      "x": 4200.0,
+      "y": 7800.0,
+      "neurons": 4
+    },
+    {
+      "name": "FOOT_RR_CONTACT_HG",
+      "kind": "opu",
+      "x": 4200.0,
+      "y": 8050.0,
+      "rhythm": "high-gamma",
+      "tnorm": 10.0
+    },
+    {
+      "name": "LEG_RR_CONTACT_VETO_HG",
+      "kind": "opu",
+      "x": 4550.0,
+      "y": 8050.0,
+      "rhythm": "high-gamma",
+      "tnorm": 10.0
+    },
+    {
       "name": "LEG_FL_MOVE_HG",
       "kind": "opu",
       "x": 0.0,
@@ -689,6 +781,29 @@
       "x": 650.0,
       "y": 3120.0,
       "neurons": 1
+    },
+    {
+      "name": "LEG_FL_CONTACT_MATCH_HG",
+      "kind": "opu",
+      "x": 0.0,
+      "y": 8300.0,
+      "rhythm": "high-gamma",
+      "tnorm": 10.0
+    },
+    {
+      "name": "LEG_FL_CONTACT_READY",
+      "kind": "output",
+      "x": 650.0,
+      "y": 8300.0,
+      "neurons": 1
+    },
+    {
+      "name": "LEG_FL_CONTACT_READY_HG",
+      "kind": "opu",
+      "x": 650.0,
+      "y": 8550.0,
+      "rhythm": "high-gamma",
+      "tnorm": 10.0
     },
     {
       "name": "FL_KNEE_PUSH",
@@ -760,6 +875,29 @@
       "neurons": 1
     },
     {
+      "name": "LEG_FR_CONTACT_MATCH_HG",
+      "kind": "opu",
+      "x": 1400.0,
+      "y": 8300.0,
+      "rhythm": "high-gamma",
+      "tnorm": 10.0
+    },
+    {
+      "name": "LEG_FR_CONTACT_READY",
+      "kind": "output",
+      "x": 2050.0,
+      "y": 8300.0,
+      "neurons": 1
+    },
+    {
+      "name": "LEG_FR_CONTACT_READY_HG",
+      "kind": "opu",
+      "x": 2050.0,
+      "y": 8550.0,
+      "rhythm": "high-gamma",
+      "tnorm": 10.0
+    },
+    {
       "name": "FR_KNEE_PUSH",
       "kind": "output",
       "x": 2050.0,
@@ -821,6 +959,29 @@
       "neurons": 1
     },
     {
+      "name": "LEG_RL_CONTACT_MATCH_HG",
+      "kind": "opu",
+      "x": 2800.0,
+      "y": 8300.0,
+      "rhythm": "high-gamma",
+      "tnorm": 10.0
+    },
+    {
+      "name": "LEG_RL_CONTACT_READY",
+      "kind": "output",
+      "x": 3450.0,
+      "y": 8300.0,
+      "neurons": 1
+    },
+    {
+      "name": "LEG_RL_CONTACT_READY_HG",
+      "kind": "opu",
+      "x": 3450.0,
+      "y": 8550.0,
+      "rhythm": "high-gamma",
+      "tnorm": 10.0
+    },
+    {
       "name": "RL_KNEE_PUSH",
       "kind": "output",
       "x": 3450.0,
@@ -880,6 +1041,29 @@
       "x": 4850.0,
       "y": 3120.0,
       "neurons": 1
+    },
+    {
+      "name": "LEG_RR_CONTACT_MATCH_HG",
+      "kind": "opu",
+      "x": 4200.0,
+      "y": 8300.0,
+      "rhythm": "high-gamma",
+      "tnorm": 10.0
+    },
+    {
+      "name": "LEG_RR_CONTACT_READY",
+      "kind": "output",
+      "x": 4850.0,
+      "y": 8300.0,
+      "neurons": 1
+    },
+    {
+      "name": "LEG_RR_CONTACT_READY_HG",
+      "kind": "opu",
+      "x": 4850.0,
+      "y": 8550.0,
+      "rhythm": "high-gamma",
+      "tnorm": 10.0
     },
     {
       "name": "RR_KNEE_PUSH",
@@ -1602,15 +1786,141 @@
       "role": "feedback"
     },
     {
-      "from": "LEG_FL_DONE_HG",
-      "to": "LEG_FL_HANDOFF_BETA",
+      "from": "FOOT_FL_CONTACT",
+      "to": "FOOT_FL_CONTACT_HG",
       "type": "exc"
+    },
+    {
+      "from": "WALK_NUCLEUS",
+      "to": "LEG_FL_CONTACT_VETO_HG",
+      "type": "exc"
+    },
+    {
+      "from": "FOOT_FL_CONTACT_HG",
+      "to": "LEG_FL_CONTACT_VETO_HG",
+      "type": "inh",
+      "strength": 64.0
+    },
+    {
+      "from": "FOOT_FR_CONTACT",
+      "to": "FOOT_FR_CONTACT_HG",
+      "type": "exc"
+    },
+    {
+      "from": "WALK_NUCLEUS",
+      "to": "LEG_FR_CONTACT_VETO_HG",
+      "type": "exc"
+    },
+    {
+      "from": "FOOT_FR_CONTACT_HG",
+      "to": "LEG_FR_CONTACT_VETO_HG",
+      "type": "inh",
+      "strength": 64.0
+    },
+    {
+      "from": "FOOT_RL_CONTACT",
+      "to": "FOOT_RL_CONTACT_HG",
+      "type": "exc"
+    },
+    {
+      "from": "WALK_NUCLEUS",
+      "to": "LEG_RL_CONTACT_VETO_HG",
+      "type": "exc"
+    },
+    {
+      "from": "FOOT_RL_CONTACT_HG",
+      "to": "LEG_RL_CONTACT_VETO_HG",
+      "type": "inh",
+      "strength": 64.0
+    },
+    {
+      "from": "FOOT_RR_CONTACT",
+      "to": "FOOT_RR_CONTACT_HG",
+      "type": "exc"
+    },
+    {
+      "from": "WALK_NUCLEUS",
+      "to": "LEG_RR_CONTACT_VETO_HG",
+      "type": "exc"
+    },
+    {
+      "from": "FOOT_RR_CONTACT_HG",
+      "to": "LEG_RR_CONTACT_VETO_HG",
+      "type": "inh",
+      "strength": 64.0
     },
     {
       "from": "PHASE_A_DRIVE_HG",
       "to": "LEG_FL_HANDOFF_BETA",
       "type": "inh",
       "strength": 4.0
+    },
+    {
+      "from": "LEG_FL_DONE_HG",
+      "to": "LEG_FL_CONTACT_MATCH_HG",
+      "type": "exc"
+    },
+    {
+      "from": "LEG_FL_CONTACT_VETO_HG",
+      "to": "LEG_FL_CONTACT_MATCH_HG",
+      "type": "inh",
+      "strength": 64.0
+    },
+    {
+      "from": "LEG_FL_CONTACT_MATCH_HG",
+      "to": "LEG_FL_CONTACT_READY",
+      "type": "exc"
+    },
+    {
+      "from": "LEG_FL_CONTACT_READY",
+      "to": "LEG_FL_CONTACT_READY_HG",
+      "type": "exc"
+    },
+    {
+      "from": "LEG_FL_CONTACT_READY_HG",
+      "to": "LEG_FL_CONTACT_READY",
+      "type": "exc"
+    },
+    {
+      "from": "LEG_FL_CONTACT_READY_HG",
+      "to": "LEG_FL_HANDOFF_BETA",
+      "type": "exc"
+    },
+    {
+      "from": "LEG_FL_MOVE_HG",
+      "to": "LEG_FL_CONTACT_MATCH_HG",
+      "type": "inh",
+      "strength": 64.0
+    },
+    {
+      "from": "LEG_FL_MOVE_HG",
+      "to": "LEG_FL_CONTACT_READY",
+      "type": "inh",
+      "strength": 64.0
+    },
+    {
+      "from": "LEG_FL_MOVE_HG",
+      "to": "LEG_FL_CONTACT_READY_HG",
+      "type": "inh",
+      "strength": 64.0
+    },
+    {
+      "from": "PHASE_A_DRIVE_HG",
+      "to": "LEG_FL_CONTACT_MATCH_HG",
+      "type": "inh",
+      "strength": 64.0
+    },
+    {
+      "from": "PHASE_A_DRIVE_HG",
+      "to": "LEG_FL_CONTACT_READY",
+      "type": "inh",
+      "strength": 64.0
+    },
+    {
+      "from": "PHASE_A_DRIVE_HG",
+      "to": "LEG_FL_CONTACT_READY_HG",
+      "type": "inh",
+      "strength": 64.0
     },
     {
       "from": "PHASE_B_DRIVE_HG",
@@ -1765,15 +2075,77 @@
       "strength": 64.0
     },
     {
-      "from": "LEG_FR_DONE_HG",
-      "to": "LEG_FR_HANDOFF_BETA",
-      "type": "exc"
-    },
-    {
       "from": "PHASE_B_DRIVE_HG",
       "to": "LEG_FR_HANDOFF_BETA",
       "type": "inh",
       "strength": 4.0
+    },
+    {
+      "from": "LEG_FR_DONE_HG",
+      "to": "LEG_FR_CONTACT_MATCH_HG",
+      "type": "exc"
+    },
+    {
+      "from": "LEG_FR_CONTACT_VETO_HG",
+      "to": "LEG_FR_CONTACT_MATCH_HG",
+      "type": "inh",
+      "strength": 64.0
+    },
+    {
+      "from": "LEG_FR_CONTACT_MATCH_HG",
+      "to": "LEG_FR_CONTACT_READY",
+      "type": "exc"
+    },
+    {
+      "from": "LEG_FR_CONTACT_READY",
+      "to": "LEG_FR_CONTACT_READY_HG",
+      "type": "exc"
+    },
+    {
+      "from": "LEG_FR_CONTACT_READY_HG",
+      "to": "LEG_FR_CONTACT_READY",
+      "type": "exc"
+    },
+    {
+      "from": "LEG_FR_CONTACT_READY_HG",
+      "to": "LEG_FR_HANDOFF_BETA",
+      "type": "exc"
+    },
+    {
+      "from": "LEG_FR_MOVE_HG",
+      "to": "LEG_FR_CONTACT_MATCH_HG",
+      "type": "inh",
+      "strength": 64.0
+    },
+    {
+      "from": "LEG_FR_MOVE_HG",
+      "to": "LEG_FR_CONTACT_READY",
+      "type": "inh",
+      "strength": 64.0
+    },
+    {
+      "from": "LEG_FR_MOVE_HG",
+      "to": "LEG_FR_CONTACT_READY_HG",
+      "type": "inh",
+      "strength": 64.0
+    },
+    {
+      "from": "PHASE_B_DRIVE_HG",
+      "to": "LEG_FR_CONTACT_MATCH_HG",
+      "type": "inh",
+      "strength": 64.0
+    },
+    {
+      "from": "PHASE_B_DRIVE_HG",
+      "to": "LEG_FR_CONTACT_READY",
+      "type": "inh",
+      "strength": 64.0
+    },
+    {
+      "from": "PHASE_B_DRIVE_HG",
+      "to": "LEG_FR_CONTACT_READY_HG",
+      "type": "inh",
+      "strength": 64.0
     },
     {
       "from": "PHASE_A_DRIVE_HG",
@@ -1928,6 +2300,68 @@
       "strength": 64.0
     },
     {
+      "from": "LEG_RL_DONE_HG",
+      "to": "LEG_RL_CONTACT_MATCH_HG",
+      "type": "exc"
+    },
+    {
+      "from": "LEG_RL_CONTACT_VETO_HG",
+      "to": "LEG_RL_CONTACT_MATCH_HG",
+      "type": "inh",
+      "strength": 64.0
+    },
+    {
+      "from": "LEG_RL_CONTACT_MATCH_HG",
+      "to": "LEG_RL_CONTACT_READY",
+      "type": "exc"
+    },
+    {
+      "from": "LEG_RL_CONTACT_READY",
+      "to": "LEG_RL_CONTACT_READY_HG",
+      "type": "exc"
+    },
+    {
+      "from": "LEG_RL_CONTACT_READY_HG",
+      "to": "LEG_RL_CONTACT_READY",
+      "type": "exc"
+    },
+    {
+      "from": "LEG_RL_MOVE_HG",
+      "to": "LEG_RL_CONTACT_MATCH_HG",
+      "type": "inh",
+      "strength": 64.0
+    },
+    {
+      "from": "LEG_RL_MOVE_HG",
+      "to": "LEG_RL_CONTACT_READY",
+      "type": "inh",
+      "strength": 64.0
+    },
+    {
+      "from": "LEG_RL_MOVE_HG",
+      "to": "LEG_RL_CONTACT_READY_HG",
+      "type": "inh",
+      "strength": 64.0
+    },
+    {
+      "from": "PHASE_B_DRIVE_HG",
+      "to": "LEG_RL_CONTACT_MATCH_HG",
+      "type": "inh",
+      "strength": 64.0
+    },
+    {
+      "from": "PHASE_B_DRIVE_HG",
+      "to": "LEG_RL_CONTACT_READY",
+      "type": "inh",
+      "strength": 64.0
+    },
+    {
+      "from": "PHASE_B_DRIVE_HG",
+      "to": "LEG_RL_CONTACT_READY_HG",
+      "type": "inh",
+      "strength": 64.0
+    },
+    {
       "from": "LEG_FR_HANDOFF_BETA",
       "to": "LEG_RL_MOVE_HG",
       "type": "exc"
@@ -2076,6 +2510,68 @@
     {
       "from": "LEG_RL_PUSH_HG",
       "to": "RL_KNEE_POS",
+      "type": "inh",
+      "strength": 64.0
+    },
+    {
+      "from": "LEG_RR_DONE_HG",
+      "to": "LEG_RR_CONTACT_MATCH_HG",
+      "type": "exc"
+    },
+    {
+      "from": "LEG_RR_CONTACT_VETO_HG",
+      "to": "LEG_RR_CONTACT_MATCH_HG",
+      "type": "inh",
+      "strength": 64.0
+    },
+    {
+      "from": "LEG_RR_CONTACT_MATCH_HG",
+      "to": "LEG_RR_CONTACT_READY",
+      "type": "exc"
+    },
+    {
+      "from": "LEG_RR_CONTACT_READY",
+      "to": "LEG_RR_CONTACT_READY_HG",
+      "type": "exc"
+    },
+    {
+      "from": "LEG_RR_CONTACT_READY_HG",
+      "to": "LEG_RR_CONTACT_READY",
+      "type": "exc"
+    },
+    {
+      "from": "LEG_RR_MOVE_HG",
+      "to": "LEG_RR_CONTACT_MATCH_HG",
+      "type": "inh",
+      "strength": 64.0
+    },
+    {
+      "from": "LEG_RR_MOVE_HG",
+      "to": "LEG_RR_CONTACT_READY",
+      "type": "inh",
+      "strength": 64.0
+    },
+    {
+      "from": "LEG_RR_MOVE_HG",
+      "to": "LEG_RR_CONTACT_READY_HG",
+      "type": "inh",
+      "strength": 64.0
+    },
+    {
+      "from": "PHASE_A_DRIVE_HG",
+      "to": "LEG_RR_CONTACT_MATCH_HG",
+      "type": "inh",
+      "strength": 64.0
+    },
+    {
+      "from": "PHASE_A_DRIVE_HG",
+      "to": "LEG_RR_CONTACT_READY",
+      "type": "inh",
+      "strength": 64.0
+    },
+    {
+      "from": "PHASE_A_DRIVE_HG",
+      "to": "LEG_RR_CONTACT_READY_HG",
       "type": "inh",
       "strength": 64.0
     },
@@ -3308,12 +3804,12 @@
       "type": "exc"
     },
     {
-      "from": "LEG_RL_DONE_HG",
+      "from": "LEG_RL_CONTACT_READY_HG",
       "to": "PHASE_A_MOTOR_FEEDBACK_HG",
       "type": "exc"
     },
     {
-      "from": "LEG_RR_DONE_HG",
+      "from": "LEG_RR_CONTACT_READY_HG",
       "to": "PHASE_B_MOTOR_FEEDBACK_HG",
       "type": "exc"
     },
@@ -4764,6 +5260,198 @@
       "to": "REFLEX_RR_OUTPUT_RESET_BETA",
       "type": "inh",
       "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "LEG_FL_CONTACT_VETO_HG",
+      "type": "inh",
+      "strength": 64.0
+    },
+    {
+      "from": "STOP_REQUEST_HG",
+      "to": "LEG_FL_CONTACT_VETO_HG",
+      "type": "inh",
+      "strength": 64.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "LEG_FL_CONTACT_MATCH_HG",
+      "type": "inh",
+      "strength": 64.0
+    },
+    {
+      "from": "STOP_REQUEST_HG",
+      "to": "LEG_FL_CONTACT_MATCH_HG",
+      "type": "inh",
+      "strength": 64.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "LEG_FL_CONTACT_READY",
+      "type": "inh",
+      "strength": 64.0
+    },
+    {
+      "from": "STOP_REQUEST_HG",
+      "to": "LEG_FL_CONTACT_READY",
+      "type": "inh",
+      "strength": 64.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "LEG_FL_CONTACT_READY_HG",
+      "type": "inh",
+      "strength": 64.0
+    },
+    {
+      "from": "STOP_REQUEST_HG",
+      "to": "LEG_FL_CONTACT_READY_HG",
+      "type": "inh",
+      "strength": 64.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "LEG_FR_CONTACT_VETO_HG",
+      "type": "inh",
+      "strength": 64.0
+    },
+    {
+      "from": "STOP_REQUEST_HG",
+      "to": "LEG_FR_CONTACT_VETO_HG",
+      "type": "inh",
+      "strength": 64.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "LEG_FR_CONTACT_MATCH_HG",
+      "type": "inh",
+      "strength": 64.0
+    },
+    {
+      "from": "STOP_REQUEST_HG",
+      "to": "LEG_FR_CONTACT_MATCH_HG",
+      "type": "inh",
+      "strength": 64.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "LEG_FR_CONTACT_READY",
+      "type": "inh",
+      "strength": 64.0
+    },
+    {
+      "from": "STOP_REQUEST_HG",
+      "to": "LEG_FR_CONTACT_READY",
+      "type": "inh",
+      "strength": 64.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "LEG_FR_CONTACT_READY_HG",
+      "type": "inh",
+      "strength": 64.0
+    },
+    {
+      "from": "STOP_REQUEST_HG",
+      "to": "LEG_FR_CONTACT_READY_HG",
+      "type": "inh",
+      "strength": 64.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "LEG_RL_CONTACT_VETO_HG",
+      "type": "inh",
+      "strength": 64.0
+    },
+    {
+      "from": "STOP_REQUEST_HG",
+      "to": "LEG_RL_CONTACT_VETO_HG",
+      "type": "inh",
+      "strength": 64.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "LEG_RL_CONTACT_MATCH_HG",
+      "type": "inh",
+      "strength": 64.0
+    },
+    {
+      "from": "STOP_REQUEST_HG",
+      "to": "LEG_RL_CONTACT_MATCH_HG",
+      "type": "inh",
+      "strength": 64.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "LEG_RL_CONTACT_READY",
+      "type": "inh",
+      "strength": 64.0
+    },
+    {
+      "from": "STOP_REQUEST_HG",
+      "to": "LEG_RL_CONTACT_READY",
+      "type": "inh",
+      "strength": 64.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "LEG_RL_CONTACT_READY_HG",
+      "type": "inh",
+      "strength": 64.0
+    },
+    {
+      "from": "STOP_REQUEST_HG",
+      "to": "LEG_RL_CONTACT_READY_HG",
+      "type": "inh",
+      "strength": 64.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "LEG_RR_CONTACT_VETO_HG",
+      "type": "inh",
+      "strength": 64.0
+    },
+    {
+      "from": "STOP_REQUEST_HG",
+      "to": "LEG_RR_CONTACT_VETO_HG",
+      "type": "inh",
+      "strength": 64.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "LEG_RR_CONTACT_MATCH_HG",
+      "type": "inh",
+      "strength": 64.0
+    },
+    {
+      "from": "STOP_REQUEST_HG",
+      "to": "LEG_RR_CONTACT_MATCH_HG",
+      "type": "inh",
+      "strength": 64.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "LEG_RR_CONTACT_READY",
+      "type": "inh",
+      "strength": 64.0
+    },
+    {
+      "from": "STOP_REQUEST_HG",
+      "to": "LEG_RR_CONTACT_READY",
+      "type": "inh",
+      "strength": 64.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "LEG_RR_CONTACT_READY_HG",
+      "type": "inh",
+      "strength": 64.0
+    },
+    {
+      "from": "STOP_REQUEST_HG",
+      "to": "LEG_RR_CONTACT_READY_HG",
+      "type": "inh",
+      "strength": 64.0
     },
     {
       "from": "REST_NUCLEUS",

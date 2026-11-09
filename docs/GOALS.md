@@ -23,10 +23,16 @@ keeps the push from restarting in a gap between Beta spikes.
 Actual knee flexion output then recruits a return pathway. Its Beta directly
 excites final extension and clears flexion and the extension-output veto. The
 retained return state continues those paths while the regular support Beta
-builds activity. A front return also recruits its
-diagonal rear partner; a rear return recruits the opposite macro state. A runs
-FR then RL, B runs FL then RR. Python supplies no phase, cadence or progress
-signal. These transitions represent command activity, not measured foot contact.
+builds activity. A local contact veto blocks handoff until measured contact
+qualifies that return. CONTACT_READY then recruits the diagonal rear partner
+for a front leg, or the opposite macro state for a rear leg. A runs FR then RL,
+B runs FL then RR. Python supplies four raw contact signals, with no phase,
+cadence or handoff decision. The learned outcome remains upright progress.
+
+This separates two goals: extend the foot toward support, then hand off when
+contact is observed. Waiting for contact must not inhibit the extension needed
+to achieve it. CONTACT_READY retains the event through brief later contact gaps
+and clears during local MOVE or the opposite phase. See [CONTACT.md](CONTACT.md).
 
 ## Local corrective priority
 
