@@ -228,3 +228,11 @@ The observer runs independently of the motor loop. It never publishes inputs or
 waits for a target. A recording gap, changed run or connection error is logged
 and printed; it does not silently invent missing firing data. It does not restart
 the brain. Send this file alongside observations and settings for diagnosis.
+
+## Support motor offsets
+
+Sixteen explicit HIP/ABD SUPPORT_POS/NEG outputs add fixed signed joint offsets.
+The decoder reads those motor outputs only; PREPARE, ACTIVE and contact readouts
+do not select a posture in Python. Neural ACTIVE vetoes exclude the swinging
+leg. Opposing offsets cancel, and config validation checks the combined stroke
+and support endpoints. See [SUPPORT.md](SUPPORT.md).

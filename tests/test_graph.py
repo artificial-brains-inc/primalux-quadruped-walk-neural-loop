@@ -143,7 +143,7 @@ class GraphTests(unittest.TestCase):
                 self.assert_inhibits(nxt + "_REQUEST_HG", stem + "_" + state, 64)
                 self.assert_inhibits(nxt + "_ACTIVE_HG", stem + "_" + state, 4)
         starts = {b for (a,b),e in self.edges.items() if a == "START_REQUEST_HG" and b.startswith("STEP_") and e["type"] == "exc"}
-        self.assertEqual(starts, {"STEP_FR_REQUEST", "STEP_RL_STANCE", "STEP_FL_STANCE", "STEP_RR_STANCE"})
+        self.assertEqual(starts, {"STEP_FR_REQUEST", "STEP_FR_PREPARE", "STEP_RL_STANCE", "STEP_FL_STANCE", "STEP_RR_STANCE"})
 
     def test_beta_brake_is_recruited_before_contact_and_controls_handoff(self):
         for leg in LEGS:

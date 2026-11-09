@@ -16,6 +16,7 @@ from robot.contracts import (
     LEGS,
     MOTOR_OUTPUTS,
     NEXT_LEG,
+    SUPPORT_DIRECTIONS,
     AIR_INPUTS,
     REFLEX_CUES,
     REWARD_INPUT,
@@ -41,9 +42,9 @@ CONTACT_CLEAR_INHIBITION = 64.0
 
 def create_brain(*, learning=False, handoff_inhibition=0.5):
     b = Brain(
-        "Spot - Contact Cascade with Inhibitory LTP"
+        "Spot - Anticipatory Support Cascade with Inhibitory LTP"
         if learning
-        else "Spot - Contact Cascade, Static Baseline"
+        else "Spot - Anticipatory Support Cascade, Static Baseline"
     )
     pending_connections = []
 
@@ -169,6 +170,21 @@ def create_brain(*, learning=False, handoff_inhibition=0.5):
             inhibit(stem + "_STANCE_HG", stem + "_" + name, REQUEST_CLEAR_INHIBITION)
     connect("START_REQUEST_HG", "STEP_FR_REQUEST")
 
+    # Prepare the following leg during the current leg's return. This retained
+    # support plan stays through its own swing and is replaced by the next plan.
+    # It never captures ACTIVE or clears another leg's turn/contact history.
+    for li, leg in enumerate(LEGS):
+        stem = f"STEP_{leg}"
+        output(stem + "_PREPARE", li * 1400, 9500)
+        opu(stem + "_PREPARE_HG", "high-gamma", 10, li * 1400 + 240, 9500)
+        stage_nodes.extend((stem + "_PREPARE", stem + "_PREPARE_HG"))
+        connect(stem + "_PREPARE", stem + "_PREPARE_HG", role="feedback")
+        connect(stem + "_PREPARE_HG", stem + "_PREPARE")
+        connect(f"LEG_{leg}_RETURN_BETA", f"STEP_{NEXT_LEG[leg]}_PREPARE_HG")
+        for suffix in ("PREPARE", "PREPARE_HG"):
+            inhibit(f"STEP_{NEXT_LEG[leg]}_PREPARE_HG", stem + "_" + suffix, REQUEST_CLEAR_INHIBITION)
+    connect("START_REQUEST_HG", "STEP_FR_PREPARE")
+
     for li, leg in enumerate(LEGS):
         for ji, joint in enumerate(JOINTS):
             for si, side in enumerate(("POS", "NEG")):
@@ -244,6 +260,7 @@ def create_brain(*, learning=False, handoff_inhibition=0.5):
             source = stem + "_DRIVE_BETA"
         connect(source, stem + "_MOVE_HG")
         connect(stem + "_MOVE_HG", stem + "_PUSH_HG")
+        connect(f"STEP_{leg}_PREPARE_HG", stem + "_PUSH_HG")
         connect(stem + "_PUSH_HG", f"{leg}_KNEE_PUSH")
         connect(f"{leg}_KNEE_PUSH", stem + "_PUSH_HG", role="feedback")
         # Read actual knee flexion output before recruiting the return.
@@ -253,7 +270,6 @@ def create_brain(*, learning=False, handoff_inhibition=0.5):
         connect(stem + "_DONE_HG", stem + "_DONE")
         for suffix in (
             "MOVE_HG",
-            "PUSH_HG",
             "SWING_READY",
             "SWING_READY_HG",
             "RETURN_BETA",
@@ -269,7 +285,6 @@ def create_brain(*, learning=False, handoff_inhibition=0.5):
             f"{leg}_KNEE_PUSH",
         ):
             inhibit(stem + "_DONE_HG", target, REQUEST_CLEAR_INHIBITION)
-        inhibit(support_source, f"{leg}_KNEE_PUSH", CROSS_INHIBITION)
         for suffix in ("DONE", "DONE_HG", "RETURN_BETA", "SWING_READY", "SWING_READY_HG"):
             inhibit(f"STEP_{leg}_REQUEST_HG", stem + "_" + suffix, REQUEST_CLEAR_INHIBITION)
         # Motor Beta activity ends the preparation branch while its output
@@ -345,6 +360,23 @@ def create_brain(*, learning=False, handoff_inhibition=0.5):
                         feedback=True,
                     )
                     inhibit(source, f"{leg}_{joint}_{opposite_side}", 1)
+
+    # Separate small posture outputs retain the established stroke amplitudes.
+    # Direction selection, swing exclusion and clearing all occur neurally.
+    # The adapter only adds the signed, fixed joint offset to its motor target.
+    for li, leg in enumerate(LEGS):
+        for ji, joint in enumerate(("HIP", "ABD")):
+            for si, side in enumerate(("POS", "NEG")):
+                channel = f"{leg}_{joint}_SUPPORT_{side}"
+                output(channel, li * 1400 + 650, 9900 + ji * 600 + si * 260)
+                for preparing in LEGS:
+                    source = f"STEP_{preparing}_PREPARE_HG"
+                    if SUPPORT_DIRECTIONS[preparing][joint] == side:
+                        connect(source, channel)
+                    else:
+                        inhibit(source, channel, REQUEST_CLEAR_INHIBITION)
+                inhibit(f"STEP_{leg}_ACTIVE_HG", channel, REQUEST_CLEAR_INHIBITION)
+                inhibit("STOP_REQUEST_HG", channel, STOP_INHIBITION)
 
     for i, name in enumerate(TILT_INPUTS):
         b.input(name, TILT_NEURONS)

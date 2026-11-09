@@ -7,6 +7,15 @@ JOINTS = ("ABD", "HIP", "KNEE")
 JOINT_NAMES = dict(ABD="shoulder abduction", HIP="shoulder rotation", KNEE="elbow")
 SEQUENCE = ("FR", "RL", "FL", "RR")
 NEXT_LEG = dict(zip(SEQUENCE, SEQUENCE[1:] + SEQUENCE[:1]))
+# Fixed neural wiring: shift the supported body away from the next swing foot.
+# Positive HIP moves a planted foot forward relative to the body; positive ABD
+# moves it right. Body translation has the opposite sign for a planted foot.
+SUPPORT_DIRECTIONS = {
+    "FR": {"HIP": "POS", "ABD": "POS"},
+    "RL": {"HIP": "NEG", "ABD": "NEG"},
+    "FL": {"HIP": "POS", "ABD": "NEG"},
+    "RR": {"HIP": "NEG", "ABD": "POS"},
+}
 COMMAND_INPUT_SIZES = {"WALK_START": 1, "WALK_STOP": 1, "TRANSPORT_ACK": 1}
 REWARD_INPUT = "GAIT_REWARD_IN"
 REWARD_INPUT_NEURONS = 10
@@ -48,7 +57,11 @@ GAIT_MOTOR_OUTPUTS = tuple(
     for joint in JOINTS
     for side in ("POS", "NEG")
 )
-MOTOR_OUTPUTS = (*GAIT_MOTOR_OUTPUTS, *REFLEX_MOTOR_OUTPUTS, *PUSH_MOTOR_OUTPUTS)
+SUPPORT_MOTOR_OUTPUTS = tuple(
+    f"{leg}_{joint}_SUPPORT_{side}"
+    for leg in LEGS for joint in ("HIP", "ABD") for side in ("POS", "NEG")
+)
+MOTOR_OUTPUTS = (*GAIT_MOTOR_OUTPUTS, *REFLEX_MOTOR_OUTPUTS, *PUSH_MOTOR_OUTPUTS, *SUPPORT_MOTOR_OUTPUTS)
 OUTPUT_SIZES = {
     name: 1
     for name in (
@@ -63,6 +76,7 @@ OUTPUT_SIZES = {
         "STOP_REQUEST",
         *(f"STEP_{leg}_{state}" for leg in LEGS for state in ("ACTIVE", "STANCE", "REQUEST")),
         *(f"LEG_{leg}_AIR_SEEN" for leg in LEGS),
+        *(f"STEP_{leg}_PREPARE" for leg in LEGS),
         "TRANSPORT_ACK_OUT",
     )
 }

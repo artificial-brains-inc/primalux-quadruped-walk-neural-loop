@@ -1,11 +1,11 @@
 {
   "schema": "primalux-spot/application-check/v1",
-  "tests": 111,
+  "tests": 114,
   "result": "passed",
   "sdk_version": "0.4.2",
-  "static_design_sha256": "0cad0ab0e1da949024eb950fd020b12bc909ca9e6b946bbde4b2ba4df4104df7",
-  "learning_design_sha256": "38da7c0d7ecf2ac17f6d713987724ea82d564fb34b8547baecafb1e236ecfb74",
+  "static_design_sha256": "6d3f09e1f10c49b29e1e13b88fc89932d58d785f621b8d95382cdd7eb71383ad",
+  "learning_design_sha256": "1df02439a67a0b7791a76a45150b8da704be9b71942cd19df0d63f7998aa8158",
   "device_run": false,
   "webots_physics_run": false,
-  "scope": "Graph, SDK commands and encoding, adapter integration with mocked boundaries, metrics, installer repair and bundled world assets."
+  "scope": "Graph, SDK encoding/commands, mocked adapter boundaries, support calibration and metrics, installer and assets; unchanged regular motor/reflex widths and exact static/learning parity verified."
 }

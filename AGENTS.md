@@ -5,7 +5,15 @@ Keep proprietary construction code, formulas, compiled images and credentials ou
 
 - FR → RL → FL → RR → FR is a four-stage cascade. START seeds FR once;
   STOP/REST clears it. The controller never selects stages or generates a gait.
-- Preserve each local push/swing/return primitive, its motor Betas and calibration.
+- Preserve each local push/swing/return primitive, its regular motor Betas and stroke calibration.
+  PREPARE adds a two-neuron HG T10 input to the push relay (3 front / 4 rear).
+  Previous RETURN recruits next PREPARE before landing. START seeds FR PREPARE.
+  PREPARE retains the support plan through its own swing; next PREPARE clears it.
+  STANCE must not veto the grounded push. SWING_READY/DONE and STOP clear it.
+- Sixteen fixed HIP/ABD support outputs add small signed actuator offsets.
+  Direction selection and swing exclusion remain neural. ACTIVE_HG vetoes its
+  own support outputs; opposing plans clear antagonists. No phase-based decoder.
+  Never describe bumper contact or a support-plan output as measured load.
   Rear MOVE input uses local Beta T3. No motor-output-to-motor-output shortcut.
 - Landing needs measured contact, AIR_SEEN from lift-off during the active turn,
   and local DONE. Sensor gates are fixed local veto/disinhibition paths.

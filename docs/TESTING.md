@@ -51,3 +51,14 @@ contact validation, local motor/reflex paths, async publication, no ACK pacing,
 metrics, installer repair and shutdown. They do not contact a real Prima-Lux
 or start Webots. [VALIDATION.md](VALIDATION.md) separates these from native-cell
 checks and the physical test still required.
+
+## Check anticipatory support first
+
+Use the static design. In observations.jsonl, compare the previous leg’s return,
+next PREPARE and next KNEE_PUSH with the measured touchdown. Preparation should
+be recruited during return, while next ACTIVE still waits for qualified landing.
+Inspect `next_push_before_previous_touchdown_frames`, support motor outputs and
+body pitch/roll together. Neural overlap alone is not successful weight transfer.
+Confirm STOP clears PREPARE and support outputs and that START restarts FR.
+The two optional support offsets can be set to zero for an amplitude-only
+comparison; keep all other config values and the design identical.

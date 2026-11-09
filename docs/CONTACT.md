@@ -24,6 +24,9 @@ this leg. At landing, CONTACT excites CONTACT_MATCH_HG, while two parallel
 contact-driven vetoes suppress it unless AIR_SEEN_HG and DONE_HG respectively
 inhibit those vetoes. MATCH sets retained CONTACT_READY. READY drives the local
 handoff Beta, which requests the next leg through its inhibitory timing path.
+Meanwhile RETURN_BETA has already recruited the next PREPARE_HG. Contact does
+not gate that grounded preparation; it still gates capture of the next ACTIVE
+turn. Preparation never clears the current turn or its contact memories.
 
 REQUEST and STANCE clear stale AIR_SEEN and CONTACT_READY. STOP/REST also clears
 them. The raw sensory vetoes remain operational during REST. A foot already on

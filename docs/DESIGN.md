@@ -19,6 +19,23 @@ flowchart TD
 Each arrow includes a local handoff Beta and the next request capture. STOP/REST
 inhibits all turn, motor and retained sensor-event states. A new START seeds FR.
 
+## Prepare support during the previous return
+
+RETURN_BETA excites the next PREPARE_HG (high-gamma T10, two neurons). It
+directly drives a retained PREPARE output; that output returns through an explicit
+feedback connection. START seeds the first PREPARE output. The next PREPARE_HG
+clears the previous plan at strength 64. STOP/REST clears every plan.
+
+PREPARE_HG recruits the next push and directly drives small, separately
+calibrated HIP/ABD support outputs. Opposite support plans explicitly clear the
+opposing outputs. A leg’s ACTIVE_HG vetoes its own support offsets at strength
+64, so the support plan acts on the other legs while that leg swings.
+No motor phase is interpreted by Python. See [SUPPORT.md](SUPPORT.md).
+
+The plan does not activate the next turn: the original AIR_SEEN + DONE + CONTACT
+gate and inhibitory handoff remain in charge of that. Preparation remains active
+through its own swing to retain support direction; it is not a touchdown signal.
+
 ## Local motor goal
 
 ACTIVE_HG recruits MOVE_HG directly for front legs. Rear legs retain a Beta T3
@@ -29,7 +46,11 @@ extends the knee. Hip Beta recruits retained SWING_READY; readiness clears push
 and allows flexion. Knee flexion output recruits RETURN_BETA T3. RETURN directly
 excites final extension and clears knee flexion; retained DONE keeps the return
 available and ends MOVE. Local stance recruits the regular support Betas.
-The actuator calibration and independent reflexes are unchanged.
+The existing stroke/reflex targets and speeds are preserved. Separate small
+HIP/ABD support offsets are added by their own motor outputs; reflex wiring is
+unchanged. The push relays now have three neurons in front and four at the rear; regular
+motor Betas retain their
+previous widths.
 
 DONE means the return pathway has become active. It is **not measured completion
 of an angle or stroke**. Actual contact supplies the additional physical evidence.
@@ -90,25 +111,11 @@ a touch sensor or measure load, and it does not guarantee better locomotion.
 
 ## Initial inhibitory operating point
 
-We tested fixed multipliers 0.25, 0.5, 0.75, 1, 1.5, 2 and 4 with the full graph
-and the same synthetic foot fixture. First FR landing readiness appeared at
-native harness step 171. The next RL turn began at:
-
-| Inhibitory multiplier | Next RL step | Steps after CONTACT_READY |
-| ---: | ---: | ---: |
-| 0.25 | 184 | 13 |
-| **0.5** | **185** | **14** |
-| 0.75 | 186 | 15 |
-| 1 | 187 | 16 |
-| 1.5 | 199 | 28 |
-| 2 | 199 | 28 |
-| 4 | 214 | 43 |
-
-BRAKE first fired at step 129 in each case, before landing readiness. This
-supports choosing 0.5 as a responsive, relatively light baseline. It is not an
-optimized physical weight or a guaranteed linear response. Harness steps are
-not Webots milliseconds. The sweep kept weights fixed; it does not demonstrate
-STDP3 updates. Full results and limits: [HANDOFF_SWEEP.json](HANDOFF_SWEEP.json).
+The fixed default remains 0.5. The brake is recruited from current ACTIVE before
+landing readiness. [HANDOFF_SWEEP.json](HANDOFF_SWEEP.json) records the current
+static-graph checks at different inhibitory strengths. These are circuit
+sensitivity checks, not gait optimization or STDP3 training. A stronger setting
+can delay the next turn; harness steps are not Webots milliseconds.
 
 ## Rhythm and population choices
 
@@ -118,6 +125,11 @@ STDP3 updates. Full results and limits: [HANDOFF_SWEEP.json](HANDOFF_SWEEP.json)
   transfer binary sensory evidence. They do not produce the corrective burst.
 - **State helpers: high-gamma T10, one neuron each.** They retain one-neuron
   diagnostic/control states with explicit clearing; they are not motor reflexes.
+- **Preparation relay: high-gamma T10, two neurons.** A direct transfer from
+  the preceding return; retention and clearing are explicit. It drives fixed
+  posture outputs and the local push. It is not a corrective reflex.
+- **Push relay: high-gamma T10, three front / four rear neurons.** Existing
+  MOVE plus preparation; rear MOVE already has two neurons.
 - **Regular motor Betas: T5.** Their widths follow their incoming populations:
   knee extension is 24; other regular motor Betas are 2 or 4. The local motor
   construction is preserved rather than retuned for the cascade.

@@ -2,7 +2,7 @@
 
 import math
 
-from .contracts import JOINTS, LEGS, MOTOR_OUTPUTS, REFLEX_OUTPUTS, NEXT_LEG
+from .contracts import JOINTS, LEGS, MOTOR_OUTPUTS, REFLEX_OUTPUTS, NEXT_LEG, SUPPORT_MOTOR_OUTPUTS
 
 
 def motor_pattern_counts(rows):
@@ -20,6 +20,7 @@ def motor_pattern_counts(rows):
     single_leg = dict.fromkeys(LEGS, 0)
     overlapping_flexion = 0
     push_frames = dict.fromkeys(LEGS, 0)
+    early_push = dict.fromkeys(LEGS, 0)
     for row in confirmed:
         c = row["outputs"]
         flex = {
@@ -30,6 +31,13 @@ def motor_pattern_counts(rows):
         for leg in LEGS:
             single_leg[leg] += flex[leg] and sum(flex.values()) == 1
             push_frames[leg] += bool(c.get(f"{leg}_KNEE_PUSH", 0))
+            following = NEXT_LEG[leg]
+            early_push[following] += bool(
+                c.get(f"STEP_{leg}_ACTIVE")
+                and row.get("foot_contact", {}).get(leg) == 0
+                and c.get(f"{following}_KNEE_PUSH")
+                and not c.get(f"STEP_{following}_ACTIVE")
+            )
         same_side["left"] += (
             flex["FL"] and flex["RL"] and not (flex["FR"] or flex["RR"])
         )
@@ -41,6 +49,8 @@ def motor_pattern_counts(rows):
         single_leg_swing_frames=single_leg,
         overlapping_knee_flexion_frames=overlapping_flexion,
         push_motor_frames=push_frames,
+        next_push_before_previous_touchdown_frames=early_push,
+        support_motor_frames={name: sum(bool(r["outputs"].get(name)) for r in confirmed) for name in SUPPORT_MOTOR_OUTPUTS},
         all_four_knees_flexing_frames=all_flex,
         same_side_only_knee_flexion_frames=same_side,
     )
@@ -99,7 +109,7 @@ def summarize(rows):
                 ready_times[leg] = row.get("native_step", row.get("step", 0))
         selected = [leg for leg in LEGS if c.get(f"STEP_{leg}_ACTIVE")]
         both += len(selected) > 1
-        active += any(c[k] for k in MOTOR_OUTPUTS)
+        active += any(c.get(k, 0) for k in MOTOR_OUTPUTS)
         if len(selected) == 1 and selected[0] != previous:
             leg = selected[0]
             if previous is not None and NEXT_LEG.get(previous) == leg and previous in ready_times:
@@ -174,13 +184,14 @@ def summarize(rows):
                 "WALK_ENABLED",
                 "REST_ACTIVE",
                 *(f"STEP_{leg}_REQUEST" for leg in LEGS),
+                *(f"STEP_{leg}_PREPARE" for leg in LEGS),
                 *(f"LEG_{leg}_AIR_SEEN" for leg in LEGS),
                 *(f"LEG_{leg}_CONTACT_READY" for leg in LEGS),
             )
         },
         stop_commands_observed_after_walking=len(stop_sequences),
         motor_active_after_stop_request_frames=sum(
-            any(r["outputs"][k] for k in MOTOR_OUTPUTS) for r in stopped
+            any(r["outputs"].get(k, 0) for k in MOTOR_OUTPUTS) for r in stopped
         ),
         displacement_xyz_m=[
             sum(

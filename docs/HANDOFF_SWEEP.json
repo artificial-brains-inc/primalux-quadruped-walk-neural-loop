@@ -1,135 +1,42 @@
 {
   "schema": "primalux-spot/handoff-sweep/v1",
   "selected_strength": 0.5,
-  "method": "Native CPU cell updates of the constructed static graph, with explicit local phase/connectivity/fatigue assumptions. Foot fixture follows neural flexion/extension outputs; it is not Webots physics. Neural states and motor outputs are never injected.",
-  "first_start_step": 100,
+  "method": "Full static graph using native CPU cell updates and local phase/connectivity/fatigue assumptions. Synthetic foot evidence becomes airborne on neural knee flexion and lands after 18 fixture steps (45 for late_landing) with extension. No neural state or motor command is injected. This is not a physical robot simulation.",
   "learning_enabled": false,
   "results": [
     {
-      "strength": 0.25,
-      "design_sha256": "25e22b8cd48f590220d283a3ff8c9be089bbaa3b4342fd408157de721d7b5da9",
-      "brake_first_step": 129,
-      "contact_ready_first_step": 171,
-      "handoff_first_step": 174,
-      "next_active_first_step": 184,
-      "ready_to_next_steps": 13,
-      "simultaneous_stage_frames": 0,
-      "knee_conflicts": {
-        "FL": 0,
-        "FR": 0,
-        "RL": 0,
-        "RR": 0
-      },
-      "quiet_after_stop": true
-    },
-    {
       "strength": 0.5,
-      "design_sha256": "0cad0ab0e1da949024eb950fd020b12bc909ca9e6b946bbde4b2ba4df4104df7",
-      "brake_first_step": 129,
-      "contact_ready_first_step": 171,
-      "handoff_first_step": 175,
+      "design_sha256": "6d3f09e1f10c49b29e1e13b88fc89932d58d785f621b8d95382cdd7eb71383ad",
+      "ready_first_step": 171,
       "next_active_first_step": 185,
       "ready_to_next_steps": 14,
-      "simultaneous_stage_frames": 0,
-      "knee_conflicts": {
-        "FL": 0,
-        "FR": 0,
-        "RL": 0,
-        "RR": 0
-      },
-      "quiet_after_stop": true
+      "quiet_after_stop": true,
+      "knee_conflicts": 0
     },
     {
-      "strength": 0.75,
-      "design_sha256": "b8332bcf455eba97d077f9030ed43166670f12c34730ad793603b8a6e54be938",
-      "brake_first_step": 129,
-      "contact_ready_first_step": 171,
-      "handoff_first_step": 176,
-      "next_active_first_step": 186,
-      "ready_to_next_steps": 15,
-      "simultaneous_stage_frames": 0,
-      "knee_conflicts": {
-        "FL": 0,
-        "FR": 0,
-        "RL": 0,
-        "RR": 0
-      },
-      "quiet_after_stop": true
-    },
-    {
-      "strength": 1.0,
-      "design_sha256": "216173d54c10d5966d67763e899987c6182109559940839ed78983ebaaa3865d",
-      "brake_first_step": 129,
-      "contact_ready_first_step": 171,
-      "handoff_first_step": 177,
+      "strength": 1,
+      "design_sha256": "8cc19c1f3d7ddb8214cbe852611430a5eb73e84a026f6253c26009f4afe930d8",
+      "ready_first_step": 171,
       "next_active_first_step": 187,
       "ready_to_next_steps": 16,
-      "simultaneous_stage_frames": 0,
-      "knee_conflicts": {
-        "FL": 0,
-        "FR": 0,
-        "RL": 0,
-        "RR": 0
-      },
-      "quiet_after_stop": true
+      "quiet_after_stop": true,
+      "knee_conflicts": 0
     },
     {
-      "strength": 1.5,
-      "design_sha256": "88b90f89861384c173c50b946615e0dac9d1e097cdfa62c371d0d99f162efeee",
-      "brake_first_step": 129,
-      "contact_ready_first_step": 171,
-      "handoff_first_step": 189,
+      "strength": 2,
+      "design_sha256": "8f329e36c2e5f92979f0f1bd668d18d49a8a548716e38f538029e94f7d335d4b",
+      "ready_first_step": 171,
       "next_active_first_step": 199,
       "ready_to_next_steps": 28,
-      "simultaneous_stage_frames": 0,
-      "knee_conflicts": {
-        "FL": 0,
-        "FR": 0,
-        "RL": 0,
-        "RR": 0
-      },
-      "quiet_after_stop": true
-    },
-    {
-      "strength": 2.0,
-      "design_sha256": "87d17960a3cc5499b099a945d7f3a028f5a45095dd13016e323856414de940cc",
-      "brake_first_step": 129,
-      "contact_ready_first_step": 171,
-      "handoff_first_step": 189,
-      "next_active_first_step": 199,
-      "ready_to_next_steps": 28,
-      "simultaneous_stage_frames": 0,
-      "knee_conflicts": {
-        "FL": 0,
-        "FR": 0,
-        "RL": 0,
-        "RR": 0
-      },
-      "quiet_after_stop": true
-    },
-    {
-      "strength": 4.0,
-      "design_sha256": "e9469b00d15fd375f0797435bf54f19b8adb8b74086820265e94ae31863fc4f1",
-      "brake_first_step": 129,
-      "contact_ready_first_step": 171,
-      "handoff_first_step": 204,
-      "next_active_first_step": 214,
-      "ready_to_next_steps": 43,
-      "simultaneous_stage_frames": 0,
-      "knee_conflicts": {
-        "FL": 0,
-        "FR": 0,
-        "RL": 2,
-        "RR": 0
-      },
-      "quiet_after_stop": true
+      "quiet_after_stop": true,
+      "knee_conflicts": 0
     }
   ],
   "limitations": [
-    "No device runtime or Webots run.",
-    "Static weights only; no STDP3 update validation.",
-    "No claim that harness steps map to body milliseconds.",
-    "Two opposed knee-output frames occur during the final STOP transition in restart; all output paths subsequently clear. The adapter cancels opposing commands.",
-    "Strength4 also has two knee-conflict frames during final STOP, with REST active."
+    "No Webots physics or Prima-Lux device run.",
+    "No claim that harness steps equal simulation milliseconds.",
+    "No STDP3 update validation.",
+    "Bumpers measure contact, not load; useful weight transfer is unverified.",
+    "Missing landing holds next preparation/push but does not capture the next swing turn until evidence arrives or STOP clears it."
   ]
 }

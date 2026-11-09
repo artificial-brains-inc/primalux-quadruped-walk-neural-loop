@@ -1,6 +1,6 @@
 {
   "schema": "artificial-brains/design/v1",
-  "name": "Spot - Contact Cascade, Static Baseline",
+  "name": "Spot - Anticipatory Support Cascade, Static Baseline",
   "nodes": [
     {
       "name": "WALK_START",
@@ -373,6 +373,66 @@
       "y": 1700.0,
       "rhythm": "beta",
       "tnorm": 5.0
+    },
+    {
+      "name": "STEP_FL_PREPARE",
+      "kind": "output",
+      "x": 0.0,
+      "y": 9500.0,
+      "neurons": 1
+    },
+    {
+      "name": "STEP_FL_PREPARE_HG",
+      "kind": "opu",
+      "x": 240.0,
+      "y": 9500.0,
+      "rhythm": "high-gamma",
+      "tnorm": 10.0
+    },
+    {
+      "name": "STEP_FR_PREPARE",
+      "kind": "output",
+      "x": 1400.0,
+      "y": 9500.0,
+      "neurons": 1
+    },
+    {
+      "name": "STEP_FR_PREPARE_HG",
+      "kind": "opu",
+      "x": 1640.0,
+      "y": 9500.0,
+      "rhythm": "high-gamma",
+      "tnorm": 10.0
+    },
+    {
+      "name": "STEP_RL_PREPARE",
+      "kind": "output",
+      "x": 2800.0,
+      "y": 9500.0,
+      "neurons": 1
+    },
+    {
+      "name": "STEP_RL_PREPARE_HG",
+      "kind": "opu",
+      "x": 3040.0,
+      "y": 9500.0,
+      "rhythm": "high-gamma",
+      "tnorm": 10.0
+    },
+    {
+      "name": "STEP_RR_PREPARE",
+      "kind": "output",
+      "x": 4200.0,
+      "y": 9500.0,
+      "neurons": 1
+    },
+    {
+      "name": "STEP_RR_PREPARE_HG",
+      "kind": "opu",
+      "x": 4440.0,
+      "y": 9500.0,
+      "rhythm": "high-gamma",
+      "tnorm": 10.0
     },
     {
       "name": "FRONT_LEFT_ABD_POS_BETA",
@@ -1425,6 +1485,118 @@
       "y": 5600.0,
       "rhythm": "high-gamma",
       "tnorm": 10.0
+    },
+    {
+      "name": "FL_HIP_SUPPORT_POS",
+      "kind": "output",
+      "x": 650.0,
+      "y": 9900.0,
+      "neurons": 1
+    },
+    {
+      "name": "FL_HIP_SUPPORT_NEG",
+      "kind": "output",
+      "x": 650.0,
+      "y": 10160.0,
+      "neurons": 1
+    },
+    {
+      "name": "FL_ABD_SUPPORT_POS",
+      "kind": "output",
+      "x": 650.0,
+      "y": 10500.0,
+      "neurons": 1
+    },
+    {
+      "name": "FL_ABD_SUPPORT_NEG",
+      "kind": "output",
+      "x": 650.0,
+      "y": 10760.0,
+      "neurons": 1
+    },
+    {
+      "name": "FR_HIP_SUPPORT_POS",
+      "kind": "output",
+      "x": 2050.0,
+      "y": 9900.0,
+      "neurons": 1
+    },
+    {
+      "name": "FR_HIP_SUPPORT_NEG",
+      "kind": "output",
+      "x": 2050.0,
+      "y": 10160.0,
+      "neurons": 1
+    },
+    {
+      "name": "FR_ABD_SUPPORT_POS",
+      "kind": "output",
+      "x": 2050.0,
+      "y": 10500.0,
+      "neurons": 1
+    },
+    {
+      "name": "FR_ABD_SUPPORT_NEG",
+      "kind": "output",
+      "x": 2050.0,
+      "y": 10760.0,
+      "neurons": 1
+    },
+    {
+      "name": "RL_HIP_SUPPORT_POS",
+      "kind": "output",
+      "x": 3450.0,
+      "y": 9900.0,
+      "neurons": 1
+    },
+    {
+      "name": "RL_HIP_SUPPORT_NEG",
+      "kind": "output",
+      "x": 3450.0,
+      "y": 10160.0,
+      "neurons": 1
+    },
+    {
+      "name": "RL_ABD_SUPPORT_POS",
+      "kind": "output",
+      "x": 3450.0,
+      "y": 10500.0,
+      "neurons": 1
+    },
+    {
+      "name": "RL_ABD_SUPPORT_NEG",
+      "kind": "output",
+      "x": 3450.0,
+      "y": 10760.0,
+      "neurons": 1
+    },
+    {
+      "name": "RR_HIP_SUPPORT_POS",
+      "kind": "output",
+      "x": 4850.0,
+      "y": 9900.0,
+      "neurons": 1
+    },
+    {
+      "name": "RR_HIP_SUPPORT_NEG",
+      "kind": "output",
+      "x": 4850.0,
+      "y": 10160.0,
+      "neurons": 1
+    },
+    {
+      "name": "RR_ABD_SUPPORT_POS",
+      "kind": "output",
+      "x": 4850.0,
+      "y": 10500.0,
+      "neurons": 1
+    },
+    {
+      "name": "RR_ABD_SUPPORT_NEG",
+      "kind": "output",
+      "x": 4850.0,
+      "y": 10760.0,
+      "neurons": 1
     },
     {
       "name": "TILT_ROLL_NEG",
@@ -2511,6 +2683,123 @@
       "type": "exc"
     },
     {
+      "from": "STEP_FL_PREPARE",
+      "to": "STEP_FL_PREPARE_HG",
+      "type": "exc",
+      "role": "feedback"
+    },
+    {
+      "from": "STEP_FL_PREPARE_HG",
+      "to": "STEP_FL_PREPARE",
+      "type": "exc"
+    },
+    {
+      "from": "LEG_FL_RETURN_BETA",
+      "to": "STEP_RR_PREPARE_HG",
+      "type": "exc"
+    },
+    {
+      "from": "STEP_RR_PREPARE_HG",
+      "to": "STEP_FL_PREPARE",
+      "type": "inh",
+      "strength": 64.0
+    },
+    {
+      "from": "STEP_RR_PREPARE_HG",
+      "to": "STEP_FL_PREPARE_HG",
+      "type": "inh",
+      "strength": 64.0
+    },
+    {
+      "from": "STEP_FR_PREPARE",
+      "to": "STEP_FR_PREPARE_HG",
+      "type": "exc",
+      "role": "feedback"
+    },
+    {
+      "from": "STEP_FR_PREPARE_HG",
+      "to": "STEP_FR_PREPARE",
+      "type": "exc"
+    },
+    {
+      "from": "LEG_FR_RETURN_BETA",
+      "to": "STEP_RL_PREPARE_HG",
+      "type": "exc"
+    },
+    {
+      "from": "STEP_RL_PREPARE_HG",
+      "to": "STEP_FR_PREPARE",
+      "type": "inh",
+      "strength": 64.0
+    },
+    {
+      "from": "STEP_RL_PREPARE_HG",
+      "to": "STEP_FR_PREPARE_HG",
+      "type": "inh",
+      "strength": 64.0
+    },
+    {
+      "from": "STEP_RL_PREPARE",
+      "to": "STEP_RL_PREPARE_HG",
+      "type": "exc",
+      "role": "feedback"
+    },
+    {
+      "from": "STEP_RL_PREPARE_HG",
+      "to": "STEP_RL_PREPARE",
+      "type": "exc"
+    },
+    {
+      "from": "LEG_RL_RETURN_BETA",
+      "to": "STEP_FL_PREPARE_HG",
+      "type": "exc"
+    },
+    {
+      "from": "STEP_FL_PREPARE_HG",
+      "to": "STEP_RL_PREPARE",
+      "type": "inh",
+      "strength": 64.0
+    },
+    {
+      "from": "STEP_FL_PREPARE_HG",
+      "to": "STEP_RL_PREPARE_HG",
+      "type": "inh",
+      "strength": 64.0
+    },
+    {
+      "from": "STEP_RR_PREPARE",
+      "to": "STEP_RR_PREPARE_HG",
+      "type": "exc",
+      "role": "feedback"
+    },
+    {
+      "from": "STEP_RR_PREPARE_HG",
+      "to": "STEP_RR_PREPARE",
+      "type": "exc"
+    },
+    {
+      "from": "LEG_RR_RETURN_BETA",
+      "to": "STEP_FR_PREPARE_HG",
+      "type": "exc"
+    },
+    {
+      "from": "STEP_FR_PREPARE_HG",
+      "to": "STEP_RR_PREPARE",
+      "type": "inh",
+      "strength": 64.0
+    },
+    {
+      "from": "STEP_FR_PREPARE_HG",
+      "to": "STEP_RR_PREPARE_HG",
+      "type": "inh",
+      "strength": 64.0
+    },
+    {
+      "from": "START_REQUEST_HG",
+      "to": "STEP_FR_PREPARE",
+      "type": "exc"
+    },
+    {
       "from": "FOOT_FL_CONTACT",
       "to": "FOOT_FL_CONTACT_HG",
       "type": "exc"
@@ -3233,6 +3522,11 @@
       "type": "exc"
     },
     {
+      "from": "STEP_FL_PREPARE_HG",
+      "to": "LEG_FL_PUSH_HG",
+      "type": "exc"
+    },
+    {
       "from": "LEG_FL_PUSH_HG",
       "to": "FL_KNEE_PUSH",
       "type": "exc"
@@ -3271,12 +3565,6 @@
     },
     {
       "from": "STEP_FL_STANCE_HG",
-      "to": "LEG_FL_PUSH_HG",
-      "type": "inh",
-      "strength": 4.0
-    },
-    {
-      "from": "STEP_FL_STANCE_HG",
       "to": "LEG_FL_SWING_READY",
       "type": "inh",
       "strength": 4.0
@@ -3334,12 +3622,6 @@
       "to": "FL_KNEE_PUSH",
       "type": "inh",
       "strength": 64.0
-    },
-    {
-      "from": "STEP_FL_STANCE_HG",
-      "to": "FL_KNEE_PUSH",
-      "type": "inh",
-      "strength": 4.0
     },
     {
       "from": "STEP_FL_REQUEST_HG",
@@ -3415,6 +3697,11 @@
       "type": "exc"
     },
     {
+      "from": "STEP_FR_PREPARE_HG",
+      "to": "LEG_FR_PUSH_HG",
+      "type": "exc"
+    },
+    {
       "from": "LEG_FR_PUSH_HG",
       "to": "FR_KNEE_PUSH",
       "type": "exc"
@@ -3453,12 +3740,6 @@
     },
     {
       "from": "STEP_FR_STANCE_HG",
-      "to": "LEG_FR_PUSH_HG",
-      "type": "inh",
-      "strength": 4.0
-    },
-    {
-      "from": "STEP_FR_STANCE_HG",
       "to": "LEG_FR_SWING_READY",
       "type": "inh",
       "strength": 4.0
@@ -3516,12 +3797,6 @@
       "to": "FR_KNEE_PUSH",
       "type": "inh",
       "strength": 64.0
-    },
-    {
-      "from": "STEP_FR_STANCE_HG",
-      "to": "FR_KNEE_PUSH",
-      "type": "inh",
-      "strength": 4.0
     },
     {
       "from": "STEP_FR_REQUEST_HG",
@@ -3608,6 +3883,11 @@
       "type": "exc"
     },
     {
+      "from": "STEP_RL_PREPARE_HG",
+      "to": "LEG_RL_PUSH_HG",
+      "type": "exc"
+    },
+    {
       "from": "LEG_RL_PUSH_HG",
       "to": "RL_KNEE_PUSH",
       "type": "exc"
@@ -3646,12 +3926,6 @@
     },
     {
       "from": "STEP_RL_STANCE_HG",
-      "to": "LEG_RL_PUSH_HG",
-      "type": "inh",
-      "strength": 4.0
-    },
-    {
-      "from": "STEP_RL_STANCE_HG",
       "to": "LEG_RL_SWING_READY",
       "type": "inh",
       "strength": 4.0
@@ -3709,12 +3983,6 @@
       "to": "RL_KNEE_PUSH",
       "type": "inh",
       "strength": 64.0
-    },
-    {
-      "from": "STEP_RL_STANCE_HG",
-      "to": "RL_KNEE_PUSH",
-      "type": "inh",
-      "strength": 4.0
     },
     {
       "from": "STEP_RL_REQUEST_HG",
@@ -3801,6 +4069,11 @@
       "type": "exc"
     },
     {
+      "from": "STEP_RR_PREPARE_HG",
+      "to": "LEG_RR_PUSH_HG",
+      "type": "exc"
+    },
+    {
       "from": "LEG_RR_PUSH_HG",
       "to": "RR_KNEE_PUSH",
       "type": "exc"
@@ -3839,12 +4112,6 @@
     },
     {
       "from": "STEP_RR_STANCE_HG",
-      "to": "LEG_RR_PUSH_HG",
-      "type": "inh",
-      "strength": 4.0
-    },
-    {
-      "from": "STEP_RR_STANCE_HG",
       "to": "LEG_RR_SWING_READY",
       "type": "inh",
       "strength": 4.0
@@ -3902,12 +4169,6 @@
       "to": "RR_KNEE_PUSH",
       "type": "inh",
       "strength": 64.0
-    },
-    {
-      "from": "STEP_RR_STANCE_HG",
-      "to": "RR_KNEE_PUSH",
-      "type": "inh",
-      "strength": 4.0
     },
     {
       "from": "STEP_RR_REQUEST_HG",
@@ -5037,6 +5298,550 @@
       "type": "exc"
     },
     {
+      "from": "STEP_FL_PREPARE_HG",
+      "to": "FL_HIP_SUPPORT_POS",
+      "type": "exc"
+    },
+    {
+      "from": "STEP_FR_PREPARE_HG",
+      "to": "FL_HIP_SUPPORT_POS",
+      "type": "exc"
+    },
+    {
+      "from": "STEP_RL_PREPARE_HG",
+      "to": "FL_HIP_SUPPORT_POS",
+      "type": "inh",
+      "strength": 64.0
+    },
+    {
+      "from": "STEP_RR_PREPARE_HG",
+      "to": "FL_HIP_SUPPORT_POS",
+      "type": "inh",
+      "strength": 64.0
+    },
+    {
+      "from": "STEP_FL_ACTIVE_HG",
+      "to": "FL_HIP_SUPPORT_POS",
+      "type": "inh",
+      "strength": 64.0
+    },
+    {
+      "from": "STOP_REQUEST_HG",
+      "to": "FL_HIP_SUPPORT_POS",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "STEP_FL_PREPARE_HG",
+      "to": "FL_HIP_SUPPORT_NEG",
+      "type": "inh",
+      "strength": 64.0
+    },
+    {
+      "from": "STEP_FR_PREPARE_HG",
+      "to": "FL_HIP_SUPPORT_NEG",
+      "type": "inh",
+      "strength": 64.0
+    },
+    {
+      "from": "STEP_RL_PREPARE_HG",
+      "to": "FL_HIP_SUPPORT_NEG",
+      "type": "exc"
+    },
+    {
+      "from": "STEP_RR_PREPARE_HG",
+      "to": "FL_HIP_SUPPORT_NEG",
+      "type": "exc"
+    },
+    {
+      "from": "STEP_FL_ACTIVE_HG",
+      "to": "FL_HIP_SUPPORT_NEG",
+      "type": "inh",
+      "strength": 64.0
+    },
+    {
+      "from": "STOP_REQUEST_HG",
+      "to": "FL_HIP_SUPPORT_NEG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "STEP_FL_PREPARE_HG",
+      "to": "FL_ABD_SUPPORT_POS",
+      "type": "inh",
+      "strength": 64.0
+    },
+    {
+      "from": "STEP_FR_PREPARE_HG",
+      "to": "FL_ABD_SUPPORT_POS",
+      "type": "exc"
+    },
+    {
+      "from": "STEP_RL_PREPARE_HG",
+      "to": "FL_ABD_SUPPORT_POS",
+      "type": "inh",
+      "strength": 64.0
+    },
+    {
+      "from": "STEP_RR_PREPARE_HG",
+      "to": "FL_ABD_SUPPORT_POS",
+      "type": "exc"
+    },
+    {
+      "from": "STEP_FL_ACTIVE_HG",
+      "to": "FL_ABD_SUPPORT_POS",
+      "type": "inh",
+      "strength": 64.0
+    },
+    {
+      "from": "STOP_REQUEST_HG",
+      "to": "FL_ABD_SUPPORT_POS",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "STEP_FL_PREPARE_HG",
+      "to": "FL_ABD_SUPPORT_NEG",
+      "type": "exc"
+    },
+    {
+      "from": "STEP_FR_PREPARE_HG",
+      "to": "FL_ABD_SUPPORT_NEG",
+      "type": "inh",
+      "strength": 64.0
+    },
+    {
+      "from": "STEP_RL_PREPARE_HG",
+      "to": "FL_ABD_SUPPORT_NEG",
+      "type": "exc"
+    },
+    {
+      "from": "STEP_RR_PREPARE_HG",
+      "to": "FL_ABD_SUPPORT_NEG",
+      "type": "inh",
+      "strength": 64.0
+    },
+    {
+      "from": "STEP_FL_ACTIVE_HG",
+      "to": "FL_ABD_SUPPORT_NEG",
+      "type": "inh",
+      "strength": 64.0
+    },
+    {
+      "from": "STOP_REQUEST_HG",
+      "to": "FL_ABD_SUPPORT_NEG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "STEP_FL_PREPARE_HG",
+      "to": "FR_HIP_SUPPORT_POS",
+      "type": "exc"
+    },
+    {
+      "from": "STEP_FR_PREPARE_HG",
+      "to": "FR_HIP_SUPPORT_POS",
+      "type": "exc"
+    },
+    {
+      "from": "STEP_RL_PREPARE_HG",
+      "to": "FR_HIP_SUPPORT_POS",
+      "type": "inh",
+      "strength": 64.0
+    },
+    {
+      "from": "STEP_RR_PREPARE_HG",
+      "to": "FR_HIP_SUPPORT_POS",
+      "type": "inh",
+      "strength": 64.0
+    },
+    {
+      "from": "STEP_FR_ACTIVE_HG",
+      "to": "FR_HIP_SUPPORT_POS",
+      "type": "inh",
+      "strength": 64.0
+    },
+    {
+      "from": "STOP_REQUEST_HG",
+      "to": "FR_HIP_SUPPORT_POS",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "STEP_FL_PREPARE_HG",
+      "to": "FR_HIP_SUPPORT_NEG",
+      "type": "inh",
+      "strength": 64.0
+    },
+    {
+      "from": "STEP_FR_PREPARE_HG",
+      "to": "FR_HIP_SUPPORT_NEG",
+      "type": "inh",
+      "strength": 64.0
+    },
+    {
+      "from": "STEP_RL_PREPARE_HG",
+      "to": "FR_HIP_SUPPORT_NEG",
+      "type": "exc"
+    },
+    {
+      "from": "STEP_RR_PREPARE_HG",
+      "to": "FR_HIP_SUPPORT_NEG",
+      "type": "exc"
+    },
+    {
+      "from": "STEP_FR_ACTIVE_HG",
+      "to": "FR_HIP_SUPPORT_NEG",
+      "type": "inh",
+      "strength": 64.0
+    },
+    {
+      "from": "STOP_REQUEST_HG",
+      "to": "FR_HIP_SUPPORT_NEG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "STEP_FL_PREPARE_HG",
+      "to": "FR_ABD_SUPPORT_POS",
+      "type": "inh",
+      "strength": 64.0
+    },
+    {
+      "from": "STEP_FR_PREPARE_HG",
+      "to": "FR_ABD_SUPPORT_POS",
+      "type": "exc"
+    },
+    {
+      "from": "STEP_RL_PREPARE_HG",
+      "to": "FR_ABD_SUPPORT_POS",
+      "type": "inh",
+      "strength": 64.0
+    },
+    {
+      "from": "STEP_RR_PREPARE_HG",
+      "to": "FR_ABD_SUPPORT_POS",
+      "type": "exc"
+    },
+    {
+      "from": "STEP_FR_ACTIVE_HG",
+      "to": "FR_ABD_SUPPORT_POS",
+      "type": "inh",
+      "strength": 64.0
+    },
+    {
+      "from": "STOP_REQUEST_HG",
+      "to": "FR_ABD_SUPPORT_POS",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "STEP_FL_PREPARE_HG",
+      "to": "FR_ABD_SUPPORT_NEG",
+      "type": "exc"
+    },
+    {
+      "from": "STEP_FR_PREPARE_HG",
+      "to": "FR_ABD_SUPPORT_NEG",
+      "type": "inh",
+      "strength": 64.0
+    },
+    {
+      "from": "STEP_RL_PREPARE_HG",
+      "to": "FR_ABD_SUPPORT_NEG",
+      "type": "exc"
+    },
+    {
+      "from": "STEP_RR_PREPARE_HG",
+      "to": "FR_ABD_SUPPORT_NEG",
+      "type": "inh",
+      "strength": 64.0
+    },
+    {
+      "from": "STEP_FR_ACTIVE_HG",
+      "to": "FR_ABD_SUPPORT_NEG",
+      "type": "inh",
+      "strength": 64.0
+    },
+    {
+      "from": "STOP_REQUEST_HG",
+      "to": "FR_ABD_SUPPORT_NEG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "STEP_FL_PREPARE_HG",
+      "to": "RL_HIP_SUPPORT_POS",
+      "type": "exc"
+    },
+    {
+      "from": "STEP_FR_PREPARE_HG",
+      "to": "RL_HIP_SUPPORT_POS",
+      "type": "exc"
+    },
+    {
+      "from": "STEP_RL_PREPARE_HG",
+      "to": "RL_HIP_SUPPORT_POS",
+      "type": "inh",
+      "strength": 64.0
+    },
+    {
+      "from": "STEP_RR_PREPARE_HG",
+      "to": "RL_HIP_SUPPORT_POS",
+      "type": "inh",
+      "strength": 64.0
+    },
+    {
+      "from": "STEP_RL_ACTIVE_HG",
+      "to": "RL_HIP_SUPPORT_POS",
+      "type": "inh",
+      "strength": 64.0
+    },
+    {
+      "from": "STOP_REQUEST_HG",
+      "to": "RL_HIP_SUPPORT_POS",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "STEP_FL_PREPARE_HG",
+      "to": "RL_HIP_SUPPORT_NEG",
+      "type": "inh",
+      "strength": 64.0
+    },
+    {
+      "from": "STEP_FR_PREPARE_HG",
+      "to": "RL_HIP_SUPPORT_NEG",
+      "type": "inh",
+      "strength": 64.0
+    },
+    {
+      "from": "STEP_RL_PREPARE_HG",
+      "to": "RL_HIP_SUPPORT_NEG",
+      "type": "exc"
+    },
+    {
+      "from": "STEP_RR_PREPARE_HG",
+      "to": "RL_HIP_SUPPORT_NEG",
+      "type": "exc"
+    },
+    {
+      "from": "STEP_RL_ACTIVE_HG",
+      "to": "RL_HIP_SUPPORT_NEG",
+      "type": "inh",
+      "strength": 64.0
+    },
+    {
+      "from": "STOP_REQUEST_HG",
+      "to": "RL_HIP_SUPPORT_NEG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "STEP_FL_PREPARE_HG",
+      "to": "RL_ABD_SUPPORT_POS",
+      "type": "inh",
+      "strength": 64.0
+    },
+    {
+      "from": "STEP_FR_PREPARE_HG",
+      "to": "RL_ABD_SUPPORT_POS",
+      "type": "exc"
+    },
+    {
+      "from": "STEP_RL_PREPARE_HG",
+      "to": "RL_ABD_SUPPORT_POS",
+      "type": "inh",
+      "strength": 64.0
+    },
+    {
+      "from": "STEP_RR_PREPARE_HG",
+      "to": "RL_ABD_SUPPORT_POS",
+      "type": "exc"
+    },
+    {
+      "from": "STEP_RL_ACTIVE_HG",
+      "to": "RL_ABD_SUPPORT_POS",
+      "type": "inh",
+      "strength": 64.0
+    },
+    {
+      "from": "STOP_REQUEST_HG",
+      "to": "RL_ABD_SUPPORT_POS",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "STEP_FL_PREPARE_HG",
+      "to": "RL_ABD_SUPPORT_NEG",
+      "type": "exc"
+    },
+    {
+      "from": "STEP_FR_PREPARE_HG",
+      "to": "RL_ABD_SUPPORT_NEG",
+      "type": "inh",
+      "strength": 64.0
+    },
+    {
+      "from": "STEP_RL_PREPARE_HG",
+      "to": "RL_ABD_SUPPORT_NEG",
+      "type": "exc"
+    },
+    {
+      "from": "STEP_RR_PREPARE_HG",
+      "to": "RL_ABD_SUPPORT_NEG",
+      "type": "inh",
+      "strength": 64.0
+    },
+    {
+      "from": "STEP_RL_ACTIVE_HG",
+      "to": "RL_ABD_SUPPORT_NEG",
+      "type": "inh",
+      "strength": 64.0
+    },
+    {
+      "from": "STOP_REQUEST_HG",
+      "to": "RL_ABD_SUPPORT_NEG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "STEP_FL_PREPARE_HG",
+      "to": "RR_HIP_SUPPORT_POS",
+      "type": "exc"
+    },
+    {
+      "from": "STEP_FR_PREPARE_HG",
+      "to": "RR_HIP_SUPPORT_POS",
+      "type": "exc"
+    },
+    {
+      "from": "STEP_RL_PREPARE_HG",
+      "to": "RR_HIP_SUPPORT_POS",
+      "type": "inh",
+      "strength": 64.0
+    },
+    {
+      "from": "STEP_RR_PREPARE_HG",
+      "to": "RR_HIP_SUPPORT_POS",
+      "type": "inh",
+      "strength": 64.0
+    },
+    {
+      "from": "STEP_RR_ACTIVE_HG",
+      "to": "RR_HIP_SUPPORT_POS",
+      "type": "inh",
+      "strength": 64.0
+    },
+    {
+      "from": "STOP_REQUEST_HG",
+      "to": "RR_HIP_SUPPORT_POS",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "STEP_FL_PREPARE_HG",
+      "to": "RR_HIP_SUPPORT_NEG",
+      "type": "inh",
+      "strength": 64.0
+    },
+    {
+      "from": "STEP_FR_PREPARE_HG",
+      "to": "RR_HIP_SUPPORT_NEG",
+      "type": "inh",
+      "strength": 64.0
+    },
+    {
+      "from": "STEP_RL_PREPARE_HG",
+      "to": "RR_HIP_SUPPORT_NEG",
+      "type": "exc"
+    },
+    {
+      "from": "STEP_RR_PREPARE_HG",
+      "to": "RR_HIP_SUPPORT_NEG",
+      "type": "exc"
+    },
+    {
+      "from": "STEP_RR_ACTIVE_HG",
+      "to": "RR_HIP_SUPPORT_NEG",
+      "type": "inh",
+      "strength": 64.0
+    },
+    {
+      "from": "STOP_REQUEST_HG",
+      "to": "RR_HIP_SUPPORT_NEG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "STEP_FL_PREPARE_HG",
+      "to": "RR_ABD_SUPPORT_POS",
+      "type": "inh",
+      "strength": 64.0
+    },
+    {
+      "from": "STEP_FR_PREPARE_HG",
+      "to": "RR_ABD_SUPPORT_POS",
+      "type": "exc"
+    },
+    {
+      "from": "STEP_RL_PREPARE_HG",
+      "to": "RR_ABD_SUPPORT_POS",
+      "type": "inh",
+      "strength": 64.0
+    },
+    {
+      "from": "STEP_RR_PREPARE_HG",
+      "to": "RR_ABD_SUPPORT_POS",
+      "type": "exc"
+    },
+    {
+      "from": "STEP_RR_ACTIVE_HG",
+      "to": "RR_ABD_SUPPORT_POS",
+      "type": "inh",
+      "strength": 64.0
+    },
+    {
+      "from": "STOP_REQUEST_HG",
+      "to": "RR_ABD_SUPPORT_POS",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "STEP_FL_PREPARE_HG",
+      "to": "RR_ABD_SUPPORT_NEG",
+      "type": "exc"
+    },
+    {
+      "from": "STEP_FR_PREPARE_HG",
+      "to": "RR_ABD_SUPPORT_NEG",
+      "type": "inh",
+      "strength": 64.0
+    },
+    {
+      "from": "STEP_RL_PREPARE_HG",
+      "to": "RR_ABD_SUPPORT_NEG",
+      "type": "exc"
+    },
+    {
+      "from": "STEP_RR_PREPARE_HG",
+      "to": "RR_ABD_SUPPORT_NEG",
+      "type": "inh",
+      "strength": 64.0
+    },
+    {
+      "from": "STEP_RR_ACTIVE_HG",
+      "to": "RR_ABD_SUPPORT_NEG",
+      "type": "inh",
+      "strength": 64.0
+    },
+    {
+      "from": "STOP_REQUEST_HG",
+      "to": "RR_ABD_SUPPORT_NEG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
       "from": "TILT_ROLL_NEG",
       "to": "REFLEX_FL_HG",
       "type": "exc"
@@ -5761,6 +6566,102 @@
     {
       "from": "STOP_REQUEST_HG",
       "to": "STEP_RR_HANDOFF_BETA",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "STEP_FL_PREPARE",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "STOP_REQUEST_HG",
+      "to": "STEP_FL_PREPARE",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "STEP_FL_PREPARE_HG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "STOP_REQUEST_HG",
+      "to": "STEP_FL_PREPARE_HG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "STEP_FR_PREPARE",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "STOP_REQUEST_HG",
+      "to": "STEP_FR_PREPARE",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "STEP_FR_PREPARE_HG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "STOP_REQUEST_HG",
+      "to": "STEP_FR_PREPARE_HG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "STEP_RL_PREPARE",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "STOP_REQUEST_HG",
+      "to": "STEP_RL_PREPARE",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "STEP_RL_PREPARE_HG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "STOP_REQUEST_HG",
+      "to": "STEP_RL_PREPARE_HG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "STEP_RR_PREPARE",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "STOP_REQUEST_HG",
+      "to": "STEP_RR_PREPARE",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "STEP_RR_PREPARE_HG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "STOP_REQUEST_HG",
+      "to": "STEP_RR_PREPARE_HG",
       "type": "inh",
       "strength": 4.0
     },
@@ -7153,6 +8054,102 @@
     {
       "from": "STOP_REQUEST_HG",
       "to": "RR_KNEE_PUSH",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "FL_HIP_SUPPORT_POS",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "FL_HIP_SUPPORT_NEG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "FL_ABD_SUPPORT_POS",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "FL_ABD_SUPPORT_NEG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "FR_HIP_SUPPORT_POS",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "FR_HIP_SUPPORT_NEG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "FR_ABD_SUPPORT_POS",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "FR_ABD_SUPPORT_NEG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "RL_HIP_SUPPORT_POS",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "RL_HIP_SUPPORT_NEG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "RL_ABD_SUPPORT_POS",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "RL_ABD_SUPPORT_NEG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "RR_HIP_SUPPORT_POS",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "RR_HIP_SUPPORT_NEG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "RR_ABD_SUPPORT_POS",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "RR_ABD_SUPPORT_NEG",
       "type": "inh",
       "strength": 4.0
     },

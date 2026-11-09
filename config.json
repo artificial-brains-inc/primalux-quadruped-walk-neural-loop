@@ -48,6 +48,10 @@
       "speed_rad_s": 1.5
     }
   },
+  "support_shift": {
+    "HIP_offset_rad": 0.04,
+    "ABD_offset_rad": 0.05
+  },
   "push": {
     "extension_excursion_rad": 0.12,
     "extension_speed_rad_s": 3.0

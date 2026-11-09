@@ -1,13 +1,16 @@
-# Spot: learning when to hand off a step
+# Spot: prepare support before handing off a step
 
 A developer-facing Prima-Lux example of four neural motor goals interacting
 through measured foot contact. One START initiates a repeating sequence:
 **front right → rear left → front left → rear right → front right**.
 STOP inhibits the loop. Each leg performs an early push, flexes/advances, then
-extends to land. The other legs retain their local stance goals.
+extends to land. As a leg starts returning, it recruits the next leg’s grounded
+push and a small support adjustment before contact releases the next swing.
+The support adjustment is directed away from the foot about to lift. Its
+physical effect still needs testing on your Webots/Prima-Lux setup.
 
-The teaching question is: **how can fixed sensory evidence authorize a next
-movement while learning changes the inhibition before that handoff?**
+The teaching question is: **how can one motor goal prepare the next movement,
+while contact confirms landing and inhibition controls the handoff?**
 The supplied default is a static design. Its learning companion adds
 STDP3/LTP to exactly four inhibitory connections, with identical initial strengths,
 populations and TNorms. Every excitatory connection and every reflex stays static.
@@ -44,8 +47,8 @@ meshes and textures use bundled relative paths. See [requirements](docs/REQUIREM
 Download the bundle supplied with this example. Use its actual filename:
 
 ```bash
-git clone "$HOME/Downloads/primalux-spot-cascade.bundle" primalux-spot-cascade
-cd primalux-spot-cascade
+git clone "$HOME/Downloads/primalux-spot-anticipatory-support.bundle" primalux-spot-anticipatory-support
+cd primalux-spot-anticipatory-support
 bash install.sh
 source .venv/bin/activate
 ```
@@ -76,6 +79,9 @@ ab design --brain brain.abdesign.json --env .env
 In the Designer, follow START → START_REQUEST → WALK_ENABLED and STEP_FR_REQUEST.
 Follow STEP_FR_ACTIVE through the local motor primitive and the foot evidence
 back to STEP_FR_HANDOFF_BETA → STEP_RL_REQUEST. Repeat through FL and RR.
+Also follow LEG_FR_RETURN_BETA → STEP_RL_PREPARE_HG. This starts the next
+grounded push and fixed support offsets before the turn changes. PREPARE retains
+the selected support plan through its own swing; the next PREPARE replaces it.
 Inspect STEP_FR_BRAKE_BETA → STEP_FR_HANDOFF_BETA: inhibitory feedback,
 **strength 0.5**, with **no learning rule** in this baseline.
 
@@ -140,13 +146,15 @@ weight update or improved walking.
 | Handoff and its feedback brake | Beta T5 | 2 each |
 | Contact and AIR sensory relays / local vetoes | High-gamma T10 | 4 each |
 | Retained turn and event helpers | High-gamma T10 | 1 each |
+| Anticipatory preparation relay | High-gamma T10 | 2 each |
+| Local push relay with preparation input | High-gamma T10 | 3 front / 4 rear |
 | Rear local motor drive | Beta T3 | 2 each |
 | Regular knee extension | Beta T5 | 24 each |
 | Independent corrective reflex | High-gamma T5 | 24 each |
 | Reward | Dopaminergic T3 | 17 |
 
-The complete graph has **665 neurons**: 93 external input neurons and 572 other
-neurons, across 213 populations. There are four physical foot sensors. Each
+The complete graph has **701 neurons**: 93 external input neurons and 608 other
+neurons, across 237 populations. There are four physical foot sensors. Each
 reading has four CONTACT neurons and four AIR neurons; the explicit AIR rail
 prevents missing asynchronous messages from being interpreted as lift-off.
 The remaining inputs are START/STOP/dormant ACK (3), reward (10), and tilt (48).
@@ -162,7 +170,10 @@ physical test. [Design](docs/DESIGN.md) explains the choice and limitations.
 Each run saves `logs/run-*/settings.json`, `observations.jsonl`,
 `contact-inputs.jsonl`, `rewards.jsonl` and `neuron-telemetry.jsonl`.
 Settings include the exact design hash, plastic paths and initial strengths.
-The console shows active legs, raw contacts and CONTACT_READY flags.
+The console shows active legs, the retained support plan, push motors, raw
+contacts and CONTACT_READY flags. The plan is a neural command, not measured
+weight transfer. `next_push_before_previous_touchdown_frames` counts early push
+outputs only when the previous active foot is measured airborne.
 The telemetry observer reads internal neurons without controlling movement.
 
 ```bash
@@ -175,7 +186,8 @@ progress, recoveries and observation durations. These are measured outcomes;
 neuron firing or eligibility alone is not improvement.
 
 Read [goals and interactions](docs/GOALS.md), [the design](docs/DESIGN.md),
-[push and return](docs/PUSH.md), [reflexes](docs/REFLEX.md),
+[anticipatory support](docs/SUPPORT.md), [push and return](docs/PUSH.md),
+[reflexes](docs/REFLEX.md),
 [controller responsibilities](docs/CONTROL.md) and [validation](docs/VALIDATION.md).
 
 Application tests and native-cell checks have been run locally. They do **not**

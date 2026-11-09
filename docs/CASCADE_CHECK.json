@@ -1,20 +1,15 @@
 {
-  "schema": "primalux-spot/cascade-check/v1",
-  "design_sha256": "0cad0ab0e1da949024eb950fd020b12bc909ca9e6b946bbde4b2ba4df4104df7",
-  "method": "Native CPU cell updates of the constructed static graph, with explicit local phase/connectivity/fatigue assumptions. Foot fixture follows neural flexion/extension outputs; it is not Webots physics. Neural states and motor outputs are never injected.",
-  "stimuli": "STOP at step 10, one START at 100 except standing, final STOP at steps-100. Foot becomes airborne on knee flexion, lands after at least 18 fixture steps when extension appears. The longer 1800-step baseline run used STOP at 1650. Restart also STOP450/START650. Left tilt at500..699.",
-  "limitations": [
-    "No device runtime or Webots run.",
-    "Static weights only; no STDP3 update validation.",
-    "No claim that harness steps map to body milliseconds.",
-    "Two opposed knee-output frames occur during the final STOP transition in restart; all output paths subsequently clear. The adapter cancels opposing commands."
-  ],
+  "schema": "primalux-spot/anticipatory-cascade-check/v1",
+  "design_sha256": "6d3f09e1f10c49b29e1e13b88fc89932d58d785f621b8d95382cdd7eb71383ad",
+  "method": "Full static graph using native CPU cell updates and local phase/connectivity/fatigue assumptions. Synthetic foot evidence becomes airborne on neural knee flexion and lands after 18 fixture steps (45 for late_landing) with extension. No neural state or motor command is injected. This is not a physical robot simulation.",
+  "stimuli": "STOP10, START100 except standing, STOP1400; restart adds STOP500/START700; left tilt500..699. All cases1500 steps.",
   "cases": {
-    "cycle_0.5_1": {
+    "cycle_1": {
       "case": "cycle",
+      "seed": 1,
       "strength": 0.5,
-      "design_sha256": "0cad0ab0e1da949024eb950fd020b12bc909ca9e6b946bbde4b2ba4df4104df7",
-      "steps": 1800,
+      "design_sha256": "6d3f09e1f10c49b29e1e13b88fc89932d58d785f621b8d95382cdd7eb71383ad",
+      "steps": 1500,
       "entries": [
         [
           115,
@@ -79,59 +74,184 @@
         [
           1341,
           "RR"
-        ],
-        [
-          1430,
-          "FR"
-        ],
-        [
-          1506,
-          "RL"
-        ],
-        [
-          1595,
-          "FL"
         ]
       ],
-      "air_seen": {
-        "FL": 173,
-        "FR": 194,
-        "RL": 190,
-        "RR": 152
-      },
-      "contact_ready": {
-        "FL": 88,
-        "FR": 109,
-        "RL": 105,
-        "RR": 84
-      },
-      "more_than_one_stage": 0,
-      "motor_after_stop": 0,
-      "flex_conflicts": {
-        "FL": 0,
-        "FR": 0,
-        "RL": 0,
-        "RR": 0
-      },
-      "reflex": {
-        "FL": 0,
-        "FR": 0,
-        "RL": 0,
-        "RR": 0
-      },
-      "seed": 1,
-      "stop_request_steps": [
-        10,
-        1650
+      "transitions": [
+        {
+          "previous": "FR",
+          "next": "RL",
+          "return_step": 159,
+          "prepare_step": 164,
+          "push_step": 165,
+          "touchdown_step": 166,
+          "ready_step": 171,
+          "next_active_step": 185
+        },
+        {
+          "previous": "RL",
+          "next": "FL",
+          "return_step": 249,
+          "prepare_step": 254,
+          "push_step": 255,
+          "touchdown_step": 256,
+          "ready_step": 261,
+          "next_active_step": 275
+        },
+        {
+          "previous": "FL",
+          "next": "RR",
+          "return_step": 324,
+          "prepare_step": 329,
+          "push_step": 330,
+          "touchdown_step": 331,
+          "ready_step": 336,
+          "next_active_step": 351
+        },
+        {
+          "previous": "RR",
+          "next": "FR",
+          "return_step": 414,
+          "prepare_step": 419,
+          "push_step": 420,
+          "touchdown_step": 421,
+          "ready_step": 426,
+          "next_active_step": 440
+        },
+        {
+          "previous": "FR",
+          "next": "RL",
+          "return_step": 489,
+          "prepare_step": 494,
+          "push_step": 440,
+          "touchdown_step": 496,
+          "ready_step": 501,
+          "next_active_step": 516
+        },
+        {
+          "previous": "RL",
+          "next": "FL",
+          "return_step": 579,
+          "prepare_step": 584,
+          "push_step": 585,
+          "touchdown_step": 586,
+          "ready_step": 591,
+          "next_active_step": 605
+        },
+        {
+          "previous": "FL",
+          "next": "RR",
+          "return_step": 654,
+          "prepare_step": 659,
+          "push_step": 605,
+          "touchdown_step": 661,
+          "ready_step": 666,
+          "next_active_step": 681
+        },
+        {
+          "previous": "RR",
+          "next": "FR",
+          "return_step": 744,
+          "prepare_step": 749,
+          "push_step": 750,
+          "touchdown_step": 751,
+          "ready_step": 756,
+          "next_active_step": 770
+        },
+        {
+          "previous": "FR",
+          "next": "RL",
+          "return_step": 819,
+          "prepare_step": 824,
+          "push_step": 770,
+          "touchdown_step": 826,
+          "ready_step": 831,
+          "next_active_step": 846
+        },
+        {
+          "previous": "RL",
+          "next": "FL",
+          "return_step": 909,
+          "prepare_step": 914,
+          "push_step": 915,
+          "touchdown_step": 916,
+          "ready_step": 921,
+          "next_active_step": 935
+        },
+        {
+          "previous": "FL",
+          "next": "RR",
+          "return_step": 984,
+          "prepare_step": 989,
+          "push_step": 935,
+          "touchdown_step": 991,
+          "ready_step": 996,
+          "next_active_step": 1011
+        },
+        {
+          "previous": "RR",
+          "next": "FR",
+          "return_step": 1074,
+          "prepare_step": 1079,
+          "push_step": 1080,
+          "touchdown_step": 1081,
+          "ready_step": 1086,
+          "next_active_step": 1100
+        },
+        {
+          "previous": "FR",
+          "next": "RL",
+          "return_step": 1149,
+          "prepare_step": 1154,
+          "push_step": 1100,
+          "touchdown_step": 1156,
+          "ready_step": 1161,
+          "next_active_step": 1176
+        },
+        {
+          "previous": "RL",
+          "next": "FL",
+          "return_step": 1239,
+          "prepare_step": 1244,
+          "push_step": 1245,
+          "touchdown_step": 1246,
+          "ready_step": 1251,
+          "next_active_step": 1265
+        },
+        {
+          "previous": "FL",
+          "next": "RR",
+          "return_step": 1314,
+          "prepare_step": 1319,
+          "push_step": 1265,
+          "touchdown_step": 1321,
+          "ready_step": 1326,
+          "next_active_step": 1341
+        }
       ],
-      "knee_conflict_steps": [],
-      "knee_conflicts_while_walk_exclusive": 0
+      "simultaneous_stages": 0,
+      "flex_conflicts": 0,
+      "posture_offset_during_knee_flex": 0,
+      "anticipatory_push_frames": {
+        "RL": 7,
+        "FL": 4,
+        "RR": 7,
+        "FR": 3
+      },
+      "quiet_after_stop": true,
+      "state_quiet_after_stop": true,
+      "reflex_frames": {
+        "FL": 0,
+        "FR": 0,
+        "RL": 0,
+        "RR": 0
+      }
     },
-    "cycle_0.5_3": {
+    "cycle_3": {
       "case": "cycle",
+      "seed": 3,
       "strength": 0.5,
-      "design_sha256": "0cad0ab0e1da949024eb950fd020b12bc909ca9e6b946bbde4b2ba4df4104df7",
-      "steps": 1200,
+      "design_sha256": "6d3f09e1f10c49b29e1e13b88fc89932d58d785f621b8d95382cdd7eb71383ad",
+      "steps": 1500,
       "entries": [
         [
           115,
@@ -184,222 +304,515 @@
         [
           1100,
           "FR"
+        ],
+        [
+          1176,
+          "RL"
+        ],
+        [
+          1265,
+          "FL"
+        ],
+        [
+          1341,
+          "RR"
         ]
       ],
-      "air_seen": {
-        "FL": 117,
-        "FR": 116,
-        "RL": 114,
-        "RR": 113
-      },
-      "contact_ready": {
-        "FL": 66,
-        "FR": 65,
-        "RL": 63,
-        "RR": 62
-      },
-      "more_than_one_stage": 0,
-      "motor_after_stop": 0,
-      "flex_conflicts": {
-        "FL": 0,
-        "FR": 0,
-        "RL": 0,
-        "RR": 0
-      },
-      "reflex": {
-        "FL": 0,
-        "FR": 0,
-        "RL": 0,
-        "RR": 0
-      },
-      "seed": 3,
-      "stop_request_steps": [
-        10,
-        1100
+      "transitions": [
+        {
+          "previous": "FR",
+          "next": "RL",
+          "return_step": 159,
+          "prepare_step": 164,
+          "push_step": 165,
+          "touchdown_step": 166,
+          "ready_step": 171,
+          "next_active_step": 185
+        },
+        {
+          "previous": "RL",
+          "next": "FL",
+          "return_step": 249,
+          "prepare_step": 254,
+          "push_step": 255,
+          "touchdown_step": 256,
+          "ready_step": 261,
+          "next_active_step": 275
+        },
+        {
+          "previous": "FL",
+          "next": "RR",
+          "return_step": 324,
+          "prepare_step": 329,
+          "push_step": 330,
+          "touchdown_step": 331,
+          "ready_step": 336,
+          "next_active_step": 351
+        },
+        {
+          "previous": "RR",
+          "next": "FR",
+          "return_step": 414,
+          "prepare_step": 419,
+          "push_step": 420,
+          "touchdown_step": 421,
+          "ready_step": 426,
+          "next_active_step": 440
+        },
+        {
+          "previous": "FR",
+          "next": "RL",
+          "return_step": 489,
+          "prepare_step": 494,
+          "push_step": 440,
+          "touchdown_step": 496,
+          "ready_step": 501,
+          "next_active_step": 516
+        },
+        {
+          "previous": "RL",
+          "next": "FL",
+          "return_step": 579,
+          "prepare_step": 584,
+          "push_step": 585,
+          "touchdown_step": 586,
+          "ready_step": 591,
+          "next_active_step": 605
+        },
+        {
+          "previous": "FL",
+          "next": "RR",
+          "return_step": 654,
+          "prepare_step": 659,
+          "push_step": 605,
+          "touchdown_step": 661,
+          "ready_step": 666,
+          "next_active_step": 681
+        },
+        {
+          "previous": "RR",
+          "next": "FR",
+          "return_step": 744,
+          "prepare_step": 749,
+          "push_step": 750,
+          "touchdown_step": 751,
+          "ready_step": 756,
+          "next_active_step": 770
+        },
+        {
+          "previous": "FR",
+          "next": "RL",
+          "return_step": 819,
+          "prepare_step": 824,
+          "push_step": 770,
+          "touchdown_step": 826,
+          "ready_step": 831,
+          "next_active_step": 846
+        },
+        {
+          "previous": "RL",
+          "next": "FL",
+          "return_step": 909,
+          "prepare_step": 914,
+          "push_step": 915,
+          "touchdown_step": 916,
+          "ready_step": 921,
+          "next_active_step": 935
+        },
+        {
+          "previous": "FL",
+          "next": "RR",
+          "return_step": 984,
+          "prepare_step": 989,
+          "push_step": 935,
+          "touchdown_step": 991,
+          "ready_step": 996,
+          "next_active_step": 1011
+        },
+        {
+          "previous": "RR",
+          "next": "FR",
+          "return_step": 1074,
+          "prepare_step": 1079,
+          "push_step": 1080,
+          "touchdown_step": 1081,
+          "ready_step": 1086,
+          "next_active_step": 1100
+        },
+        {
+          "previous": "FR",
+          "next": "RL",
+          "return_step": 1149,
+          "prepare_step": 1154,
+          "push_step": 1100,
+          "touchdown_step": 1156,
+          "ready_step": 1161,
+          "next_active_step": 1176
+        },
+        {
+          "previous": "RL",
+          "next": "FL",
+          "return_step": 1239,
+          "prepare_step": 1244,
+          "push_step": 1245,
+          "touchdown_step": 1246,
+          "ready_step": 1251,
+          "next_active_step": 1265
+        },
+        {
+          "previous": "FL",
+          "next": "RR",
+          "return_step": 1314,
+          "prepare_step": 1319,
+          "push_step": 1265,
+          "touchdown_step": 1321,
+          "ready_step": 1326,
+          "next_active_step": 1341
+        }
       ],
-      "knee_conflict_steps": [],
-      "knee_conflicts_while_walk_exclusive": 0
+      "simultaneous_stages": 0,
+      "flex_conflicts": 0,
+      "posture_offset_during_knee_flex": 0,
+      "anticipatory_push_frames": {
+        "RL": 7,
+        "FL": 4,
+        "RR": 7,
+        "FR": 3
+      },
+      "quiet_after_stop": true,
+      "state_quiet_after_stop": true,
+      "reflex_frames": {
+        "FL": 0,
+        "FR": 0,
+        "RL": 0,
+        "RR": 0
+      }
     },
-    "standing_0.5_1": {
+    "standing_1": {
       "case": "standing",
+      "seed": 1,
       "strength": 0.5,
-      "design_sha256": "0cad0ab0e1da949024eb950fd020b12bc909ca9e6b946bbde4b2ba4df4104df7",
-      "steps": 1200,
+      "design_sha256": "6d3f09e1f10c49b29e1e13b88fc89932d58d785f621b8d95382cdd7eb71383ad",
+      "steps": 1500,
       "entries": [],
-      "air_seen": {
+      "transitions": [],
+      "simultaneous_stages": 0,
+      "flex_conflicts": 0,
+      "posture_offset_during_knee_flex": 0,
+      "anticipatory_push_frames": {
+        "RL": 0,
+        "FL": 0,
+        "RR": 0,
+        "FR": 0
+      },
+      "quiet_after_stop": true,
+      "state_quiet_after_stop": true,
+      "reflex_frames": {
         "FL": 0,
         "FR": 0,
         "RL": 0,
         "RR": 0
-      },
-      "contact_ready": {
-        "FL": 0,
-        "FR": 0,
-        "RL": 0,
-        "RR": 0
-      },
-      "more_than_one_stage": 0,
-      "motor_after_stop": 0,
-      "flex_conflicts": {
-        "FL": 0,
-        "FR": 0,
-        "RL": 0,
-        "RR": 0
-      },
-      "reflex": {
-        "FL": 0,
-        "FR": 0,
-        "RL": 0,
-        "RR": 0
-      },
-      "seed": 1,
-      "stop_request_steps": [
-        10,
-        1100
-      ],
-      "knee_conflict_steps": [],
-      "knee_conflicts_while_walk_exclusive": 0
+      }
     },
-    "no_liftoff_0.5_1": {
+    "no_liftoff_1": {
       "case": "no_liftoff",
+      "seed": 1,
       "strength": 0.5,
-      "design_sha256": "0cad0ab0e1da949024eb950fd020b12bc909ca9e6b946bbde4b2ba4df4104df7",
-      "steps": 1200,
+      "design_sha256": "6d3f09e1f10c49b29e1e13b88fc89932d58d785f621b8d95382cdd7eb71383ad",
+      "steps": 1500,
       "entries": [
         [
           115,
           "FR"
         ]
       ],
-      "air_seen": {
+      "transitions": [],
+      "simultaneous_stages": 0,
+      "flex_conflicts": 0,
+      "posture_offset_during_knee_flex": 0,
+      "anticipatory_push_frames": {
+        "RL": 0,
+        "FL": 0,
+        "RR": 0,
+        "FR": 0
+      },
+      "quiet_after_stop": true,
+      "state_quiet_after_stop": true,
+      "reflex_frames": {
         "FL": 0,
         "FR": 0,
         "RL": 0,
         "RR": 0
-      },
-      "contact_ready": {
-        "FL": 0,
-        "FR": 0,
-        "RL": 0,
-        "RR": 0
-      },
-      "more_than_one_stage": 0,
-      "motor_after_stop": 0,
-      "flex_conflicts": {
-        "FL": 0,
-        "FR": 0,
-        "RL": 0,
-        "RR": 0
-      },
-      "reflex": {
-        "FL": 0,
-        "FR": 0,
-        "RL": 0,
-        "RR": 0
-      },
-      "seed": 1,
-      "stop_request_steps": [
-        10,
-        1100
-      ],
-      "knee_conflict_steps": [],
-      "knee_conflicts_while_walk_exclusive": 0
+      }
     },
-    "missing_landing_0.5_1": {
+    "missing_landing_1": {
       "case": "missing_landing",
+      "seed": 1,
       "strength": 0.5,
-      "design_sha256": "0cad0ab0e1da949024eb950fd020b12bc909ca9e6b946bbde4b2ba4df4104df7",
-      "steps": 1200,
+      "design_sha256": "6d3f09e1f10c49b29e1e13b88fc89932d58d785f621b8d95382cdd7eb71383ad",
+      "steps": 1500,
       "entries": [
         [
           115,
           "FR"
         ]
       ],
-      "air_seen": {
+      "transitions": [],
+      "simultaneous_stages": 0,
+      "flex_conflicts": 0,
+      "posture_offset_during_knee_flex": 0,
+      "anticipatory_push_frames": {
+        "RL": 1241,
         "FL": 0,
-        "FR": 952,
-        "RL": 0,
-        "RR": 0
+        "RR": 0,
+        "FR": 0
       },
-      "contact_ready": {
-        "FL": 0,
-        "FR": 0,
-        "RL": 0,
-        "RR": 0
-      },
-      "more_than_one_stage": 0,
-      "motor_after_stop": 0,
-      "flex_conflicts": {
+      "quiet_after_stop": true,
+      "state_quiet_after_stop": true,
+      "reflex_frames": {
         "FL": 0,
         "FR": 0,
         "RL": 0,
         "RR": 0
-      },
-      "reflex": {
-        "FL": 0,
-        "FR": 0,
-        "RL": 0,
-        "RR": 0
-      },
-      "seed": 1,
-      "stop_request_steps": [
-        10,
-        1100
-      ],
-      "knee_conflict_steps": [],
-      "knee_conflicts_while_walk_exclusive": 0
+      }
     },
-    "wrong_foot_0.5_1": {
+    "wrong_foot_1": {
       "case": "wrong_foot",
+      "seed": 1,
       "strength": 0.5,
-      "design_sha256": "0cad0ab0e1da949024eb950fd020b12bc909ca9e6b946bbde4b2ba4df4104df7",
-      "steps": 1200,
+      "design_sha256": "6d3f09e1f10c49b29e1e13b88fc89932d58d785f621b8d95382cdd7eb71383ad",
+      "steps": 1500,
       "entries": [
         [
           115,
           "FR"
         ]
       ],
-      "air_seen": {
+      "transitions": [],
+      "simultaneous_stages": 0,
+      "flex_conflicts": 0,
+      "posture_offset_during_knee_flex": 0,
+      "anticipatory_push_frames": {
+        "RL": 0,
+        "FL": 0,
+        "RR": 0,
+        "FR": 0
+      },
+      "quiet_after_stop": true,
+      "state_quiet_after_stop": true,
+      "reflex_frames": {
         "FL": 0,
         "FR": 0,
         "RL": 0,
         "RR": 0
-      },
-      "contact_ready": {
-        "FL": 0,
-        "FR": 0,
-        "RL": 0,
-        "RR": 0
-      },
-      "more_than_one_stage": 0,
-      "motor_after_stop": 0,
-      "flex_conflicts": {
-        "FL": 0,
-        "FR": 0,
-        "RL": 0,
-        "RR": 0
-      },
-      "reflex": {
-        "FL": 0,
-        "FR": 0,
-        "RL": 0,
-        "RR": 0
-      },
-      "seed": 1,
-      "stop_request_steps": [
-        10,
-        1100
-      ],
-      "knee_conflict_steps": [],
-      "knee_conflicts_while_walk_exclusive": 0
+      }
     },
-    "restart_0.5_1": {
-      "case": "restart",
+    "late_landing_1": {
+      "case": "late_landing",
+      "seed": 1,
       "strength": 0.5,
-      "design_sha256": "0cad0ab0e1da949024eb950fd020b12bc909ca9e6b946bbde4b2ba4df4104df7",
-      "steps": 1200,
+      "design_sha256": "6d3f09e1f10c49b29e1e13b88fc89932d58d785f621b8d95382cdd7eb71383ad",
+      "steps": 1500,
+      "entries": [
+        [
+          115,
+          "FR"
+        ],
+        [
+          214,
+          "RL"
+        ],
+        [
+          334,
+          "FL"
+        ],
+        [
+          424,
+          "RR"
+        ],
+        [
+          544,
+          "FR"
+        ],
+        [
+          634,
+          "RL"
+        ],
+        [
+          754,
+          "FL"
+        ],
+        [
+          844,
+          "RR"
+        ],
+        [
+          964,
+          "FR"
+        ],
+        [
+          1054,
+          "RL"
+        ],
+        [
+          1174,
+          "FL"
+        ],
+        [
+          1264,
+          "RR"
+        ],
+        [
+          1384,
+          "FR"
+        ]
+      ],
+      "transitions": [
+        {
+          "previous": "FR",
+          "next": "RL",
+          "return_step": 159,
+          "prepare_step": 164,
+          "push_step": 165,
+          "touchdown_step": 193,
+          "ready_step": 198,
+          "next_active_step": 214
+        },
+        {
+          "previous": "RL",
+          "next": "FL",
+          "return_step": 279,
+          "prepare_step": 284,
+          "push_step": 285,
+          "touchdown_step": 313,
+          "ready_step": 318,
+          "next_active_step": 334
+        },
+        {
+          "previous": "FL",
+          "next": "RR",
+          "return_step": 373,
+          "prepare_step": 378,
+          "push_step": 379,
+          "touchdown_step": 403,
+          "ready_step": 408,
+          "next_active_step": 424
+        },
+        {
+          "previous": "RR",
+          "next": "FR",
+          "return_step": 489,
+          "prepare_step": 494,
+          "push_step": 495,
+          "touchdown_step": 523,
+          "ready_step": 528,
+          "next_active_step": 544
+        },
+        {
+          "previous": "FR",
+          "next": "RL",
+          "return_step": 583,
+          "prepare_step": 588,
+          "push_step": 544,
+          "touchdown_step": 613,
+          "ready_step": 618,
+          "next_active_step": 634
+        },
+        {
+          "previous": "RL",
+          "next": "FL",
+          "return_step": 699,
+          "prepare_step": 704,
+          "push_step": 705,
+          "touchdown_step": 733,
+          "ready_step": 738,
+          "next_active_step": 754
+        },
+        {
+          "previous": "FL",
+          "next": "RR",
+          "return_step": 793,
+          "prepare_step": 798,
+          "push_step": 754,
+          "touchdown_step": 823,
+          "ready_step": 828,
+          "next_active_step": 844
+        },
+        {
+          "previous": "RR",
+          "next": "FR",
+          "return_step": 909,
+          "prepare_step": 914,
+          "push_step": 915,
+          "touchdown_step": 943,
+          "ready_step": 948,
+          "next_active_step": 964
+        },
+        {
+          "previous": "FR",
+          "next": "RL",
+          "return_step": 1003,
+          "prepare_step": 1008,
+          "push_step": 964,
+          "touchdown_step": 1033,
+          "ready_step": 1038,
+          "next_active_step": 1054
+        },
+        {
+          "previous": "RL",
+          "next": "FL",
+          "return_step": 1119,
+          "prepare_step": 1124,
+          "push_step": 1125,
+          "touchdown_step": 1153,
+          "ready_step": 1158,
+          "next_active_step": 1174
+        },
+        {
+          "previous": "FL",
+          "next": "RR",
+          "return_step": 1213,
+          "prepare_step": 1218,
+          "push_step": 1174,
+          "touchdown_step": 1243,
+          "ready_step": 1248,
+          "next_active_step": 1264
+        },
+        {
+          "previous": "RR",
+          "next": "FR",
+          "return_step": 1329,
+          "prepare_step": 1334,
+          "push_step": 1335,
+          "touchdown_step": 1363,
+          "ready_step": 1368,
+          "next_active_step": 1384
+        }
+      ],
+      "simultaneous_stages": 0,
+      "flex_conflicts": 0,
+      "posture_offset_during_knee_flex": 0,
+      "anticipatory_push_frames": {
+        "RL": 68,
+        "FL": 84,
+        "RR": 60,
+        "FR": 84
+      },
+      "quiet_after_stop": true,
+      "state_quiet_after_stop": true,
+      "reflex_frames": {
+        "FL": 0,
+        "FR": 0,
+        "RL": 0,
+        "RR": 0
+      }
+    },
+    "restart_1": {
+      "case": "restart",
+      "seed": 1,
+      "strength": 0.5,
+      "design_sha256": "6d3f09e1f10c49b29e1e13b88fc89932d58d785f621b8d95382cdd7eb71383ad",
+      "steps": 1500,
       "entries": [
         [
           115,
@@ -422,73 +835,188 @@
           "FR"
         ],
         [
-          665,
+          715,
           "FR"
         ],
         [
-          739,
+          785,
           "RL"
         ],
         [
-          830,
+          875,
           "FL"
         ],
         [
-          906,
+          951,
           "RR"
         ],
         [
-          995,
+          1040,
           "FR"
         ],
         [
-          1071,
+          1116,
           "RL"
+        ],
+        [
+          1205,
+          "FL"
+        ],
+        [
+          1281,
+          "RR"
+        ],
+        [
+          1370,
+          "FR"
         ]
       ],
-      "air_seen": {
-        "FL": 78,
-        "FR": 129,
-        "RL": 76,
-        "RR": 76
+      "transitions": [
+        {
+          "previous": "FR",
+          "next": "RL",
+          "return_step": 159,
+          "prepare_step": 164,
+          "push_step": 165,
+          "touchdown_step": 166,
+          "ready_step": 171,
+          "next_active_step": 185
+        },
+        {
+          "previous": "RL",
+          "next": "FL",
+          "return_step": 249,
+          "prepare_step": 254,
+          "push_step": 255,
+          "touchdown_step": 256,
+          "ready_step": 261,
+          "next_active_step": 275
+        },
+        {
+          "previous": "FL",
+          "next": "RR",
+          "return_step": 324,
+          "prepare_step": 329,
+          "push_step": 330,
+          "touchdown_step": 331,
+          "ready_step": 336,
+          "next_active_step": 351
+        },
+        {
+          "previous": "RR",
+          "next": "FR",
+          "return_step": 414,
+          "prepare_step": 419,
+          "push_step": 420,
+          "touchdown_step": 421,
+          "ready_step": 426,
+          "next_active_step": 440
+        },
+        {
+          "previous": "FR",
+          "next": "RL",
+          "return_step": 759,
+          "prepare_step": 764,
+          "push_step": 765,
+          "touchdown_step": 766,
+          "ready_step": 771,
+          "next_active_step": 785
+        },
+        {
+          "previous": "RL",
+          "next": "FL",
+          "return_step": 849,
+          "prepare_step": 854,
+          "push_step": 855,
+          "touchdown_step": 856,
+          "ready_step": 861,
+          "next_active_step": 875
+        },
+        {
+          "previous": "FL",
+          "next": "RR",
+          "return_step": 924,
+          "prepare_step": 929,
+          "push_step": 930,
+          "touchdown_step": 931,
+          "ready_step": 936,
+          "next_active_step": 951
+        },
+        {
+          "previous": "RR",
+          "next": "FR",
+          "return_step": 1014,
+          "prepare_step": 1019,
+          "push_step": 1020,
+          "touchdown_step": 1021,
+          "ready_step": 1026,
+          "next_active_step": 1040
+        },
+        {
+          "previous": "FR",
+          "next": "RL",
+          "return_step": 1089,
+          "prepare_step": 1094,
+          "push_step": 1040,
+          "touchdown_step": 1096,
+          "ready_step": 1101,
+          "next_active_step": 1116
+        },
+        {
+          "previous": "RL",
+          "next": "FL",
+          "return_step": 1179,
+          "prepare_step": 1184,
+          "push_step": 1185,
+          "touchdown_step": 1186,
+          "ready_step": 1191,
+          "next_active_step": 1205
+        },
+        {
+          "previous": "FL",
+          "next": "RR",
+          "return_step": 1254,
+          "prepare_step": 1259,
+          "push_step": 1205,
+          "touchdown_step": 1261,
+          "ready_step": 1266,
+          "next_active_step": 1281
+        },
+        {
+          "previous": "RR",
+          "next": "FR",
+          "return_step": 1344,
+          "prepare_step": 1349,
+          "push_step": 1350,
+          "touchdown_step": 1351,
+          "ready_step": 1356,
+          "next_active_step": 1370
+        }
+      ],
+      "simultaneous_stages": 0,
+      "flex_conflicts": 0,
+      "posture_offset_during_knee_flex": 0,
+      "anticipatory_push_frames": {
+        "RL": 6,
+        "FL": 3,
+        "RR": 4,
+        "FR": 3
       },
-      "contact_ready": {
-        "FL": 44,
-        "FR": 71,
-        "RL": 42,
-        "RR": 42
-      },
-      "more_than_one_stage": 0,
-      "motor_after_stop": 0,
-      "flex_conflicts": {
-        "FL": 0,
-        "FR": 0,
-        "RL": 2,
-        "RR": 0
-      },
-      "reflex": {
+      "quiet_after_stop": true,
+      "state_quiet_after_stop": true,
+      "reflex_frames": {
         "FL": 0,
         "FR": 0,
         "RL": 0,
         "RR": 0
-      },
-      "seed": 1,
-      "stop_request_steps": [
-        10,
-        450,
-        1100
-      ],
-      "knee_conflict_steps": [
-        1110,
-        1111
-      ],
-      "knee_conflicts_while_walk_exclusive": 0
+      }
     },
-    "left_tilt_0.5_1": {
+    "left_tilt_1": {
       "case": "left_tilt",
+      "seed": 1,
       "strength": 0.5,
-      "design_sha256": "0cad0ab0e1da949024eb950fd020b12bc909ca9e6b946bbde4b2ba4df4104df7",
-      "steps": 1200,
+      "design_sha256": "6d3f09e1f10c49b29e1e13b88fc89932d58d785f621b8d95382cdd7eb71383ad",
+      "steps": 1500,
       "entries": [
         [
           115,
@@ -529,41 +1057,180 @@
         [
           1026,
           "RL"
+        ],
+        [
+          1115,
+          "FL"
+        ],
+        [
+          1191,
+          "RR"
+        ],
+        [
+          1280,
+          "FR"
+        ],
+        [
+          1356,
+          "RL"
         ]
       ],
-      "air_seen": {
-        "FL": 78,
-        "FR": 116,
-        "RL": 99,
-        "RR": 76
+      "transitions": [
+        {
+          "previous": "FR",
+          "next": "RL",
+          "return_step": 159,
+          "prepare_step": 164,
+          "push_step": 165,
+          "touchdown_step": 166,
+          "ready_step": 171,
+          "next_active_step": 185
+        },
+        {
+          "previous": "RL",
+          "next": "FL",
+          "return_step": 249,
+          "prepare_step": 254,
+          "push_step": 255,
+          "touchdown_step": 256,
+          "ready_step": 261,
+          "next_active_step": 275
+        },
+        {
+          "previous": "FL",
+          "next": "RR",
+          "return_step": 324,
+          "prepare_step": 329,
+          "push_step": 330,
+          "touchdown_step": 331,
+          "ready_step": 336,
+          "next_active_step": 351
+        },
+        {
+          "previous": "RR",
+          "next": "FR",
+          "return_step": 414,
+          "prepare_step": 419,
+          "push_step": 420,
+          "touchdown_step": 421,
+          "ready_step": 426,
+          "next_active_step": 440
+        },
+        {
+          "previous": "FR",
+          "next": "RL",
+          "return_step": 489,
+          "prepare_step": 494,
+          "push_step": 440,
+          "touchdown_step": 496,
+          "ready_step": 501,
+          "next_active_step": 516
+        },
+        {
+          "previous": "RL",
+          "next": "FL",
+          "return_step": 759,
+          "prepare_step": 764,
+          "push_step": 765,
+          "touchdown_step": 769,
+          "ready_step": 774,
+          "next_active_step": 789
+        },
+        {
+          "previous": "FL",
+          "next": "RR",
+          "return_step": 834,
+          "prepare_step": 839,
+          "push_step": 789,
+          "touchdown_step": 841,
+          "ready_step": 846,
+          "next_active_step": 861
+        },
+        {
+          "previous": "RR",
+          "next": "FR",
+          "return_step": 924,
+          "prepare_step": 929,
+          "push_step": 930,
+          "touchdown_step": 931,
+          "ready_step": 936,
+          "next_active_step": 950
+        },
+        {
+          "previous": "FR",
+          "next": "RL",
+          "return_step": 999,
+          "prepare_step": 1004,
+          "push_step": 1005,
+          "touchdown_step": 1006,
+          "ready_step": 1011,
+          "next_active_step": 1026
+        },
+        {
+          "previous": "RL",
+          "next": "FL",
+          "return_step": 1089,
+          "prepare_step": 1094,
+          "push_step": 1095,
+          "touchdown_step": 1096,
+          "ready_step": 1101,
+          "next_active_step": 1115
+        },
+        {
+          "previous": "FL",
+          "next": "RR",
+          "return_step": 1164,
+          "prepare_step": 1169,
+          "push_step": 1115,
+          "touchdown_step": 1171,
+          "ready_step": 1176,
+          "next_active_step": 1191
+        },
+        {
+          "previous": "RR",
+          "next": "FR",
+          "return_step": 1254,
+          "prepare_step": 1259,
+          "push_step": 1260,
+          "touchdown_step": 1261,
+          "ready_step": 1266,
+          "next_active_step": 1280
+        },
+        {
+          "previous": "FR",
+          "next": "RL",
+          "return_step": 1329,
+          "prepare_step": 1334,
+          "push_step": 1280,
+          "touchdown_step": 1336,
+          "ready_step": 1341,
+          "next_active_step": 1356
+        }
+      ],
+      "simultaneous_stages": 0,
+      "flex_conflicts": 0,
+      "posture_offset_during_knee_flex": 0,
+      "anticipatory_push_frames": {
+        "RL": 6,
+        "FL": 6,
+        "RR": 5,
+        "FR": 3
       },
-      "contact_ready": {
-        "FL": 44,
-        "FR": 65,
-        "RL": 48,
-        "RR": 42
-      },
-      "more_than_one_stage": 0,
-      "motor_after_stop": 0,
-      "flex_conflicts": {
-        "FL": 0,
-        "FR": 0,
-        "RL": 0,
-        "RR": 0
-      },
-      "reflex": {
+      "quiet_after_stop": true,
+      "state_quiet_after_stop": true,
+      "reflex_frames": {
         "FL": 89,
         "FR": 0,
         "RL": 89,
         "RR": 0
-      },
-      "seed": 1,
-      "stop_request_steps": [
-        10,
-        1100
-      ],
-      "knee_conflict_steps": [],
-      "knee_conflicts_while_walk_exclusive": 0
+      }
     }
-  }
+  },
+  "limitations": [
+    "No Webots physics or Prima-Lux device run.",
+    "No claim that harness steps equal simulation milliseconds.",
+    "No STDP3 update validation.",
+    "Bumpers measure contact, not load; useful weight transfer is unverified.",
+    "Missing landing holds next preparation/push but does not capture the next swing turn until evidence arrives or STOP clears it."
+  ]
 }

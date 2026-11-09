@@ -26,6 +26,8 @@ def load_config(root=ROOT):
             raise ValueError(f"{key} must be positive and finite")
     if set(c["joint_targets"]) != set(JOINTS):
         raise ValueError("Expected ABD, HIP and KNEE actuator settings")
+    if set(c["support_shift"]) != {"HIP_offset_rad", "ABD_offset_rad"}:
+        raise ValueError("Expected HIP and ABD support offsets")
     reflex = c["reflex"]
     if type(reflex["enabled"]) is not bool:
         raise ValueError("reflex.enabled must be true or false")
@@ -97,6 +99,9 @@ def load_config(root=ROOT):
     ):
         raise ValueError("Upright roll/pitch thresholds must be below pi/2")
     for joint, values in c["joint_targets"].items():
+        offset = c["support_shift"].get(joint + "_offset_rad", 0.0)
+        if type(offset) not in (int, float) or not math.isfinite(offset) or offset < 0:
+            raise ValueError("Support offsets must be finite and nonnegative")
         if any(
             type(v) not in (int, float) or not math.isfinite(v) for v in values.values()
         ):
@@ -109,8 +114,8 @@ def load_config(root=ROOT):
             q = values["neutral_" + side]
             if (
                 not low
-                <= q - values["negative_excursion"]
-                <= q + values["positive_excursion"]
+                <= q - values["negative_excursion"] - offset
+                <= q + values["positive_excursion"] + offset
                 <= high
             ):
                 raise ValueError(f"{joint} endpoints exceed the Spot model limits")

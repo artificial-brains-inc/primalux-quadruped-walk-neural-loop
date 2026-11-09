@@ -28,6 +28,9 @@ def joint_targets(event, config, *, rhythm_only=False):
                 q += direction * (
                     settings["positive_excursion"] if direction > 0 else extension
                 )
+                if joint in ("HIP", "ABD"):
+                    bias = channels[f"{leg}_{joint}_SUPPORT_POS"] - channels[f"{leg}_{joint}_SUPPORT_NEG"]
+                    q += bias * config["support_shift"][joint + "_offset_rad"]
             targets[(leg, joint)] = q
     return targets
 
