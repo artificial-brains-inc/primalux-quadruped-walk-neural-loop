@@ -39,8 +39,10 @@ Keep proprietary construction code, equations, compiled images and credentials o
   observed pulse after two frames. No reflex guard or controller burst timer.
 - ACTIVE is diagnostic only. All outputs are bistable and have explicit clearing.
   STOP/REST clears all movement, push, reflex, readiness, return and phase paths.
-- Learning remains on four release inhibitory returns and four regular support
-  phase drive → knee extension Beta edges. Reward is positive upright forward progress: 10 input
+- Learning uses STDP3/LTD on four release inhibitory returns and STDP3/LTP on
+  four regular support phase drive → knee extension Beta edges. LTD reverses
+  signed eligibility; it does not guarantee weaker inhibition or more overlap.
+  Reward is positive upright forward progress: 10 input
   → 10 HG T10 → 17 dopaminergic T3 neurons. Zero is no reward, not punishment.
   Do not claim that wiring alone proves eligibility, weight changes or learning.
 - Python senses/encodes, publishes reward, decodes local outputs and applies

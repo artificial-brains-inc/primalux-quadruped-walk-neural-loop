@@ -1,6 +1,6 @@
 {
   "schema": "artificial-brains/design/v1",
-  "name": "Spot - Neural Switch with Learning and Local Reflexes",
+  "name": "Spot - Neural Switch with LTD Release Feedback",
   "nodes": [
     {
       "name": "WALK_START",
@@ -1439,7 +1439,7 @@
       "type": "inh",
       "rule": "STDP3",
       "reward": "GAIT_REWARD",
-      "reward_type": "LTP",
+      "reward_type": "LTD",
       "strength": 4.0,
       "role": "feedback"
     },
@@ -1449,7 +1449,7 @@
       "type": "inh",
       "rule": "STDP3",
       "reward": "GAIT_REWARD",
-      "reward_type": "LTP",
+      "reward_type": "LTD",
       "strength": 4.0,
       "role": "feedback"
     },
@@ -1587,7 +1587,7 @@
       "type": "inh",
       "rule": "STDP3",
       "reward": "GAIT_REWARD",
-      "reward_type": "LTP",
+      "reward_type": "LTD",
       "strength": 4.0,
       "role": "feedback"
     },
@@ -1597,7 +1597,7 @@
       "type": "inh",
       "rule": "STDP3",
       "reward": "GAIT_REWARD",
-      "reward_type": "LTP",
+      "reward_type": "LTD",
       "strength": 4.0,
       "role": "feedback"
     },

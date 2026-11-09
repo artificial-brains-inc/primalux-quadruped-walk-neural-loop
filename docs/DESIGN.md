@@ -31,7 +31,7 @@ A orders FR then RL; B orders FL then RR. Each leg has MOVE, PUSH, SWING_READY
 and DONE activity. Front DONE recruits a Beta T3 handoff into the rear leg's
 MOVE_HG. Rear DONE_HG supplies the macro state's MOTOR_FEEDBACK_HG →
 FEEDBACK_BETA T5 → BETA T5 → RELEASE T3. RELEASE captures the opposite request.
-The same four inhibitory RELEASE returns retain their STDP3/LTP metadata.
+The four inhibitory RELEASE returns use STDP3/LTD.
 
 This sequence uses internal neural activity. The return begins from an actual
 knee flexion output rather than from the earlier hip command, so the leg's
@@ -106,11 +106,12 @@ connection matrices. Device preparation remains authoritative.
 
 ## Learning scope
 
-Four RELEASE inhibitory returns and four REFLEX_HG → regular extension Beta
-excitatory connections use STDP3, GAIT_REWARD and reward_type LTP. Eligibility
-reflects recent source/receiver timing; dopaminergic activity acts on that
-eligibility. LTP follows its sign and does not mean every update strengthens.
-The fast motor branches, state retention, sequencing, vetoes and resets remain
+Four RELEASE inhibitory returns use STDP3/LTD. Four support phase drive → regular
+extension Beta excitatory connections use STDP3/LTP. Both use GAIT_REWARD.
+Eligibility reflects recent source/receiver timing; dopaminergic activity acts
+on that eligibility. LTP follows its sign and LTD reverses it. The direction
+labels do not guarantee that a connection strengthens or weakens.
+Every reflex connection, fast motor branches, state retention, sequencing, vetoes and resets remain
 static. `walk` sends no positive reward; `learn` rewards new upright forward
 progress. Stationary recovery alone is not that outcome.
 

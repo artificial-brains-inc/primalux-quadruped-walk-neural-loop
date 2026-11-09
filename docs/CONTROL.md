@@ -103,9 +103,12 @@ neurons; magnitude 0 encodes ten zeros. Do not pass magnitude 10.
 
 Each accepted event is classified as `positive_outcome` or `no_reward` in SDK
 metadata and `rewards.jsonl`. Its `reason` records the physical condition.
-No reward is not punishment. The eight selected learning connections use STDP3
-and reward_type LTP; the latter follows signed eligibility and does not guarantee
-strengthening. Reward is a neuromodulator, not ordinary motor excitation.
+No reward is not punishment. The eight selected learning connections use STDP3.
+The four release inhibitory feedback paths use reward_type LTD; the four regular
+support drive → extension Beta paths use LTP. LTP follows signed eligibility;
+LTD reverses it. Neither label guarantees strengthening or weakening.
+The run's reward_classification records these two scopes under reward_types.
+Reward is a neuromodulator, not ordinary motor excitation.
 Ten active input neurons do not prove that all 17 dopamine neurons fired. Check
 individual neuron telemetry for that. A larger population also does not prove
 that learning improves balance. The fixed reflex remains active without reward.

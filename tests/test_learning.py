@@ -3,7 +3,9 @@ import unittest
 
 from design_brain import create_brain
 from robot.configuration import load_config
-from robot.contracts import LEGS, REWARD_INPUT, SUPPORT_PHASE, motor_population
+from robot.contracts import (
+    LEGS, REWARD_CLASSIFICATION, REWARD_INPUT, SUPPORT_PHASE, motor_population,
+)
 from robot.reward import ProgressReward, RewardPublisher
 
 
@@ -26,13 +28,20 @@ class LearningGraphTests(unittest.TestCase):
                 edge["type"], "inh" if (edge["from"], edge["to"]) in expected else "exc"
             )
             self.assertEqual(edge["reward"], "GAIT_REWARD")
-            self.assertEqual(edge["reward_type"], "LTP")
+            self.assertEqual(
+                edge["reward_type"],
+                "LTD" if (edge["from"], edge["to"]) in expected else "LTP",
+            )
             if (edge["from"], edge["to"]) in expected:
                 self.assertEqual(edge["role"], "feedback")
                 self.assertEqual(edge["strength"], 4)
         for edge in d["connections"]:
             if (edge["from"], edge["to"]) not in expected | regular_support:
                 self.assertNotIn("rule", edge)
+        self.assertEqual(
+            REWARD_CLASSIFICATION["reward_types"],
+            {"release_feedback": "LTD", "regular_support": "LTP"},
+        )
 
     def test_reward_does_not_choose_a_phase_or_drive_a_motor(self):
         d = create_brain().to_dict()

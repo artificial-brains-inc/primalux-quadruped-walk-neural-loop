@@ -35,12 +35,13 @@ REFLEX_RESET_INHIBITION = 4.0
 REFLEX_TNORM = 5.0
 REQUEST_CLEAR_INHIBITION = 64.0
 GAIT_LEARNING_RULE = "STDP3"
-GAIT_REWARD_TYPE = "LTP"
+RELEASE_REWARD_TYPE = "LTD"
+SUPPORT_REWARD_TYPE = "LTP"
 
 
 def create_brain(*, learning=True):
     b = Brain(
-        "Spot - Neural Switch with Learning and Local Reflexes"
+        "Spot - Neural Switch with LTD Release Feedback"
         if learning
         else "Spot - Neural Switch and Local Reflexes"
     )
@@ -66,7 +67,7 @@ def create_brain(*, learning=True):
                 dict(
                     rule=GAIT_LEARNING_RULE,
                     reward="GAIT_REWARD",
-                    reward_type=GAIT_REWARD_TYPE,
+                    reward_type=RELEASE_REWARD_TYPE,
                 )
                 if plastic and learning
                 else {}
@@ -328,7 +329,7 @@ def create_brain(*, learning=True):
                                 dict(
                                     rule=GAIT_LEARNING_RULE,
                                     reward="GAIT_REWARD",
-                                    reward_type=GAIT_REWARD_TYPE,
+                                    reward_type=SUPPORT_REWARD_TYPE,
                                 )
                                 if learning
                                 and joint == "KNEE"

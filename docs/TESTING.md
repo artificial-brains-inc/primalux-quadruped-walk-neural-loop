@@ -32,9 +32,18 @@ phase lamps. High queue depth means feedback can be stale relative to the device
 
 After static behavior is established, use `learn` to enable physical reward.
 The four selected release inhibitory feedback paths and four regular support
-phase drive → knee extension Beta paths are plastic. Every reflex connection
+phase drive → knee extension Beta paths are plastic, using LTD and LTP respectively. Every reflex connection
 is static, including its direct excitation of regular Beta. Check presynaptic
 support-drive activity alongside reflex and postsynaptic Beta activity; a reflex
 burst alone does not establish eligibility on the regular connection.
 Accepted reward publications alone do not establish dopamine firing or learning.
 See [VALIDATION.md](VALIDATION.md) for the scope of the bundled check reports.
+
+For the LTD experiment, compare against the corrected LTP design from commit
+17918ee using matched initial weights, initial pose and run duration. Changing
+`learn` to `walk` only suppresses external reward; it does not select LTP or LTD
+or prove a frozen-weight baseline. Rebuild the intended design for each condition.
+Record rearward hip movement overlapping the next leg's swing, forward progress,
+falls and stalled intervals. Preserve the run settings and design hash. This
+comparison tests release-feedback adaptation; the static A/B exclusion and
+motor vetoes are not changed by the LTD selection.

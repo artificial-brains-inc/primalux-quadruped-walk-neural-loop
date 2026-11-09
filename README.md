@@ -169,7 +169,7 @@ Stop with Q and wait for saving, then run:
 ab run -ab --env .env learn
 ```
 
-One physical reward signal may adjust **four STDP3/LTP inhibitory returns** from
+One physical reward signal may adjust **four STDP3/LTD inhibitory returns** from
 RELEASE to its own FEEDBACK_BETA and BETA, plus **four excitatory STDP3/LTP edges**
 from each leg's support phase drive to its regular knee extension Beta. All
 reflex connections, local DONE → Beta, Beta → output, state interlocks, motor
@@ -178,6 +178,13 @@ postsynaptic Beta while the regular presynaptic drive is active, contributing to
 eligibility on that regular connection. Learning can alter release recovery and
 normal support recruitment; it is not
 a substitute for working coordination.
+
+This LTD experiment changes the reward direction only on the four RELEASE
+feedback connections. LTP follows signed eligibility; LTD reverses it. LTD does
+not guarantee weaker inhibition or more overlap. The regular support inputs
+retain LTP, and every reflex connection remains static. Inspect the selected
+edges in the Designer and rebuild before running; changing files does not change
+the brain already installed on the device.
 
 For a design with no learning metadata, author it explicitly, then inspect and
 build it with the same SDK commands:

@@ -18,14 +18,15 @@ Controller integration tests use a deterministic input sender; concurrent behavi
 is tested separately with the real worker. These tests do not establish device
 latency or stable Webots walking.
 
-The learning-placement correction moves four STDP3/LTP settings from reflex HG
-→ regular extension Beta to the existing support phase drive → regular extension
-Beta edges. SDK validation and local construction pass. Comparison with the
-preceding design confirms that all nodes and all non-learning edge fields are
-identical, including constructed initial parameters. There are still eight
-plastic population connections; every reflex edge is static. The correction
-has not been run on the device or in Webots and does not establish eligibility
-or improved behavior.
+This experiment changes only four connection fields relative to the corrected
+LTP design from commit 17918ee: reward_type becomes LTD on each RELEASE → its
+own FEEDBACK_BETA and BETA inhibitory edge. The design name identifies the LTD
+experiment. SDK validation and local construction pass. All nodes, connectivity
+and constructed initial parameters remain identical; only the four reward
+directions change. The regular support → extension Beta connections retain
+STDP3/LTP. Every reflex edge remains static. The LTD experiment has not been run
+on the device or in Webots and does not establish eligibility, more overlap or
+improved behavior.
 
 [SWITCH_CHECK.json](SWITCH_CHECK.json) retains the preceding design hash and
 records four complete-circuit local cases with static weights:

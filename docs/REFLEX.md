@@ -91,7 +91,9 @@ inhibits another corner. Rear gait handoff follows the front return pathway; all
 
 In `walk`, reflexes operate but reward is zero. In `learn`, new upright forward
 progress supplies reward to the four support phase drive → Beta edges and the four
-switch-release inhibitory edges. Correcting a stationary tilt alone is not
+switch-release inhibitory edges. The regular support edges use LTP; the release
+inhibitory edges use LTD. Every reflex connection stays static.
+Correcting a stationary tilt alone is not
 rewarded by this progress objective. The reward path is 10 input neurons →
 10 high-gamma T10 neurons → 17 dopaminergic T3 neurons, classified as positive
 outcome reward. Zero means no reward, not punishment.
