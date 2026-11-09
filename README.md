@@ -1,13 +1,13 @@
-# Spot: contact-guided walking with LTP
+# Spot: contact-guided walking with inhibitory LTP
 
 A developer teaching example for Prima-Lux and Webots. Each leg first gives a
 small extension push, then flexes and advances, then returns to support. Neural
 activity sequences the movements; independent tilt reflexes can override a
 leg's knee motion.
 
-Learning is **STDP3 with LTP on all eight plastic paths**: four inhibitory release
-returns and four excitatory support-to-extension paths. Contact and reflex paths
-are static.
+Learning is **STDP3 with LTP only on four inhibitory release-feedback paths**.
+Every excitatory connection is static, including the normal support-to-extension
+path. All contact and reflex connections are static as well.
 
 | Macro state | First | Then |
 | --- | --- | --- |
@@ -49,8 +49,9 @@ source of apparent restarts. See [recovery](docs/RECOVERY.md).
 There are **551 neurons**, including **77 external neurons across twelve named
 inputs**. Each leg's reflex remains **24 high-gamma T5 neurons**, directly
 exciting its fast output and its **24-neuron regular extension Beta T5**. The
-two reflex connections are static. STDP3/LTP is on the regular support phase
-drive → knee extension Beta connection, one per leg. Swing inhibition acts at the regular extension
+two reflex connections and the regular support phase drive → knee extension
+Beta connections are static. Only four inhibitory release-feedback paths use
+STDP3/LTP. Swing inhibition acts at the regular extension
 output so it does not prevent that Beta from receiving reflex evidence.
 
 The reward path is 10 outcome input neurons → 10 high-gamma T10 neurons →
@@ -69,8 +70,8 @@ Python transmits measurements; it supplies no phase, gait or handoff decision.
 - Recruit the diagonal rear partner after front contact is confirmed.
 - Keep local reflexes independent and give them a neural reset long enough to
   avoid the immediate output-clearing loop.
-- Recruit regular Beta through a fixed reflex connection, with STDP3 on its
-  normal support input.
+- Recruit regular Beta through a fixed reflex connection while limiting STDP3/LTP
+  to four inhibitory release-feedback paths.
 
 Read [goals and interactions](docs/GOALS.md), [the design](docs/DESIGN.md),
 [foot-contact feedback](docs/CONTACT.md), [push before swing](docs/PUSH.md),
@@ -114,8 +115,8 @@ WEBOTS_EXECUTABLE=/absolute/path/to/webots
 `WEBOTS_EXECUTABLE` names the executable file, not its containing folder.
 Keep `.env` out of Git. For an existing checkout, stop the application with Q,
 then fetch the bundle and merge its main branch using `--ff-only`.
-Rebuild this LTP design even if the previous touch version is installed.
-Changing the reward direction in a local file does not update the installed brain.
+Rebuild this inhibitory LTP design even if the previous touch version is installed.
+Changing learning rules in a local file does not update the installed brain.
 A new build is a new learning condition; do not assume old learned weights transfer.
 
 ## Inspect the design
@@ -139,8 +140,10 @@ extension command starts through these fixed paths while the regular support
 Beta is still being recruited; no additional population or input is needed.
 
 Each REFLEX_HG T5 connects directly to KNEE_REFLEX_EXTEND and to the existing
-regular KNEE_NEG_BETA T5 through fixed connections. Inspect STDP3 on each
-PHASE_support_DRIVE_HG → KNEE_NEG_BETA edge. Follow the fast output through two Beta
+regular KNEE_NEG_BETA T5 through fixed connections. The support phase drive →
+KNEE_NEG_BETA edges are fixed too. Inspect STDP3/LTP only on each phase's
+RELEASE → FEEDBACK_BETA and RELEASE → BETA inhibitory edges.
+Follow the fast output through two Beta
 T3 recovery stages back to clear itself. ACTIVE is diagnostic only.
 
 Close the Designer with Ctrl+C before continuing. If you edit on the Canvas,
@@ -187,17 +190,16 @@ Stop with Q and wait for saving, then run:
 ab run -ab --env .env learn
 ```
 
-One physical reward signal may adjust **four STDP3/LTP inhibitory returns** from
-RELEASE to its own FEEDBACK_BETA and BETA, plus **four excitatory STDP3/LTP edges**
-from each leg's support phase drive to its regular knee extension Beta. All
-contact and reflex connections, local DONE → Beta, Beta → output, state interlocks, motor
-vetoes, command paths and resets remain static. Reflex activity can recruit the
-postsynaptic Beta while the regular presynaptic drive is active, contributing to
-eligibility on that regular connection. Learning can alter release recovery and
-normal support recruitment; it is not
-a substitute for working coordination.
+One physical reward signal may adjust **four STDP3/LTP inhibitory returns**:
+each phase's RELEASE → FEEDBACK_BETA and RELEASE → BETA. These are the only
+plastic connections. All excitatory paths, including support phase drive →
+regular knee extension Beta, stay fixed. Contact, reflex, state interlocks,
+motor vetoes, command paths and all other reset connections also stay fixed.
+Reflex activity still recruits both fast extension and the normal Beta, but
+neither branch learns. Learning can alter release recovery; it is not a
+substitute for working coordination.
 
-**All eight plastic connections use LTP. No connection uses LTD.** LTP follows
+**All four plastic connections are inhibitory and use LTP. No connection uses LTD.** LTP follows
 signed eligibility; it does not promise that every update strengthens the
 connection. Every contact and reflex connection remains static. Inspect the
 selected edges in the Designer and rebuild before running.

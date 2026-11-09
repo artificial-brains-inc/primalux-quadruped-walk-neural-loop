@@ -103,12 +103,13 @@ neurons; magnitude 0 encodes ten zeros. Do not pass magnitude 10.
 
 Each accepted event is classified as `positive_outcome` or `no_reward` in SDK
 metadata and `rewards.jsonl`. Its `reason` records the physical condition.
-No reward is not punishment. The eight selected learning connections use STDP3.
-The four release inhibitory feedback paths and four regular support drive →
-extension Beta paths all use `reward_type="LTP"`. There are no LTD connections.
+No reward is not punishment. Only four inhibitory release-feedback connections
+use STDP3 with `reward_type="LTP"`: each phase's RELEASE → FEEDBACK_BETA and
+RELEASE → BETA. All other connections are static, including all excitatory
+paths. There are no LTD connections.
 LTP follows signed eligibility, so it does not guarantee every update strengthens
 a connection.
-The run's reward_classification records these two scopes under reward_types.
+The run's reward_classification records only release_feedback under reward_types.
 Reward is a neuromodulator, not ordinary motor excitation.
 Ten active input neurons do not prove that all 17 dopamine neurons fired. Check
 individual neuron telemetry for that. A larger population also does not prove
@@ -161,8 +162,9 @@ Each local reflex receives compatible signs, inhibits its own knee flexion,
 directly excites its fast extension output from high-gamma T5.
 KNEE_REFLEX_EXTEND recruits RECOVERY_BETA T3 then OUTPUT_RESET_BETA T3; the
 second stage clears the output and inhibits its trigger. The same high-gamma directly excites the regular extension
-Beta through a fixed connection. STDP3/LTP is on each regular support phase
-drive → extension Beta connection; all reflex connections are static.
+Beta through a fixed connection. Regular support phase drive → extension Beta
+is also fixed. Only the four inhibitory macro release-feedback connections use
+STDP3/LTP; every reflex connection is static.
 No reflex inhibits another leg;
 shared sensory evidence can recruit several independent reflexes.
 

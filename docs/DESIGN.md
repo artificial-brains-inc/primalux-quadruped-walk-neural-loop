@@ -65,11 +65,9 @@ Each 24-neuron REFLEX_HG T5 has a fixed direct connection to the fast extension
 output and a fixed operand connection into the existing regular
 extension Beta T5. Regular extension accepts one canonical unit each from
 macro support, local DONE and reflex HG, using the Beta T5 OR construction as
-its starting relationship. STDP3/LTP is on macro support → regular extension
-Beta, one connection per leg. Local DONE → Beta and Beta → output stay static.
-The fixed reflex can recruit postsynaptic Beta activity that contributes to
-eligibility when the normal presynaptic support source also fires with suitable
-timing. Learning adapts normal support recruitment.
+its relationship. All three inputs and Beta → output are static. The reflex
+still recruits the regular Beta alongside the direct fast output; no excitatory
+motor connection has a learning rule.
 
 The local SWING_READY_HG recruits EXTENSION_VETO_HG T10, which inhibits ordinary
 extension output at strength 64. It does not inhibit the extension Beta. Knee
@@ -111,14 +109,15 @@ connection matrices. Device preparation remains authoritative.
 
 ## Learning scope
 
-Four RELEASE inhibitory returns use STDP3/LTP. Four support phase drive → regular
-extension Beta excitatory connections use STDP3/LTP. Both use GAIT_REWARD.
+Only four RELEASE inhibitory returns use STDP3/LTP: RELEASE → FEEDBACK_BETA and
+RELEASE → BETA in each of A and B. All four use GAIT_REWARD.
 Eligibility reflects recent source/receiver timing; dopaminergic activity acts
-on that eligibility. All eight connections use LTP, following eligibility's
+on that eligibility. All four connections use LTP, following eligibility's
 sign. There are no LTD connections. LTP does not guarantee that every update
 strengthens a connection.
-Every contact and reflex connection, fast motor branch, state-retention, sequencing, veto and reset connection remains
-static. `walk` sends no positive reward; `learn` rewards new upright forward
+Every other connection is static, including all excitatory paths, every contact
+and reflex connection, and the remaining inhibitory paths. `walk` sends no
+positive reward; `learn` rewards new upright forward
 progress. Stationary recovery alone is not that outcome.
 
 Check the static behavior first. Use internal spike recording and weight

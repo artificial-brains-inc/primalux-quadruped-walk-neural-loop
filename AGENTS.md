@@ -30,8 +30,8 @@ Keep proprietary construction code, equations, compiled images and credentials o
   These edges are static. Contact is pad collision, not load or completed push.
 - Each reflex is 24 high-gamma T5 neurons directly exciting a fast motor output
   and its existing regular extension Beta T5 through fixed connections. Keep both
-  edges static. STDP3/LTP belongs on PHASE_support_DRIVE_HG → KNEE_NEG_BETA,
-  one per leg. Local DONE → Beta and Beta → output also remain static.
+  edges static. All excitatory connections, including support phase drive →
+  regular Beta, local DONE → Beta and Beta → output, must remain static.
 - Normal extension Beta receives gait support, local DONE and reflex evidence
   as one canonical operand unit each. Swing veto acts at its output, not inside
   that Beta. Knee opposition uses state/output vetoes; do not starve the Beta
@@ -45,9 +45,9 @@ Keep proprietary construction code, equations, compiled images and credentials o
   observed pulse after two frames. No reflex guard or controller burst timer.
 - ACTIVE is diagnostic only. All outputs are bistable and have explicit clearing.
   STOP/REST clears all movement, push, reflex, readiness, return and phase paths.
-- Learning uses STDP3/LTP on four release inhibitory returns and STDP3/LTP on
-  four regular support phase drive → knee extension Beta edges. All eight use
-  LTP; no connection uses LTD. LTP follows signed eligibility, so it does not
+- Learning uses STDP3/LTP only on the four release inhibitory returns to each
+  phase's FEEDBACK_BETA and BETA. Every other edge is static, including other
+  inhibitory paths. No connection uses LTD. LTP follows signed eligibility, so it does not
   guarantee every update strengthens a connection.
   Reward is positive upright forward progress: 10 input
   → 10 HG T10 → 17 dopaminergic T3 neurons. Zero is no reward, not punishment.

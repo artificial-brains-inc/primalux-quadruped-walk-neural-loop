@@ -19,7 +19,7 @@ REWARD_CLASSIFICATION = {
     "tnorm": 3,
     "outcome": "upright_forward_progress",
     "rule": "STDP3",
-    "reward_types": {"release_feedback": "LTP", "regular_support": "LTP"},
+    "reward_types": {"release_feedback": "LTP"},
 }
 TILT_INPUTS = ("TILT_ROLL_NEG", "TILT_ROLL_POS", "TILT_PITCH_NEG", "TILT_PITCH_POS")
 TILT_NEURONS = 12

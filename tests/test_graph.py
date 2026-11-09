@@ -317,7 +317,7 @@ class GraphTests(unittest.TestCase):
                 self.assert_inhibits(source, f"{leg}_KNEE_POS", 64)
                 self.assert_inhibits(source, f"REFLEX_{leg}_EXTENSION_VETO_HG", 64)
             # The fixed landing branch must not remove the regular motor path
-            # or its fixed reflex teaching input.
+            # or its fixed reflex input.
             beta = motor_population(leg, "KNEE", "NEG")
             self.assertEqual(self.edges[beta, f"{leg}_KNEE_NEG"]["type"], "exc")
             self.assertNotIn("rule", self.edges[f"REFLEX_{leg}_HG", beta])

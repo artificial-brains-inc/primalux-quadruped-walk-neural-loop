@@ -38,9 +38,11 @@ does not constitute a physical walking or collision-depth measurement.
 
 [CONTACT_CHECK.json](CONTACT_CHECK.json) matches the current design hash and
 retains seven full-circuit local cases using native cell updates, static weights
-and explicit harness assumptions. Those cases were recorded before the uniform
-LTP selection. Construction comparison confirms identical populations and
-initial connection parameters; only the four release reward directions change.
+and explicit harness assumptions. Those cases were recorded before the current
+learning scope. Construction comparison confirms identical populations and
+initial connection parameters. Relative to the recorded design, the four release
+reward directions change to LTP and four excitatory support paths lose their
+learning metadata.
 The report records the source hash and this equivalence check. It does not
 validate LTP weight updates or the Webots physics correction. Inputs are synthetic START, STOP, contact and
 tilt observations; the harness does not inject gait phases or motor outputs.
@@ -69,8 +71,8 @@ through later contact loss and was cleared by the next movement's clearing path.
 The previous [SWITCH_CHECK.json](SWITCH_CHECK.json) retains its earlier design
 hash. It is evidence about the preceding return/reflex circuit, not validation
 of the contact graph. The current contact report does not test dopamine-driven
-weight changes. Release returns retain STDP3/LTP, normal support inputs retain
-STDP3/LTP, and every contact/reflex edge is static.
+weight changes. Only four inhibitory release returns retain STDP3/LTP. Every
+excitatory connection and every contact/reflex edge is static.
 
 ## Check on the actual system
 

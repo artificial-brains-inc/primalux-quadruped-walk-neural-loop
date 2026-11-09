@@ -38,18 +38,17 @@ commanded but contact has not yet qualified it. Do not bypass that condition
 with a controller phase change. See [CONTACT.md](CONTACT.md).
 
 After static behavior is established, use `learn` to enable physical reward.
-The four selected release inhibitory feedback paths and four regular support
-phase drive → knee extension Beta paths are plastic, all using STDP3/LTP. Every reflex connection
-is static, including its direct excitation of regular Beta. Check presynaptic
-support-drive activity alongside reflex and postsynaptic Beta activity; a reflex
-burst alone does not establish eligibility on the regular connection.
+Only the four selected inhibitory release-feedback paths are plastic, using
+STDP3/LTP. Every excitatory connection and every reflex/contact path is static.
+Check RELEASE activity alongside its own FEEDBACK_BETA and BETA, the reward
+neurons and the weights of those four inhibitory connections.
 Accepted reward publications alone do not establish dopamine firing or learning.
 See [VALIDATION.md](VALIDATION.md) for the scope of the bundled check reports.
 
 For a controlled learning comparison, use this corrected physical model in both
 conditions. Run `python design_brain.py --static`, inspect and build it for a
 nonplastic baseline. Then regenerate with `python design_brain.py`, inspect and
-build the uniform LTP design. Keep initial pose and run duration matched. Changing
+build the inhibitory LTP design. Keep initial pose and run duration matched. Changing
 `learn` to `walk` only suppresses external reward; it does not remove plasticity
 or prove a frozen-weight baseline. Record forward progress, falls, stalls and
 foot-contact events. Preserve settings and the design hash for both conditions.

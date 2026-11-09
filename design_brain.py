@@ -38,13 +38,12 @@ REFLEX_TNORM = 5.0
 REQUEST_CLEAR_INHIBITION = 64.0
 GAIT_LEARNING_RULE = "STDP3"
 RELEASE_REWARD_TYPE = "LTP"
-SUPPORT_REWARD_TYPE = "LTP"
 CONTACT_CLEAR_INHIBITION = 64.0
 
 
 def create_brain(*, learning=True):
     b = Brain(
-        "Spot - Touch Feedback with LTP Learning"
+        "Spot - Touch Feedback with Inhibitory LTP"
         if learning
         else "Spot - Neural Switch and Local Reflexes"
     )
@@ -357,24 +356,13 @@ def create_brain(*, learning=True):
                 else:
                     # Support remains available after this leg's local return.
                     for source in (f"PHASE_{support}_DRIVE_HG", stem + "_DONE_HG"):
-                        # Adapt normal phase recruitment of knee extension.
-                        # Local return and the reflex's teaching drive stay fixed.
+                        # Every excitatory motor path stays fixed. Only the
+                        # four inhibitory release-feedback paths can learn.
                         b.connect(
                             source,
                             population,
                             role="operand",
                             units=1,
-                            **(
-                                dict(
-                                    rule=GAIT_LEARNING_RULE,
-                                    reward="GAIT_REWARD",
-                                    reward_type=SUPPORT_REWARD_TYPE,
-                                )
-                                if learning
-                                and joint == "KNEE"
-                                and source == f"PHASE_{support}_DRIVE_HG"
-                                else {}
-                            ),
                         )
                     veto = gate if joint == "KNEE" else stem + "_MOVE_HG"
                     # Do not accumulate swing-veto inhibition inside extension
@@ -427,9 +415,7 @@ def create_brain(*, learning=True):
         b.connect(trigger, trigger, role="feedback")
         b.connect(trigger, fast)
         # The same high-gamma neurons directly recruit the regular Beta.
-        # Both reflex branches stay fixed. Reflex-driven postsynaptic activity
-        # can contribute to eligibility on the regular phase-drive -> Beta edge
-        # when the phase source also fires with suitable timing.
+        # Both reflex branches and every other excitatory input stay fixed.
         b.connect(
             trigger,
             motor_population(leg, "KNEE", "NEG"),

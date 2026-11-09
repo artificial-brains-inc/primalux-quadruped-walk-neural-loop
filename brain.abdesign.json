@@ -1,6 +1,6 @@
 {
   "schema": "artificial-brains/design/v1",
-  "name": "Spot - Touch Feedback with LTP Learning",
+  "name": "Spot - Touch Feedback with Inhibitory LTP",
   "nodes": [
     {
       "name": "WALK_START",
@@ -2972,9 +2972,6 @@
       "from": "PHASE_A_DRIVE_HG",
       "to": "FRONT_LEFT_KNEE_NEG_BETA",
       "type": "exc",
-      "rule": "STDP3",
-      "reward": "GAIT_REWARD",
-      "reward_type": "LTP",
       "role": "operand",
       "units": 1.0
     },
@@ -3241,9 +3238,6 @@
       "from": "PHASE_B_DRIVE_HG",
       "to": "FRONT_RIGHT_KNEE_NEG_BETA",
       "type": "exc",
-      "rule": "STDP3",
-      "reward": "GAIT_REWARD",
-      "reward_type": "LTP",
       "role": "operand",
       "units": 1.0
     },
@@ -3510,9 +3504,6 @@
       "from": "PHASE_B_DRIVE_HG",
       "to": "REAR_LEFT_KNEE_NEG_BETA",
       "type": "exc",
-      "rule": "STDP3",
-      "reward": "GAIT_REWARD",
-      "reward_type": "LTP",
       "role": "operand",
       "units": 1.0
     },
@@ -3779,9 +3770,6 @@
       "from": "PHASE_A_DRIVE_HG",
       "to": "REAR_RIGHT_KNEE_NEG_BETA",
       "type": "exc",
-      "rule": "STDP3",
-      "reward": "GAIT_REWARD",
-      "reward_type": "LTP",
       "role": "operand",
       "units": 1.0
     },

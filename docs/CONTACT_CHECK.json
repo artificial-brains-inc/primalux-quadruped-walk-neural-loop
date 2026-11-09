@@ -1,5 +1,5 @@
 {
-  "design_sha256": "58b01c42f2f28e3f44fddb05260e291b40805aa33e496847f5eac54b31cb0e81",
+  "design_sha256": "d3ec700dac16573d1a0aa940aabdd6e75d74be6114deff7dff1bfda5a1ca1c30",
   "scope": "Local native-cell static-weight harness with synthetic contact events, explicit phase/connectivity/fatigue assumptions. Not a Webots physics run, compiled device image, FPGA-equivalence check or learning validation.",
   "case_count": 7,
   "all_passed": true,
@@ -298,5 +298,5 @@
   ],
   "source_design_sha256": "bba52a05ca75826269dfcc810b0c885a0c32bdaa73eecbd2a1012809c6bc6301",
   "static_construction_equivalence_verified": true,
-  "provenance": "Cases were recorded for the preceding touch design. The current design has identical constructed populations, weights, densities, seeds and connectivity; only four release reward directions change from LTD to LTP. These static-weight results do not test plasticity or the physical sensor fix."
+  "provenance": "Cases were recorded for the source touch design, not rerun for this metadata correction. The current design has identical constructed populations, initial weights, densities, seeds and connectivity. Relative to the recorded source, four inhibitory release reward directions change from LTD to LTP and four excitatory support paths lose their learning metadata. Only the four inhibitory release-feedback paths remain plastic. These static-weight results do not test plasticity or the physical sensor fix."
 }

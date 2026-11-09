@@ -79,9 +79,9 @@ The sensory relay is not a latch. Every transmitted nonzero sample is a new
 input event. Input transport can delay contact qualification; the controller
 never holds motor frames or adds an ACK while waiting for that evidence.
 
-All contact connections are static. The four release-feedback connections keep
-STDP3/LTP and the four regular support-drive connections keep STDP3/LTP. Every
-reflex connection remains static, including its excitation of regular Beta.
+All contact connections are static. Only the four inhibitory release-feedback
+connections use STDP3/LTP. Every excitatory connection is static, including
+support drive → regular Beta. Every reflex connection also remains static.
 
 ## Inspect a run
 
