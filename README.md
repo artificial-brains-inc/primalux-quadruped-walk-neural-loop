@@ -35,7 +35,7 @@ or completion of a backward push. See [foot feedback](docs/CONTACT.md).
 
 - Linux, Git and Python 3.11 or newer.
 - **Webots R2025a, installed separately. The package never installs Webots.**
-- Prima-Lux, its developer API key and a reachable device URL.
+- Prima-Lux Synthetic Neurons Dev Kit, its developer API key and a reachable device URL. **Get your synthetic neurons here:**[Prima-Lux Dev-Kit](https://artificialbrains.ai)
 - SDK 0.4.2; compatible device software with the 0.4.11 reward-type builder
   (Device Manager 0.6.17).
 - Internet access to install Python dependencies.
