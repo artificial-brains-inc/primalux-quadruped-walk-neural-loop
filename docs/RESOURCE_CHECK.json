@@ -1,6 +1,6 @@
 {
   "schema": "primalux-spot/construction-check/v1",
-  "design_sha256": "e82f81f6bc493f83e3fdd5f7b39789bf692435a5392b6448377c88de8c743f11",
+  "design_sha256": "39d1def5d8b549322a9b9c022dae4916bc7e51a23219032394c187ec34b6563b",
   "code": "CONSTRUCTION_OK",
   "populations": [
     {
@@ -882,10 +882,28 @@
       "tnorm": 10.0
     },
     {
+      "name": "LEG_FL_LOOP_HG",
+      "classification": "high-gamma",
+      "neurons": 1,
+      "tnorm": 10.0
+    },
+    {
       "name": "LEG_FL_MOVE_HG",
       "classification": "high-gamma",
       "neurons": 1,
       "tnorm": 10.0
+    },
+    {
+      "name": "LEG_FL_RETRY_BETA",
+      "classification": "beta",
+      "neurons": 2,
+      "tnorm": 3.0
+    },
+    {
+      "name": "LEG_FL_RETRY_CLEAR_BETA",
+      "classification": "beta",
+      "neurons": 4,
+      "tnorm": 3.0
     },
     {
       "name": "LEG_FL_PUSH_HG",
@@ -950,10 +968,28 @@
       "neurons": 1
     },
     {
+      "name": "LEG_FR_LOOP_HG",
+      "classification": "high-gamma",
+      "neurons": 1,
+      "tnorm": 10.0
+    },
+    {
       "name": "LEG_FR_MOVE_HG",
       "classification": "high-gamma",
       "neurons": 1,
       "tnorm": 10.0
+    },
+    {
+      "name": "LEG_FR_RETRY_BETA",
+      "classification": "beta",
+      "neurons": 2,
+      "tnorm": 3.0
+    },
+    {
+      "name": "LEG_FR_RETRY_CLEAR_BETA",
+      "classification": "beta",
+      "neurons": 4,
+      "tnorm": 3.0
     },
     {
       "name": "LEG_FR_PUSH_HG",
@@ -1018,10 +1054,28 @@
       "neurons": 1
     },
     {
+      "name": "LEG_RL_LOOP_HG",
+      "classification": "high-gamma",
+      "neurons": 2,
+      "tnorm": 10.0
+    },
+    {
       "name": "LEG_RL_MOVE_HG",
       "classification": "high-gamma",
       "neurons": 2,
       "tnorm": 10.0
+    },
+    {
+      "name": "LEG_RL_RETRY_BETA",
+      "classification": "beta",
+      "neurons": 2,
+      "tnorm": 3.0
+    },
+    {
+      "name": "LEG_RL_RETRY_CLEAR_BETA",
+      "classification": "beta",
+      "neurons": 4,
+      "tnorm": 3.0
     },
     {
       "name": "LEG_RL_PUSH_HG",
@@ -1092,10 +1146,28 @@
       "tnorm": 3.0
     },
     {
+      "name": "LEG_RR_LOOP_HG",
+      "classification": "high-gamma",
+      "neurons": 2,
+      "tnorm": 10.0
+    },
+    {
       "name": "LEG_RR_MOVE_HG",
       "classification": "high-gamma",
       "neurons": 2,
       "tnorm": 10.0
+    },
+    {
+      "name": "LEG_RR_RETRY_BETA",
+      "classification": "beta",
+      "neurons": 2,
+      "tnorm": 3.0
+    },
+    {
+      "name": "LEG_RR_RETRY_CLEAR_BETA",
+      "classification": "beta",
+      "neurons": 4,
+      "tnorm": 3.0
     },
     {
       "name": "LEG_RR_PUSH_HG",
@@ -1414,14 +1486,14 @@
     }
   ],
   "resources": {
-    "design_populations": 253,
-    "design_connections": 1189,
+    "design_populations": 265,
+    "design_connections": 1277,
     "input_neurons": 93,
-    "neural_neurons": 628,
-    "total_neurons": 721,
+    "neural_neurons": 658,
+    "total_neurons": 751,
     "neuron_budget": 10000,
-    "dense_matrix_cells": 11851,
-    "matrix_storage_bytes": 331828,
+    "dense_matrix_cells": 12215,
+    "matrix_storage_bytes": 342020,
     "image_budget_bytes": 33554432
   }
 }

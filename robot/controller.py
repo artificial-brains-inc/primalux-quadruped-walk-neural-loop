@@ -32,6 +32,7 @@ from .contracts import (
     validate_channels,
 )
 from .decoder import joint_speeds, joint_targets
+from .body_measurements import BodyMeasurements
 from .contact import clear_contacts, encode_contacts, setup_contact_sensors
 from .exchange import CommandExchange
 from .live_inputs import LiveInputs
@@ -88,6 +89,7 @@ def main():
     for device in (gps, imu, gyro):
         device.enable(dt)
     contact_sensors = setup_contact_sensors(body, dt)
+    body_measurements = BodyMeasurements(body, robot_node, motors, contact_sensors, dt)
     directory = (
         ROOT
         / "logs"
@@ -103,6 +105,7 @@ def main():
                 design_sha256=design_hash,
                 plastic_paths=plastic_paths,
                 initial_handoff_inhibition={e["from"]: e["strength"] for e in design.to_dict()["connections"] if e["from"].endswith("_BRAKE_BETA") and e["type"] == "inh"},
+                initial_sensor_loop_inhibition={e["from"]: e["strength"] for e in design.to_dict()["connections"] if e["to"].endswith("_LOOP_HG") and e["from"].endswith("_CONTACT_READY_HG")},
                 project_root=str(ROOT),
                 reflex_motor_outputs=list(REFLEX_MOTOR_OUTPUTS),
                 push_motor_outputs=list(PUSH_MOTOR_OUTPUTS),
@@ -288,6 +291,7 @@ def main():
                     joint_speed_limit_rad_s={
                         "_".join(k): v for k, v in commanded_speeds.items()
                     },
+                    **body_measurements.sample(),
                     body_xyz_m=xyz,
                     body_rpy_rad=rpy,
                     tilt_inputs=tilt_inputs,

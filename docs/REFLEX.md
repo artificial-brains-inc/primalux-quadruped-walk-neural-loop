@@ -29,7 +29,8 @@ evidence can recruit extension. Equal canonical units retain both contributions
 when the two one-neuron support sources and a 24-neuron reflex converge. Units are not neuron
 counts. The builder allocates the receiver's 24 neurons from this relationship.
 
-Learning is restricted to the four inhibitory handoff-feedback paths in the learning design.
+Learning is restricted to four inhibitory handoff-feedback paths and four
+qualified-contact-to-leg-loop inhibitory paths in the learning design.
 The normal excitatory motor paths and the entire reflex circuit remain fixed.
 Both reflex motor branches remain available without reward.
 
@@ -85,8 +86,8 @@ Left/front evidence can recruit FL, FR and RL independently. No sensory cue
 inhibits another corner. Turn handoff follows the local contact-qualified return; all four reflex paths operate independently of it.
 
 In `walk`, reflexes operate but reward is zero. In `learn`, new upright forward
-progress supplies reward to only the four handoff inhibitory edges.
-Those four plastic connections use STDP3/LTP. Every excitatory connection and
+progress supplies reward to the eight inhibitory handoff and sensor-loop edges.
+Those eight plastic connections use STDP3/LTP. Every excitatory connection and
 every reflex connection stays static.
 Correcting a stationary tilt alone is not
 rewarded by this progress objective. The reward path is 10 input neurons →

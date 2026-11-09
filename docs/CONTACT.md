@@ -28,16 +28,18 @@ Meanwhile RETURN_BETA has already recruited the next PREPARE_HG. Contact does
 not gate that grounded preparation; it still gates capture of the next ACTIVE
 turn. Preparation never clears the current turn or its contact memories.
 
-REQUEST and STANCE clear stale AIR_SEEN and CONTACT_READY. STOP/REST also clears
-them. The raw sensory vetoes remain operational during REST. A foot already on
+REQUEST and STANCE clear stale AIR_SEEN. CONTACT_READY persists through STANCE
+to keep the completed leg loop inhibited; only its next REQUEST or global
+STOP/REST clears it. The raw sensory vetoes remain operational during REST. A foot already on
 the floor at START cannot authorize a handoff without observed lift-off.
 
 Fresh measurement captures are sent atomically with tilt and reward. Slow HTTP
 replaces older unsent captures with the newest; it never blocks motor frames.
 A sufficiently brief airborne interval could therefore be missed. In that case
-the graph holds the turn; it does not fabricate contact history or advance on a
-timer. Inspect raw `foot_contact`, encoded `contact_inputs`, accepted
+the graph holds the turn and retries the local primitive; it does not fabricate
+contact history or advance on a timer. Inspect raw `foot_contact`, encoded `contact_inputs`, accepted
 `contact-inputs.jsonl` and neural AIR_SEEN/CONTACT_READY to locate the gap.
 
-All sensory connections are static, including high-gamma relays and vetoes.
-Only BRAKE_BETA → HANDOFF_BETA can learn in the learning companion.
+Sensor qualification relays and vetoes are static. The qualified contact helper
+also inhibits its own LEG_LOOP_HG through STDP3/LTP feedback, terminating the
+retained local attempt. The four BRAKE_BETA → HANDOFF_BETA paths also learn.

@@ -9,10 +9,17 @@ Keep proprietary construction code, formulas, compiled images and credentials ou
   PREPARE adds a two-neuron HG T10 input to the push relay (3 front / 4 rear).
   Previous RETURN recruits next PREPARE before landing. START seeds FR PREPARE.
   PREPARE retains the support plan through its own swing; next PREPARE clears it.
-  STANCE and SWING_READY must not veto the pending grounded push. PUSH has
-  static self-feedback; KNEE_PUSH → KICK_END_BETA T3 terminates it and sets
-  retained KICK_DONE. The preceding leg's REQUEST rearms this latch before its
-  RETURN prepares the kick. DONE and STOP retain explicit clearing.
+  Each leg has a recurrent LOOP_HG driving MOVE_HG. Only CONTACT_READY_HG
+  inhibits this recurrence during WALK; its STDP3/LTP feedback starts at 16.
+  STOP/REST remain global overrides. Motor outputs, DONE, retry and STANCE
+  must never inhibit LOOP_HG. Initial planted contact cannot terminate it:
+  qualifying landing requires AIR_SEEN and return evidence.
+  Preserve CONTACT_READY through STANCE; only a fresh local REQUEST or
+  global STOP/REST clears it. The fixed STOP/REST inhibition into LOOP is 64.
+  PUSH is a pulse within the leg attempt and is not self-recurrent. Its own
+  output terminates the pulse; DONE resets MOVE for return. Two local Beta T3
+  stages (2 then 4 neurons) reset phase memories for another attempt if the
+  sensor has not stopped the loop. Preserve AIR_SEEN/contact memories across retries.
   FLEX_WAIT_HG blocks knee flexion until the ordinary extension veto is active.
 - Sixteen fixed HIP/ABD support outputs add small signed actuator offsets.
   Direction selection and swing exclusion remain neural. ACTIVE_HG vetoes its
@@ -27,12 +34,14 @@ Keep proprietary construction code, formulas, compiled images and credentials ou
   Suspend/clear both rails during recovery/shutdown. Do not synthesize AIR then.
 - The contact gate drives HANDOFF_BETA T5, opposed by BRAKE_BETA T5 recruited
   from current ACTIVE before landing. Both are two-neuron populations.
-  Only the four BRAKE→HANDOFF inhibitory feedback edges may use STDP3/LTP.
-  Default strength 0.5 is tested provisionally, not a measured physical optimum.
+  The four BRAKE→HANDOFF and four CONTACT_READY_HG→LOOP_HG inhibitory
+  feedback edges use STDP3/LTP. No other path may learn.
+  Initial strengths are 0.5 for handoff and 16 for sensor-to-loop inhibition.
+  These are provisional settings, not measured physical optima.
 - Ship static and learning companions with identical topology/TNorms/strengths.
   The root design and default mode are learning/learn. Static omits learning fields.
   Reject mode/design mismatches before launching Webots; never silently switch graphs.
-  All excitatory, sensory, reflex, state interlock and STOP paths stay static.
+  All excitatory, reflex, other sensor gating, state interlock and STOP paths stay static.
 - Each independent reflex remains high-gamma T5, 24 neurons, driving its fast
   output and regular knee extension Beta T5 (24 neurons). It inhibits local
   knee flexion Beta/output and its extension-output veto. No cross-corner inhibition.
@@ -52,6 +61,8 @@ Keep proprietary construction code, formulas, compiled images and credentials ou
   cameras, floor markings, bundled assets and project/upstream licenses.
 - Install never installs Webots or regenerates the graph. Keep install, design,
   build and run as explicit SDK steps. Do not ship private testing machinery.
+- Record raw center of mass, foot-center positions and motor torque as read-only
+  diagnostics. These never select a phase, calculate motor commands or enter brain inputs.
 - Record read-only internal neuron activity, including zeros and errors, without
   pacing behavior. Compare actual progress, recoveries and contact timing.
 - Construction, mocked SDK tests and synthetic-contact native checks do not

@@ -52,6 +52,12 @@ class ControllerIntegrationTests(unittest.TestCase):
                 def getMaxVelocity(self):
                     return 2
 
+                def enableTorqueFeedback(self, dt):
+                    pass
+
+                def getTorqueFeedback(self):
+                    return 12.5
+
                 def setVelocity(self, value):
                     pass
 
@@ -96,6 +102,12 @@ class ControllerIntegrationTests(unittest.TestCase):
 
                 def getSelf(self):
                     return self
+
+                def getCenterOfMass(self):
+                    return [0.0, 0.0, 0.5]
+
+                def getFromDevice(self, device):
+                    return types.SimpleNamespace(getPosition=lambda: [0.1, 0.2, 0.03])
 
                 def loadState(self, name):
                     self.restored = True
@@ -217,6 +229,11 @@ class ControllerIntegrationTests(unittest.TestCase):
                 for path in root.glob("logs/run-*/observations.jsonl")
                 for line in path.read_text().splitlines()
             ]
+            for row in rows:
+                self.assertEqual(row["center_of_mass_xyz_m"], [0.0, 0.0, 0.5])
+                self.assertEqual(len(row["foot_center_xyz_m"]), 4)
+                self.assertEqual(len(row["joint_motor_torque_nm"]), 12)
+                self.assertEqual(row["physical_measurement_errors"], {})
             self.run_settings = json.loads(
                 next(root.glob("logs/run-*/settings.json")).read_text()
             )

@@ -1,4 +1,4 @@
-# Spot: local kick loops and learned inhibitory handoffs
+# Spot: sensor-terminated leg loops and learned inhibition
 
 A developer-facing Prima-Lux example of four neural motor goals interacting
 through measured foot contact. One START initiates a repeating sequence:
@@ -11,11 +11,12 @@ physical effect still needs testing on your Webots/Prima-Lux setup.
 
 The teaching question is: **how can one motor goal prepare the next movement,
 while contact confirms landing and inhibition controls the handoff?**
-The supplied root design uses STDP3/LTP on exactly four inhibitory connections.
+The supplied root design uses STDP3/LTP on exactly eight inhibitory connections.
 A static companion preserves their initial strengths, populations and TNorms for
 comparison. Every excitatory connection, kick/reset path and reflex stays static.
-Each kick retains its request locally until the kick output recruits termination;
-a completion latch prevents a held request from repeating the same kick.
+Each leg has a retained local drive that repeats push, flexion and return until
+its sensor qualifies landing. The sensor-to-loop inhibition is plastic; motor
+output activity alone cannot terminate this recurrent drive.
 
 ## What runs where
 
@@ -49,8 +50,8 @@ meshes and textures use bundled relative paths. See [requirements](docs/REQUIREM
 Download the bundle supplied with this example. Use its actual filename:
 
 ```bash
-git clone --branch main "$HOME/Downloads/primalux-spot-kick-loop-ltp.bundle" primalux-spot-kick-loop-ltp
-cd primalux-spot-kick-loop-ltp
+git clone --branch main "$HOME/Downloads/primalux-spot-sensor-loop-ltp.bundle" primalux-spot-sensor-loop-ltp
+cd primalux-spot-sensor-loop-ltp
 bash install.sh
 source .venv/bin/activate
 ```
@@ -70,7 +71,7 @@ Keep `.env` out of Git.
 
 ## Inspect, build and run the learning graph
 
-The root `brain.abdesign.json` already has the four agreed plastic paths. To select it
+The root `brain.abdesign.json` already has the eight inhibitory plastic paths. To select it
 explicitly, copy the supplied design:
 
 ```bash
@@ -86,9 +87,10 @@ grounded push and fixed support offsets before the turn changes. PREPARE retains
 the selected support plan through its own swing; the next PREPARE replaces it.
 Inspect STEP_FR_BRAKE_BETA → STEP_FR_HANDOFF_BETA: inhibitory feedback,
 **strength 0.5**, **STDP3 / GAIT_REWARD / LTP**. The other three legs have the
-same local inhibitory learning path. Also follow PUSH_HG → KNEE_PUSH →
-KICK_END_BETA: the kick recruits its own termination and sets KICK_DONE.
-See [the kick circuit](docs/PUSH.md).
+same handoff path. Also inspect LEG_FR_CONTACT_READY_HG → LEG_FR_LOOP_HG:
+**inhibitory feedback, strength 16, STDP3 / GAIT_REWARD / LTP**. Follow LOOP_HG
+back to itself, then MOVE → push/flex/return → retry. Contact stops the loop;
+phase resets do not. See [the local loop](docs/PUSH.md).
 
 Close the Designer with Ctrl+C. Save/download any Canvas edits before building.
 Stop a previously running device brain, then build:
@@ -117,7 +119,7 @@ Use the same recovery setting for both comparison conditions. See [recovery](doc
 ## Run the static comparison
 
 Stop with Q and wait for saving. Select the static companion and inspect the
-same four inhibitory connections with the learning metadata removed:
+same eight inhibitory connections with the learning metadata removed:
 
 ```bash
 cp designs/static.abdesign.json brain.abdesign.json
@@ -132,7 +134,8 @@ ab build brain --brain brain.abdesign.json --env .env
 ab run -ab --env .env walk
 ```
 
-All four initial inhibitory strengths are **0.5** in both designs. The launcher
+The four handoff strengths start at **0.5** and the four sensor-to-loop strengths
+at **16** in both designs. The launcher
 rejects `learn` with a static graph and `walk` with a plastic graph before opening
 Webots. A run mode never selects or rebuilds a design. The default mode is `learn`.
 To return to learning, copy `designs/learning.abdesign.json`, inspect, rebuild and
@@ -142,7 +145,8 @@ Run equal simulation durations from the same initial world, with identical
 motor/reflex/recovery settings. There are no plastic excitatory or reflex paths,
 and no LTD paths. See [comparison procedure](docs/TESTING.md).
 
-Learning changes how strongly the current leg's brake inhibits its handoff Beta.
+Learning changes both the local handoff brake and the inhibition from qualified
+landing back into that leg's recurrent drive.
 It cannot bypass the lift-off/landing requirement or change the leg order.
 Reward is new upright forward progress: 10 input neurons → 10 high-gamma T10
 neurons → 17 dopaminergic T3 neurons. Reward delivery alone does not prove a
@@ -157,6 +161,8 @@ weight update or improved walking.
 | Retained turn and event helpers | High-gamma T10 | 1 each |
 | Anticipatory preparation relay | High-gamma T10 | 2 each |
 | Local push relay with preparation input | High-gamma T10 | 3 front / 4 rear |
+| Persistent leg loop | High-gamma T10 | 1 front / 2 rear |
+| Retry and phase reset | Beta T3 | 2 then 4 |
 | Kick termination | Beta T3 | 2 each |
 | Kick completion helper / output | High-gamma T10 / output | 1 each |
 | Rear local motor drive | Beta T3 | 2 each |
@@ -164,8 +170,8 @@ weight update or improved walking.
 | Independent corrective reflex | High-gamma T5 | 24 each |
 | Reward | Dopaminergic T3 | 17 |
 
-The complete graph has **721 neurons**: 93 external input neurons and 628 other
-neurons, across 253 populations. There are four physical foot sensors. Each
+The complete graph has **751 neurons**: 93 external input neurons and 658 other
+neurons, across 265 populations. There are four physical foot sensors. Each
 reading has four CONTACT neurons and four AIR neurons; the explicit AIR rail
 prevents missing asynchronous messages from being interpreted as lift-off.
 The remaining inputs are START/STOP/dormant ACK (3), reward (10), and tilt (48).
@@ -179,7 +185,12 @@ need separate timing and locomotion comparisons. [Design](docs/DESIGN.md) explai
 
 Each run saves `logs/run-*/settings.json`, `observations.jsonl`,
 `contact-inputs.jsonl`, `rewards.jsonl` and `neuron-telemetry.jsonl`.
-Settings include the exact design hash, plastic paths and initial strengths.
+Settings include the exact design hash, eight plastic paths and initial strengths.
+Startup must report `plastic paths: 8; mode: learn`. Physical logs now include
+`center_of_mass_xyz_m`, `foot_center_xyz_m` and `joint_motor_torque_nm`, alongside
+the existing joint positions, targets and contacts. These are read-only evidence;
+no extra neural inputs or controller motor decisions are introduced.
+Joint amplitudes and speeds are unchanged to isolate the loop correction.
 The console shows active legs, the retained support plan, push motors, raw
 contacts and CONTACT_READY flags. The plan is a neural command, not measured
 weight transfer. `next_push_before_previous_touchdown_frames` counts early push

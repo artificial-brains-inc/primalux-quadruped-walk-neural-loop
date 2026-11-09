@@ -38,22 +38,18 @@ through its own swing to retain support direction; it is not a touchdown signal.
 
 ## Local motor goal
 
-ACTIVE_HG recruits MOVE_HG directly for front legs. Rear legs retain a Beta T3
-(two-neuron) drive before MOVE_HG, preserving their local motor input rhythm and
+ACTIVE_HG recruits LOOP_HG directly for front legs. Rear legs retain a Beta T3
+(two-neuron) drive before LOOP_HG, preserving their local motor input rhythm and
 width. This is a local drive, not a front-output → rear-output shortcut.
-MOVE recruits the existing motor Betas and PUSH_HG in parallel. The push briefly
-extends the knee. Static PUSH self-feedback retains the request until KNEE_PUSH
-recruits KICK_END_BETA T3. This clears the kick and latches KICK_DONE until the
-preceding leg's next REQUEST rearms it. Hip SWING_READY cannot clear a pending
-kick. See [PUSH.md](PUSH.md). Knee flexion output recruits RETURN_BETA T3. RETURN directly
-excites final extension and clears knee flexion; retained DONE keeps the return
-available and ends MOVE. Local stance recruits the regular support Betas.
-The existing stroke/reflex targets and speeds are preserved. Separate small
-HIP/ABD support offsets are added by their own motor outputs. Reflex trigger
-and reset paths are unchanged. The existing extension veto also releases the
-new local flexion-wait helper after extension is suppressed. The push relays now have three neurons in front and four at the rear; regular
-motor Betas retain their
-previous widths.
+The retained LOOP_HG drives MOVE_HG. Only qualified foot contact inhibits that
+loop during walking; its sensor-to-loop inhibition is plastic. MOVE recruits
+the existing motor Betas and a separate push pulse. Push output feedback ends
+the pulse, while the recurrent leg drive remains available. Knee flexion
+recruits return and DONE, which ends the current MOVE phase. Two Beta T3 reset
+stages rearm the local phases if the sensor has not ended the loop. They preserve
+lift-off/contact evidence. See [PUSH.md](PUSH.md).
+
+The ordinary motor and reflex widths, amplitudes and speeds are unchanged.
 
 DONE means the return pathway has become active. It is **not measured completion
 of an angle or stroke**. Actual contact supplies the additional physical evidence.
@@ -69,7 +65,9 @@ and motor-return evidence. A planted foot cannot cascade all four turns.
 This uses the guide's shallow positive-evidence-plus-inhibitory-veto pattern.
 It is a local temporal conjunction, **not a claim of a canonical arithmetic Delta
 AND**. The gate's temporal behavior was checked in the local native harness.
-Each request, stance and STOP/REST clears the appropriate event memories.
+REQUEST and STANCE clear AIR_SEEN. CONTACT_READY persists through STANCE;
+only its next REQUEST or global STOP/REST clears it. This keeps the completed
+loop off while rear-drive activity decays.
 Sensory vetoes remain driven by their input during REST, preventing unqualified
 evidence from leaking across START. See [CONTACT.md](CONTACT.md).
 
@@ -102,9 +100,13 @@ construction from the public design fields.
 | STEP_RR_BRAKE_BETA | STEP_RR_HANDOFF_BETA | Inhibitory feedback | STDP3 / LTP | 0.5 |
 
 The static design omits `rule`, `reward` and `reward_type` on these same edges.
-All other edges are identical. Every excitatory path, sensory gate, reflex,
+Four additional plastic edges run from each LEG_*_CONTACT_READY_HG to its
+own LEG_*_LOOP_HG. They use inhibitory feedback, strength 16,
+STDP3 / GAIT_REWARD / LTP.
+The static companion omits their learning metadata as well.
+All other edges are identical. Every excitatory path, other sensory gate, reflex,
 command latch and STOP connection is fixed. No LTD rule is present. A common
-reward can modulate four distinct local eligibility histories; there is no
+reward can modulate eight distinct connection eligibility histories; there is no
 controller assignment of credit to a selected leg.
 
 LTP is the requested reward mode. Its actual update follows the SDK's signed
@@ -114,9 +116,11 @@ a touch sensor or measure load, and it does not guarantee better locomotion.
 
 ## Initial inhibitory operating point
 
-The fixed default remains 0.5. The brake is recruited from current ACTIVE before
-landing readiness. This setting needs comparison on the device; it is not a
-measured physical optimum. Native harness steps are not Webots milliseconds.
+The handoff brake starts at 0.5 and is recruited from current ACTIVE before
+landing readiness. Sensor-to-loop inhibition starts at 16. Global STOP/REST
+uses fixed strength 64 into the new loops. These settings need comparison on
+the device; they are not measured physical optima. Native harness steps are
+not Webots milliseconds.
 
 ## Rhythm and population choices
 
@@ -131,8 +135,13 @@ measured physical optimum. Native harness steps are not Webots milliseconds.
   posture outputs and the local push. It is not a corrective reflex.
 - **Push relay: high-gamma T10, three front / four rear neurons.** Existing
   MOVE plus preparation; rear MOVE already has two neurons.
+- **Persistent leg drive: high-gamma T10, one front / two rear neurons.**
+  Qualified foot contact is its only ordinary inhibitory input; STOP remains global.
+- **Retry/reset: Beta T3, two then four neurons.** Rearms local motor phases
+  without clearing the recurrent drive or sensory evidence.
 - **Kick termination: Beta T3, two neurons.** Driven by the kick output; it
-  clears the local loop and sets a retained completion helper (HG T10, one neuron).
+  ends the push pulse and sets a retained completion helper (HG T10, one neuron).
+  It never inhibits LOOP_HG.
 - **Regular motor Betas: T5.** Their widths follow their incoming populations:
   knee extension is 24; other regular motor Betas are 2 or 4. The local motor
   construction is preserved rather than retuned for the cascade.
@@ -152,5 +161,5 @@ python design_brain.py --handoff-inhibition 0.75
 ab design --brain brain.abdesign.json --env .env
 ```
 
-Learning annotations are included by default; `--static` omits them. This authoring command overwrites
+Eight inhibitory learning annotations are included by default; `--static` omits them. This authoring command overwrites
 the root design; it is never called by install or run. Save Canvas edits first.

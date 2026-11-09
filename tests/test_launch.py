@@ -39,7 +39,7 @@ class ModeGuardTests(unittest.TestCase):
     def test_matching_static_and_learning_modes_are_accepted(self):
         from design_brain import create_brain
         self.assertEqual(application.validate_run_mode(create_brain(learning=False), "walk"), [])
-        self.assertEqual(len(application.validate_run_mode(create_brain(), "learn")), 4)
+        self.assertEqual(len(application.validate_run_mode(create_brain(), "learn")), 8)
 
     def test_learn_cannot_silently_run_the_static_graph(self):
         from design_brain import create_brain

@@ -38,13 +38,15 @@ REQUEST_CLEAR_INHIBITION = 64.0
 GAIT_LEARNING_RULE = "STDP3"
 RELEASE_REWARD_TYPE = "LTP"
 CONTACT_CLEAR_INHIBITION = 64.0
+LANDING_LOOP_INHIBITION = 16.0
+LOOP_STOP_INHIBITION = 64.0
 
 
 def create_brain(*, learning=True, handoff_inhibition=0.5):
     b = Brain(
-        "Spot - Local Kick Loop with Inhibitory LTP"
+        "Spot - Sensor-Terminated Leg Loop with Inhibitory LTP"
         if learning
-        else "Spot - Local Kick Loop, Static Baseline"
+        else "Spot - Sensor-Terminated Leg Loop, Static Baseline"
     )
     pending_connections = []
 
@@ -227,7 +229,11 @@ def create_brain(*, learning=True, handoff_inhibition=0.5):
         for suffix in ("AIR_MATCH_HG", "AIR_SEEN", "AIR_SEEN_HG", "CONTACT_MATCH_HG", "CONTACT_READY", "CONTACT_READY_HG"):
             target = stem + "_" + suffix
             sensor_state_nodes.append(target)
-            for source in (f"STEP_{leg}_REQUEST_HG", f"STEP_{leg}_STANCE_HG"):
+            # Keep the sensor-confirmed landing latch through STANCE so a
+            # rear drive's residual activity cannot restart a completed loop.
+            # A fresh local REQUEST, or global STOP, rearms this evidence.
+            sources = (f"STEP_{leg}_REQUEST_HG",) if suffix in ("CONTACT_READY", "CONTACT_READY_HG") else (f"STEP_{leg}_REQUEST_HG", f"STEP_{leg}_STANCE_HG")
+            for source in sources:
                 inhibit(source, target, CONTACT_CLEAR_INHIBITION)
 
     # Preserve each leg's established local push/swing/return primitive.
@@ -237,7 +243,10 @@ def create_brain(*, learning=True, handoff_inhibition=0.5):
         stem, x, y = f"LEG_{leg}", li * 1400, 2000
         support_source = f"STEP_{leg}_STANCE_HG"
         for suffix, rhythm, tnorm, dy in (
+            ("LOOP_HG", "high-gamma", 10, -250),
             ("MOVE_HG", "high-gamma", 10, 0),
+            ("RETRY_BETA", "beta", 3, 2150),
+            ("RETRY_CLEAR_BETA", "beta", 3, 2400),
             ("PUSH_HG", "high-gamma", 10, 280),
             ("KICK_END_BETA", "beta", 3, 1400),
             ("KICK_DONE_HG", "high-gamma", 10, 1680),
@@ -248,6 +257,10 @@ def create_brain(*, learning=True, handoff_inhibition=0.5):
         ):
             opu(stem + "_" + suffix, rhythm, tnorm, x, y + dy)
             gait_nodes.append(stem + "_" + suffix)
+        # Keep the new recurrent path visible beside the existing motor path.
+        coordinates[stem + "_LOOP_HG"] = (x + 1000, y - 250)
+        coordinates[stem + "_RETRY_BETA"] = (x + 1000, y + 1000)
+        coordinates[stem + "_RETRY_CLEAR_BETA"] = (x + 1000, y + 1350)
         output(stem + "_KICK_DONE", x + 650, y + 1680)
         gait_nodes.append(stem + "_KICK_DONE")
         output(stem + "_SWING_READY", x + 650, y + 560)
@@ -269,13 +282,17 @@ def create_brain(*, learning=True, handoff_inhibition=0.5):
         inhibit(stem + "_FLEX_WAIT_HG", f"{leg}_KNEE_POS", REFLEX_INHIBITION)
         inhibit(f"REFLEX_{leg}_EXTENSION_VETO_HG", stem + "_FLEX_WAIT_HG", REFLEX_INHIBITION)
         inhibit(support_source, stem + "_FLEX_WAIT_HG", REQUEST_CLEAR_INHIBITION)
-        connect(source, stem + "_MOVE_HG")
+        # Persistent leg drive: only qualified sensor feedback ends this local
+        # recurrence during WALK. STOP/REST remain global overrides.
+        connect(source, stem + "_LOOP_HG")
+        connect(stem + "_LOOP_HG", stem + "_LOOP_HG", role="feedback")
+        connect(stem + "_LOOP_HG", stem + "_MOVE_HG")
+        inhibit(stem + "_CONTACT_READY_HG", stem + "_LOOP_HG", LANDING_LOOP_INHIBITION, feedback=True, plastic=True)
         connect(stem + "_MOVE_HG", stem + "_PUSH_HG")
         connect(f"STEP_{leg}_PREPARE_HG", stem + "_PUSH_HG")
         connect(stem + "_PUSH_HG", f"{leg}_KNEE_PUSH")
-        # Retain a request locally until its motor output recruits termination.
-        # A completion latch blocks the still-held MOVE/PREPARE source.
-        connect(stem + "_PUSH_HG", stem + "_PUSH_HG", role="feedback")
+        # This is one pulse within the retained leg attempt. Output feedback
+        # ends the pulse; it has no inhibitory connection to LOOP_HG.
         connect(f"{leg}_KNEE_PUSH", stem + "_KICK_END_BETA")
         connect(stem + "_KICK_END_BETA", stem + "_KICK_DONE")
         connect(stem + "_KICK_DONE", stem + "_KICK_DONE_HG")
@@ -312,6 +329,18 @@ def create_brain(*, learning=True, handoff_inhibition=0.5):
             inhibit(stem + "_DONE_HG", target, REQUEST_CLEAR_INHIBITION)
         for suffix in ("DONE", "DONE_HG", "RETURN_BETA", "SWING_READY", "SWING_READY_HG"):
             inhibit(f"STEP_{leg}_REQUEST_HG", stem + "_" + suffix, REQUEST_CLEAR_INHIBITION)
+        # Return recruits local phase reset through two Beta stages. While
+        # the sensor has not stopped LOOP_HG, another attempt is recruited.
+        # This resets phases, never the persistent loop or lift-off evidence.
+        connect(stem + "_DONE_HG", stem + "_RETRY_BETA")
+        connect(stem + "_RETRY_BETA", stem + "_RETRY_CLEAR_BETA")
+        inhibit(stem + "_RETRY_CLEAR_BETA", stem + "_RETRY_BETA", REQUEST_CLEAR_INHIBITION, feedback=True)
+        inhibit(stem + "_PUSH_HG", stem + "_RETRY_CLEAR_BETA", REQUEST_CLEAR_INHIBITION, feedback=True)
+        for suffix in ("DONE", "DONE_HG", "RETURN_BETA", "SWING_READY", "SWING_READY_HG", "KICK_END_BETA", "KICK_DONE", "KICK_DONE_HG"):
+            inhibit(stem + "_RETRY_CLEAR_BETA", stem + "_" + suffix, REQUEST_CLEAR_INHIBITION)
+        for suffix in ("RETRY_BETA", "RETRY_CLEAR_BETA"):
+            inhibit(support_source, stem + "_" + suffix, REQUEST_CLEAR_INHIBITION)
+            inhibit(stem + "_CONTACT_READY_HG", stem + "_" + suffix, REQUEST_CLEAR_INHIBITION)
         # Hip readiness controls the ordinary extension veto. It must not
         # cancel a pending kick before that kick's own output has fired.
         connect(motor_population(leg, "HIP", "POS"), stem + "_SWING_READY")
@@ -354,8 +383,8 @@ def create_brain(*, learning=True, handoff_inhibition=0.5):
                 else:
                     # Support remains available after this leg's local return.
                     for source in (support_source, stem + "_DONE_HG"):
-                        # Every excitatory motor path stays fixed. Only the
-                        # four inhibitory handoff-feedback paths can learn.
+                        # Every excitatory motor path stays fixed. Only inhibitory
+                        # handoff and sensor-to-loop paths can learn.
                         connect(
                             source,
                             population,
@@ -445,8 +474,9 @@ def create_brain(*, learning=True, handoff_inhibition=0.5):
         inhibit("STOP_REQUEST_HG", fast, STOP_INHIBITION)
 
     for target in (*stage_nodes, *gait_nodes, *motor_populations, *reflex_nodes):
-        inhibit("REST_NUCLEUS", target, STOP_INHIBITION)
-        inhibit("STOP_REQUEST_HG", target, STOP_INHIBITION)
+        strength = LOOP_STOP_INHIBITION if target.endswith("_LOOP_HG") else STOP_INHIBITION
+        inhibit("REST_NUCLEUS", target, strength)
+        inhibit("STOP_REQUEST_HG", target, strength)
     for target in sensor_state_nodes:
         inhibit("REST_NUCLEUS", target, CONTACT_CLEAR_INHIBITION)
         inhibit("STOP_REQUEST_HG", target, CONTACT_CLEAR_INHIBITION)
@@ -472,7 +502,7 @@ if __name__ == "__main__":
     import argparse
     parser = argparse.ArgumentParser(description="Author the contact cascade using SDK public fields.")
     selection = parser.add_mutually_exclusive_group()
-    selection.add_argument("--learning", dest="learning", action="store_true", help="Enable the four inhibitory STDP3/LTP paths (default).")
+    selection.add_argument("--learning", dest="learning", action="store_true", help="Enable the eight inhibitory STDP3/LTP paths (default).")
     selection.add_argument("--static", dest="learning", action="store_false", help="Omit learning metadata for the fixed-weight comparison.")
     parser.set_defaults(learning=True)
     parser.add_argument("--handoff-inhibition", type=float, default=0.5, help="Initial multiplier on each local timing feedback connection.")

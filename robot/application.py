@@ -33,7 +33,9 @@ def validate_run_mode(brain, mode):
                if any(k in e for k in ("rule", "reward", "reward_type"))]
     expected = {(f"STEP_{leg}_BRAKE_BETA", f"STEP_{leg}_HANDOFF_BETA")
                 for leg in ("FR", "RL", "FL", "RR")}
-    valid = (len(plastic) == 4
+    expected |= {(f"LEG_{leg}_CONTACT_READY_HG", f"LEG_{leg}_LOOP_HG")
+                 for leg in ("FR", "RL", "FL", "RR")}
+    valid = (len(plastic) == 8
              and {(e["from"], e["to"]) for e in plastic} == expected
              and all(e.get("type") == "inh" and e.get("role") == "feedback"
                      and e.get("rule") == "STDP3" and e.get("reward") == "GAIT_REWARD"
@@ -50,7 +52,7 @@ def validate_run_mode(brain, mode):
             f"Mode {mode!r} does not match the saved graph. "
             f"Select it explicitly: cp designs/{companion}.abdesign.json brain.abdesign.json ; "
             "then ab build brain --brain brain.abdesign.json --env .env. "
-            "learn requires exactly four inhibitory STDP3/LTP paths; walk requires none."
+            "learn requires exactly eight inhibitory STDP3/LTP paths; walk requires none."
         )
     return plastic
 

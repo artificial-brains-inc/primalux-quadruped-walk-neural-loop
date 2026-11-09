@@ -86,12 +86,16 @@ class GraphTests(unittest.TestCase):
                 for source in ("REST_NUCLEUS", "STOP_REQUEST_HG"):
                     self.assertNotIn((source, stem + "_" + veto), self.edges)
             for suffix in ("AIR_MATCH_HG", "AIR_SEEN", "AIR_SEEN_HG", "CONTACT_MATCH_HG", "CONTACT_READY", "CONTACT_READY_HG"):
-                for source in (f"STEP_{leg}_REQUEST_HG", f"STEP_{leg}_STANCE_HG", "STOP_REQUEST_HG", "REST_NUCLEUS"):
+                for source in (f"STEP_{leg}_REQUEST_HG", "STOP_REQUEST_HG", "REST_NUCLEUS"):
                     self.assert_inhibits(source, stem + "_" + suffix, 64)
+                if suffix in ("CONTACT_READY", "CONTACT_READY_HG"):
+                    self.assertNotIn((f"STEP_{leg}_STANCE_HG", stem + "_" + suffix), self.edges)
+                else:
+                    self.assert_inhibits(f"STEP_{leg}_STANCE_HG", stem + "_" + suffix, 64)
             sources = {a for (a, b), e in self.edges.items() if b == f"STEP_{leg}_HANDOFF_BETA" and e["type"] == "exc"}
             self.assertEqual(sources, {stem + "_CONTACT_READY_HG"})
             for (a, b), edge in self.edges.items():
-                if "CONTACT" in a or "CONTACT" in b or "AIR_" in a or "AIR_" in b:
+                if ("CONTACT" in a or "CONTACT" in b or "AIR_" in a or "AIR_" in b) and not b.endswith("_LOOP_HG"):
                     self.assertNotIn("rule", edge)
 
     def test_command_reinforcement_has_explicit_opposing_clear_paths(self):
@@ -232,7 +236,7 @@ class GraphTests(unittest.TestCase):
             relay = f"LEG_{rear}_DRIVE_BETA"
             self.assertEqual(self.nodes[relay]["tnorm"], 3)
             self.assertEqual(self.edges[f"STEP_{rear}_ACTIVE_HG", relay]["type"], "exc")
-            self.assertEqual(self.edges[relay, f"LEG_{rear}_MOVE_HG"]["type"], "exc")
+            self.assertEqual(self.edges[relay, f"LEG_{rear}_LOOP_HG"]["type"], "exc")
         for leg in LEGS:
             stem = f"LEG_{leg}"
             self.assertEqual(
@@ -270,7 +274,7 @@ class GraphTests(unittest.TestCase):
                 self.assert_inhibits(stem + "_DONE_HG", target, 64)
                 for clear in ("KICK_END_BETA", "KICK_DONE_HG"):
                     self.assert_inhibits(stem + "_" + clear, target, 64)
-            self.assertEqual(self.edges[stem + "_PUSH_HG", stem + "_PUSH_HG"]["role"], "feedback")
+            self.assertNotIn((stem + "_PUSH_HG", stem + "_PUSH_HG"), self.edges)
             self.assertNotIn((f"{leg}_KNEE_PUSH", stem + "_PUSH_HG"), self.edges)
             for a, b in ((f"{leg}_KNEE_PUSH", stem + "_KICK_END_BETA"),
                          (stem + "_KICK_END_BETA", stem + "_KICK_DONE"),
@@ -285,6 +289,25 @@ class GraphTests(unittest.TestCase):
                     self.assert_inhibits(source, target, 4)
                 for source in (f"STEP_{leg}_STANCE_HG", f"STEP_{leg}_PREPARE_HG"):
                     self.assertNotIn((source, target), self.edges)
+
+    def test_only_sensor_and_global_stop_inhibit_the_local_loop(self):
+        for leg in LEGS:
+            loop = f"LEG_{leg}_LOOP_HG"
+            incoming = {a: e for (a, b), e in self.edges.items() if b == loop and e["type"] == "inh"}
+            self.assertEqual(set(incoming), {f"LEG_{leg}_CONTACT_READY_HG", "STOP_REQUEST_HG", "REST_NUCLEUS"})
+            sensor = incoming[f"LEG_{leg}_CONTACT_READY_HG"]
+            self.assertEqual((sensor["rule"], sensor["reward_type"], sensor["strength"]), ("STDP3", "LTP", 16))
+            for source in ("STOP_REQUEST_HG", "REST_NUCLEUS"):
+                self.assert_inhibits(source, loop, 64)
+                self.assertNotIn("rule", incoming[source])
+            self.assertEqual(self.edges[loop, loop]["role"], "feedback")
+            self.assertEqual(self.edges[loop, f"LEG_{leg}_MOVE_HG"]["type"], "exc")
+            reset = f"LEG_{leg}_RETRY_CLEAR_BETA"
+            self.assertNotIn((reset, loop), self.edges)
+            for suffix in ("DONE", "DONE_HG", "RETURN_BETA", "KICK_DONE", "KICK_DONE_HG"):
+                self.assert_inhibits(reset, f"LEG_{leg}_{suffix}", 64)
+            for suffix in ("AIR_SEEN", "AIR_SEEN_HG", "CONTACT_READY", "CONTACT_READY_HG"):
+                self.assertNotIn((reset, f"LEG_{leg}_{suffix}"), self.edges)
 
     def test_landing_does_not_wait_for_support_beta_or_leave_flexion_latched(self):
         for leg in LEGS:

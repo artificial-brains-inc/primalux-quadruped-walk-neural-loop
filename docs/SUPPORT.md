@@ -63,6 +63,7 @@ The current fixture checks use synthetic contact and native cell updates. They
 verify ordering, clearing and motor-output overlap, not physical weight transfer.
 First test the static design on your device, comparing body pitch/roll, falls,
 forward progress and contact timing. Keep the learning design for the later
-comparison. Only the same four BRAKE → HANDOFF inhibitory STDP3/LTP paths learn.
+comparison. Four BRAKE → HANDOFF and four CONTACT_READY_HG → LOOP_HG
+inhibitory STDP3/LTP paths learn. Support and reflex connections remain static.
 For a controlled posture-offset comparison, set both `support_shift` offsets in
 config.json to zero; no brain rebuild is needed for that calibration-only change.

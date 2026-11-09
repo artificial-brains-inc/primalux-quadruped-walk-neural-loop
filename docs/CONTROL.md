@@ -103,13 +103,14 @@ neurons; magnitude 0 encodes ten zeros. Do not pass magnitude 10.
 
 Each accepted event is classified as `positive_outcome` or `no_reward` in SDK
 metadata and `rewards.jsonl`. Its `reason` records the physical condition.
-No reward is not punishment. Only four inhibitory handoff-feedback connections
-use STDP3 with `reward_type="LTP"` in the learning design: each leg's
-STEP_BRAKE_BETA → STEP_HANDOFF_BETA. All other connections are static, including all excitatory
-paths. There are no LTD connections.
+No reward is not punishment. Eight inhibitory feedback connections use STDP3
+with `reward_type="LTP"`: each leg's STEP_BRAKE_BETA → STEP_HANDOFF_BETA and
+LEG_CONTACT_READY_HG → LEG_LOOP_HG. All other connections are static, including
+all excitatory and reflex paths. There are no LTD connections.
 LTP follows signed eligibility, so it does not guarantee every update strengthens
 a connection.
-The run's reward_classification records only handoff_feedback under reward_types.
+The run's reward_classification records handoff_feedback and sensor_loop_inhibition
+under reward_types.
 Reward is a neuromodulator, not ordinary motor excitation.
 Ten active input neurons do not prove that all 17 dopamine neurons fired. Check
 individual neuron telemetry for that. A larger population also does not prove
@@ -141,7 +142,7 @@ a second ACK oscillator or select gait phases.
 | `walk` | Local neural motor outputs | Held at zero |
 | `rhythm` | Neutral standing posture | Held at zero |
 
-`learn` requires exactly the four agreed inhibitory STDP3/LTP paths; `walk`
+`learn` requires exactly the eight inhibitory STDP3/LTP paths; `walk`
 requires the static graph. The launcher rejects a mismatch before opening
 Webots. Mode selection never rewrites or rebuilds a design.
 
@@ -161,8 +162,8 @@ directly excites its fast extension output from high-gamma T5.
 KNEE_REFLEX_EXTEND recruits RECOVERY_BETA T3 then OUTPUT_RESET_BETA T3; the
 second stage clears the output and inhibits its trigger. The same high-gamma directly excites the regular extension
 Beta through a fixed connection. Local stance drive → extension Beta
-is also fixed. Only the four inhibitory handoff-feedback connections use
-STDP3/LTP; every reflex connection is static.
+is also fixed. The four inhibitory handoff-feedback connections and four qualified-contact
+feedback connections into the local loops use STDP3/LTP; every reflex connection is static.
 No reflex inhibits another leg;
 shared sensory evidence can recruit several independent reflexes.
 

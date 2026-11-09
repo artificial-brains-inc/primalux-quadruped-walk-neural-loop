@@ -1,12 +1,12 @@
 {
   "schema": "primalux-spot/application-check/v1",
-  "tests": 119,
+  "tests": 122,
   "result": "passed",
-  "verification": "Full 119-test suite followed by a passing 10-test reflex-group rerun after updating two expected-wiring assertions for the local flexion interlock. No production code changed between these runs.",
+  "verification": "Full application suite passed after the final sensor-latch, loop STOP and diagnostic changes.",
   "sdk_version": "0.4.2",
-  "static_design_sha256": "b4401f1633a6870ceec022244db4ab71f9833c2cc2d2d2d4b2e9ca5032f3d385",
-  "learning_design_sha256": "e82f81f6bc493f83e3fdd5f7b39789bf692435a5392b6448377c88de8c743f11",
+  "static_design_sha256": "baee53764b15577d35070076ff46844978593d5090395d96f11c1693aaf50ed1",
+  "learning_design_sha256": "39d1def5d8b549322a9b9c022dae4916bc7e51a23219032394c187ec34b6563b",
   "device_run": false,
   "webots_physics_run": false,
-  "scope": "Graph and learning contracts, SDK encoding/commands, mocked adapter boundaries, asynchronous input/no ACK behavior, support calibration and metrics, installer and assets. Both graphs constructed successfully; all existing population widths preserved. Native checks are recorded separately."
+  "scope": "Graph and exact inhibitory learning contracts, SDK encoding/commands, mocked adapter boundaries, asynchronous input/no ACK behavior, read-only physical diagnostics, support calibration and metrics, installer and assets. Both designs constructed successfully; all existing population widths preserved. Native checks recorded separately."
 }

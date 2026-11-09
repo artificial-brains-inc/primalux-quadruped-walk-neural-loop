@@ -1,7 +1,7 @@
 # Compare a fixed circuit with inhibitory learning
 
 Use the exact SDK inspect/build/run steps in the README. The two supplied
-designs differ only in their name and four learning annotations. Their initial
+designs differ only in their name and eight learning annotations. Their initial
 strength is 0.5 on the same BRAKE_BETA → HANDOFF_BETA edges. Changing files does
 not change the installed brain: explicitly rebuild each condition.
 
@@ -63,17 +63,19 @@ Confirm STOP clears PREPARE and support outputs and that START restarts FR.
 The two optional support offsets can be set to zero for an amplitude-only
 comparison; keep all other config values and the design identical.
 
-## Check local kick completion
+## Check sensor termination and retry
 
-For each leg, inspect KNEE_PUSH, LEG_*_PUSH_HG, LEG_*_KICK_END_BETA and
-LEG_*_KICK_DONE in the output/neuron logs. One preparation should yield a kick,
-then completion should hold it off until the preceding leg's next REQUEST
-rearms it. Hip SWING_READY must not prematurely erase a pending kick.
-FLEX_WAIT_HG releases knee flexion only once the ordinary extension veto is
-active. Verify this against measured joint positions and touch signals as well
-as neural outputs: an output spike alone does not prove weight transfer.
+Watch LEG_*_LOOP_HG in neuron telemetry. If landing is withheld, that loop
+should stay active while the same leg repeats motor attempts. Motor DONE and
+KICK_DONE must not silence LOOP_HG. When measured landing qualifies, inspect
+CONTACT_READY_HG, the inhibition of LOOP_HG, then HANDOFF and the next REQUEST.
+Test the rear-right → front-right transition explicitly.
 
-In `learn`, startup must report `plastic paths: 4`. Inspect settings.json for
-STDP3, LTP and only the four STEP_*_BRAKE_BETA → STEP_*_HANDOFF_BETA edges.
-The launcher fails on a mode/design mismatch instead of silently collecting a
-mislabelled comparison.
+In learn mode, settings.json must contain eight plastic paths: four local
+BRAKE_BETA → HANDOFF_BETA paths and four CONTACT_READY_HG → LOOP_HG paths,
+all inhibitory STDP3/LTP. The static comparison has none. A mode mismatch fails
+before Webots launches. No weight inspection or improvement is inferred from
+spikes or successful queue delivery alone.
+
+See [PHYSICS.md](PHYSICS.md) to distinguish an airborne foot at its commanded
+angle from a joint that fails to reach its target.

@@ -1,56 +1,67 @@
-# A persistent request that produces one kick
+# The foot sensor ends the local leg loop
 
-Each leg's MOVE_HG and PREPARE_HG recruit PUSH_HG. The preceding leg's return
-sets PREPARE early, while this leg is still grounded. PUSH_HG has a static
-excitatory self-feedback edge: the request can remain active until its kick
-output recruits termination. STANCE and hip SWING_READY do not cancel this request.
+Each leg has a recurrent **LEG_*_LOOP_HG**. Its drive recruits MOVE and the
+existing push → flexion → return primitive. A completed motor pulse does not
+inhibit this recurrent drive. If landing is still missing, local neural phase
+reset lets the same leg try again. The next leg can prepare while it waits.
 
 ```mermaid
 flowchart TD
-  P["MOVE or PREPARE"] --> H["PUSH HG · T10"]
-  H -->|Static feedback| H
-  H --> O["KNEE_PUSH output"]
-  O --> E["KICK_END Beta · T3"]
-  E -->|Inhibits| H
-  E -->|Clears| O
-  E --> D["KICK_DONE latch"]
-  D -->|Keeps inhibited| H
-  D -->|Keeps cleared| O
-  R["Preceding turn's REQUEST"] -->|Rearms| D
+  A["Active leg"] --> L["LOOP HG"]
+  L -->|Static feedback| L
+  L --> M["Push · flex · return"]
+  M --> R["Local phase reset"]
+  R -->|Rearms phases| M
+  S["Qualified foot contact"] -->|Plastic inhibition| L
+  S --> H["Handoff to next leg"]
 ```
 
-KICK_END_BETA has two neurons. It inhibits PUSH_HG and KNEE_PUSH at strength 64,
-and sets KICK_DONE. KICK_DONE is a one-neuron output retained by a one-neuron
-high-gamma T10 helper. That helper keeps the push relay and output suppressed
-while the original PREPARE/MOVE drive remains active. This makes a bounded kick
-rather than continuous extension or repeated pulses from a held request.
+**Only CONTACT_READY_HG inhibits LOOP_HG during ordinary WALK.** That local
+inhibitory feedback uses STDP3, GAIT_REWARD and LTP, initially at strength 16.
+The four existing
+BRAKE_BETA → HANDOFF_BETA learning paths remain. All excitatory connections
+and all reflex paths stay static. Global STOP/REST clears the recurrent loops
+through fixed strength-64 inhibition.
 
-The preceding leg's REQUEST clears KICK_END_BETA, KICK_DONE and its helper at
-strength 64, before that leg's RETURN prepares this leg again. Clearing from
-STANCE or held PREPARE would continuously erase completion and retrigger kicks;
-those reset edges are deliberately absent. STOP/REST clears all kick states.
-DONE retains its existing local push-clear as well.
+Contact is qualified by the existing local gate: the foot must have left the
+floor during its active turn, return must have been recruited, and the sensor
+must report contact. Initial planted contact must not stop an attempt before it
+can lift. This qualification stays neural; the controller sends measured CONTACT
+and AIR populations only. Silence is not interpreted as lift-off.
 
-Push relays are high-gamma T10: three neurons in each front leg and four in each
-rear leg. Their existing MOVE and PREPARE inputs determine these widths. The
-new feedback and termination connections are static. PUSH inhibits the local
-knee-flexion output until it ends; hip readiness still drives the ordinary
-extension veto, but cannot terminate a kick before its output fires.
+CONTACT_READY remains latched through stance, so residual rear-drive activity
+cannot restart a completed leg loop. That leg's next REQUEST clears the old
+landing evidence and rearms the loop. STOP/REST also clears the evidence.
 
-A local FLEX_WAIT_HG (high-gamma T10, one neuron) is driven by ACTIVE. It
-inhibits knee flexion until the existing extension veto inhibits FLEX_WAIT.
-This prevents kick completion from releasing flexion before retained extension
-has been vetoed. STANCE and STOP clear this helper. All these edges are static;
-there is no new sensory input or controller delay.
+## The loop and its phases are distinct
 
-The kick uses the existing target, −0.12 rad from neutral at up to 3 rad/s.
-Normal flexion is +0.35 rad at 1.5 rad/s. Actual neural knee-flexion output
-recruits RETURN_BETA T3, which directly excites KNEE_NEG, clears KNEE_POS and its
-extension veto, and sets retained DONE. Final extension remains −0.08 rad at
-1.5 rad/s. Controller targets, speeds and reflexes are unchanged.
+LOOP_HG is high-gamma T10: one constructed neuron in front, two at the rear.
+It drives the unchanged MOVE_HG. PUSH_HG is now a pulse branch without its own
+self-feedback. KNEE_PUSH → KICK_END_BETA ends that individual push and retains
+KICK_DONE; neither population inhibits LOOP_HG. DONE ends MOVE for the return
+phase, leaving the recurrent LOOP_HG available for another attempt.
 
-KICK_DONE confirms neural output activity, not a completed physical stroke or
-measured weight transfer. The contact circuit still requires lift-off, return
-activity and measured landing before the next turn. A foot that never lands can
-still stall the cascade; this circuit does not fabricate touchdown evidence.
-See [CONTACT.md](CONTACT.md) and [VALIDATION.md](VALIDATION.md).
+DONE_HG recruits RETRY_BETA T3 (two neurons), then RETRY_CLEAR_BETA T3 (four).
+The second stage clears local DONE, RETURN, SWING_READY and KICK_DONE states.
+This allows the persistent LOOP_HG to recruit another motor attempt. The clear
+stage inhibits its own upstream Beta, and new PUSH activity inhibits the clear
+stage. These are static phase-reset connections. They never inhibit LOOP_HG or
+erase the remembered lift-off/contact evidence. Qualified contact and STANCE
+clear the retry stages; STOP/REST clears all local state.
+
+FLEX_WAIT_HG retains the existing interlock: knee flexion waits for the ordinary
+extension veto. Independent corrective reflexes retain their direct fast output
+and fixed connection into the regular extension Beta.
+
+## Actuation and physical evidence
+
+Motor targets and speeds are unchanged in this package. A push commands −0.12
+rad from neutral at up to 3 rad/s; regular flexion commands +0.35 rad and return
+−0.08 rad at 1.5 rad/s. Repetition is generated inside the brain, without ACK,
+periodic START commands, a host gait clock or a maximum run duration.
+
+Repeated attempts are not proof of successful weight transfer. A joint can
+reach its configured angle while the foot remains airborne. The current logs
+therefore include raw center of mass, foot centers, motor torque, measured joint
+positions, targets and touch states. These measurements are for diagnosis only;
+they do not choose an action or add external neural inputs. See [PHYSICS.md](PHYSICS.md).

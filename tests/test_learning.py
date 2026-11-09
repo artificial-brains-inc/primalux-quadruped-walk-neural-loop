@@ -8,14 +8,16 @@ from robot.reward import ProgressReward, RewardPublisher
 
 
 class LearningGraphTests(unittest.TestCase):
-    def test_only_four_inhibitory_handoff_feedback_paths_are_plastic(self):
+    def test_only_eight_handoff_and_sensor_loop_inhibitions_are_plastic(self):
         d = create_brain(learning=True).to_dict()
         plastic = [e for e in d["connections"] if "rule" in e]
         expected = {
             (f"STEP_{leg}_BRAKE_BETA", f"STEP_{leg}_HANDOFF_BETA")
             for leg in ("FR", "RL", "FL", "RR")
         }
-        self.assertEqual(len(plastic), 4)
+        expected |= {(f"LEG_{leg}_CONTACT_READY_HG", f"LEG_{leg}_LOOP_HG")
+                     for leg in ("FR", "RL", "FL", "RR")}
+        self.assertEqual(len(plastic), 8)
         self.assertEqual({(e["from"], e["to"]) for e in plastic}, expected)
         for edge in plastic:
             self.assertEqual(edge["type"], "inh")
@@ -23,14 +25,14 @@ class LearningGraphTests(unittest.TestCase):
             self.assertEqual(edge["reward"], "GAIT_REWARD")
             self.assertEqual(edge["reward_type"], "LTP")
             self.assertEqual(edge["role"], "feedback")
-            self.assertEqual(edge["strength"], 0.5)
+            self.assertEqual(edge["strength"], 16.0 if edge["to"].endswith("_LOOP_HG") else 0.5)
         for edge in d["connections"]:
             if (edge["from"], edge["to"]) not in expected:
                 for field in ("rule", "reward", "reward_type"):
                     self.assertNotIn(field, edge)
         self.assertEqual(
             REWARD_CLASSIFICATION["reward_types"],
-            {"handoff_feedback": "LTP"},
+            {"handoff_feedback": "LTP", "sensor_loop_inhibition": "LTP"},
         )
 
     def test_supplied_comparison_files_match_the_two_authoring_options(self):
