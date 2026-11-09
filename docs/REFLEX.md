@@ -7,7 +7,7 @@ Each leg has a **24-neuron high-gamma T5** reflex. It receives two compatible
 flowchart TD
   H["Reflex high-gamma · T5 · 24 neurons"] -->|Fixed| F["Fast extension output"]
   H -->|Fixed · one operand unit| B["Regular extension Beta · T5 · 24 neurons"]
-  G["Support phase drive"] -->|Fixed · one operand unit| B
+  G["Local stance drive"] -->|Fixed · one operand unit| B
   B --> O["Regular extension output"]
   F --> C["Recovery Beta · T3 · 2 neurons"]
   C --> R["Output reset Beta · T3 · 4 neurons"]
@@ -16,7 +16,7 @@ flowchart TD
 ```
 
 The fast output does not wait for Beta. Both direct reflex branches are static.
-Each support PHASE_DRIVE_HG → regular Beta connection is also static.
+Each local STEP_STANCE_HG → regular Beta connection is also static.
 Reflex activity recruits the regular Beta, but no excitatory connection carries
 a learning rule. Local DONE → Beta and Beta → output remain static as well.
 There is no intermediate relay or output-to-input republishing.
@@ -29,7 +29,7 @@ evidence can recruit extension. Equal canonical units retain both contributions
 when the two one-neuron support sources and a 24-neuron reflex converge. Units are not neuron
 counts. The builder allocates the receiver's 24 neurons from this relationship.
 
-Learning is restricted to the four inhibitory macro release-feedback paths.
+Learning is restricted to the four inhibitory handoff-feedback paths in the learning design.
 The normal excitatory motor paths and the entire reflex circuit remain fixed.
 Both reflex motor branches remain available without reward.
 
@@ -82,10 +82,10 @@ establish that the joint finished its movement.
 The ENU world has +X forward, +Y left and +Z up. The tilt threshold is 0.08 rad; each body advance is 32 ms.
 Each cue can recruit a leg; this is not a corner selector or strict AND.
 Left/front evidence can recruit FL, FR and RL independently. No sensory cue
-inhibits another corner. Rear gait handoff follows the front return pathway; all four reflex paths bypass those relays.
+inhibits another corner. Turn handoff follows the local contact-qualified return; all four reflex paths operate independently of it.
 
 In `walk`, reflexes operate but reward is zero. In `learn`, new upright forward
-progress supplies reward to only the four switch-release inhibitory edges.
+progress supplies reward to only the four handoff inhibitory edges.
 Those four plastic connections use STDP3/LTP. Every excitatory connection and
 every reflex connection stays static.
 Correcting a stationary tilt alone is not
@@ -99,6 +99,6 @@ KNEE_NEG, KNEE_POS and measured joint angles. ACTIVE alone does not prove suppor
 `observations.jsonl` also records targets and speed limits; a speed limit is not
 measured joint speed. Weight observation is still needed to establish updates.
 
-[SWITCH_CHECK.json](SWITCH_CHECK.json) checks static circuit recruitment and
+[CASCADE_CHECK.json](CASCADE_CHECK.json) checks static circuit recruitment and
 clearing in a local native-cell harness. It does not validate device equivalence,
 Webots balance or reward-driven adaptation.

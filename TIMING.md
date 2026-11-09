@@ -11,17 +11,17 @@ The worker retains one latest unsent feedback capture, not a queue of old tilt
 contact and reward readings. All are encoded in one atomic public SDK input frame.
 A request already in flight cannot be replaced; network and device latency still
 exist. Logs record capture age, publication duration and replaced unsent samples.
-The dormant isolated ACK nodes remain inactive. The touch variant adds local
-contact gates and changes the I/O contract, so it requires a build. It does not
+The dormant isolated ACK nodes remain inactive. The cascade adds local
+contact/air event gates and changes the I/O contract, so it requires a build. It does not
 add a host gait timer, output hold, ACK or change the motor calibration.
 
 Local MOVE_HG recruits an early push alongside the existing motor Betas. Hip
 Beta activity recruits retained readiness, which clears the push. Knee flexion
 output recruits RETURN_BETA, which directly requests final extension and clears
 flexion and the local output veto. DONE_HG retains those commands. This avoids
-waiting for an additional support Beta before landing. A front return pathway
-recruits its rear partner after foot contact qualifies the return;
-a rear contact-qualified return recruits the macro handoff. These paths add neural integration
+waiting for an additional support Beta before landing. Each local return pathway
+authorizes contact only after this turn has observed lift-off. Qualified landing
+recruits the next local stage through the handoff Beta and its inhibitory brake. These paths add neural integration
 and propagation, not a prescribed millisecond schedule.
 
 The reflex has a fixed direct HG motor branch. Its fast output recruits two

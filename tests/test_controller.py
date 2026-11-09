@@ -12,7 +12,7 @@ from test_runtime import Frames, frame
 
 from robot.live_inputs import LiveInputs
 from robot.configuration import ROOT
-from robot.contracts import COMMAND_INPUT_SIZES, TILT_INPUTS, TILT_NEURONS, REWARD_INPUT, CONTACT_INPUTS, CONTACT_DEVICE_NAMES, LEGS
+from robot.contracts import COMMAND_INPUT_SIZES, TILT_INPUTS, TILT_NEURONS, REWARD_INPUT, CONTACT_INPUTS, AIR_INPUTS, CONTACT_DEVICE_NAMES, LEGS
 
 
 class ControllerIntegrationTests(unittest.TestCase):
@@ -233,7 +233,7 @@ class ControllerIntegrationTests(unittest.TestCase):
                 (step, p) for step, p in sent if set(p) == set(TILT_INPUTS)
             ]
             self.contact_clear_calls = [
-                (step, p) for step, p in sent if set(p) == set(CONTACT_INPUTS.values())
+                (step, p) for step, p in sent if set(p) == set((*CONTACT_INPUTS.values(), *AIR_INPUTS.values()))
             ]
             command_calls = [
                 (step, p) for step, p in sent if set(p) <= set(COMMAND_INPUT_SIZES)
@@ -267,8 +267,8 @@ class ControllerIntegrationTests(unittest.TestCase):
     def test_start_stop_preserves_motor_frames_and_sdk_stop_save(self):
         rows, sent, calls, output = self.exercise(
             [frame(1, REST_ACTIVE=1),
-             frame(2, WALK_ENABLED=1, PHASE_A_OUT=1, FL_HIP_POS=1),
-             frame(3, WALK_ENABLED=1, PHASE_B_OUT=1, FR_HIP_POS=1),
+             frame(2, WALK_ENABLED=1, STEP_FR_ACTIVE=1, FL_HIP_POS=1),
+             frame(3, WALK_ENABLED=1, STEP_RL_ACTIVE=1, FR_HIP_POS=1),
              frame(4, WALK_ENABLED=1), frame(5, REST_ACTIVE=1)],
             {2: ord("W"), 4: ord("S"), 6: ord("Q")}, 6,
         )
@@ -318,9 +318,9 @@ class ControllerIntegrationTests(unittest.TestCase):
         self.assertEqual(rows[-1]["foot_contact"], dict(FL=1, FR=0, RL=1, RR=0))
         self.assertEqual(by_body_step[4][CONTACT_INPUTS["FL"]], [1] * 4)
         self.assertEqual(by_body_step[4][CONTACT_INPUTS["FR"]], [0] * 4)
-        self.assertEqual(self.run_settings["contact_input_neurons"], 16)
+        self.assertEqual(self.run_settings["contact_input_neurons"], 32)
         self.assertTrue(all(not any(v) for _, p in self.contact_clear_calls for v in p.values()))
-        self.assertTrue(all(set(p) == {*TILT_INPUTS, *CONTACT_INPUTS.values(), REWARD_INPUT}
+        self.assertTrue(all(set(p) == {*TILT_INPUTS, *CONTACT_INPUTS.values(), *AIR_INPUTS.values(), REWARD_INPUT}
                             for _, p in self.feedback_calls))
 
     def test_failed_input_publication_still_stops_and_saves(self):

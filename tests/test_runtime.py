@@ -6,6 +6,7 @@ from robot.configuration import load_config
 from robot.contracts import (
     COMMAND_INPUT_SIZES,
     CONTACT_INPUTS,
+    AIR_INPUTS,
     CONTACT_NEURONS,
     INPUT_SIZES,
     OUTPUT_SIZES,
@@ -116,14 +117,14 @@ class RuntimeTests(unittest.TestCase):
         changed = joint_targets(
             frame(
                 2,
-                PHASE_A_OUT=1,
-                PHASE_B_OUT=1,
+                STEP_FR_ACTIVE=1,
+                STEP_RL_ACTIVE=1,
                 WALK_ENABLED=1,
                 REST_ACTIVE=1,
-                PHASE_A_REQUEST=1,
-                PHASE_B_REQUEST=1,
-                PHASE_A_RELEASE_OUT=1,
-                PHASE_B_RELEASE_OUT=1,
+                STEP_FR_REQUEST=1,
+                STEP_RL_REQUEST=1,
+                LEG_FR_CONTACT_READY=1,
+                LEG_RL_CONTACT_READY=1,
             ),
             config,
         )
@@ -157,6 +158,7 @@ class RuntimeTests(unittest.TestCase):
                 REWARD_INPUT: REWARD_INPUT_NEURONS,
                 **dict.fromkeys(TILT_INPUTS, TILT_NEURONS),
                 **dict.fromkeys(CONTACT_INPUTS.values(), CONTACT_NEURONS),
+                **dict.fromkeys(AIR_INPUTS.values(), CONTACT_NEURONS),
             },
         )
 

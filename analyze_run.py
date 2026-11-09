@@ -6,7 +6,7 @@ from robot.evaluation import summarize
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-        description="Summarize observed phase and body behavior"
+        description="Summarize observed cascade and body behavior"
     )
     parser.add_argument("run_directory", type=Path)
     args = parser.parse_args()

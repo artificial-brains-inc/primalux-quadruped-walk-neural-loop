@@ -1,6 +1,8 @@
 """Measurements only. This module never changes neural or physical commands."""
 
-from .contracts import JOINTS, LEGS, MOTOR_OUTPUTS, REFLEX_OUTPUTS, SUPPORT_PHASE
+import math
+
+from .contracts import JOINTS, LEGS, MOTOR_OUTPUTS, REFLEX_OUTPUTS, NEXT_LEG
 
 
 def motor_pattern_counts(rows):
@@ -12,7 +14,7 @@ def motor_pattern_counts(rows):
         and not r["outputs"].get("REST_ACTIVE")
         and r.get("pending_command") is None
     ]
-    patterns = dict(A=0, B=0)
+
     same_side = dict(left=0, right=0)
     all_flex = 0
     single_leg = dict.fromkeys(LEGS, 0)
@@ -20,17 +22,6 @@ def motor_pattern_counts(rows):
     push_frames = dict.fromkeys(LEGS, 0)
     for row in confirmed:
         c = row["outputs"]
-        for phase in patterns:
-            match = True
-            for leg in LEGS:
-                side = "NEG" if SUPPORT_PHASE[leg] == phase else "POS"
-                opposite = "POS" if side == "NEG" else "NEG"
-                match &= all(
-                    c[f"{leg}_{joint}_{side}"] == 1
-                    and c[f"{leg}_{joint}_{opposite}"] == 0
-                    for joint in ("HIP", "KNEE")
-                )
-            patterns[phase] += match
         flex = {
             leg: bool(c[f"{leg}_KNEE_POS"]) and not c[f"{leg}_KNEE_NEG"] for leg in LEGS
         }
@@ -50,10 +41,38 @@ def motor_pattern_counts(rows):
         single_leg_swing_frames=single_leg,
         overlapping_knee_flexion_frames=overlapping_flexion,
         push_motor_frames=push_frames,
-        complete_diagonal_motor_pattern_frames=patterns,
         all_four_knees_flexing_frames=all_flex,
         same_side_only_knee_flexion_frames=same_side,
     )
+
+
+def walking_progress(rows):
+    """Project each walking episode along its initial heading; exclude recovery jumps."""
+    seconds = forward = 0.0
+    heading = None
+    previous = None
+    for row in rows:
+        c = row["outputs"]
+        confirmed = (row["requested_command"] == "start" and c.get("WALK_ENABLED")
+                     and not c.get("REST_ACTIVE") and row.get("pending_command") is None
+                     and row.get("recovery_state", "idle") == "idle")
+        if not confirmed:
+            previous = None
+            heading = None
+            continue
+        if previous is None or row["command_sequence"] != previous["command_sequence"] or row.get("recovery_count", 0) != previous.get("recovery_count", 0):
+            heading = row["body_rpy_rad"][2]
+        else:
+            dt = row["simulation_time"] - previous["simulation_time"]
+            if dt > 0:
+                seconds += dt
+                dx, dy = (row["body_xyz_m"][i] - previous["body_xyz_m"][i] for i in (0, 1))
+                forward += dx * math.cos(heading) + dy * math.sin(heading)
+        previous = row
+    recovery_events = sum(b.get("recovery_count", 0) > a.get("recovery_count", 0) for a, b in zip(rows, rows[1:]))
+    return dict(confirmed_walking_seconds=seconds, forward_distance_m=forward,
+                forward_speed_m_s=forward / seconds if seconds else None,
+                recoveries_per_walking_minute=recovery_events * 60 / seconds if seconds else None)
 
 
 def summarize(rows):
@@ -67,24 +86,30 @@ def summarize(rows):
     ]
     entries, previous, previous_sequence = [], None, None
     both = active = 0
+    ready_times = {}
+    handoff_delays = {leg: [] for leg in LEGS}
     for row in walking:
         if row["command_sequence"] != previous_sequence:
             previous = None
+            ready_times.clear()
         previous_sequence = row["command_sequence"]
         c = row["outputs"]
-        a, b = c["PHASE_A_OUT"], c["PHASE_B_OUT"]
-        state = "BOTH" if a and b else "A" if a else "B" if b else "NONE"
-        both += bool(a and b)
+        for leg in LEGS:
+            if c.get(f"LEG_{leg}_CONTACT_READY") and leg not in ready_times:
+                ready_times[leg] = row.get("native_step", row.get("step", 0))
+        selected = [leg for leg in LEGS if c.get(f"STEP_{leg}_ACTIVE")]
+        both += len(selected) > 1
         active += any(c[k] for k in MOTOR_OUTPUTS)
-        if state in ("A", "B") and state != previous:
-            entries.append((row["command_sequence"], state))
-        previous = state
-    alternations = sum(
-        s1 == s2 and p1 != p2 for (s1, p1), (s2, p2) in zip(entries, entries[1:])
-    )
-    repeats = sum(
-        s1 == s2 and p1 == p2 for (s1, p1), (s2, p2) in zip(entries, entries[1:])
-    )
+        if len(selected) == 1 and selected[0] != previous:
+            leg = selected[0]
+            if previous is not None and NEXT_LEG.get(previous) == leg and previous in ready_times:
+                handoff_delays[previous].append(row.get("native_step", row.get("step", 0)) - ready_times[previous])
+            if previous is not None:
+                ready_times.pop(previous, None)
+            entries.append((row["command_sequence"], leg))
+            previous = leg
+    valid = sum(s1 == s2 and NEXT_LEG[p1] == p2 for (s1, p1), (s2, p2) in zip(entries, entries[1:]))
+    invalid = sum(s1 == s2 and NEXT_LEG[p1] != p2 for (s1, p1), (s2, p2) in zip(entries, entries[1:]))
     stopped = [r for r in rows if r["requested_command"] == "stop"]
     overlapping = {
         f"{leg}_{joint}": sum(
@@ -106,6 +131,7 @@ def summarize(rows):
     }
     return dict(
         **motor_pattern_counts(walking),
+        **walking_progress(rows),
         frames=len(rows),
         recoveries=max(r.get("recovery_count", 0) for r in rows),
         recovery_frames=sum(r.get("recovery_state", "idle") != "idle" for r in rows),
@@ -129,11 +155,11 @@ def summarize(rows):
         ),
         motor_active_walking_frames=active,
         motor_quiet_walking_frames=len(walking) - active,
-        phase_a_entries=sum(p == "A" for _, p in entries),
-        phase_b_entries=sum(p == "B" for _, p in entries),
-        alternating_phase_entries=alternations,
-        repeated_same_phase_entries=repeats,
-        both_phases_active_frames=both,
+        stage_entries={leg: sum(p == leg for _, p in entries) for leg in LEGS},
+        sequence_transitions=valid,
+        out_of_order_stage_transitions=invalid,
+        simultaneous_stage_frames=both,
+        contact_to_next_stage_native_steps=handoff_delays,
         motor_antagonist_overlap_frames=sum(
             any(
                 r["outputs"][f"{joint}_POS"] and r["outputs"][f"{joint}_NEG"]
@@ -147,10 +173,9 @@ def summarize(rows):
             for name in (
                 "WALK_ENABLED",
                 "REST_ACTIVE",
-                "PHASE_A_REQUEST",
-                "PHASE_B_REQUEST",
-                "PHASE_A_RELEASE_OUT",
-                "PHASE_B_RELEASE_OUT",
+                *(f"STEP_{leg}_REQUEST" for leg in LEGS),
+                *(f"LEG_{leg}_AIR_SEEN" for leg in LEGS),
+                *(f"LEG_{leg}_CONTACT_READY" for leg in LEGS),
             )
         },
         stop_commands_observed_after_walking=len(stop_sequences),

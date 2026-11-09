@@ -1,15 +1,12 @@
-"""Twelve named inputs: 3 command, 10 reward, 48 tilt and 16 contact neurons."""
+"""Sixteen input populations: 3 command, 10 reward, 48 tilt and 32 foot-state neurons."""
 
 LEGS = ("FL", "FR", "RL", "RR")
 LEG_NAMES = dict(FL="front left", FR="front right", RL="rear left", RR="rear right")
 LEG_PREFIXES = {leg: name.upper().replace(" ", "_") for leg, name in LEG_NAMES.items()}
 JOINTS = ("ABD", "HIP", "KNEE")
 JOINT_NAMES = dict(ABD="shoulder abduction", HIP="shoulder rotation", KNEE="elbow")
-SUPPORT_PHASE = dict(FL="A", RR="A", FR="B", RL="B")
-REAR_FRONT_PARTNER = {"RL": "FR", "RR": "FL"}
-SWING_PHASE = {
-    leg: "B" if phase == "A" else "A" for leg, phase in SUPPORT_PHASE.items()
-}
+SEQUENCE = ("FR", "RL", "FL", "RR")
+NEXT_LEG = dict(zip(SEQUENCE, SEQUENCE[1:] + SEQUENCE[:1]))
 COMMAND_INPUT_SIZES = {"WALK_START": 1, "WALK_STOP": 1, "TRANSPORT_ACK": 1}
 REWARD_INPUT = "GAIT_REWARD_IN"
 REWARD_INPUT_NEURONS = 10
@@ -19,11 +16,12 @@ REWARD_CLASSIFICATION = {
     "tnorm": 3,
     "outcome": "upright_forward_progress",
     "rule": "STDP3",
-    "reward_types": {"release_feedback": "LTP"},
+    "reward_types": {"handoff_feedback": "LTP"},
 }
 TILT_INPUTS = ("TILT_ROLL_NEG", "TILT_ROLL_POS", "TILT_PITCH_NEG", "TILT_PITCH_POS")
 TILT_NEURONS = 12
 CONTACT_INPUTS = {leg: f"FOOT_{leg}_CONTACT" for leg in LEGS}
+AIR_INPUTS = {leg: f"FOOT_{leg}_AIR" for leg in LEGS}
 CONTACT_NEURONS = 4
 CONTACT_DEVICE_NAMES = {leg: name + " foot touch" for leg, name in LEG_NAMES.items()}
 INPUT_SIZES = {
@@ -31,6 +29,7 @@ INPUT_SIZES = {
     REWARD_INPUT: REWARD_INPUT_NEURONS,
     **dict.fromkeys(TILT_INPUTS, TILT_NEURONS),
     **dict.fromkeys(CONTACT_INPUTS.values(), CONTACT_NEURONS),
+    **dict.fromkeys(AIR_INPUTS.values(), CONTACT_NEURONS),
 }
 # Webots ENU: negative roll lowers the left side; positive pitch lowers the nose.
 # These are neural wiring choices, never a controller-side leg selector.
@@ -62,12 +61,8 @@ OUTPUT_SIZES = {
         "REST_ACTIVE",
         "START_REQUEST",
         "STOP_REQUEST",
-        "PHASE_A_OUT",
-        "PHASE_B_OUT",
-        "PHASE_A_REQUEST",
-        "PHASE_B_REQUEST",
-        "PHASE_A_RELEASE_OUT",
-        "PHASE_B_RELEASE_OUT",
+        *(f"STEP_{leg}_{state}" for leg in LEGS for state in ("ACTIVE", "STANCE", "REQUEST")),
+        *(f"LEG_{leg}_AIR_SEEN" for leg in LEGS),
         "TRANSPORT_ACK_OUT",
     )
 }

@@ -4,7 +4,7 @@ import unittest
 from unittest.mock import MagicMock
 
 from robot.configuration import load_config
-from robot.contracts import REWARD_INPUT, TILT_INPUTS, TILT_NEURONS, CONTACT_INPUTS, CONTACT_NEURONS, LEGS
+from robot.contracts import REWARD_INPUT, TILT_INPUTS, TILT_NEURONS, CONTACT_INPUTS, AIR_INPUTS, CONTACT_NEURONS, LEGS
 from robot.live_inputs import LiveInputs
 from robot.transport import EventBuffer
 from test_runtime import frame
@@ -131,7 +131,7 @@ class LiveInputTests(unittest.TestCase):
         session.encoder = SpikeEncoder(InputSensorMap([
             *[dict(inputId=name, sensor=name, n=TILT_NEURONS) for name in TILT_INPUTS],
             *[dict(inputId=name, sensor=name, n=CONTACT_NEURONS)
-              for name in CONTACT_INPUTS.values()],
+              for name in (*CONTACT_INPUTS.values(), *AIR_INPUTS.values())],
             dict(inputId=REWARD_INPUT, sensor=REWARD_INPUT, n=10),
         ]))
         session.input_client = MagicMock()
@@ -149,6 +149,7 @@ class LiveInputTests(unittest.TestCase):
             **{name: [int(name in ("TILT_ROLL_NEG", "TILT_PITCH_POS"))] * 12
                for name in TILT_INPUTS},
             **{name: [int(leg in ("FL", "RR"))] * 4 for leg, name in CONTACT_INPUTS.items()},
+            **{name: [int(leg not in ("FL", "RR"))] * 4 for leg, name in AIR_INPUTS.items()},
             REWARD_INPUT: [1] * 10,
         })
         self.assertTrue(all("step" not in event for event in events))

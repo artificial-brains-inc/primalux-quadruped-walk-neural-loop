@@ -1,70 +1,30 @@
-# Building goals and choosing their interactions
+# Build a goal by stating its evidence, action and exit
 
-A goal needs activating evidence, a way to retain activity when needed, an
-output that expresses it, and conditions that end or oppose it. Define these
-relationships before selecting rhythms and TNorms.
+A goal needs an activation source, a retained state if the evidence is brief,
+a motor consequence and an explicit way to stop. A goal interaction should say
+what evidence authorizes the next goal and what clears the old one.
 
-## WALK and REST
+| Goal | Activation/evidence | Action | Exit/reset |
+| --- | --- | --- | --- |
+| Walk | One START event | Seed FR; enable the cascade | STOP/REST |
+| One leg's turn | Its REQUEST | Recruit push, swing and return | Next turn's REQUEST/ACTIVE |
+| Stance | START for the other three legs; next turn after own movement | Recruit regular support Betas | Own REQUEST/ACTIVE |
+| Push | Local MOVE | Small fast extension | SWING_READY or DONE |
+| Return | Local knee flexion output | Final extension; inhibit flexion | Stance, next request, STOP |
+| Remember lift-off | Measured AIR while this turn is active | Retain AIR_SEEN | Request, stance, STOP |
+| Landing | Measured CONTACT with AIR_SEEN and DONE | Retain CONTACT_READY | Request, stance, STOP |
+| Handoff | CONTACT_READY opposed by local brake | Capture next REQUEST | Own stance/STOP |
+| Reflex | Compatible signed tilt evidence | Fast extension and flexion inhibition | Local two-stage Beta reset; STOP |
 
-A brief START event recruits a retained request. That request activates WALK
-and opposes REST. WALK reinforces itself and clears the request. STOP uses the
-same pattern in the opposite direction. REST clears movement and motor outputs.
-Goal confirmation is observed from WALK/REST while motor delivery continues.
-No transport ACK is stimulated or awaited.
+The sequence specifies which leg follows which. Contact determines when the
+sequence may proceed. Learning is restricted to the inhibitory edge opposing
+that permission; it neither invents contact nor changes the sequence.
 
-## Prepare, move and return
+Start by running the fixed circuit. If no foot leaves the floor, AIR_SEEN stays
+zero and the first turn must hold. Inspect motor outputs, physical clearance and
+raw contacts before changing learning. If AIR_SEEN is set but CONTACT_READY is
+not, inspect measured landing and local DONE. If readiness is set but the next
+request does not appear, inspect the two handoff Betas and inhibition.
 
-The early push is a local motor goal. It receives the same movement request as
-the normal motor pathway, but reaches extension directly through high-gamma.
-It opposes knee flexion output while the ordinary hip Beta builds activity.
-That Beta recruits a retained readiness state which ends the push. Retention
-keeps the push from restarting in a gap between Beta spikes.
-
-Actual knee flexion output then recruits a return pathway. Its Beta directly
-excites final extension and clears flexion and the extension-output veto. The
-retained return state continues those paths while the regular support Beta
-builds activity. Measured contact positively drives a local gate; the return
-state removes its veto. Without contact, return alone cannot start handoff. CONTACT_READY then recruits the diagonal rear partner
-for a front leg, or the opposite macro state for a rear leg. A runs FR then RL,
-B runs FL then RR. Python supplies four raw contact signals, with no phase,
-cadence or handoff decision. The learned outcome remains upright progress.
-
-This separates two goals: extend the foot toward support, then hand off when
-contact is observed. Waiting for contact must not inhibit the extension needed
-to achieve it. CONTACT_READY retains the event through brief later contact gaps
-and clears during local MOVE or the opposite phase. See [CONTACT.md](CONTACT.md).
-
-Rear landing and backward hip drive are separate goals. Landing extends the knee
-while retaining the forward hip target. Contact during return then changes the
-shared phase. That phase starts rear hip retraction and same-side front movement
-through their normal motor pathways. Rear motor activity does not choose when
-to switch. FEEDBACK_BETA requests the next state while its BETA → RELEASE branch
-continues resetting the old feedback activity. This is a neural decision based
-on measured collision, not proof of supported load or backward propulsion.
-See [SAME_SIDE.md](SAME_SIDE.md).
-
-## Local corrective priority
-
-Tilt evidence recruits the affected leg's high-gamma T5 reflex. It directly
-excites fast extension and the existing regular extension Beta, while inhibiting
-local flexion Beta/output and the local extension-output veto. It does not ask
-another leg to stop or select a new macro state. Fast output recruits two Beta
-T3 recovery stages which clear that output and its trigger neurally.
-
-The normal extension Beta remains available to reflex evidence during swing;
-the gait veto acts on its output. This separates receiving evidence from
-expressing a motor command. The fixed direct reflex output remains available.
-
-## Decide what can adapt
-
-Static dynamics establish command retention, push, sequencing, competition and
-reflexes. Only four STDP3/LTP inhibitory returns can adjust macro release
-recovery: each phase's RELEASE inhibits its own FEEDBACK_BETA and BETA through
-these plastic paths. All other connections remain static. In particular,
-support phase drive → regular extension Beta and both reflex branches stay
-fixed. The reflex still recruits the regular Beta, but that excitation has
-no learning rule.
-
-Reward is new upright forward progress, not merely reflex activation. Accepted
-reward input is not proof of dopamine spikes, weight changes or improved walking.
-First observe working behavior in `walk`, then evaluate adaptation in `learn`.
+Only after those causal steps work should reward influence the four local
+handoffs. Compare actual progress and falls, not just faster switching.

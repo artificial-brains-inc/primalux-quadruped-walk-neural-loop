@@ -19,7 +19,7 @@ https://github.com/cyberbotics/webots/releases/tag/R2025a.
 | W is queued but REST stays active | Inspect input publication errors, START_REQUEST/STOP_REQUEST and WALK/REST. This adapter does not wait for ACK. The installed design must match this package |
 | No W/S/R key event appears | Click the Webots 3D view; check commands.jsonl |
 | Neural activity but no motion | Rhythm mode intentionally holds standing targets; inspect local motor outputs in normal mode |
-| Motion but no useful gait | Compare phase ordering, joint directions, clearances and body tilt; the first composition is not a validated gait |
+| Motion but no useful gait | Compare cascade ordering, joint directions, clearances and body tilt; the first composition is not a validated gait |
 | Stop/save unconfirmed | Keep the terminal open and inspect `ab device --env .env status` |
 
 The requirements file pins artificialbrains_sdk==0.4.2, installed from PyPI. Changing the SDK,

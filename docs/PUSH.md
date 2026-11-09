@@ -1,75 +1,23 @@
-# Push before swing
+# A local push, swing and return
 
-The leg about to move first requests a small extension against the ground.
-Its flexion output is held off while the ordinary motor pathway builds activity.
-A downstream readiness state clears the push so knee flexion can follow.
-The intent is to initiate unloading before lifting; neural readiness does not
-measure that weight actually transferred.
+Each leg retains its motor primitive. MOVE_HG recruits both its regular motor
+Betas and PUSH_HG. PUSH directly excites KNEE_PUSH and inhibits knee flexion.
+Its default target is −0.12 rad from neutral at up to 3 rad/s. This is intended
+to shift weight before lift-off; useful physical weight transfer still needs
+testing in Webots.
 
-```mermaid
-flowchart TD
-  M["Leg movement HG"] --> P["Push HG"]
-  P --> E["Push extension output"]
-  E -->|Feedback| P
-  M --> B["Existing hip Beta T5"]
-  B --> R["Retained swing-ready state"]
-  R -->|Inhibits| P
-  R -->|Clears| E
-  P -->|Inhibits| F["Knee flexion output"]
-```
+Hip Beta recruits SWING_READY, retained through its high-gamma helper.
+SWING_READY_HG clears PUSH_HG and KNEE_PUSH at strength 64. It is not inhibited
+by the push it must end. The normal flexion target is +0.35 rad at 1.5 rad/s.
 
-PUSH_HG receives the same local movement drive as the gait Betas. It is a small
-high-gamma T10 relay: one neuron for each front leg, two for each rear leg.
-Its output is calibrated to **−0.12 rad at up to 3.0 rad/s**, relative to neutral.
-The push output feeds back into PUSH_HG so gaps in upstream activity do not
-release flexion while the push command remains latched.
+Actual neural knee-flexion output recruits RETURN_BETA T3. RETURN directly
+excites KNEE_NEG and inhibits KNEE_POS plus the local extension-output veto at
+strength 64. It also sets retained DONE; DONE keeps final extension available,
+ends MOVE/PUSH and recruits regular support Betas. Final extension is −0.08 rad
+at 1.5 rad/s. There is no extra wait for the regular support Beta to produce its
+output and no controller target-completion decision.
 
-HIP_POS_BETA excites SWING_READY. That output and SWING_READY_HG retain readiness
-until local return or the opposite macro phase clears them. SWING_READY_HG
-inhibits PUSH_HG and clears KNEE_PUSH at strength 64. Retention prevents repeated
-pushes during the same movement. Hip and abduction commands may begin while
-this preparation finishes; knee flexion follows push clearing. There is no
-Python delay or requirement to reach a target before advancing.
-
-The return starts from actual **KNEE_POS output**, through RETURN_BETA T3.
-That existing two-neuron population directly excites **KNEE_NEG**, while
-inhibiting KNEE_POS and the local extension-output veto at strength 64. Final
-extension therefore does not wait for another Beta stage to become active.
-
-RETURN_BETA also recruits DONE. DONE/DONE_HG retain the return state, end this
-leg's movement and excite its ordinary support Betas except rear hip retraction.
-Rear hip forward output remains latched until its support phase or another
-explicit clearer takes over. That phase starts rear retraction and same-side
-front movement after rear contact during return changes the switch. See
-[SAME_SIDE.md](SAME_SIDE.md). DONE_HG directly retains
-KNEE_NEG and the same two inhibitory paths. Thus the support command persists
-while the following leg begins its initial push. These direct landing edges
-are fixed; the regular extension Beta and its fixed reflex input remain.
-The opposite macro phase clears the local state for reuse, and swing readiness
-vetoes ordinary extension during the next swing. STOP/REST clears the outputs.
-
-Final extension uses the ordinary **−0.08 rad at up to 1.5 rad/s** calibration.
-The change is when the neural command starts; there is no controller timer,
-target-completion wait for the extension command itself. As with the push,
-a commanded landing does not confirm contact or load transfer.
-
-| Macro state | First movement | Following movement |
-| --- | --- | --- |
-| A | Front-right push, swing, return | Rear-left push, swing, return |
-| B | Front-left push, swing, return | Rear-right push, swing, return |
-
-A front leg's CONTACT_READY_HG excites HANDOFF_BETA T3 after DONE and measured
-foot contact recruit the local gate. That pathway starts the diagonal rear's
-MOVE_HG. Rear CONTACT_READY_HG recruits the macro handoff. Reflex and ordinary
-extension outputs are not direct handoff sources. Contact confirms a pad
-collision during return, without measuring supported load or backward force.
+The next turn restores this leg's STANCE. Its next REQUEST clears old local
+readiness and return state. The touch circuit must have observed lift-off and
+landing before this leg hands off; DONE alone does not mean physical landing.
 See [CONTACT.md](CONTACT.md).
-
-The tilt reflex stays independent. It can request the larger **−0.22 rad** fast
-extension of its own leg and inhibit flexion. If push and reflex extension are
-both active, the adapter uses the larger excursion instead of adding them.
-Their neural clearing paths remain separate. See [REFLEX.md](REFLEX.md).
-
-The local checks test push-before-flexion, no overlapping leg flexion, front
-support output at rear swing onset, stopping and reuse after restart. Actual
-unloading, ground contact, body motion and balance require the Webots/device run.

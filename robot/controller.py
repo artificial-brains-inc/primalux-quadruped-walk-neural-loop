@@ -2,7 +2,7 @@
 
 There is no gait clock, phase selector, trajectory generator, or command resend
 inside the running loop. Physical outcome supplies reward; IMU readings supply
-four signed tilt populations. Foot bumpers supply four contact populations.
+four signed tilt populations. Four foot bumpers supply explicit contact and air evidence.
 Reflex leg selection, contact qualification and handoff stay inside the brain.
 """
 
@@ -17,6 +17,7 @@ from .configuration import ROOT, environment_path, load_config
 from .contracts import (
     JOINT_NAMES,
     CONTACT_INPUTS,
+    AIR_INPUTS,
     CONTACT_NEURONS,
     JOINTS,
     LEG_NAMES,
@@ -56,7 +57,7 @@ def main():
     from .evaluation import summarize
 
     config = load_config()
-    mode = os.environ.get("SPOT_RUN_MODE", "learn")
+    mode = os.environ.get("SPOT_RUN_MODE", "walk")
     if mode not in ("learn", "walk", "rhythm"):
         raise ValueError("Unknown Spot mode")
     body = Supervisor()
@@ -90,19 +91,24 @@ def main():
         / ("run-" + time.strftime("%Y%m%d-%H%M%S") + "-" + str(time.time_ns()))
     )
     directory.mkdir(parents=True)
-    design_hash = design_sha256(saved_design())
+    design = saved_design()
+    design_hash = design_sha256(design)
+    plastic_paths = [e for e in design.to_dict()["connections"] if "rule" in e]
     (directory / "settings.json").write_text(
         json.dumps(
             dict(
                 config=config,
                 mode=mode,
                 design_sha256=design_hash,
+                plastic_paths=plastic_paths,
+                initial_handoff_inhibition={e["from"]: e["strength"] for e in design.to_dict()["connections"] if e["from"].endswith("_BRAKE_BETA") and e["type"] == "inh"},
                 project_root=str(ROOT),
                 reflex_motor_outputs=list(REFLEX_MOTOR_OUTPUTS),
                 push_motor_outputs=list(PUSH_MOTOR_OUTPUTS),
                 reward_classification=REWARD_CLASSIFICATION,
                 reward_input_neurons=REWARD_INPUT_NEURONS,
-                contact_input_neurons=CONTACT_NEURONS * len(CONTACT_INPUTS),
+                contact_input_neurons=CONTACT_NEURONS * (len(CONTACT_INPUTS) + len(AIR_INPUTS)),
+                air_inputs=AIR_INPUTS,
                 contact_inputs=CONTACT_INPUTS,
             ),
             indent=2,
@@ -113,11 +119,13 @@ def main():
         f"[SPOT] Fast reflex outputs: {len(REFLEX_MOTOR_OUTPUTS)}; "
         f"pre-swing push outputs: {len(PUSH_MOTOR_OUTPUTS)}; "
         f"reward input: {REWARD_INPUT_NEURONS} neurons; "
-        f"foot contacts: {len(contact_sensors)} sensors / {CONTACT_NEURONS} neurons each; "
-        f"reward class: dopaminergic T3 / four inhibitory release paths LTP / excitatory static; "
+        f"foot contacts: {len(contact_sensors)} sensors / {CONTACT_NEURONS} CONTACT + {CONTACT_NEURONS} AIR neurons each; "
+        f"reward class: dopaminergic T3; plastic paths: {len(plastic_paths)}; mode: {mode}; "
         f"design: {design_hash}; project: {ROOT}",
         flush=True,
     )
+    if mode == "learn" and not plastic_paths:
+        print("[SPOT] Selected design is static: reward will be observed but no synapse can learn. Build designs/learning.abdesign.json as brain.abdesign.json for the learning comparison.", flush=True)
     client = session = recorder = None
     failed = False
     started = time.monotonic()
@@ -302,8 +310,7 @@ def main():
                                 rest=channels["REST_ACTIVE"],
                                 start_request=channels["START_REQUEST"],
                                 stop_request=channels["STOP_REQUEST"],
-                                a=channels["PHASE_A_OUT"],
-                                b=channels["PHASE_B_OUT"],
+                                active_legs=[leg for leg in LEGS if channels[f"STEP_{leg}_ACTIVE"]],
                                 pending=exchange.pending_action,
                                 recovery=record["recovery_state"],
                                 reflexes=[

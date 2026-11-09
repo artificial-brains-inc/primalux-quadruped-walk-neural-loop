@@ -8,13 +8,12 @@ from robot.reward import ProgressReward, RewardPublisher
 
 
 class LearningGraphTests(unittest.TestCase):
-    def test_only_four_inhibitory_release_feedback_paths_are_plastic(self):
-        d = create_brain().to_dict()
+    def test_only_four_inhibitory_handoff_feedback_paths_are_plastic(self):
+        d = create_brain(learning=True).to_dict()
         plastic = [e for e in d["connections"] if "rule" in e]
         expected = {
-            (f"PHASE_{p}_RELEASE", f"PHASE_{p}_{target}")
-            for p in ("A", "B")
-            for target in ("FEEDBACK_BETA", "BETA")
+            (f"STEP_{leg}_BRAKE_BETA", f"STEP_{leg}_HANDOFF_BETA")
+            for leg in ("FR", "RL", "FL", "RR")
         }
         self.assertEqual(len(plastic), 4)
         self.assertEqual({(e["from"], e["to"]) for e in plastic}, expected)
@@ -24,18 +23,28 @@ class LearningGraphTests(unittest.TestCase):
             self.assertEqual(edge["reward"], "GAIT_REWARD")
             self.assertEqual(edge["reward_type"], "LTP")
             self.assertEqual(edge["role"], "feedback")
-            self.assertEqual(edge["strength"], 4)
+            self.assertEqual(edge["strength"], 0.5)
         for edge in d["connections"]:
             if (edge["from"], edge["to"]) not in expected:
                 for field in ("rule", "reward", "reward_type"):
                     self.assertNotIn(field, edge)
         self.assertEqual(
             REWARD_CLASSIFICATION["reward_types"],
-            {"release_feedback": "LTP"},
+            {"handoff_feedback": "LTP"},
         )
 
+    def test_supplied_comparison_files_match_the_two_authoring_options(self):
+        from ab import Brain
+        from ab_sdk.design_submit import design_sha256
+        from robot.configuration import ROOT
+        for name, learning in (("static", False), ("learning", True)):
+            self.assertEqual(design_sha256(Brain.load(ROOT / "designs" / (name + ".abdesign.json"))), design_sha256(create_brain(learning=learning)))
+
+    def test_static_default_has_no_learning_metadata(self):
+        self.assertFalse(any("rule" in e for e in create_brain().to_dict()["connections"]))
+
     def test_reward_does_not_choose_a_phase_or_drive_a_motor(self):
-        d = create_brain().to_dict()
+        d = create_brain(learning=True).to_dict()
         self.assertEqual(
             next(n for n in d["nodes"] if n["name"] == "GAIT_REWARD")["rhythm"],
             "dopaminergic",
@@ -52,7 +61,7 @@ class LearningGraphTests(unittest.TestCase):
 
     def test_static_comparison_changes_only_learning_metadata_and_name(self):
         learning, static = (
-            create_brain().to_dict(),
+            create_brain(learning=True).to_dict(),
             create_brain(learning=False).to_dict(),
         )
         self.assertEqual(learning["nodes"], static["nodes"])

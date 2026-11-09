@@ -35,38 +35,38 @@ class EvaluationTests(unittest.TestCase):
     def test_request_and_release_readouts_are_measured_separately(self):
         report = summarize(
             [
-                row(1, "start", WALK_ENABLED=1, PHASE_A_REQUEST=1),
-                row(1, "start", WALK_ENABLED=1, PHASE_A_RELEASE_OUT=1),
-                row(1, "start", PHASE_B_REQUEST=1),
+                row(1, "start", WALK_ENABLED=1, STEP_FR_REQUEST=1),
+                row(1, "start", WALK_ENABLED=1, LEG_FR_CONTACT_READY=1),
+                row(1, "start", STEP_RL_REQUEST=1),
             ]
         )
         counts = report["diagnostic_active_walking_frames"]
         self.assertEqual(counts["WALK_ENABLED"], 2)
-        self.assertEqual(counts["PHASE_A_REQUEST"], 1)
-        self.assertEqual(counts["PHASE_A_RELEASE_OUT"], 1)
-        self.assertEqual(counts["PHASE_B_REQUEST"], 1)
-        self.assertEqual(counts["PHASE_B_RELEASE_OUT"], 0)
+        self.assertEqual(counts["STEP_FR_REQUEST"], 1)
+        self.assertEqual(counts["LEG_FR_CONTACT_READY"], 1)
+        self.assertEqual(counts["STEP_RL_REQUEST"], 1)
+        self.assertEqual(counts["LEG_RL_CONTACT_READY"], 0)
 
     def test_startup_stop_does_not_claim_walking_stop_tested(self):
         report = summarize(
             [
                 row(1, "stop"),
-                row(2, "start", PHASE_A_OUT=1),
+                row(2, "start", STEP_FR_ACTIVE=1),
                 row(2, "start"),
-                row(2, "start", PHASE_A_OUT=1),
-                row(2, "start", PHASE_B_OUT=1),
+                row(2, "start", STEP_FR_ACTIVE=1),
+                row(2, "start", STEP_RL_ACTIVE=1),
             ]
         )
-        self.assertEqual(report["phase_a_entries"], 2)
-        self.assertEqual(report["phase_b_entries"], 1)
-        self.assertEqual(report["repeated_same_phase_entries"], 1)
-        self.assertEqual(report["alternating_phase_entries"], 1)
+        self.assertEqual(report["stage_entries"]["FR"], 1)
+        self.assertEqual(report["stage_entries"]["RL"], 1)
+        self.assertEqual(report["out_of_order_stage_transitions"], 0)
+        self.assertEqual(report["sequence_transitions"], 1)
         self.assertEqual(report["stop_commands_observed_after_walking"], 0)
 
     def test_overlap_is_measured_without_changing_motor_outputs(self):
         rows = [
             row(1, "stop"),
-            row(2, "start", FL_HIP_POS=1, FL_HIP_NEG=1, PHASE_A_REQUEST=1),
+            row(2, "start", FL_HIP_POS=1, FL_HIP_NEG=1, STEP_FR_REQUEST=1),
             row(3, "stop"),
             row(4, "start"),
         ]
@@ -74,14 +74,14 @@ class EvaluationTests(unittest.TestCase):
         self.assertEqual(report["motor_antagonist_overlap_frames"], 1)
         self.assertEqual(report["motor_antagonist_overlap_by_joint"]["FL_HIP"], 1)
         self.assertEqual(
-            report["diagnostic_active_walking_frames"]["PHASE_A_REQUEST"], 1
+            report["diagnostic_active_walking_frames"]["STEP_FR_REQUEST"], 1
         )
         self.assertEqual(report["stop_commands_observed_after_walking"], 1)
         self.assertEqual(rows[1]["outputs"]["FL_HIP_POS"], 1)
         self.assertEqual(rows[1]["outputs"]["FL_HIP_NEG"], 1)
 
     def test_patterns_are_counted_from_motor_outputs_not_phase_lamps(self):
-        a = row(2, "start", WALK_ENABLED=1, PHASE_B_OUT=1)
+        a = row(2, "start", WALK_ENABLED=1, STEP_RL_ACTIVE=1)
         for leg, side in (("FL", "NEG"), ("RR", "NEG"), ("FR", "POS"), ("RL", "POS")):
             for joint in ("HIP", "KNEE"):
                 a["outputs"][f"{leg}_{joint}_{side}"] = 1
@@ -96,13 +96,40 @@ class EvaluationTests(unittest.TestCase):
         pending["pending_command"] = "start"
         report = summarize([a, all_flex, left, pending])
         self.assertEqual(report["confirmed_walking_frames"], 3)
-        self.assertEqual(
-            report["complete_diagonal_motor_pattern_frames"], dict(A=1, B=0)
-        )
+        self.assertEqual(report["overlapping_knee_flexion_frames"], 3)
         self.assertEqual(report["all_four_knees_flexing_frames"], 1)
         self.assertEqual(
             report["same_side_only_knee_flexion_frames"], dict(left=1, right=0)
         )
+
+    def test_forward_speed_uses_fixed_episode_heading_and_excludes_rest(self):
+        rows = [row(1, "start", WALK_ENABLED=1) for _ in range(4)]
+        for i, r in enumerate(rows):
+            r["simulation_time"] = i
+            r["body_xyz_m"] = [i, 2*i, 0.6]
+        rows[1]["body_rpy_rad"][2] = 1.5
+        rows[3]["requested_command"] = "stop"
+        report = summarize(rows)
+        self.assertEqual(report["confirmed_walking_seconds"], 2)
+        self.assertEqual(report["forward_distance_m"], 2)
+        self.assertEqual(report["forward_speed_m_s"], 1)
+
+    def test_handoff_latency_survives_cleared_ready_and_resets_each_turn(self):
+        rows = [
+            row(1, "start", STEP_FR_ACTIVE=1, LEG_FR_CONTACT_READY=1),
+            row(1, "start"),
+            row(1, "start", STEP_RL_ACTIVE=1),
+            row(1, "start", STEP_FL_ACTIVE=1),
+            row(1, "start", STEP_RR_ACTIVE=1),
+            row(1, "start", STEP_FR_ACTIVE=1, LEG_FR_CONTACT_READY=1),
+            row(1, "start", STEP_RL_ACTIVE=1),
+            row(2, "start", STEP_FR_ACTIVE=1),
+            row(2, "start", STEP_RL_ACTIVE=1),
+        ]
+        for i, r in enumerate(rows): r["step"] = i * 10
+        report = summarize(rows)
+        self.assertEqual(report["contact_to_next_stage_native_steps"]["FR"], [20, 10])
+        self.assertEqual(report["sequence_transitions"], 6)
 
 
 if __name__ == "__main__":

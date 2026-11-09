@@ -2,7 +2,7 @@
 
 import math
 
-from .contracts import CONTACT_DEVICE_NAMES, CONTACT_INPUTS, CONTACT_NEURONS, LEGS
+from .contracts import CONTACT_DEVICE_NAMES, CONTACT_INPUTS, AIR_INPUTS, CONTACT_NEURONS, LEGS
 
 
 def setup_contact_sensors(body, timestep):
@@ -24,14 +24,17 @@ def encode_contacts(values, *, suspended=False):
     for value in values.values():
         if type(value) not in (int, float) or not math.isfinite(value) or value not in (0, 1):
             raise ValueError("Foot bumper measurements must be finite zero or one")
-    return {
-        CONTACT_INPUTS[leg]: [0 if suspended else int(values[leg])] * CONTACT_NEURONS
-        for leg in LEGS
-    }
+    encoded = {}
+    for leg in LEGS:
+        # Both rails are measured evidence. No phase, edge detection or gait
+        # history lives in Python; AIR_SEEN memory is in the neural graph.
+        encoded[CONTACT_INPUTS[leg]] = [0 if suspended else int(values[leg])] * CONTACT_NEURONS
+        encoded[AIR_INPUTS[leg]] = [0 if suspended else 1 - int(values[leg])] * CONTACT_NEURONS
+    return encoded
 
 
 def clear_contacts(publish):
-    result = publish(encode_contacts(dict.fromkeys(LEGS, 0)), mode="vector_f32")
+    result = publish(encode_contacts(dict.fromkeys(LEGS, 0), suspended=True), mode="vector_f32")
     if not isinstance(result, dict) or not all(
         result.get(k) is True for k in ("ok", "queued_for_hardware", "atomic_frame")
     ):

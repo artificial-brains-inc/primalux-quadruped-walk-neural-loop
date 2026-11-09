@@ -1,0 +1,569 @@
+{
+  "schema": "primalux-spot/cascade-check/v1",
+  "design_sha256": "0cad0ab0e1da949024eb950fd020b12bc909ca9e6b946bbde4b2ba4df4104df7",
+  "method": "Native CPU cell updates of the constructed static graph, with explicit local phase/connectivity/fatigue assumptions. Foot fixture follows neural flexion/extension outputs; it is not Webots physics. Neural states and motor outputs are never injected.",
+  "stimuli": "STOP at step 10, one START at 100 except standing, final STOP at steps-100. Foot becomes airborne on knee flexion, lands after at least 18 fixture steps when extension appears. The longer 1800-step baseline run used STOP at 1650. Restart also STOP450/START650. Left tilt at500..699.",
+  "limitations": [
+    "No device runtime or Webots run.",
+    "Static weights only; no STDP3 update validation.",
+    "No claim that harness steps map to body milliseconds.",
+    "Two opposed knee-output frames occur during the final STOP transition in restart; all output paths subsequently clear. The adapter cancels opposing commands."
+  ],
+  "cases": {
+    "cycle_0.5_1": {
+      "case": "cycle",
+      "strength": 0.5,
+      "design_sha256": "0cad0ab0e1da949024eb950fd020b12bc909ca9e6b946bbde4b2ba4df4104df7",
+      "steps": 1800,
+      "entries": [
+        [
+          115,
+          "FR"
+        ],
+        [
+          185,
+          "RL"
+        ],
+        [
+          275,
+          "FL"
+        ],
+        [
+          351,
+          "RR"
+        ],
+        [
+          440,
+          "FR"
+        ],
+        [
+          516,
+          "RL"
+        ],
+        [
+          605,
+          "FL"
+        ],
+        [
+          681,
+          "RR"
+        ],
+        [
+          770,
+          "FR"
+        ],
+        [
+          846,
+          "RL"
+        ],
+        [
+          935,
+          "FL"
+        ],
+        [
+          1011,
+          "RR"
+        ],
+        [
+          1100,
+          "FR"
+        ],
+        [
+          1176,
+          "RL"
+        ],
+        [
+          1265,
+          "FL"
+        ],
+        [
+          1341,
+          "RR"
+        ],
+        [
+          1430,
+          "FR"
+        ],
+        [
+          1506,
+          "RL"
+        ],
+        [
+          1595,
+          "FL"
+        ]
+      ],
+      "air_seen": {
+        "FL": 173,
+        "FR": 194,
+        "RL": 190,
+        "RR": 152
+      },
+      "contact_ready": {
+        "FL": 88,
+        "FR": 109,
+        "RL": 105,
+        "RR": 84
+      },
+      "more_than_one_stage": 0,
+      "motor_after_stop": 0,
+      "flex_conflicts": {
+        "FL": 0,
+        "FR": 0,
+        "RL": 0,
+        "RR": 0
+      },
+      "reflex": {
+        "FL": 0,
+        "FR": 0,
+        "RL": 0,
+        "RR": 0
+      },
+      "seed": 1,
+      "stop_request_steps": [
+        10,
+        1650
+      ],
+      "knee_conflict_steps": [],
+      "knee_conflicts_while_walk_exclusive": 0
+    },
+    "cycle_0.5_3": {
+      "case": "cycle",
+      "strength": 0.5,
+      "design_sha256": "0cad0ab0e1da949024eb950fd020b12bc909ca9e6b946bbde4b2ba4df4104df7",
+      "steps": 1200,
+      "entries": [
+        [
+          115,
+          "FR"
+        ],
+        [
+          185,
+          "RL"
+        ],
+        [
+          275,
+          "FL"
+        ],
+        [
+          351,
+          "RR"
+        ],
+        [
+          440,
+          "FR"
+        ],
+        [
+          516,
+          "RL"
+        ],
+        [
+          605,
+          "FL"
+        ],
+        [
+          681,
+          "RR"
+        ],
+        [
+          770,
+          "FR"
+        ],
+        [
+          846,
+          "RL"
+        ],
+        [
+          935,
+          "FL"
+        ],
+        [
+          1011,
+          "RR"
+        ],
+        [
+          1100,
+          "FR"
+        ]
+      ],
+      "air_seen": {
+        "FL": 117,
+        "FR": 116,
+        "RL": 114,
+        "RR": 113
+      },
+      "contact_ready": {
+        "FL": 66,
+        "FR": 65,
+        "RL": 63,
+        "RR": 62
+      },
+      "more_than_one_stage": 0,
+      "motor_after_stop": 0,
+      "flex_conflicts": {
+        "FL": 0,
+        "FR": 0,
+        "RL": 0,
+        "RR": 0
+      },
+      "reflex": {
+        "FL": 0,
+        "FR": 0,
+        "RL": 0,
+        "RR": 0
+      },
+      "seed": 3,
+      "stop_request_steps": [
+        10,
+        1100
+      ],
+      "knee_conflict_steps": [],
+      "knee_conflicts_while_walk_exclusive": 0
+    },
+    "standing_0.5_1": {
+      "case": "standing",
+      "strength": 0.5,
+      "design_sha256": "0cad0ab0e1da949024eb950fd020b12bc909ca9e6b946bbde4b2ba4df4104df7",
+      "steps": 1200,
+      "entries": [],
+      "air_seen": {
+        "FL": 0,
+        "FR": 0,
+        "RL": 0,
+        "RR": 0
+      },
+      "contact_ready": {
+        "FL": 0,
+        "FR": 0,
+        "RL": 0,
+        "RR": 0
+      },
+      "more_than_one_stage": 0,
+      "motor_after_stop": 0,
+      "flex_conflicts": {
+        "FL": 0,
+        "FR": 0,
+        "RL": 0,
+        "RR": 0
+      },
+      "reflex": {
+        "FL": 0,
+        "FR": 0,
+        "RL": 0,
+        "RR": 0
+      },
+      "seed": 1,
+      "stop_request_steps": [
+        10,
+        1100
+      ],
+      "knee_conflict_steps": [],
+      "knee_conflicts_while_walk_exclusive": 0
+    },
+    "no_liftoff_0.5_1": {
+      "case": "no_liftoff",
+      "strength": 0.5,
+      "design_sha256": "0cad0ab0e1da949024eb950fd020b12bc909ca9e6b946bbde4b2ba4df4104df7",
+      "steps": 1200,
+      "entries": [
+        [
+          115,
+          "FR"
+        ]
+      ],
+      "air_seen": {
+        "FL": 0,
+        "FR": 0,
+        "RL": 0,
+        "RR": 0
+      },
+      "contact_ready": {
+        "FL": 0,
+        "FR": 0,
+        "RL": 0,
+        "RR": 0
+      },
+      "more_than_one_stage": 0,
+      "motor_after_stop": 0,
+      "flex_conflicts": {
+        "FL": 0,
+        "FR": 0,
+        "RL": 0,
+        "RR": 0
+      },
+      "reflex": {
+        "FL": 0,
+        "FR": 0,
+        "RL": 0,
+        "RR": 0
+      },
+      "seed": 1,
+      "stop_request_steps": [
+        10,
+        1100
+      ],
+      "knee_conflict_steps": [],
+      "knee_conflicts_while_walk_exclusive": 0
+    },
+    "missing_landing_0.5_1": {
+      "case": "missing_landing",
+      "strength": 0.5,
+      "design_sha256": "0cad0ab0e1da949024eb950fd020b12bc909ca9e6b946bbde4b2ba4df4104df7",
+      "steps": 1200,
+      "entries": [
+        [
+          115,
+          "FR"
+        ]
+      ],
+      "air_seen": {
+        "FL": 0,
+        "FR": 952,
+        "RL": 0,
+        "RR": 0
+      },
+      "contact_ready": {
+        "FL": 0,
+        "FR": 0,
+        "RL": 0,
+        "RR": 0
+      },
+      "more_than_one_stage": 0,
+      "motor_after_stop": 0,
+      "flex_conflicts": {
+        "FL": 0,
+        "FR": 0,
+        "RL": 0,
+        "RR": 0
+      },
+      "reflex": {
+        "FL": 0,
+        "FR": 0,
+        "RL": 0,
+        "RR": 0
+      },
+      "seed": 1,
+      "stop_request_steps": [
+        10,
+        1100
+      ],
+      "knee_conflict_steps": [],
+      "knee_conflicts_while_walk_exclusive": 0
+    },
+    "wrong_foot_0.5_1": {
+      "case": "wrong_foot",
+      "strength": 0.5,
+      "design_sha256": "0cad0ab0e1da949024eb950fd020b12bc909ca9e6b946bbde4b2ba4df4104df7",
+      "steps": 1200,
+      "entries": [
+        [
+          115,
+          "FR"
+        ]
+      ],
+      "air_seen": {
+        "FL": 0,
+        "FR": 0,
+        "RL": 0,
+        "RR": 0
+      },
+      "contact_ready": {
+        "FL": 0,
+        "FR": 0,
+        "RL": 0,
+        "RR": 0
+      },
+      "more_than_one_stage": 0,
+      "motor_after_stop": 0,
+      "flex_conflicts": {
+        "FL": 0,
+        "FR": 0,
+        "RL": 0,
+        "RR": 0
+      },
+      "reflex": {
+        "FL": 0,
+        "FR": 0,
+        "RL": 0,
+        "RR": 0
+      },
+      "seed": 1,
+      "stop_request_steps": [
+        10,
+        1100
+      ],
+      "knee_conflict_steps": [],
+      "knee_conflicts_while_walk_exclusive": 0
+    },
+    "restart_0.5_1": {
+      "case": "restart",
+      "strength": 0.5,
+      "design_sha256": "0cad0ab0e1da949024eb950fd020b12bc909ca9e6b946bbde4b2ba4df4104df7",
+      "steps": 1200,
+      "entries": [
+        [
+          115,
+          "FR"
+        ],
+        [
+          185,
+          "RL"
+        ],
+        [
+          275,
+          "FL"
+        ],
+        [
+          351,
+          "RR"
+        ],
+        [
+          440,
+          "FR"
+        ],
+        [
+          665,
+          "FR"
+        ],
+        [
+          739,
+          "RL"
+        ],
+        [
+          830,
+          "FL"
+        ],
+        [
+          906,
+          "RR"
+        ],
+        [
+          995,
+          "FR"
+        ],
+        [
+          1071,
+          "RL"
+        ]
+      ],
+      "air_seen": {
+        "FL": 78,
+        "FR": 129,
+        "RL": 76,
+        "RR": 76
+      },
+      "contact_ready": {
+        "FL": 44,
+        "FR": 71,
+        "RL": 42,
+        "RR": 42
+      },
+      "more_than_one_stage": 0,
+      "motor_after_stop": 0,
+      "flex_conflicts": {
+        "FL": 0,
+        "FR": 0,
+        "RL": 2,
+        "RR": 0
+      },
+      "reflex": {
+        "FL": 0,
+        "FR": 0,
+        "RL": 0,
+        "RR": 0
+      },
+      "seed": 1,
+      "stop_request_steps": [
+        10,
+        450,
+        1100
+      ],
+      "knee_conflict_steps": [
+        1110,
+        1111
+      ],
+      "knee_conflicts_while_walk_exclusive": 0
+    },
+    "left_tilt_0.5_1": {
+      "case": "left_tilt",
+      "strength": 0.5,
+      "design_sha256": "0cad0ab0e1da949024eb950fd020b12bc909ca9e6b946bbde4b2ba4df4104df7",
+      "steps": 1200,
+      "entries": [
+        [
+          115,
+          "FR"
+        ],
+        [
+          185,
+          "RL"
+        ],
+        [
+          275,
+          "FL"
+        ],
+        [
+          351,
+          "RR"
+        ],
+        [
+          440,
+          "FR"
+        ],
+        [
+          516,
+          "RL"
+        ],
+        [
+          789,
+          "FL"
+        ],
+        [
+          861,
+          "RR"
+        ],
+        [
+          950,
+          "FR"
+        ],
+        [
+          1026,
+          "RL"
+        ]
+      ],
+      "air_seen": {
+        "FL": 78,
+        "FR": 116,
+        "RL": 99,
+        "RR": 76
+      },
+      "contact_ready": {
+        "FL": 44,
+        "FR": 65,
+        "RL": 48,
+        "RR": 42
+      },
+      "more_than_one_stage": 0,
+      "motor_after_stop": 0,
+      "flex_conflicts": {
+        "FL": 0,
+        "FR": 0,
+        "RL": 0,
+        "RR": 0
+      },
+      "reflex": {
+        "FL": 89,
+        "FR": 0,
+        "RL": 89,
+        "RR": 0
+      },
+      "seed": 1,
+      "stop_request_steps": [
+        10,
+        1100
+      ],
+      "knee_conflict_steps": [],
+      "knee_conflicts_while_walk_exclusive": 0
+    }
+  }
+}

@@ -109,7 +109,7 @@ def launch(mode):
 def main(argv=None):
     parser = argparse.ArgumentParser(description="Spot neural walking example")
     parser.add_argument(
-        "mode", nargs="?", default="learn", choices=("learn", "walk", "rhythm")
+        "mode", nargs="?", default="walk", choices=("learn", "walk", "rhythm")
     )
     args = parser.parse_args(argv)
     try:

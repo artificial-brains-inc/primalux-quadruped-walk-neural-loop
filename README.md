@@ -1,117 +1,56 @@
-# Spot: contact-triggered walking switch with inhibitory LTP
+# Spot: learning when to hand off a step
 
-A developer teaching example for Prima-Lux and Webots. Each leg first gives a
-small extension push, then flexes and advances, then returns to support. Neural
-activity sequences the movements; independent tilt reflexes can override a
-leg's knee motion.
+A developer-facing Prima-Lux example of four neural motor goals interacting
+through measured foot contact. One START initiates a repeating sequence:
+**front right → rear left → front left → rear right → front right**.
+STOP inhibits the loop. Each leg performs an early push, flexes/advances, then
+extends to land. The other legs retain their local stance goals.
 
-Measured foot contact advances the neural sequence. A front foot's contact during
-return starts its diagonal rear partner. A rear foot's contact during return
-changes A/B: the new phase recruits rear support and the same-side front movement.
-The sensor drives the contact pathway; the controller supplies no switch decision.
-See [contact-triggered coordination](docs/SAME_SIDE.md).
+The teaching question is: **how can fixed sensory evidence authorize a next
+movement while learning changes the inhibition before that handoff?**
+The supplied default is a static design. Its learning companion adds
+STDP3/LTP to exactly four inhibitory connections, with identical initial strengths,
+populations and TNorms. Every excitatory connection and every reflex stays static.
 
-Learning is **STDP3 with LTP only on four inhibitory release-feedback paths**.
-Every excitatory connection is static, including the normal support-to-extension
-path. All contact and reflex connections are static as well.
+## What runs where
 
-| Macro state | First | Then |
-| --- | --- | --- |
-| A | Front-right push → swing → return | Rear-left push → swing → return |
-| B | Front-left push → swing → return | Rear-right push → swing → return |
+Prima-Lux retains the turn, remembers lift-off, qualifies landing, recruits the
+next leg and clears the old turn. Webots supplies four bumper readings and IMU
+measurements. Python encodes these observations, measures upright forward
+progress for reward and maps neural motor outputs to configured joint targets.
+It has no gait clock, phase selector, inverse kinematics or neural ACK wait.
 
-Each foot-pad bumper has a 10 g Physics body attached to the forearm by Webots.
-This allows its collider to transmit ground forces to the leg. The original pad
-shape and placement are preserved; the four pads add 40 g to the model.
-
-The return pathway directly activates final knee extension and clears flexion.
-Four foot-pad TouchSensors now supply measured contact. The neural handoff
-needs both the local return state and contact at that foot: front confirmation
-recruits its diagonal rear partner; rear confirmation recruits the phase handoff.
-Extension remains available while waiting for contact. Contact indicates a pad
-collision, not the amount of weight supported or completion of backward propulsion.
-
-| Knee output | Excursion from neutral | Requested speed |
-| --- | --- | --- |
-| Ordinary flexion / extension | +0.35 / −0.08 rad | 1.5 rad/s |
-| Early push | −0.12 rad | 3.0 rad/s |
-| Tilt reflex | −0.22 rad | 3.0 rad/s |
-
-These are editable actuator settings in `config.json`, not TNorms or learned
-amplitudes. The adapter caps speed at the model's maximum. The body advances
-32 ms per native output frame; signed tilt evidence begins at 0.08 rad.
-
-There is **no neural ACK handshake**. Input HTTP requests run separately from
-motor delivery; the newest unsent tilt/contact/reward capture replaces older unsent
-captures. WALK/REST confirmation is observed without pausing body steps. Every
-native motor frame is retained. The isolated ACK populations remain dormant.
-This graph **requires a rebuild**. Its input/output names remain unchanged from
-the preceding contact-enabled package.
-Existing motor calibration and the independent tilt-reflex paths are preserved.
-
-Automatic fall recovery is still enabled. It requests STOP, restores the robot
-and requests START after settling. Removing ACK does not disable that separate
-source of apparent restarts. See [recovery](docs/RECOVERY.md).
-
-There are **569 neurons**, including **77 external neurons across twelve named
-inputs**. Each leg's reflex remains **24 high-gamma T5 neurons**, directly
-exciting its fast output and its **24-neuron regular extension Beta T5**. The
-two reflex connections and the regular support phase drive → knee extension
-Beta connections are static. Only four inhibitory release-feedback paths use
-STDP3/LTP. Swing inhibition acts at the regular extension
-output so it does not prevent that Beta from receiving reflex evidence.
-
-The reward path is 10 outcome input neurons → 10 high-gamma T10 neurons →
-17 dopaminergic T3 neurons. Positive reward means new upright forward progress;
-zero means no reward. The four contact inputs each contain four neurons.
-Python transmits measurements; it supplies no phase, gait or handoff decision.
-
-## What you learn
-
-- Capture a brief command and retain WALK or REST inside the brain.
-- Start an early push while the existing motor pathway builds activity.
-- Clear that push from retained neural readiness, without a host timer.
-- Start final extension directly from the return pathway, while clearing flexion.
-- Combine a return command with measured foot contact inside the brain.
-- Retain that confirmation and clear it before the next local movement.
-- Recruit the diagonal rear partner after front contact is confirmed.
-- Change A/B on rear contact, recruiting rear support and same-side front advance.
-- Keep local reflexes independent and give them a neural reset long enough to
-  avoid the immediate output-clearing loop.
-- Recruit regular Beta through a fixed reflex connection while limiting STDP3/LTP
-  to four inhibitory release-feedback paths.
-
-Read [goals and interactions](docs/GOALS.md), [the design](docs/DESIGN.md),
-[foot-contact feedback](docs/CONTACT.md), [push before swing](docs/PUSH.md),
-and [the reflex path](docs/REFLEX.md).
+A planted foot cannot immediately pass the turn: the current leg must first have
+reported **no contact during its own turn**, then report contact while its neural
+return state is active. Contact is collision evidence, not a measurement of load
+or completion of a backward push. See [foot feedback](docs/CONTACT.md).
 
 ## Requirements
 
 - Linux, Git and Python 3.11 or newer.
-- **Webots R2025a installed separately. This package never installs Webots.**
-- Prima-Lux, its developer API key and a reachable device address.
-- Device Manager 0.6.17 with the compatible 0.4.11 builder on Prima-Lux for
-  SDK 0.4.2 reward-type support.
+- **Webots R2025a, installed separately. The package never installs Webots.**
+- Prima-Lux, its developer API key and a reachable device URL.
+- SDK 0.4.2; compatible device software with the 0.4.11 reward-type builder
+  (Device Manager 0.6.17).
 - Internet access to install Python dependencies.
 
-`install.sh` creates or repairs `.venv`, installs SDK 0.4.2 and creates `.env`
-if absent. It can install missing Ubuntu Python prerequisites using sudo.
-Spot PROTOs, meshes and textures are bundled with relative URLs; Run does not
-fetch models or depend on a Webots sample-directory layout.
-See [requirements](docs/REQUIREMENTS.md).
+`install.sh` installs the packaged SDK and other Python requirements in `.venv`;
+it repairs a missing pip and creates `.env` if needed. Missing Ubuntu Python
+prerequisites may require sudo. It does not regenerate your design. Spot PROTOs,
+meshes and textures use bundled relative paths. See [requirements](docs/REQUIREMENTS.md).
 
 ## Clone and install
 
+Download the bundle supplied with this example. Use its actual filename:
+
 ```bash
-git clone /absolute/path/to/the-downloaded-touch.bundle primalux-spot-touch
-cd primalux-spot-touch
+git clone "$HOME/Downloads/primalux-spot-cascade.bundle" primalux-spot-cascade
+cd primalux-spot-cascade
 bash install.sh
 source .venv/bin/activate
 ```
 
-Replace `/absolute/path/to/the-downloaded-touch.bundle` with the exact path
-provided with the download. After publication, use the repository URL in place
-of the bundle path. Edit `.env`:
+After publication, the repository URL replaces the bundle path. Set `.env`:
 
 ```dotenv
 AB_DEVICE_URL=http://prima-lux.local:8080
@@ -120,142 +59,131 @@ AB_TELEMETRY=true
 WEBOTS_EXECUTABLE=/absolute/path/to/webots
 ```
 
-`WEBOTS_EXECUTABLE` names the executable file, not its containing folder.
-Keep `.env` out of Git. For an existing checkout, stop the application with Q,
-then fetch the bundle and merge its main branch using `--ff-only`.
-Rebuild this coordinated design even if the previous inhibitory LTP version is installed.
-Changing learning rules in a local file does not update the installed brain.
-A new build is a new learning condition; do not assume old learned weights transfer.
+`WEBOTS_EXECUTABLE` must name an executable file, not a directory. On the
+original development machine it is `/home/r2/webots/webots/webots`.
+Keep `.env` out of Git.
 
-## Inspect the design
+## Inspect, build and run the static baseline
+
+The root `brain.abdesign.json` is already the static baseline. To select it
+explicitly, copy the supplied design:
 
 ```bash
+cp designs/static.abdesign.json brain.abdesign.json
 ab design --brain brain.abdesign.json --env .env
 ```
 
-Follow START → START_REQUEST → WALK_ENABLED, then PHASE_A_REQUEST → PHASE_A_OUT.
-OUT and DRIVE_HG retain each macro state. Inspect LEG_FR_MOVE_HG: it excites the
-ordinary motor Betas and PUSH_HG in parallel. Follow hip Beta → SWING_READY →
-SWING_READY_HG back to clear the push branch. Then follow KNEE_POS → RETURN_BETA
-→ DONE → DONE_HG. Follow FOOT_FR_CONTACT → FOOT_FR_CONTACT_HG →
-LEG_FR_CONTACT_MATCH_HG → CONTACT_READY. The raw input also recruits
-LEG_FR_RETURN_VETO_HG, which suppresses MATCH until DONE_HG inhibits that veto.
-Contact is the positive evidence; DONE alone cannot create it. Front
-CONTACT_READY_HG feeds HANDOFF_BETA → diagonal rear MOVE_HG. Rear
-CONTACT_READY_HG feeds its phase's FEEDBACK_BETA → opposite PHASE_REQUEST.
-The switch does not wait for the later BETA → RELEASE reset branch to finish.
+In the Designer, follow START → START_REQUEST → WALK_ENABLED and STEP_FR_REQUEST.
+Follow STEP_FR_ACTIVE through the local motor primitive and the foot evidence
+back to STEP_FR_HANDOFF_BETA → STEP_RL_REQUEST. Repeat through FL and RR.
+Inspect STEP_FR_BRAKE_BETA → STEP_FR_HANDOFF_BETA: inhibitory feedback,
+**strength 0.5**, with **no learning rule** in this baseline.
 
-Inspect the direct RETURN_BETA → KNEE_NEG and DONE_HG → KNEE_NEG edges. Both
-sources clear KNEE_POS and its extension-output veto at strength 64. The final
-extension command starts through these fixed paths while the regular support
-Beta is still being recruited; no additional population or input is needed.
-
-Each REFLEX_HG T5 connects directly to KNEE_REFLEX_EXTEND and to the existing
-regular KNEE_NEG_BETA T5 through fixed connections. The support phase drive →
-KNEE_NEG_BETA edges are fixed too. Inspect STDP3/LTP only on each phase's
-RELEASE → FEEDBACK_BETA and RELEASE → BETA inhibitory edges.
-Follow the fast output through two Beta
-T3 recovery stages back to clear itself. ACTIVE is diagnostic only.
-
-Inspect LEG_RL_CONTACT_READY_HG → PHASE_A_FEEDBACK_BETA → PHASE_B_REQUEST,
-and the corresponding RR → B → A path. The new phase drives rear hip support
-and the same-side front MOVE_HG through their normal motor paths. There is no
-rear motor-output shortcut into a front motor output. Rear hip support Betas
-each have two neurons and only their support phase as a positive source.
-Knee landing retains its immediate local return path.
-
-Close the Designer with Ctrl+C before continuing. If you edit on the Canvas,
-save/download `brain.abdesign.json` before Build. Install and Run never
-regenerate your design.
-
-## Build the brain
-
-Stop a currently running device brain before installing the design:
+Close the Designer with Ctrl+C. Save/download any Canvas edits before building.
+Stop a previously running device brain, then build:
 
 ```bash
 ab device --env .env stop
-```
-
-```bash
 ab build brain --brain brain.abdesign.json --env .env
 ```
 
-Wait for READY. Run uses the installed brain and does not build it.
-
-## Run the switch with reward disabled
+Wait for READY, then run:
 
 ```bash
 ab run -ab --env .env walk
 ```
 
-Focus the Webots 3D view: **W** starts, **S** stops stepping, **R** requests
-simulator recovery, and **Q** stops and saves. Closing Webots also stops and
-saves the SDK session. The reflex is enabled in walk mode; only reward is zero.
-There is no maximum run duration or automatic elapsed-time cutoff.
+Focus the Webots 3D view: **W** starts the loop, **S** stops stepping,
+**R** restores upright using the simulator, and **Q** stops and saves the session.
+Closing Webots also stops/saves the brain. There is no maximum run duration.
+Do not repeatedly press W to sustain walking: the loop is neural.
 
-Inspect both the phase readouts and the actual hip/knee outputs. A phase being
-active is not evidence that the feet are planted. Neural propagation introduces
-transition steps; the adapter does not hide them with a motor timer.
+The large marked floor and tracking view provide a motion reference. Automatic
+fall recovery is enabled in `config.json`. It sends STOP, restores the robot,
+then may send START; this is simulator assistance, not learned self-righting.
+Use the same recovery setting for both comparison conditions. See [recovery](docs/RECOVERY.md).
 
-The world has a large marked floor and a wider tracking view. Automatic recovery
-is explicit simulator assistance, not learned balance or self-righting.
+## Run the learning comparison
 
-## Enable learning after checking the static behavior
-
-Stop with Q and wait for saving, then run:
+Stop with Q and wait for saving. Select the companion design and inspect the
+same four connections, now marked inhibitory **STDP3 / GAIT_REWARD / LTP**:
 
 ```bash
+cp designs/learning.abdesign.json brain.abdesign.json
+ab design --brain brain.abdesign.json --env .env
+```
+
+Close the Designer, then explicitly rebuild and run:
+
+```bash
+ab device --env .env stop
+ab build brain --brain brain.abdesign.json --env .env
 ab run -ab --env .env learn
 ```
 
-One physical reward signal may adjust **four STDP3/LTP inhibitory returns**:
-each phase's RELEASE → FEEDBACK_BETA and RELEASE → BETA. These are the only
-plastic connections. All excitatory paths, including support phase drive →
-regular knee extension Beta, stay fixed. Contact, reflex, state interlocks,
-motor vetoes, command paths and all other reset connections also stay fixed.
-Reflex activity still recruits both fast extension and the normal Beta, but
-neither branch learns. Learning can alter release recovery; it is not a
-substitute for working coordination.
+All four initial inhibitory strengths are still **0.5**. There are **no plastic
+excitatory connections and no LTD paths**. Simply running `walk` with an already
+plastic brain is not the frozen baseline: use the static design and rebuild.
+Run equal simulation durations from the same initial world, with identical
+motor/reflex/recovery settings. See [comparison procedure](docs/TESTING.md).
 
-**All four plastic connections are inhibitory and use LTP. No connection uses LTD.** LTP follows
-signed eligibility; it does not promise that every update strengthens the
-connection. Every contact and reflex connection remains static. Inspect the
-selected edges in the Designer and rebuild before running.
+Learning changes how strongly the current leg's brake inhibits its handoff Beta.
+It cannot bypass the lift-off/landing requirement or change the leg order.
+Reward is new upright forward progress: 10 input neurons → 10 high-gamma T10
+neurons → 17 dopaminergic T3 neurons. Reward delivery alone does not prove a
+weight update or improved walking.
 
-For a design with no learning metadata, author it explicitly, then inspect and
-build it with the same SDK commands:
+## OPUs and resources
+
+| Role | Rhythm / TNorm | Constructed neurons per population |
+| --- | --- | ---: |
+| Handoff and its feedback brake | Beta T5 | 2 each |
+| Contact and AIR sensory relays / local vetoes | High-gamma T10 | 4 each |
+| Retained turn and event helpers | High-gamma T10 | 1 each |
+| Rear local motor drive | Beta T3 | 2 each |
+| Regular knee extension | Beta T5 | 24 each |
+| Independent corrective reflex | High-gamma T5 | 24 each |
+| Reward | Dopaminergic T3 | 17 |
+
+The complete graph has **665 neurons**: 93 external input neurons and 572 other
+neurons, across 213 populations. There are four physical foot sensors. Each
+reading has four CONTACT neurons and four AIR neurons; the explicit AIR rail
+prevents missing asynchronous messages from being interpreted as lift-off.
+The remaining inputs are START/STOP/dormant ACK (3), reward (10), and tilt (48).
+The legacy ACK circuit is isolated and never used to pace execution.
+
+Strength 0.5 is a multiplier of the SDK's inhibitory reference; it is not a
+TNorm or a percentage of neurons. Local static sweeps verified that changing
+this multiplier changes handoff timing. It remains a starting point for the
+physical test. [Design](docs/DESIGN.md) explains the choice and limitations.
+
+## Observe and compare
+
+Each run saves `logs/run-*/settings.json`, `observations.jsonl`,
+`contact-inputs.jsonl`, `rewards.jsonl` and `neuron-telemetry.jsonl`.
+Settings include the exact design hash, plastic paths and initial strengths.
+The console shows active legs, raw contacts and CONTACT_READY flags.
+The telemetry observer reads internal neurons without controlling movement.
 
 ```bash
-python design_brain.py --static
+python analyze_run.py logs/run-YOUR_RUN_DIRECTORY
+python compare_runs.py logs/run-STATIC_DIRECTORY logs/run-LEARNING_DIRECTORY
 ```
 
-`python design_brain.py` restores the supplied learning-enabled design. Neither
-command is an installer or launcher. See [design](docs/DESIGN.md) and
-[control and reward](docs/CONTROL.md).
+The comparison reports sequence errors, landing-to-next-stage delays, forward
+progress, recoveries and observation durations. These are measured outcomes;
+neuron firing or eligibility alone is not improvement.
 
-The startup line prints four push outputs, four fast reflex outputs, 10 reward input neurons,
-four foot sensors with four neurons each, the design hash and the project folder. `logs/run-*/settings.json` records them
-too. This identifies which local package actually ran.
-`neuron-telemetry.jsonl` now records actual internal neuron activity automatically,
-including the reflex, normal Beta, phase-feedback and reward populations. The
-recorder reads the existing SDK viewer stream and never controls movement.
+Read [goals and interactions](docs/GOALS.md), [the design](docs/DESIGN.md),
+[push and return](docs/PUSH.md), [reflexes](docs/REFLEX.md),
+[controller responsibilities](docs/CONTROL.md) and [validation](docs/VALIDATION.md).
 
-## Checks and limits
-
-Construction uses 569/10,000 neurons and 300,860 bytes of connection matrices;
-other prepared-image data also consumes memory. Application tests cover actual
-SDK encoding, sensor validation, asynchronous publication, motor delivery and
-Stop/save. Local native-cell checks exercise missing, delayed, early and single-pulse
-contact with static weights. These are not a Webots physics or Prima-Lux device
-run. Physical walking and learning still need your test. See
-[validation](docs/VALIDATION.md).
-
-`contact-inputs.jsonl` records accepted contact publications. Each observation
-also records raw `foot_contact`, encoded `contact_inputs` and neural outputs.
-The periodic console line shows `contacts` and `contact_ready`. Compare all three
-before attributing a stalled handoff to learning.
+Application tests and native-cell checks have been run locally. They do **not**
+validate Webots physics, equivalence with the device or learned improvement.
+The supplied native checks use synthetic foot evidence, not a simulated gait.
 
 ## License
 
-Project code: [Artificial Brains Example Code License](LICENSE). Bundled Webots assets retain
-their upstream terms in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+Project code: [Artificial Brains Example Code License](LICENSE).
+Bundled Webots assets retain their upstream terms in
+[THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).

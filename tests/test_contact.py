@@ -4,7 +4,7 @@ from unittest.mock import MagicMock
 
 from robot.configuration import load_config
 from robot.contact import clear_contacts, encode_contacts, setup_contact_sensors
-from robot.contracts import CONTACT_DEVICE_NAMES, CONTACT_INPUTS, LEGS
+from robot.contracts import CONTACT_DEVICE_NAMES, CONTACT_INPUTS, AIR_INPUTS, LEGS
 from robot.live_inputs import LiveInputs
 
 
@@ -12,7 +12,8 @@ class ContactTests(unittest.TestCase):
     def test_pad_measurements_encode_independently_without_phase_selection(self):
         values = dict(FL=1.0, FR=0.0, RL=0.0, RR=1.0)
         self.assertEqual(encode_contacts(values), {
-            name: [int(values[leg])] * 4 for leg, name in CONTACT_INPUTS.items()
+            **{name: [int(values[leg])] * 4 for leg, name in CONTACT_INPUTS.items()},
+            **{name: [1-int(values[leg])] * 4 for leg, name in AIR_INPUTS.items()},
         })
         self.assertTrue(all(v == [0] * 4 for v in encode_contacts(values, suspended=True).values()))
         for bad in (float("nan"), float("inf"), -1, 0.2, 2, True, None):
@@ -56,11 +57,11 @@ class ContactTests(unittest.TestCase):
             live.feedback([0, 0, 0], dict(value=0), contacts=dict.fromkeys(LEGS, 1), native_step=7)
             self.assertTrue(sent.wait(1))
             self.assertEqual(logs[-1]["native_step"], 7)
-            self.assertTrue(all(v == [1] * 4 for v in logs[-1]["inputs"].values()))
+            self.assertTrue(all(logs[-1]["inputs"][n] == [1] * 4 for n in CONTACT_INPUTS.values()) and all(logs[-1]["inputs"][n] == [0] * 4 for n in AIR_INPUTS.values()))
             sent.clear()
             live.feedback([0.2, 0, 0], dict(value=0), contacts=dict.fromkeys(LEGS, 1), tilt_suspended=True)
             self.assertTrue(sent.wait(1))
-            self.assertTrue(all(v == [1] * 4 for v in logs[-1]["inputs"].values()))
+            self.assertTrue(all(logs[-1]["inputs"][n] == [1] * 4 for n in CONTACT_INPUTS.values()) and all(logs[-1]["inputs"][n] == [0] * 4 for n in AIR_INPUTS.values()))
             sent.clear()
             live.feedback([0, 0, 0], dict(value=0), contacts=dict.fromkeys(LEGS, 1), suspended=True)
             self.assertTrue(sent.wait(1))
@@ -70,7 +71,7 @@ class ContactTests(unittest.TestCase):
     def test_shutdown_clears_contact_and_rejects_unaccepted_frame(self):
         publish = MagicMock(return_value=dict(ok=True, queued_for_hardware=True, atomic_frame=True))
         clear_contacts(publish)
-        self.assertEqual(publish.call_args.args[0], encode_contacts(dict.fromkeys(LEGS, 0)))
+        self.assertEqual(publish.call_args.args[0], encode_contacts(dict.fromkeys(LEGS, 0), suspended=True))
         publish.return_value = dict(ok=True)
         with self.assertRaisesRegex(RuntimeError, "atomic queue acceptance"):
             clear_contacts(publish)

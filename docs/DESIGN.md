@@ -1,144 +1,141 @@
-# One switch, ordered push/swing sequences
+# Four turns, local movement, learned inhibition
 
-A and B are the two retained states of one neural switch. A orders FR then RL;
-B orders FL then RR. Each movement has an early push before knee flexion and a return-to-support stage. Each joint has opposing local
-Beta T5 populations and explicit output-clearing paths. No controller-side phase
-selector, gait clock, trajectory or inverse kinematics is present.
+One START seeds STEP_FR_REQUEST. Each turn has retained REQUEST, ACTIVE and
+STANCE outputs with high-gamma T10 helpers. ACTIVE recruits that leg's motor
+primitive and clears its stance; next ACTIVE restores the previous leg's stance.
+The next REQUEST clears the previous ACTIVE while the next ACTIVE is being
+recruited. The fixed order is FR → RL → FL → RR → FR. The controller never picks
+the active leg.
 
-## Capturing commands and retaining a state
+```mermaid
+flowchart TD
+  S["One START"] --> FR["FR turn"]
+  FR -->|Qualified landing| RL["RL turn"]
+  RL -->|Qualified landing| FL["FL turn"]
+  FL -->|Qualified landing| RR["RR turn"]
+  RR -->|Qualified landing| FR
+```
 
-WALK_START and WALK_STOP are single events. Their high-gamma relays recruit
-START_REQUEST or STOP_REQUEST, each reinforced through its own high-gamma helper.
-The request persists until the corresponding WALK/REST goal takes over. The
-opposite command clears a pending request. Existing WALK_ENABLED/WALK_NUCLEUS
-and REST_ACTIVE/REST_NUCLEUS loops retain the goal, with opposing clearing paths.
+Each arrow includes a local handoff Beta and the next request capture. STOP/REST
+inhibits all turn, motor and retained sensor-event states. A new START seeds FR.
 
-START_REQUEST_HG also captures PHASE_A_REQUEST. Each phase request has a
-REQUEST → REQUEST_HG → REQUEST loop. Its helper excites that phase's OUT and
-clears the opposite OUT and DRIVE_HG. Once the new state is active,
-DRIVE_HG clears its own request and helper. The OUT → DRIVE_HG → OUT loop retains
-the selected state. Each DRIVE_HG inhibits the opposite OUT and DRIVE_HG.
-The previous feedback/reset branch may finish after the switch has changed.
+## Local motor goal
 
-State/request clearing uses strength 4. Successful state recruitment clears its
-own handoff request at strength 64 because upstream feedback activity may still
-be arriving. Strength is a multiplier of the SDK's calculated inhibitory
-reference, not a percentage of neurons suppressed. These paths are static.
+ACTIVE_HG recruits MOVE_HG directly for front legs. Rear legs retain a Beta T3
+(two-neuron) drive before MOVE_HG, preserving their local motor input rhythm and
+width. This is a local drive, not a front-output → rear-output shortcut.
+MOVE recruits the existing motor Betas and PUSH_HG in parallel. The push briefly
+extends the knee. Hip Beta recruits retained SWING_READY; readiness clears push
+and allows flexion. Knee flexion output recruits RETURN_BETA T3. RETURN directly
+excites final extension and clears knee flexion; retained DONE keeps the return
+available and ends MOVE. Local stance recruits the regular support Betas.
+The actuator calibration and independent reflexes are unchanged.
 
-## What flips the switch
+DONE means the return pathway has become active. It is **not measured completion
+of an angle or stroke**. Actual contact supplies the additional physical evidence.
 
-A orders FR then RL; B orders FL then RR. Each leg has MOVE, PUSH, SWING_READY
-and DONE activity. Measured contact is the positive source into CONTACT_MATCH_HG;
-DONE_HG removes a local RETURN_VETO so contact during return can be captured.
-Front CONTACT_READY_HG recruits HANDOFF_BETA T3 → diagonal rear MOVE_HG.
-Rear CONTACT_READY_HG directly recruits its phase's FEEDBACK_BETA T5, which
-excites the opposite PHASE_REQUEST. RL therefore requests B; RR requests A.
+## Qualifying the event
 
-FEEDBACK_BETA also recruits BETA T5 → RELEASE T3 as a parallel reset branch.
-The switch does not wait for those two later stages. RELEASE inhibits its own
-FEEDBACK_BETA and BETA through the four STDP3/LTP connections. Opposite phase
-requests do not clear this branch prematurely; STOP/REST still clears it.
-This preserves activity for recovery and potential eligibility, without claiming
-that wiring or spike activity establishes weight changes.
+A foot reading is encoded on CONTACT and AIR rails (four neurons each). AIR
+passes its local neural veto only during the leg's ACTIVE turn and sets AIR_SEEN.
+CONTACT passes two local vetoes only when AIR_SEEN and DONE have removed them.
+It then sets CONTACT_READY. This combines current contact with retained lift-off
+and motor-return evidence. A planted foot cannot cascade all four turns.
 
-This sequence uses internal neural activity. The return begins from an actual
-knee flexion output rather than from the earlier hip command, so the leg's
-knee command has started before it recruits the return. It is still command
-history. A separate CONTACT_READY records foot-pad contact during that return;
-it does not measure load transfer or a completed backward push. See [CONTACT.md](CONTACT.md).
+This uses the guide's shallow positive-evidence-plus-inhibitory-veto pattern.
+It is a local temporal conjunction, **not a claim of a canonical arithmetic Delta
+AND**. The gate's temporal behavior was checked in the local native harness.
+Each request, stance and STOP/REST clears the appropriate event memories.
+Sensory vetoes remain driven by their input during REST, preventing unqualified
+evidence from leaking across START. See [CONTACT.md](CONTACT.md).
 
-## Early push and local return
+## Place plasticity before the handoff
 
-MOVE_HG excites the normal swing Betas and PUSH_HG in parallel. PUSH_HG directly
-excites KNEE_PUSH and inhibits KNEE_POS output at strength 64. The push output
-feeds back into its HG to retain activity through upstream gaps. Hip Beta
-recruits a retained SWING_READY output/HG loop; readiness clears PUSH_HG and
-KNEE_PUSH at strength 64. The normal pathway continues after this local clearing.
-Hip and abduction activity may begin while preparation finishes; knee flexion
-follows the push. The controller imposes no delay or minimum stroke duration.
+For each leg, the current ACTIVE drives BRAKE_BETA before CONTACT_READY arrives.
+CONTACT_READY drives HANDOFF_BETA. Its inhibitory input therefore affects the
+recruitment of the next turn instead of merely resetting an already finished one.
 
-KNEE_POS recruits RETURN_BETA T3, then DONE/DONE_HG. RETURN_BETA directly excites
-KNEE_NEG and inhibits KNEE_POS and the extension-output veto at strength 64.
-DONE_HG retains those direct paths, so landing does not wait for a further
-support-Beta stage. It also inhibits local movement and readiness, and excites
-the normal support Betas, except rear hip retraction. Rear HIP_NEG_BETA receives
-only its support phase; all other support Betas accept one unit from that
-macro state and one from local DONE. Rear DONE clears the forward hip Beta but
-leaves its output latched through landing. The support phase, antagonistic Beta
-or REST clears that output. The opposite
-macro state clears the local sequence for reuse. Rear movement receives the
-front's HANDOFF_BETA, not a front motor or reflex output. See [PUSH.md](PUSH.md).
+```mermaid
+flowchart TD
+  A["Current ACTIVE"] --> B["BRAKE · Beta T5"]
+  C["Qualified CONTACT_READY"] --> H["HANDOFF · Beta T5"]
+  B -->|Inhibitory feedback · strength 0.5| H
+  H -->|Static excitatory feedback| B
+  H --> N["Next REQUEST"]
+  R["Dopaminergic reward"] -.->|Modulates inhibitory edge only| B
+```
 
-## Contact changes the shared phase
+The dotted reward arrow denotes modulation of the inhibitory connection, not an
+excitatory connection into BRAKE. Both Betas have two constructed neurons.
+Their returned edges explicitly use `role="feedback"`; the SDK calculates
+construction from the public design fields.
 
-After RL contact during return requests B, PHASE_B_DRIVE_HG starts rear-left
-hip support and front-left MOVE_HG. After RR contact requests A, the corresponding
-right-side paths begin. The front advances through its normal push/swing/return
-circuit. No rear motor-output relay drives a front motor output.
-Rear knee landing remains available before contact or the phase change.
-See [SAME_SIDE.md](SAME_SIDE.md).
+| Plastic source | Plastic target | Type | Rule in learning design | Initial strength |
+| --- | --- | --- | --- | ---: |
+| STEP_FR_BRAKE_BETA | STEP_FR_HANDOFF_BETA | Inhibitory feedback | STDP3 / LTP | 0.5 |
+| STEP_RL_BRAKE_BETA | STEP_RL_HANDOFF_BETA | Inhibitory feedback | STDP3 / LTP | 0.5 |
+| STEP_FL_BRAKE_BETA | STEP_FL_HANDOFF_BETA | Inhibitory feedback | STDP3 / LTP | 0.5 |
+| STEP_RR_BRAKE_BETA | STEP_RR_HANDOFF_BETA | Inhibitory feedback | STDP3 / LTP | 0.5 |
 
-## Reflex and ordinary extension
+The static design omits `rule`, `reward` and `reward_type` on these same edges.
+All other edges are identical. Every excitatory path, sensory gate, reflex,
+command latch and STOP connection is fixed. No LTD rule is present. A common
+reward can modulate four distinct local eligibility histories; there is no
+controller assignment of credit to a selected leg.
 
-Each 24-neuron REFLEX_HG T5 has a fixed direct connection to the fast extension
-output and a fixed operand connection into the existing regular
-extension Beta T5. Regular extension accepts one canonical unit each from
-macro support, local DONE and reflex HG, using the Beta T5 OR construction as
-its relationship. All three inputs and Beta → output are static. The reflex
-still recruits the regular Beta alongside the direct fast output; no excitatory
-motor connection has a learning rule.
+LTP is the requested reward mode. Its actual update follows the SDK's signed
+eligibility; it is not a promise that every reward increases a weight. These
+connections can change inhibition and handoff timing. This does not calibrate
+a touch sensor or measure load, and it does not guarantee better locomotion.
 
-The local SWING_READY_HG recruits EXTENSION_VETO_HG T10, which inhibits ordinary
-extension output at strength 64. It does not inhibit the extension Beta. Knee
-competition is enforced through the state/output vetoes rather than continuous
-opposing Beta inhibition. This preserves the Beta's ability to respond to reflex
-evidence during swing. Hip and abduction keep their local Beta antagonism.
+## Initial inhibitory operating point
 
-Reflex HG inhibits its own flexion Beta/output and its extension-veto relay at
-strength 64. It does not change a shared phase or another leg. The fast output
-recruits RECOVERY_BETA T3 → OUTPUT_RESET_BETA T3. The latter clears fast output
-and ACTIVE and inhibits its own trigger at strength 4. This replaces immediate
-one-HG clearing. ACTIVE remains diagnostic. See [REFLEX.md](REFLEX.md).
+We tested fixed multipliers 0.25, 0.5, 0.75, 1, 1.5, 2 and 4 with the full graph
+and the same synthetic foot fixture. First FR landing readiness appeared at
+native harness step 171. The next RL turn began at:
 
-## Allocation and operating points
+| Inhibitory multiplier | Next RL step | Steps after CONTACT_READY |
+| ---: | ---: | ---: |
+| 0.25 | 184 | 13 |
+| **0.5** | **185** | **14** |
+| 0.75 | 186 | 15 |
+| 1 | 187 | 16 |
+| 1.5 | 199 | 28 |
+| 2 | 199 | 28 |
+| 4 | 214 | 43 |
 
-| Population | Rhythm / TNorm | Neurons each |
-| --- | --- | --- |
-| Command, state and readiness HG helpers | High-gamma 10 | 1 |
-| Macro feedback / downstream / release | Beta 5 / Beta 5 / Beta 3 | 2 / 4 / 7 |
-| Front MOVE / PUSH | High-gamma 10 | 1 |
-| Rear MOVE / PUSH | High-gamma 10 | 2 |
-| Local RETURN / front HANDOFF | Beta 3 | 2 |
-| Regular knee extension Beta | Beta 5 | 24 |
-| Front swing / rear swing Betas | Beta 5 | 2 / 4 |
-| Rear hip support Beta | Beta 5 | 2 |
-| Other non-knee support Betas | Beta 5 | 4 |
-| Local extension-output veto | High-gamma 10 | 1 |
-| Foot contact input / sensory HG | Input / High-gamma 10 | 4 / 4 |
-| Return veto / contact match / ready HG | High-gamma 10 | 4 / 4 / 1 |
-| Contact-ready readout | Bistable output | 1 |
-| Local reflex HG | High-gamma 5 | 24 |
-| Reflex recovery / output reset | Beta 3 / Beta 3 | 2 / 4 |
-| Reward relay / reward | High-gamma 10 / Dopaminergic 3 | 10 / 17 |
+BRAKE first fired at step 129 in each case, before landing readiness. This
+supports choosing 0.5 as a responsive, relatively light baseline. It is not an
+optimized physical weight or a guaranteed linear response. Harness steps are
+not Webots milliseconds. The sweep kept weights fixed; it does not demonstrate
+STDP3 updates. Full results and limits: [HANDOFF_SWEEP.json](HANDOFF_SWEEP.json).
 
-The compatible builder calculates these widths from the declared relationships.
-The graph has 98 OPUs, 59 one-neuron outputs and twelve external populations:
-169 populations, 723 connections, 569 total neurons and 300,860 bytes of
-connection matrices. Device preparation remains authoritative.
+## Rhythm and population choices
 
-## Learning scope
+- **Handoff/brake: Beta T5, two neurons each.** Moderate neural recruitment with
+  a measured inhibitory influence before the next request.
+- **Contact/AIR relays and vetoes: high-gamma T10, four neurons each.** These
+  transfer binary sensory evidence. They do not produce the corrective burst.
+- **State helpers: high-gamma T10, one neuron each.** They retain one-neuron
+  diagnostic/control states with explicit clearing; they are not motor reflexes.
+- **Regular motor Betas: T5.** Their widths follow their incoming populations:
+  knee extension is 24; other regular motor Betas are 2 or 4. The local motor
+  construction is preserved rather than retuned for the cascade.
+- **Reflex: high-gamma T5, 24 neurons per corner.** Direct fast output plus fixed
+  excitation into the regular 24-neuron knee-extension Beta T5. Reflex recovery
+  uses Beta T3 populations of 2 then 4 neurons.
+- **Reward: 10 input → 10 high-gamma T10 → 17 dopaminergic T3 neurons.**
 
-Only four RELEASE inhibitory returns use STDP3/LTP: RELEASE → FEEDBACK_BETA and
-RELEASE → BETA in each of A and B. All four use GAIT_REWARD.
-Eligibility reflects recent source/receiver timing; dopaminergic activity acts
-on that eligibility. All four connections use LTP, following eligibility's
-sign. There are no LTD connections. LTP does not guarantee that every update
-strengthens a connection.
-Every other connection is static, including all excitatory paths, every contact
-and reflex connection, and the remaining inhibitory paths. `walk` sends no
-positive reward; `learn` rewards new upright forward
-progress. Stationary recovery alone is not that outcome.
+TNorm is a public SDK construction parameter, not an arbitrary delay in ms or
+an actuator speed. Neuron counts above are verified construction results.
+See [RESOURCE_CHECK.json](RESOURCE_CHECK.json) for every population.
 
-Check the static behavior first. Use internal spike recording and weight
-observation to assess recruitment and learning, and actual robot measurements
-to assess physical benefit. A wire or accepted reward publication proves neither.
+To author another fixed strength, explicitly regenerate, inspect and rebuild:
+
+```bash
+python design_brain.py --handoff-inhibition 0.75
+ab design --brain brain.abdesign.json --env .env
+```
+
+`--learning` adds the four learning annotations. This authoring command overwrites
+the root design; it is never called by install or run. Save Canvas edits first.

@@ -1,63 +1,53 @@
-# Testing the switch
+# Compare a fixed circuit with inhibitory learning
 
-Activate the installed environment, then run the application checks:
+Use the exact SDK inspect/build/run steps in the README. The two supplied
+designs differ only in their name and four learning annotations. Their initial
+strength is 0.5 on the same BRAKE_BETA → HANDOFF_BETA edges. Changing files does
+not change the installed brain: explicitly rebuild each condition.
+
+1. Select `designs/static.abdesign.json`, build it, and run `walk`. Confirm one W
+   produces FR → RL → FL → RR repeatedly and S stops it. Check physical foot
+   clearance and progression on the marked floor. If it cannot complete a cycle,
+   fix the static motor/contact behavior before evaluating learning.
+2. Save the run directory. Use a chosen simulation duration (for example ten
+   minutes) and press Q yourself; the program imposes no time limit.
+3. Select `designs/learning.abdesign.json`, build from the same initial design,
+   and run `learn` from the same initial world. Use the same chosen simulation
+   duration, motor/reflex settings, terrain and recovery configuration.
+4. Compare the two log directories. Repeat fresh-build trials; one pair can be
+   affected by contact variability. Record whether a device checkpoint was
+   resumed rather than assuming saved weights were reset. A fresh design build
+   is the intended common starting condition, not a request to reuse learned state.
+
+```bash
+python compare_runs.py logs/run-STATIC_DIRECTORY logs/run-LEARNING_DIRECTORY
+```
+
+Check normalized forward progress, recoveries per walking minute, sequence errors,
+landing-to-next-stage delays, tilt and antagonist overlap. Recovery teleportation
+is excluded from displacement. The reward high-water mark is episode-specific,
+so it must not be treated as total distance across several recoveries.
+
+`settings.json` records each design hash, mode, four initial strengths and actual
+plastic metadata. `rewards.jsonl` shows accepted reward delivery; neuron telemetry
+shows whether GAIT_REWARD fired. Neither alone proves a weight update. If weight
+inspection is unavailable, label results behavioral improvement rather than
+claiming a measured synaptic change.
+
+Use `rhythm` only for a stationary circuit diagnostic. It does not actuate the
+legs and supplies real standing contacts, so this contact-dependent cascade is
+expected to hold rather than run freely without observed lift-off.
+
+## Application checks
+
+From a fresh checkout after install:
 
 ```bash
 python -m unittest discover -s tests -v
 ```
 
-Inspect and build the saved graph with the SDK, then begin with:
-
-```bash
-ab run -ab --env .env walk
-```
-
-Focus the 3D view and press W once. Observe several cycles. A should support
-FL/RR while FR/RL swing; B should exchange the roles. Check hip movement together
-with knee flexion. Inspect transition gaps and actual joint travel, not only the
-phase lamps. S should stop; W should restart; Q should stop and save. Closing
-Webots must also stop/save. R and automatic recovery are simulator assistance.
-
-Keep the reflex enabled. A tilt should recruit local extension and suppress
-local flexion without selecting a global phase. Each signed cue can support two
-legs. Simultaneous roll/pitch cues can recruit three; that is intentional
-independent wiring rather than a single selected corner.
-
-Logs are written under the configured run directory: `observations.jsonl`,
-`native-outputs.jsonl`, `commands.jsonl`, `tilt-inputs.jsonl`, `contact-inputs.jsonl`, `rewards.jsonl`,
-`settings.json` and the run summary. Preserve a complete run when comparing
-changes. The summary counts complete hip/knee patterns, all-four knee flexion,
-and same-side-only knee flexion from actual motor outputs, separately from the
-phase lamps. High queue depth means feedback can be stale relative to the device.
-
-First inspect `contacts` and `contact_ready` in the console. Standing feet
-should report contact; a raised pad should report zero. Compare raw foot contact,
-RETURN_VETO_HG, CONTACT_MATCH_HG, CONTACT_READY and the downstream handoff in
-telemetry. DONE can be active while CONTACT_READY is still zero: the return is
-commanded but contact has not yet qualified it. Do not bypass that condition
-with a controller phase change. See [CONTACT.md](CONTACT.md).
-
-Check the switch next. Follow RL contact during return → RL CONTACT_READY →
-PHASE_A_FEEDBACK_BETA → PHASE_B_REQUEST → PHASE_B_OUT. B should recruit rear-left
-support and front-left MOVE_HG; the corresponding RR contact requests A.
-With missing rear contact, the current phase must remain selected while landing
-stays available. Standing contact alone must not start walking. Inspect rear
-support and front movement through their normal Betas, with no rear-output
-shortcut. Compare neural commands with measured motion; contact is not load.
-See [SAME_SIDE.md](SAME_SIDE.md).
-
-After static behavior is established, use `learn` to enable physical reward.
-Only the four selected inhibitory release-feedback paths are plastic, using
-STDP3/LTP. Every excitatory connection and every reflex/contact path is static.
-Check RELEASE activity alongside its own FEEDBACK_BETA and BETA, the reward
-neurons and the weights of those four inhibitory connections.
-Accepted reward publications alone do not establish dopamine firing or learning.
-See [VALIDATION.md](VALIDATION.md) for the scope of the bundled check reports.
-
-For a controlled learning comparison, use this corrected physical model in both
-conditions. Run `python design_brain.py --static`, inspect and build it for a
-nonplastic baseline. Then regenerate with `python design_brain.py`, inspect and
-build the inhibitory LTP design. Keep initial pose and run duration matched. Changing
-`learn` to `walk` only suppresses external reward; it does not remove plasticity
-or prove a frozen-weight baseline. Record forward progress, falls, stalls and
-foot-contact events. Preserve settings and the design hash for both conditions.
+These check graph contracts, static/learning parity, SDK encoding and commands,
+contact validation, local motor/reflex paths, async publication, no ACK pacing,
+metrics, installer repair and shutdown. They do not contact a real Prima-Lux
+or start Webots. [VALIDATION.md](VALIDATION.md) separates these from native-cell
+checks and the physical test still required.

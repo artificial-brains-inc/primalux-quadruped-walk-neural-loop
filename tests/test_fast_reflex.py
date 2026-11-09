@@ -31,7 +31,7 @@ class FastReflexTests(unittest.TestCase):
 
     def test_diagnostics_do_not_drive_motor_and_antagonists_still_cancel(self):
         config = load_config()
-        diagnostic = frame(1, REFLEX_FL_ACTIVE=1, PHASE_A_OUT=1)
+        diagnostic = frame(1, REFLEX_FL_ACTIVE=1, STEP_FR_ACTIVE=1)
         self.assertEqual(
             joint_targets(diagnostic, config), joint_targets(frame(0), config)
         )

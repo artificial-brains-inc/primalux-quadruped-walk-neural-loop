@@ -14,7 +14,6 @@ from robot.contracts import (
     REFLEX_CUES,
     REFLEX_OUTPUTS,
     REWARD_INPUT,
-    SWING_PHASE,
     TILT_INPUTS,
     TILT_NEURONS,
     motor_population,
@@ -182,14 +181,13 @@ class ReflexGraphTests(unittest.TestCase):
 
     def test_fast_reflex_recruits_regular_beta_without_waiting_for_it(self):
         for leg in LEGS:
-            stance = "B" if SWING_PHASE[leg] == "A" else "A"
             gait = motor_population(leg, "KNEE", "NEG")
             output, fast = f"{leg}_KNEE_NEG", f"{leg}_KNEE_REFLEX_EXTEND"
             for target, expected in (
                 (
                     gait,
                     {
-                        f"PHASE_{stance}_DRIVE_HG",
+                        f"STEP_{leg}_STANCE_HG",
                         f"LEG_{leg}_DONE_HG",
                         f"REFLEX_{leg}_HG",
                     },
@@ -209,7 +207,7 @@ class ReflexGraphTests(unittest.TestCase):
                 (self.nodes[gait]["rhythm"], self.nodes[gait]["tnorm"]), ("beta", 5)
             )
             for source in (
-                f"PHASE_{stance}_DRIVE_HG",
+                f"STEP_{leg}_STANCE_HG",
                 f"LEG_{leg}_DONE_HG",
                 f"REFLEX_{leg}_HG",
             ):

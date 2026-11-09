@@ -1,0 +1,11 @@
+{
+  "schema": "primalux-spot/application-check/v1",
+  "tests": 111,
+  "result": "passed",
+  "sdk_version": "0.4.2",
+  "static_design_sha256": "0cad0ab0e1da949024eb950fd020b12bc909ca9e6b946bbde4b2ba4df4104df7",
+  "learning_design_sha256": "38da7c0d7ecf2ac17f6d713987724ea82d564fb34b8547baecafb1e236ecfb74",
+  "device_run": false,
+  "webots_physics_run": false,
+  "scope": "Graph, SDK commands and encoding, adapter integration with mocked boundaries, metrics, installer repair and bundled world assets."
+}

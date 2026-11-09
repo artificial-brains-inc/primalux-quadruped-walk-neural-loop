@@ -13,7 +13,7 @@ it does not maintain START as a level until a later zero event.
 
 There is no neural ACK handshake. The legacy isolated ACK input is cleared once
 at startup and never stimulated. Its output is never used for synchronization.
-The four contact populations and their four ready readouts change the contract.
+The eight foot-state populations and four local stage/event circuits define the contract.
 Build the supplied design before running this package.
 
 Neural request latches capture the command and maintain its drive internally.
@@ -103,13 +103,13 @@ neurons; magnitude 0 encodes ten zeros. Do not pass magnitude 10.
 
 Each accepted event is classified as `positive_outcome` or `no_reward` in SDK
 metadata and `rewards.jsonl`. Its `reason` records the physical condition.
-No reward is not punishment. Only four inhibitory release-feedback connections
-use STDP3 with `reward_type="LTP"`: each phase's RELEASE → FEEDBACK_BETA and
-RELEASE → BETA. All other connections are static, including all excitatory
+No reward is not punishment. Only four inhibitory handoff-feedback connections
+use STDP3 with `reward_type="LTP"` in the learning design: each leg's
+STEP_BRAKE_BETA → STEP_HANDOFF_BETA. All other connections are static, including all excitatory
 paths. There are no LTD connections.
 LTP follows signed eligibility, so it does not guarantee every update strengthens
 a connection.
-The run's reward_classification records only release_feedback under reward_types.
+The run's reward_classification records only handoff_feedback under reward_types.
 Reward is a neuromodulator, not ordinary motor excitation.
 Ten active input neurons do not prove that all 17 dopamine neurons fired. Check
 individual neuron telemetry for that. A larger population also does not prove
@@ -137,8 +137,8 @@ a second ACK oscillator or select gait phases.
 
 | Run mode | Actuator targets | External reward |
 | --- | --- | --- |
-| `learn` (default) | Local neural motor outputs | Physical outcome |
-| `walk` | Local neural motor outputs | Held at zero |
+| `learn` | Local neural motor outputs | Physical outcome |
+| `walk` (default) | Local neural motor outputs | Held at zero |
 | `rhythm` | Neutral standing posture | Held at zero |
 
 `walk` is not a guaranteed frozen-weight baseline: a plastic graph can retain
@@ -162,8 +162,8 @@ Each local reflex receives compatible signs, inhibits its own knee flexion,
 directly excites its fast extension output from high-gamma T5.
 KNEE_REFLEX_EXTEND recruits RECOVERY_BETA T3 then OUTPUT_RESET_BETA T3; the
 second stage clears the output and inhibits its trigger. The same high-gamma directly excites the regular extension
-Beta through a fixed connection. Regular support phase drive → extension Beta
-is also fixed. Only the four inhibitory macro release-feedback connections use
+Beta through a fixed connection. Local stance drive → extension Beta
+is also fixed. Only the four inhibitory handoff-feedback connections use
 STDP3/LTP; every reflex connection is static.
 No reflex inhibits another leg;
 shared sensory evidence can recruit several independent reflexes.
@@ -172,11 +172,9 @@ KNEE_PUSH is a separate early extension output, calibrated to −0.12 rad at up 
 3.0 rad/s. Its readiness and clearing are neural. The controller never reads
 LEG_*_SWING_READY, LEG_*_DONE or LEG_*_CONTACT_READY to choose a motor target.
 
-Same-side hip coordination is also neural. RL_HIP_NEG feeds the FL stance-handoff
-HG, and RR_HIP_NEG feeds the FR relay; each recruits its front HIP_POS output.
-The adapter still applies the ordinary hip calibration, with no added phase,
-target hold, timer, velocity test or sensor. Neural output retention keeps a rear
-hip forward through landing until its explicit clearing paths take over.
+The four turn stages select FR → RL → FL → RR. Contact authorizes each
+transition inside the graph. No motor-output shortcut or controller phase
+selector recruits the next leg.
 
 Final extension is the existing KNEE_NEG output. RETURN_BETA and DONE_HG drive
 it directly and clear local knee flexion/output veto neurally, alongside the
@@ -205,11 +203,11 @@ A publication failure triggers the existing Stop/save cleanup.
 ## Foot contact feedback
 
 Four enabled bumper TouchSensors report zero or one after each completed body
-step. The controller broadcasts each raw reading over its own four-neuron input
-population, in the same atomic frame as tilt and reward. It does not combine
+step. The controller encodes each reading as four CONTACT neurons and its binary
+complement as four AIR neurons, in the same atomic frame as tilt and reward. It does not combine
 contact with phase, select a leg, debounce by time, or wait for touchdown. Missing,
 wrong-type or invalid sensor measurements fail visibly instead of becoming fake
-contact. Recovery suspends contact publication, and shutdown clears it.
+contact. Recovery and shutdown clear both rails, rather than encoding no-contact.
 
 `contact-inputs.jsonl` records accepted input events and their capture times;
 `observations.jsonl` preserves every raw measurement even if an unsent capture

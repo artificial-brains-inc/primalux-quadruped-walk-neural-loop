@@ -1,4 +1,4 @@
-"""A retained neural switch coordinates diagonal support and swing.
+"""A contact-driven cascade coordinates four independent leg stages.
 
 Local motor activity recruits a push, swing and return sequence. High-gamma
 reflexes directly command fast extension and recruit the regular motor path.
@@ -15,12 +15,11 @@ from robot.contracts import (
     JOINTS,
     LEGS,
     MOTOR_OUTPUTS,
-    REAR_FRONT_PARTNER,
+    NEXT_LEG,
+    AIR_INPUTS,
     REFLEX_CUES,
     REWARD_INPUT,
     REWARD_INPUT_NEURONS,
-    SUPPORT_PHASE,
-    SWING_PHASE,
     TILT_INPUTS,
     TILT_NEURONS,
     motor_population,
@@ -30,7 +29,6 @@ ROOT = Path(__file__).resolve().parent
 # Multipliers of the SDK's calculated inhibitory reference, not TNorm values.
 # Initial settings to test on Prima-Lux, not measured veto thresholds.
 CROSS_INHIBITION = 4.0
-RELEASE_INHIBITION = 4.0
 STOP_INHIBITION = 4.0
 REFLEX_INHIBITION = 64.0
 REFLEX_RESET_INHIBITION = 4.0
@@ -41,12 +39,17 @@ RELEASE_REWARD_TYPE = "LTP"
 CONTACT_CLEAR_INHIBITION = 64.0
 
 
-def create_brain(*, learning=True):
+def create_brain(*, learning=False, handoff_inhibition=0.5):
     b = Brain(
-        "Spot - Contact-Triggered Switch with Inhibitory LTP"
+        "Spot - Contact Cascade with Inhibitory LTP"
         if learning
-        else "Spot - Neural Switch and Local Reflexes"
+        else "Spot - Contact Cascade, Static Baseline"
     )
+    pending_connections = []
+
+    def connect(*args, **kwargs):
+        pending_connections.append((args, kwargs))
+
     coordinates = {}
     motor_populations = []
 
@@ -59,7 +62,7 @@ def create_brain(*, learning=True):
         coordinates[name] = (x, y)
 
     def inhibit(source, target, strength, *, feedback=False, plastic=False):
-        b.connect(
+        connect(
             source,
             target,
             "inh",
@@ -80,14 +83,14 @@ def create_brain(*, learning=True):
         b.input(name, COMMAND_INPUT_SIZES[name])
         coordinates[name] = (0, i * 180)
         opu(name + "_HG", "high-gamma", 10, 220, i * 180)
-        b.connect(name, name + "_HG")
+        connect(name, name + "_HG")
 
     b.input(REWARD_INPUT, REWARD_INPUT_NEURONS)
     coordinates[REWARD_INPUT] = (2200, 0)
     opu("GAIT_REWARD_RELAY", "high-gamma", 10, 2500, 0)
     opu("GAIT_REWARD", "dopaminergic", 3, 2800, 0)
-    b.connect(REWARD_INPUT, "GAIT_REWARD_RELAY")
-    b.connect("GAIT_REWARD_RELAY", "GAIT_REWARD")
+    connect(REWARD_INPUT, "GAIT_REWARD_RELAY")
+    connect("GAIT_REWARD_RELAY", "GAIT_REWARD")
 
     output("WALK_ENABLED", 1080, 0)
     output("REST_ACTIVE", 1080, 180)
@@ -104,9 +107,9 @@ def create_brain(*, learning=True):
         request, driver = action + "_REQUEST", action + "_REQUEST_HG"
         output(request, 500, i * 180)
         opu(driver, "high-gamma", 10, 780, i * 180)
-        b.connect("WALK_" + action + "_HG", request)
-        b.connect(request, driver)
-        b.connect(driver, request)
+        connect("WALK_" + action + "_HG", request)
+        connect(request, driver)
+        connect(driver, request)
         for target in (request, driver):
             inhibit("WALK_" + opposite + "_HG", target, STOP_INHIBITION)
             inhibit(success, target, STOP_INHIBITION)
@@ -117,9 +120,9 @@ def create_brain(*, learning=True):
         ("WALK_ENABLED", "WALK_NUCLEUS", "START_REQUEST_HG", "STOP_REQUEST_HG"),
         ("REST_ACTIVE", "REST_NUCLEUS", "STOP_REQUEST_HG", "START_REQUEST_HG"),
     ):
-        b.connect(command, state)
-        b.connect(state, nucleus)
-        b.connect(nucleus, state)
+        connect(command, state)
+        connect(state, nucleus)
+        connect(nucleus, state)
         inhibit(opposite_command, state, STOP_INHIBITION)
         inhibit(opposite_command, nucleus, STOP_INHIBITION)
     for source, state, nucleus in (
@@ -128,76 +131,43 @@ def create_brain(*, learning=True):
     ):
         inhibit(source, state, STOP_INHIBITION)
         inhibit(source, nucleus, STOP_INHIBITION, feedback=True)
-    # One switch, two retained states. START captures A once. A successful
-    # handoff clears its request, while its state persists until the other wins.
-    phase_nodes = []
-    for pi, phase in enumerate(("A", "B")):
-        stem, y = f"PHASE_{phase}", 760 + pi * 610
-        for suffix, rhythm, tnorm, x, dy in (
-            ("REQUEST_HG", "high-gamma", 10, 280, 0),
-            ("DRIVE_HG", "high-gamma", 10, 900, 0),
-            ("FEEDBACK_BETA", "beta", 5, 330, 250),
-            ("BETA", "beta", 5, 660, 250),
-            ("RELEASE", "beta", 3, 990, 250),
-        ):
-            name = f"{stem}_{suffix}"
-            opu(name, rhythm, tnorm, x, y + dy)
-            phase_nodes.append(name)
-        for suffix, x, dy in (
-            ("REQUEST", 0, 0),
-            ("OUT", 600, 0),
-            ("RELEASE_OUT", 1310, 250),
-        ):
-            name = f"{stem}_{suffix}"
-            output(name, x, y + dy)
-            phase_nodes.append(name)
-    b.connect("START_REQUEST_HG", "PHASE_A_REQUEST")
-    for phase, other in (("A", "B"), ("B", "A")):
-        stem, opposite = f"PHASE_{phase}", f"PHASE_{other}"
-        for source, target in (
-            (stem + "_REQUEST", stem + "_REQUEST_HG"),
-            (stem + "_REQUEST_HG", stem + "_REQUEST"),
-            (stem + "_REQUEST_HG", stem + "_OUT"),
-            (stem + "_OUT", stem + "_DRIVE_HG"),
-            (stem + "_DRIVE_HG", stem + "_OUT"),
-            (stem + "_FEEDBACK_BETA", stem + "_BETA"),
-            (stem + "_BETA", stem + "_RELEASE"),
-            (stem + "_RELEASE", stem + "_RELEASE_OUT"),
-            (stem + "_FEEDBACK_BETA", opposite + "_REQUEST"),
-        ):
-            b.connect(source, target)
+    # Four local stages. Each retains its turn until the next stage captures it.
+    stage_nodes = []
+    for li, leg in enumerate(LEGS):
+        stem = f"STEP_{leg}"
+        for suffix in ("REQUEST", "ACTIVE", "STANCE"):
+            output(stem + "_" + suffix, li * 1400, 900 + 180 * ("REQUEST", "ACTIVE", "STANCE").index(suffix))
+            opu(stem + "_" + suffix + "_HG", "high-gamma", 10, li * 1400 + 240, 900 + 180 * ("REQUEST", "ACTIVE", "STANCE").index(suffix))
+            stage_nodes.extend((stem + "_" + suffix, stem + "_" + suffix + "_HG"))
+            connect(stem + "_" + suffix, stem + "_" + suffix + "_HG")
+            connect(stem + "_" + suffix + "_HG", stem + "_" + suffix)
+        connect(stem + "_REQUEST_HG", stem + "_ACTIVE")
         for suffix in ("REQUEST", "REQUEST_HG"):
-            inhibit(stem + "_DRIVE_HG", stem + "_" + suffix, REQUEST_CLEAR_INHIBITION)
-        # The request continues through competition until the new state is on.
-        # Clear the old switch state, while allowing its feedback/reset branch
-        # to finish. The four plastic returns regulate that branch's recovery.
-        for suffix in (
-            "OUT",
-            "DRIVE_HG",
-        ):
-            inhibit(
-                stem + "_REQUEST_HG",
-                opposite + "_" + suffix,
-                STOP_INHIBITION,
-            )
-        for suffix in ("OUT", "DRIVE_HG"):
-            inhibit(
-                stem + "_DRIVE_HG",
-                opposite + "_" + suffix,
-                CROSS_INHIBITION,
-                feedback=suffix != "OUT",
-            )
-        inhibit(stem + "_DRIVE_HG", opposite + "_RELEASE_OUT", CROSS_INHIBITION)
-        # Learning may adjust local release recovery. State retention, handoff
-        # capture, interlocks and all motor vetoes remain static.
-        for suffix in ("FEEDBACK_BETA", "BETA"):
-            inhibit(
-                stem + "_RELEASE",
-                stem + "_" + suffix,
-                RELEASE_INHIBITION,
-                feedback=True,
-                plastic=True,
-            )
+            inhibit(stem + "_ACTIVE_HG", stem + "_" + suffix, REQUEST_CLEAR_INHIBITION)
+        for suffix in ("STANCE", "STANCE_HG"):
+            inhibit(stem + "_REQUEST_HG", stem + "_" + suffix, REQUEST_CLEAR_INHIBITION)
+            inhibit(stem + "_ACTIVE_HG", stem + "_" + suffix, CROSS_INHIBITION)
+        for suffix in ("ACTIVE", "ACTIVE_HG"):
+            inhibit(stem + "_STANCE_HG", stem + "_" + suffix, CROSS_INHIBITION)
+        nxt = f"STEP_{NEXT_LEG[leg]}"
+        connect(nxt + "_ACTIVE_HG", stem + "_STANCE")
+        for suffix in ("ACTIVE", "ACTIVE_HG", "REQUEST", "REQUEST_HG"):
+            inhibit(nxt + "_REQUEST_HG", stem + "_" + suffix, REQUEST_CLEAR_INHIBITION)
+            inhibit(nxt + "_ACTIVE_HG", stem + "_" + suffix, CROSS_INHIBITION)
+        if leg != "FR":
+            connect("START_REQUEST_HG", stem + "_STANCE")
+        # A beta-to-beta feedback brake is active before landing. Its plastic
+        # return can affect the first handoff, not only an after-the-fact reset.
+        for name in ("BRAKE_BETA", "HANDOFF_BETA"):
+            opu(stem + "_" + name, "beta", 5, li * 1400 + 500, 1450 if name == "BRAKE_BETA" else 1700)
+            stage_nodes.append(stem + "_" + name)
+        connect(stem + "_ACTIVE_HG", stem + "_BRAKE_BETA")
+        connect(stem + "_HANDOFF_BETA", stem + "_BRAKE_BETA", role="feedback")
+        inhibit(stem + "_BRAKE_BETA", stem + "_HANDOFF_BETA", handoff_inhibition, feedback=True, plastic=True)
+        connect(stem + "_HANDOFF_BETA", nxt + "_REQUEST")
+        for name in ("BRAKE_BETA", "HANDOFF_BETA"):
+            inhibit(stem + "_STANCE_HG", stem + "_" + name, REQUEST_CLEAR_INHIBITION)
+    connect("START_REQUEST_HG", "STEP_FR_REQUEST")
 
     for li, leg in enumerate(LEGS):
         for ji, joint in enumerate(JOINTS):
@@ -209,28 +179,47 @@ def create_brain(*, learning=True):
                     f"{leg}_{joint}_{side}", li * 1400 + 650, 3800 + ji * 600 + si * 260
                 )
 
-    # Raw foot contact feeds local sensory relays. Contact has no direct motor
-    # or phase connection; the local return state must also recruit the gate.
-    contact_state_nodes = []
+    # Explicit contact and no-contact rails encode the same four bumpers.
+    # Silence in asynchronous transport is never treated as lift-off evidence.
+    sensor_state_nodes = []
     for li, leg in enumerate(LEGS):
-        name = CONTACT_INPUTS[leg]
-        b.input(name, CONTACT_NEURONS)
-        coordinates[name] = (li * 1400, 7800)
-        opu(name + "_HG", "high-gamma", 10, li * 1400, 8050)
-        b.connect(name, name + "_HG")
-        veto = f"LEG_{leg}_RETURN_VETO_HG"
-        opu(veto, "high-gamma", 10, li * 1400 + 350, 8050)
-        # A parallel sensory veto is already active while the robot stands.
-        # Return activity suppresses it. The positive contact branch has one
-        # more relay, so unarmed contact does not arrive before its veto.
-        b.connect(name, veto)
+        for rail, name in (("CONTACT", CONTACT_INPUTS[leg]), ("AIR", AIR_INPUTS[leg])):
+            b.input(name, CONTACT_NEURONS)
+            coordinates[name] = (li * 1400, 7800 if rail == "CONTACT" else 8100)
+            opu(name + "_HG", "high-gamma", 10, li * 1400 + 220, 7800 if rail == "CONTACT" else 8100)
+            connect(name, name + "_HG")
+        stem = f"LEG_{leg}"
+        for n in ("AIR_MATCH_HG", "AIR_ACTIVE_VETO_HG", "CONTACT_MATCH_HG", "CONTACT_AIR_VETO_HG", "CONTACT_RETURN_VETO_HG"):
+            opu(stem + "_" + n, "high-gamma", 10, li * 1400 + 400, 8400 + 170 * ("AIR_MATCH_HG", "AIR_ACTIVE_VETO_HG", "CONTACT_MATCH_HG", "CONTACT_AIR_VETO_HG", "CONTACT_RETURN_VETO_HG").index(n))
+        for state in ("AIR_SEEN", "CONTACT_READY"):
+            output(stem + "_" + state, li * 1400 + 650, 8600 if state == "AIR_SEEN" else 9000)
+            opu(stem + "_" + state + "_HG", "high-gamma", 10, li * 1400 + 900, 8600 if state == "AIR_SEEN" else 9000)
+            connect(stem + "_" + state, stem + "_" + state + "_HG")
+            connect(stem + "_" + state + "_HG", stem + "_" + state)
+        connect(AIR_INPUTS[leg], stem + "_AIR_ACTIVE_VETO_HG")
+        connect(AIR_INPUTS[leg] + "_HG", stem + "_AIR_MATCH_HG")
+        inhibit(f"STEP_{leg}_ACTIVE_HG", stem + "_AIR_ACTIVE_VETO_HG", CONTACT_CLEAR_INHIBITION)
+        inhibit(stem + "_AIR_ACTIVE_VETO_HG", stem + "_AIR_MATCH_HG", CONTACT_CLEAR_INHIBITION)
+        connect(stem + "_AIR_MATCH_HG", stem + "_AIR_SEEN")
+        connect(CONTACT_INPUTS[leg] + "_HG", stem + "_CONTACT_MATCH_HG")
+        for veto, permission in (("CONTACT_AIR_VETO_HG", "AIR_SEEN_HG"), ("CONTACT_RETURN_VETO_HG", "DONE_HG")):
+            connect(CONTACT_INPUTS[leg], stem + "_" + veto)
+            inhibit(stem + "_" + permission, stem + "_" + veto, CONTACT_CLEAR_INHIBITION)
+            inhibit(stem + "_" + veto, stem + "_CONTACT_MATCH_HG", CONTACT_CLEAR_INHIBITION)
+        connect(stem + "_CONTACT_MATCH_HG", stem + "_CONTACT_READY")
+        connect(stem + "_CONTACT_READY_HG", f"STEP_{leg}_HANDOFF_BETA")
+        for suffix in ("AIR_MATCH_HG", "AIR_SEEN", "AIR_SEEN_HG", "CONTACT_MATCH_HG", "CONTACT_READY", "CONTACT_READY_HG"):
+            target = stem + "_" + suffix
+            sensor_state_nodes.append(target)
+            for source in (f"STEP_{leg}_REQUEST_HG", f"STEP_{leg}_STANCE_HG"):
+                inhibit(source, target, CONTACT_CLEAR_INHIBITION)
 
-    # A and B select diagonal sequences: front push/swing/return, then rear.
+    # Preserve each leg's established local push/swing/return primitive.
     # Each local movement has an early push branch beside its motor Betas.
     gait_nodes = []
     for li, leg in enumerate(LEGS):
         stem, x, y = f"LEG_{leg}", li * 1400, 2000
-        swing, support = SWING_PHASE[leg], SUPPORT_PHASE[leg]
+        support_source = f"STEP_{leg}_STANCE_HG"
         for suffix, rhythm, tnorm, dy in (
             ("MOVE_HG", "high-gamma", 10, 0),
             ("PUSH_HG", "high-gamma", 10, 280),
@@ -240,54 +229,28 @@ def create_brain(*, learning=True):
         ):
             opu(stem + "_" + suffix, rhythm, tnorm, x, y + dy)
             gait_nodes.append(stem + "_" + suffix)
-        if leg not in REAR_FRONT_PARTNER:
-            opu(stem + "_HANDOFF_BETA", "beta", 3, x + 650, y + 1400)
-            gait_nodes.append(stem + "_HANDOFF_BETA")
-            inhibit(
-                f"PHASE_{support}_DRIVE_HG", stem + "_HANDOFF_BETA", CROSS_INHIBITION
-            )
         output(stem + "_SWING_READY", x + 650, y + 560)
         gait_nodes.append(stem + "_SWING_READY")
         output(stem + "_DONE", x + 650, y + 1120)
-        opu(stem + "_CONTACT_MATCH_HG", "high-gamma", 10, x, 8300)
-        output(stem + "_CONTACT_READY", x + 650, 8300)
-        opu(stem + "_CONTACT_READY_HG", "high-gamma", 10, x + 650, 8550)
-        contact_state_nodes.extend(
-            stem + "_" + suffix
-            for suffix in ("CONTACT_MATCH_HG", "CONTACT_READY", "CONTACT_READY_HG")
-        )
-        # Measured contact is the positive source. Return activity removes a
-        # veto; it cannot create contact evidence or request a handoff alone.
-        # Capture the qualified event separately so brief later contact loss
-        # does not undo a handoff already underway. Clear at the next cycle.
-        b.connect(CONTACT_INPUTS[leg] + "_HG", stem + "_CONTACT_MATCH_HG")
-        inhibit(stem + "_DONE_HG", stem + "_RETURN_VETO_HG", CONTACT_CLEAR_INHIBITION)
-        inhibit(stem + "_RETURN_VETO_HG", stem + "_CONTACT_MATCH_HG", CONTACT_CLEAR_INHIBITION)
-        b.connect(stem + "_CONTACT_MATCH_HG", stem + "_CONTACT_READY")
-        b.connect(stem + "_CONTACT_READY", stem + "_CONTACT_READY_HG")
-        b.connect(stem + "_CONTACT_READY_HG", stem + "_CONTACT_READY")
-        if leg not in REAR_FRONT_PARTNER:
-            b.connect(stem + "_CONTACT_READY_HG", stem + "_HANDOFF_BETA")
-        # Clear old confirmation while moving or outside this leg's swing phase.
-        for source in (stem + "_MOVE_HG", f"PHASE_{support}_DRIVE_HG"):
-            for suffix in ("CONTACT_MATCH_HG", "CONTACT_READY", "CONTACT_READY_HG"):
-                inhibit(source, stem + "_" + suffix, CONTACT_CLEAR_INHIBITION)
         output(f"{leg}_KNEE_PUSH", x + 650, y + 280)
         gait_nodes.append(stem + "_DONE")
-        source = (
-            f"LEG_{REAR_FRONT_PARTNER[leg]}_HANDOFF_BETA"
-            if leg in REAR_FRONT_PARTNER
-            else f"PHASE_{swing}_DRIVE_HG"
-        )
-        b.connect(source, stem + "_MOVE_HG")
-        b.connect(stem + "_MOVE_HG", stem + "_PUSH_HG")
-        b.connect(stem + "_PUSH_HG", f"{leg}_KNEE_PUSH")
-        b.connect(f"{leg}_KNEE_PUSH", stem + "_PUSH_HG", role="feedback")
+        source = f"STEP_{leg}_ACTIVE_HG"
+        if leg in ("RL", "RR"):
+            # Retain the rear MOVE input's beta T3 rhythm and two-neuron width.
+            opu(stem + "_DRIVE_BETA", "beta", 3, x + 650, y - 150)
+            gait_nodes.append(stem + "_DRIVE_BETA")
+            connect(source, stem + "_DRIVE_BETA")
+            inhibit(support_source, stem + "_DRIVE_BETA", CROSS_INHIBITION)
+            source = stem + "_DRIVE_BETA"
+        connect(source, stem + "_MOVE_HG")
+        connect(stem + "_MOVE_HG", stem + "_PUSH_HG")
+        connect(stem + "_PUSH_HG", f"{leg}_KNEE_PUSH")
+        connect(f"{leg}_KNEE_PUSH", stem + "_PUSH_HG", role="feedback")
         # Read actual knee flexion output before recruiting the return.
-        b.connect(f"{leg}_KNEE_POS", stem + "_RETURN_BETA")
-        b.connect(stem + "_RETURN_BETA", stem + "_DONE")
-        b.connect(stem + "_DONE", stem + "_DONE_HG")
-        b.connect(stem + "_DONE_HG", stem + "_DONE")
+        connect(f"{leg}_KNEE_POS", stem + "_RETURN_BETA")
+        connect(stem + "_RETURN_BETA", stem + "_DONE")
+        connect(stem + "_DONE", stem + "_DONE_HG")
+        connect(stem + "_DONE_HG", stem + "_DONE")
         for suffix in (
             "MOVE_HG",
             "PUSH_HG",
@@ -297,7 +260,7 @@ def create_brain(*, learning=True):
             "DONE",
             "DONE_HG",
         ):
-            inhibit(f"PHASE_{support}_DRIVE_HG", stem + "_" + suffix, CROSS_INHIBITION)
+            inhibit(support_source, stem + "_" + suffix, CROSS_INHIBITION)
         for target in (
             stem + "_MOVE_HG",
             stem + "_PUSH_HG",
@@ -306,29 +269,31 @@ def create_brain(*, learning=True):
             f"{leg}_KNEE_PUSH",
         ):
             inhibit(stem + "_DONE_HG", target, REQUEST_CLEAR_INHIBITION)
-        inhibit(f"PHASE_{support}_DRIVE_HG", f"{leg}_KNEE_PUSH", CROSS_INHIBITION)
+        inhibit(support_source, f"{leg}_KNEE_PUSH", CROSS_INHIBITION)
+        for suffix in ("DONE", "DONE_HG", "RETURN_BETA", "SWING_READY", "SWING_READY_HG"):
+            inhibit(f"STEP_{leg}_REQUEST_HG", stem + "_" + suffix, REQUEST_CLEAR_INHIBITION)
         # Motor Beta activity ends the preparation branch while its output
         # is still being recruited. No Python minimum stroke or delay.
-        b.connect(motor_population(leg, "HIP", "POS"), stem + "_SWING_READY")
-        b.connect(stem + "_SWING_READY", stem + "_SWING_READY_HG")
-        b.connect(stem + "_SWING_READY_HG", stem + "_SWING_READY")
+        connect(motor_population(leg, "HIP", "POS"), stem + "_SWING_READY")
+        connect(stem + "_SWING_READY", stem + "_SWING_READY_HG")
+        connect(stem + "_SWING_READY_HG", stem + "_SWING_READY")
         for target in (stem + "_PUSH_HG", f"{leg}_KNEE_PUSH"):
             inhibit(stem + "_SWING_READY_HG", target, REQUEST_CLEAR_INHIBITION)
         inhibit(stem + "_PUSH_HG", f"{leg}_KNEE_POS", REFLEX_INHIBITION)
 
     reflex_nodes = []
     for li, leg in enumerate(LEGS):
-        swing, support = SWING_PHASE[leg], SUPPORT_PHASE[leg]
+        support_source = f"STEP_{leg}_STANCE_HG"
         stem, x, y = f"LEG_{leg}", li * 1400, 3800
         gate = f"REFLEX_{leg}_EXTENSION_VETO_HG"
         opu(gate, "high-gamma", 10, x, y + 1800)
         reflex_nodes.append(gate)
-        b.connect(stem + "_SWING_READY_HG", gate)
+        connect(stem + "_SWING_READY_HG", gate)
         # Begin landing from the return pathway itself. Do not wait for the
         # ordinary support Beta to recruit its output after a completed swing.
         # DONE_HG retains this extension while the following leg prepares.
         for source in (stem + "_RETURN_BETA", stem + "_DONE_HG"):
-            b.connect(source, f"{leg}_KNEE_NEG")
+            connect(source, f"{leg}_KNEE_NEG")
             inhibit(source, gate, REFLEX_INHIBITION)
         inhibit(stem + "_RETURN_BETA", f"{leg}_KNEE_POS", REFLEX_INHIBITION)
         for ji, joint in enumerate(JOINTS):
@@ -338,32 +303,22 @@ def create_brain(*, learning=True):
                 channel = f"{leg}_{joint}_{side}"
                 is_swing = side == swing_side
                 if is_swing:
-                    b.connect(stem + "_MOVE_HG", population)
+                    connect(stem + "_MOVE_HG", population)
                     for target in (population, channel):
-                        inhibit(f"PHASE_{support}_DRIVE_HG", target, CROSS_INHIBITION)
-                        # Keep the rear hip's forward target through landing.
-                        # Its support phase (and STOP/REST) clears the output;
-                        # clearing it at DONE would command an early return to
-                        # neutral before the same-side front begins its swing.
-                        if not (leg in REAR_FRONT_PARTNER and joint == "HIP" and target == channel):
-                            inhibit(
-                                stem + "_DONE_HG",
-                                target,
-                                REFLEX_INHIBITION
-                                if joint == "KNEE" and target == channel
-                                else CROSS_INHIBITION,
-                            )
+                        inhibit(support_source, target, CROSS_INHIBITION)
+                        inhibit(
+                            stem + "_DONE_HG",
+                            target,
+                            REFLEX_INHIBITION
+                            if joint == "KNEE" and target == channel
+                            else CROSS_INHIBITION,
+                        )
                 else:
-                    # Rear hip retraction belongs to the same phase that
-                    # recruits the ipsilateral front swing. Local return must
-                    # still extend the knee, but must not start this hip stroke.
-                    sources = [f"PHASE_{support}_DRIVE_HG"]
-                    if not (leg in REAR_FRONT_PARTNER and joint == "HIP"):
-                        sources.append(stem + "_DONE_HG")
-                    for source in sources:
+                    # Support remains available after this leg's local return.
+                    for source in (support_source, stem + "_DONE_HG"):
                         # Every excitatory motor path stays fixed. Only the
-                        # four inhibitory release-feedback paths can learn.
-                        b.connect(
+                        # four inhibitory handoff-feedback paths can learn.
+                        connect(
                             source,
                             population,
                             role="operand",
@@ -379,7 +334,7 @@ def create_brain(*, learning=True):
                     )
                     if joint != "KNEE":
                         inhibit(veto, population, CROSS_INHIBITION)
-                b.connect(population, channel)
+                connect(population, channel)
             for side, opposite_side in (("POS", "NEG"), ("NEG", "POS")):
                 source = motor_population(leg, joint, side)
                 if joint != "KNEE":
@@ -390,11 +345,6 @@ def create_brain(*, learning=True):
                         feedback=True,
                     )
                     inhibit(source, f"{leg}_{joint}_{opposite_side}", 1)
-
-    # A phase advances from its rear leg's contact-qualified return. This
-    # confirms foot-pad contact, not force, unloading or completed propulsion.
-    for rear in REAR_FRONT_PARTNER:
-        b.connect(f"LEG_{rear}_CONTACT_READY_HG", f"PHASE_{SWING_PHASE[rear]}_FEEDBACK_BETA")
 
     for i, name in enumerate(TILT_INPUTS):
         b.input(name, TILT_NEURONS)
@@ -416,33 +366,33 @@ def create_brain(*, learning=True):
         opu(clear, "beta", 3, x + 650, 7100)
         reflex_nodes.extend((trigger, active, recovery, clear))
         for cue in REFLEX_CUES[leg]:
-            b.connect(cue, trigger)
-        b.connect(trigger, trigger, role="feedback")
-        b.connect(trigger, fast)
+            connect(cue, trigger)
+        connect(trigger, trigger, role="feedback")
+        connect(trigger, fast)
         # The same high-gamma neurons directly recruit the regular Beta.
         # Both reflex branches and every other excitatory input stay fixed.
-        b.connect(
+        connect(
             trigger,
             motor_population(leg, "KNEE", "NEG"),
             role="operand",
             units=1,
         )
-        b.connect(trigger, active)
+        connect(trigger, active)
         for target in (motor_population(leg, "KNEE", "POS"), f"{leg}_KNEE_POS", gate):
             inhibit(trigger, target, REFLEX_INHIBITION)
         # Clear the bistable motor command from its own activity, so a late
         # motor spike cannot outlive the upstream reflex-reset burst.
-        b.connect(fast, recovery)
-        b.connect(recovery, clear)
+        connect(fast, recovery)
+        connect(recovery, clear)
         inhibit(clear, fast, REFLEX_RESET_INHIBITION)
         inhibit(clear, trigger, REFLEX_RESET_INHIBITION, feedback=True)
         inhibit(clear, active, REFLEX_RESET_INHIBITION)
         inhibit("STOP_REQUEST_HG", fast, STOP_INHIBITION)
 
-    for target in (*phase_nodes, *gait_nodes, *motor_populations, *reflex_nodes):
+    for target in (*stage_nodes, *gait_nodes, *motor_populations, *reflex_nodes):
         inhibit("REST_NUCLEUS", target, STOP_INHIBITION)
         inhibit("STOP_REQUEST_HG", target, STOP_INHIBITION)
-    for target in contact_state_nodes:
+    for target in sensor_state_nodes:
         inhibit("REST_NUCLEUS", target, CONTACT_CLEAR_INHIBITION)
         inhibit("STOP_REQUEST_HG", target, CONTACT_CLEAR_INHIBITION)
     for target in MOTOR_OUTPUTS:
@@ -452,9 +402,11 @@ def create_brain(*, learning=True):
 
     output("TRANSPORT_ACK_OUT", 500, 360)
     opu("TRANSPORT_ACK_RESET", "high-gamma", 10, 780, 360)
-    b.connect("TRANSPORT_ACK_HG", "TRANSPORT_ACK_OUT")
-    b.connect("TRANSPORT_ACK_OUT", "TRANSPORT_ACK_RESET")
-    b.connect("TRANSPORT_ACK_RESET", "TRANSPORT_ACK_OUT", "inh")
+    connect("TRANSPORT_ACK_HG", "TRANSPORT_ACK_OUT")
+    connect("TRANSPORT_ACK_OUT", "TRANSPORT_ACK_RESET")
+    connect("TRANSPORT_ACK_RESET", "TRANSPORT_ACK_OUT", "inh")
+    for args, kwargs in pending_connections:
+        b.connect(*args, **kwargs)
     doc = b.to_dict()
     for node in doc["nodes"]:
         node["x"], node["y"] = coordinates[node["name"]]
@@ -463,15 +415,12 @@ def create_brain(*, learning=True):
 
 if __name__ == "__main__":
     import argparse
-
-    parser = argparse.ArgumentParser(
-        description="Author the neural switch, then inspect/build its saved JSON with the SDK."
-    )
-    parser.add_argument(
-        "--static",
-        action="store_true",
-        help="Omit learning metadata for a static comparison.",
-    )
-    brain = create_brain(learning=not parser.parse_args().static)
+    parser = argparse.ArgumentParser(description="Author the contact cascade using SDK public fields.")
+    parser.add_argument("--learning", action="store_true", help="Enable four inhibitory STDP3/LTP paths.")
+    parser.add_argument("--handoff-inhibition", type=float, default=0.5, help="Initial multiplier on each local timing feedback connection.")
+    args = parser.parse_args()
+    if args.handoff_inhibition < 0.1:
+        parser.error("handoff inhibition must be at least 0.1")
+    brain = create_brain(learning=args.learning, handoff_inhibition=args.handoff_inhibition)
     brain.save(ROOT / "brain.abdesign.json")
     print("Saved brain.abdesign.json. Inspect with ab design, then build with the SDK.")
