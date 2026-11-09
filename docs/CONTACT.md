@@ -20,7 +20,7 @@ it does not report supported weight or ground force.
 The four identical bits in each input encode that foot's single measured state.
 They are four neurons, not four independent sensors or force levels. This adds
 16 sensory neurons, bringing the complete graph to 77 external neurons across
-12 named inputs and 551 neurons in total. The compatible builder's allocation
+12 named inputs and 549 neurons in total. The compatible builder's allocation
 is in [RESOURCE_CHECK.json](RESOURCE_CHECK.json).
 
 ## Return first, then contact-qualified handoff
@@ -66,6 +66,11 @@ For a front leg, CONTACT_READY_HG excites its existing HANDOFF_BETA T3, which
 recruits the diagonal rear MOVE_HG. For a rear leg, CONTACT_READY_HG excites
 the phase's existing MOTOR_FEEDBACK_HG. A still sequences FR then RL; B still
 sequences FL then RR. Contact does not select a different gait.
+
+The new phase starts rear hip retraction alongside same-side front movement.
+A fixed relay from the rear HIP_NEG output recruits that front HIP_POS output.
+Contact-qualified return remains the phase trigger; the extra relay carries motor
+activity, not a new sensor-derived phase or a measurement of pushing force.
 
 ## Retention and clearing
 

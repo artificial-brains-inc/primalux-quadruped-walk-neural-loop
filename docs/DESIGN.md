@@ -54,10 +54,24 @@ KNEE_POS recruits RETURN_BETA T3, then DONE/DONE_HG. RETURN_BETA directly excite
 KNEE_NEG and inhibits KNEE_POS and the extension-output veto at strength 64.
 DONE_HG retains those direct paths, so landing does not wait for a further
 support-Beta stage. It also inhibits local movement and readiness, and excites
-the normal support Betas. Each support Beta accepts
-one unit from the opposite macro state and one from local DONE. The opposite
+the normal support Betas, except rear hip retraction. Rear HIP_NEG_BETA receives
+only its support phase; all other support Betas accept one unit from that
+macro state and one from local DONE. Rear DONE clears the forward hip Beta but
+leaves its output latched through landing. The support phase, antagonistic Beta
+or REST clears that output. The opposite
 macro state clears the local sequence for reuse. Rear movement receives the
 front's HANDOFF_BETA, not a front motor or reflex output. See [PUSH.md](PUSH.md).
+
+## Rear stance recruits same-side front advance
+
+The phase that recruits rear-left hip retraction also starts front-left movement;
+the corresponding right-side pair shares the other phase. A fixed output-feedback
+path makes the actual rear HIP_NEG activity recruit front HIP_POS through one
+STANCE_HANDOFF_HG T10 relay. Each relay has one neuron. It bypasses the extra
+wait for the front hip Beta to build, while that normal pathway keeps running.
+Front DONE and the front's support phase inhibit its relay at strength 64;
+STOP/REST inhibit it at 4. Existing front output clearing remains in force.
+Rear knee landing does not wait for this hip handoff. See [SAME_SIDE.md](SAME_SIDE.md).
 
 ## Reflex and ordinary extension
 
@@ -93,7 +107,9 @@ one-HG clearing. ACTIVE remains diagnostic. See [REFLEX.md](REFLEX.md).
 | Local RETURN / front HANDOFF | Beta 3 | 2 |
 | Regular knee extension Beta | Beta 5 | 24 |
 | Front swing / rear swing Betas | Beta 5 | 2 / 4 |
-| Other support Betas | Beta 5 | 4 |
+| Rear hip support Beta | Beta 5 | 2 |
+| Other non-knee support Betas | Beta 5 | 4 |
+| Same-side stance handoff HG | High-gamma 10 | 1 |
 | Local extension-output veto | High-gamma 10 | 1 |
 | Foot contact input / sensory HG | Input / High-gamma 10 | 4 / 4 |
 | Contact veto / match / ready HG | High-gamma 10 | 1 / 1 / 1 |
@@ -103,8 +119,8 @@ one-HG clearing. ACTIVE remains diagnostic. See [REFLEX.md](REFLEX.md).
 | Reward relay / reward | High-gamma 10 / Dopaminergic 3 | 10 / 17 |
 
 The compatible builder calculates these widths from the declared relationships.
-The graph has 100 OPUs, 59 one-neuron outputs and twelve external populations:
-171 populations, 751 connections, 551 total neurons and 297,444 bytes of
+The graph has 102 OPUs, 59 one-neuron outputs and twelve external populations:
+173 populations, 759 connections, 549 total neurons and 295,820 bytes of
 connection matrices. Device preparation remains authoritative.
 
 ## Learning scope

@@ -201,6 +201,8 @@ class GraphTests(unittest.TestCase):
                         if side == swing_side
                         else {f"PHASE_{support}_DRIVE_HG", stem + "_DONE_HG"}
                     )
+                    if leg in REAR_FRONT_PARTNER and joint == "HIP" and side == "NEG":
+                        expected.remove(stem + "_DONE_HG")
                     if joint == "KNEE" and side == "NEG":
                         expected.add(f"REFLEX_{leg}_HG")
                         self.assertNotIn(
@@ -229,6 +231,31 @@ class GraphTests(unittest.TestCase):
                     self.assert_inhibits("REST_NUCLEUS", population, 4)
                     self.assert_inhibits("REST_NUCLEUS", channel, 4)
         self.assertEqual(len(populations), 24)
+
+    def test_rear_hip_stance_and_same_side_front_swing_share_phase(self):
+        for rear, front in (("RL", "FL"), ("RR", "FR")):
+            drive = f"PHASE_{SUPPORT_PHASE[rear]}_DRIVE_HG"
+            self.assertEqual(SUPPORT_PHASE[rear], SWING_PHASE[front])
+            self.assertEqual(self.edges[drive, motor_population(rear, "HIP", "NEG")]["type"], "exc")
+            self.assertEqual(self.edges[drive, f"LEG_{front}_MOVE_HG"]["type"], "exc")
+            self.assertNotIn((f"LEG_{rear}_DONE_HG", motor_population(rear, "HIP", "NEG")), self.edges)
+            self.assertNotIn((f"LEG_{rear}_DONE_HG", f"{rear}_HIP_POS"), self.edges)
+            relay = f"LEG_{front}_STANCE_HANDOFF_HG"
+            self.assertEqual((self.nodes[relay]["rhythm"], self.nodes[relay]["tnorm"]), ("high-gamma", 10))
+            for source, target in ((f"{rear}_HIP_NEG", relay), (relay, f"{front}_HIP_POS")):
+                self.assertEqual(self.edges[source, target]["type"], "exc")
+                self.assertNotIn("rule", self.edges[source, target])
+            for source in (f"LEG_{front}_DONE_HG", f"PHASE_{SUPPORT_PHASE[front]}_DRIVE_HG"):
+                self.assert_inhibits(source, relay, 64)
+            for source in (f"LEG_{front}_DONE_HG", f"PHASE_{SUPPORT_PHASE[front]}_DRIVE_HG", "REST_NUCLEUS"):
+                self.assert_inhibits(source, f"{front}_HIP_POS", 4)
+            # Landing still clears the internal swing Beta and directly extends
+            # the knee. The retained forward hip output has explicit clearers.
+            self.assert_inhibits(f"LEG_{rear}_DONE_HG", motor_population(rear, "HIP", "POS"), 4)
+            for source in (drive, "REST_NUCLEUS"):
+                self.assert_inhibits(source, f"{rear}_HIP_POS", 4)
+            for source in (f"LEG_{rear}_RETURN_BETA", f"LEG_{rear}_DONE_HG"):
+                self.assertEqual(self.edges[source, f"{rear}_KNEE_NEG"]["type"], "exc")
 
     def test_stop_clears_switch_requests_and_all_motor_outputs(self):
         for name in self.nodes:

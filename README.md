@@ -1,9 +1,15 @@
-# Spot: contact-guided walking with inhibitory LTP
+# Spot: coordinated stance and swing with inhibitory LTP
 
 A developer teaching example for Prima-Lux and Webots. Each leg first gives a
 small extension push, then flexes and advances, then returns to support. Neural
 activity sequences the movements; independent tilt reflexes can override a
 leg's knee motion.
+
+Rear backward drive now recruits the front hip's forward command on the same
+side: rear-left → front-left, rear-right → front-right. Two fixed high-gamma
+relays carry that motor activity. Rear knee extension can land the foot before
+this handoff; rear hip retraction starts with the phase for the same-side front
+swing. See [same-side coordination](docs/SAME_SIDE.md).
 
 Learning is **STDP3 with LTP only on four inhibitory release-feedback paths**.
 Every excitatory connection is static, including the normal support-to-extension
@@ -46,7 +52,7 @@ Automatic fall recovery is still enabled. It requests STOP, restores the robot
 and requests START after settling. Removing ACK does not disable that separate
 source of apparent restarts. See [recovery](docs/RECOVERY.md).
 
-There are **551 neurons**, including **77 external neurons across twelve named
+There are **549 neurons**, including **77 external neurons across twelve named
 inputs**. Each leg's reflex remains **24 high-gamma T5 neurons**, directly
 exciting its fast output and its **24-neuron regular extension Beta T5**. The
 two reflex connections and the regular support phase drive → knee extension
@@ -68,6 +74,7 @@ Python transmits measurements; it supplies no phase, gait or handoff decision.
 - Combine a return command with measured foot contact inside the brain.
 - Retain that confirmation and clear it before the next local movement.
 - Recruit the diagonal rear partner after front contact is confirmed.
+- Couple rear hip retraction to same-side front hip advance through neural output feedback.
 - Keep local reflexes independent and give them a neural reset long enough to
   avoid the immediate output-clearing loop.
 - Recruit regular Beta through a fixed reflex connection while limiting STDP3/LTP
@@ -115,7 +122,7 @@ WEBOTS_EXECUTABLE=/absolute/path/to/webots
 `WEBOTS_EXECUTABLE` names the executable file, not its containing folder.
 Keep `.env` out of Git. For an existing checkout, stop the application with Q,
 then fetch the bundle and merge its main branch using `--ff-only`.
-Rebuild this inhibitory LTP design even if the previous touch version is installed.
+Rebuild this coordinated design even if the previous inhibitory LTP version is installed.
 Changing learning rules in a local file does not update the installed brain.
 A new build is a new learning condition; do not assume old learned weights transfer.
 
@@ -145,6 +152,12 @@ KNEE_NEG_BETA edges are fixed too. Inspect STDP3/LTP only on each phase's
 RELEASE → FEEDBACK_BETA and RELEASE → BETA inhibitory edges.
 Follow the fast output through two Beta
 T3 recovery stages back to clear itself. ACTIVE is diagnostic only.
+
+Inspect RL_HIP_NEG → LEG_FL_STANCE_HANDOFF_HG → FL_HIP_POS and the matching
+right-side branch. Each relay is high-gamma T10 with one neuron. The front's
+DONE and support phase suppress the relay; its normal output-clearing paths
+still apply. Rear hip support Betas each have two neurons and only their phase
+as a positive source. Knee landing retains its immediate local return path.
 
 Close the Designer with Ctrl+C before continuing. If you edit on the Canvas,
 save/download `brain.abdesign.json` before Build. Install and Run never
@@ -224,7 +237,7 @@ recorder reads the existing SDK viewer stream and never controls movement.
 
 ## Checks and limits
 
-Construction uses 551/10,000 neurons and 297,444 bytes of connection matrices;
+Construction uses 549/10,000 neurons and 295,820 bytes of connection matrices;
 other prepared-image data also consumes memory. Application tests cover actual
 SDK encoding, sensor validation, asynchronous publication, motor delivery and
 Stop/save. Local native-cell checks exercise missing, delayed and intermittent

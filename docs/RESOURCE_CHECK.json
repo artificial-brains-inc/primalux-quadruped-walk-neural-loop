@@ -1,6 +1,6 @@
 {
   "schema": "primalux-spot/construction-check/v1",
-  "design_sha256": "d3ec700dac16573d1a0aa940aabdd6e75d74be6114deff7dff1bfda5a1ca1c30",
+  "design_sha256": "26dce461c1b824ac05076907e71028098573952496fa67029390253e892a9b77",
   "code": "CONSTRUCTION_OK",
   "populations": [
     {
@@ -367,7 +367,7 @@
     {
       "name": "REAR_LEFT_HIP_NEG_BETA",
       "classification": "beta",
-      "neurons": 4,
+      "neurons": 2,
       "tnorm": 5.0
     },
     {
@@ -433,7 +433,7 @@
     {
       "name": "REAR_RIGHT_HIP_NEG_BETA",
       "classification": "beta",
-      "neurons": 4,
+      "neurons": 2,
       "tnorm": 5.0
     },
     {
@@ -816,6 +816,18 @@
       "tnorm": 10.0
     },
     {
+      "name": "LEG_FL_STANCE_HANDOFF_HG",
+      "classification": "high-gamma",
+      "neurons": 1,
+      "tnorm": 10.0
+    },
+    {
+      "name": "LEG_FR_STANCE_HANDOFF_HG",
+      "classification": "high-gamma",
+      "neurons": 1,
+      "tnorm": 10.0
+    },
+    {
       "name": "TILT_ROLL_NEG",
       "classification": "input",
       "neurons": 12
@@ -960,14 +972,14 @@
     }
   ],
   "resources": {
-    "design_populations": 171,
-    "design_connections": 751,
+    "design_populations": 173,
+    "design_connections": 759,
     "input_neurons": 77,
-    "neural_neurons": 474,
-    "total_neurons": 551,
+    "neural_neurons": 472,
+    "total_neurons": 549,
     "neuron_budget": 10000,
-    "dense_matrix_cells": 10623,
-    "matrix_storage_bytes": 297444,
+    "dense_matrix_cells": 10565,
+    "matrix_storage_bytes": 295820,
     "image_budget_bytes": 33554432
   }
 }

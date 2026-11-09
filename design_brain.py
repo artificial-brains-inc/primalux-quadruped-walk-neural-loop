@@ -43,7 +43,7 @@ CONTACT_CLEAR_INHIBITION = 64.0
 
 def create_brain(*, learning=True):
     b = Brain(
-        "Spot - Touch Feedback with Inhibitory LTP"
+        "Spot - Same-Side Stance and Swing with Inhibitory LTP"
         if learning
         else "Spot - Neural Switch and Local Reflexes"
     )
@@ -346,16 +346,26 @@ def create_brain(*, learning=True):
                     b.connect(stem + "_MOVE_HG", population)
                     for target in (population, channel):
                         inhibit(f"PHASE_{support}_DRIVE_HG", target, CROSS_INHIBITION)
-                        inhibit(
-                            stem + "_DONE_HG",
-                            target,
-                            REFLEX_INHIBITION
-                            if joint == "KNEE" and target == channel
-                            else CROSS_INHIBITION,
-                        )
+                        # Keep the rear hip's forward target through landing.
+                        # Its support phase (and STOP/REST) clears the output;
+                        # clearing it at DONE would command an early return to
+                        # neutral before the same-side front begins its swing.
+                        if not (leg in REAR_FRONT_PARTNER and joint == "HIP" and target == channel):
+                            inhibit(
+                                stem + "_DONE_HG",
+                                target,
+                                REFLEX_INHIBITION
+                                if joint == "KNEE" and target == channel
+                                else CROSS_INHIBITION,
+                            )
                 else:
-                    # Support remains available after this leg's local return.
-                    for source in (f"PHASE_{support}_DRIVE_HG", stem + "_DONE_HG"):
+                    # Rear hip retraction belongs to the same phase that
+                    # recruits the ipsilateral front swing. Local return must
+                    # still extend the knee, but must not start this hip stroke.
+                    sources = [f"PHASE_{support}_DRIVE_HG"]
+                    if not (leg in REAR_FRONT_PARTNER and joint == "HIP"):
+                        sources.append(stem + "_DONE_HG")
+                    for source in sources:
                         # Every excitatory motor path stays fixed. Only the
                         # four inhibitory release-feedback paths can learn.
                         b.connect(
@@ -385,6 +395,19 @@ def create_brain(*, learning=True):
                         feedback=True,
                     )
                     inhibit(source, f"{leg}_{joint}_{opposite_side}", 1)
+
+    # Actual rear backward motor activity also recruits same-side front hip
+    # advance, without waiting for that front Beta to build again. The ordinary
+    # front motor pathway still runs. Its DONE, opposing phase and STOP/REST
+    # inhibition clear this shared output even while the rear stance is held.
+    for rear, front in (("RL", "FL"), ("RR", "FR")):
+        relay = f"LEG_{front}_STANCE_HANDOFF_HG"
+        opu(relay, "high-gamma", 10, 650 if front == "FL" else 2050, 3450)
+        gait_nodes.append(relay)
+        b.connect(f"{rear}_HIP_NEG", relay)
+        b.connect(relay, f"{front}_HIP_POS")
+        for source in (f"LEG_{front}_DONE_HG", f"PHASE_{SUPPORT_PHASE[front]}_DRIVE_HG"):
+            inhibit(source, relay, REQUEST_CLEAR_INHIBITION)
 
     # A phase advances from its rear leg's contact-qualified return. This
     # confirms foot-pad contact, not force, unloading or completed propulsion.

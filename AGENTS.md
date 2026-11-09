@@ -17,11 +17,20 @@ Keep proprietary construction code, equations, compiled images and credentials o
   RETURN_BETA directly excites KNEE_NEG and inhibits KNEE_POS/output veto at 64.
   DONE_HG retains the same direct extension and clearing paths. Do not put an
   extra Beta stage between the return signal and the final extension output.
-  DONE also ends this leg's movement and recruits its normal support Betas. Front
+  DONE also ends this leg's movement and recruits its support Betas, except rear
+  hip retraction. Rear HIP_NEG_BETA receives only its support phase. Rear DONE
+  clears HIP_POS_BETA but leaves HIP_POS latched through landing; support phase,
+  antagonistic Beta and REST clear that output. Do not return the rear hip to
+  neutral early by clearing HIP_POS at DONE. Front
   CONTACT_READY_HG recruits HANDOFF_BETA T3, which starts diagonal rear MOVE_HG.
   Do not trigger rear movement from a front swing or reflex motor output.
 - Rear CONTACT_READY_HG recruits its phase's MOTOR_FEEDBACK_HG → FEEDBACK_BETA T5 →
   BETA T5 → RELEASE T3 → opposite request. No host gait period or leg selection.
+- Rear HIP_NEG → same-side front STANCE_HANDOFF_HG T10 (1 neuron) → front HIP_POS.
+  RL recruits FL; RR recruits FR. These are static neural motor-activity relays,
+  not force measurements. Front DONE and its support phase suppress its relay
+  at 64; STOP/REST suppress it at 4. Existing front output clearing still applies.
+  The ordinary front Betas and push/swing/landing circuit continue in parallel.
 - Foot contact input 4 → HG T10 4 inhibits local CONTACT_VETO_HG T10 at 64.
   WALK_NUCLEUS drives this veto; it inhibits CONTACT_MATCH_HG at 64. DONE_HG
   is MATCH's positive anchor. MATCH recruits CONTACT_READY; READY/output-HG

@@ -37,10 +37,14 @@ inhibiting KNEE_POS and the local extension-output veto at strength 64. Final
 extension therefore does not wait for another Beta stage to become active.
 
 RETURN_BETA also recruits DONE. DONE/DONE_HG retain the return state, end this
-leg's movement and excite its ordinary support Betas. DONE_HG directly retains
+leg's movement and excite its ordinary support Betas except rear hip retraction.
+Rear hip forward output remains latched until its support phase or another
+explicit clearer takes over. That phase starts rear retraction and same-side
+front movement; a fixed neural relay couples their motor outputs. See
+[SAME_SIDE.md](SAME_SIDE.md). DONE_HG directly retains
 KNEE_NEG and the same two inhibitory paths. Thus the support command persists
 while the following leg begins its initial push. These direct landing edges
-are fixed; the regular extension Beta and its reflex-learning input remain.
+are fixed; the regular extension Beta and its fixed reflex input remain.
 The opposite macro phase clears the local state for reuse, and swing readiness
 vetoes ordinary extension during the next swing. STOP/REST clears the outputs.
 

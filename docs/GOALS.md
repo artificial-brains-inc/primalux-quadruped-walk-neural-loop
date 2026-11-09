@@ -34,6 +34,14 @@ contact is observed. Waiting for contact must not inhibit the extension needed
 to achieve it. CONTACT_READY retains the event through brief later contact gaps
 and clears during local MOVE or the opposite phase. See [CONTACT.md](CONTACT.md).
 
+Rear landing and backward hip drive are separate goals. Landing extends the knee
+while retaining the forward hip target. The following phase starts rear hip
+retraction and same-side front movement together. Rear HIP_NEG activity then
+recruits the front's HIP_POS output through a fixed high-gamma T10 relay. Front
+DONE suppresses that relay so a held rear stance cannot restart the completed
+front movement. This coordinates motor activity without a host timer or a new
+sensor input; it does not measure backward force. See [SAME_SIDE.md](SAME_SIDE.md).
+
 ## Local corrective priority
 
 Tilt evidence recruits the affected leg's high-gamma T5 reflex. It directly

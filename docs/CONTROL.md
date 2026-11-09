@@ -172,6 +172,12 @@ KNEE_PUSH is a separate early extension output, calibrated to −0.12 rad at up 
 3.0 rad/s. Its readiness and clearing are neural. The controller never reads
 LEG_*_SWING_READY, LEG_*_DONE or LEG_*_CONTACT_READY to choose a motor target.
 
+Same-side hip coordination is also neural. RL_HIP_NEG feeds the FL stance-handoff
+HG, and RR_HIP_NEG feeds the FR relay; each recruits its front HIP_POS output.
+The adapter still applies the ordinary hip calibration, with no added phase,
+target hold, timer, velocity test or sensor. Neural output retention keeps a rear
+hip forward through landing until its explicit clearing paths take over.
+
 Final extension is the existing KNEE_NEG output. RETURN_BETA and DONE_HG drive
 it directly and clear local knee flexion/output veto neurally, alongside the
 regular support-Beta pathway. The decoder applies its existing −0.08 rad,

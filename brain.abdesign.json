@@ -1,6 +1,6 @@
 {
   "schema": "artificial-brains/design/v1",
-  "name": "Spot - Touch Feedback with Inhibitory LTP",
+  "name": "Spot - Same-Side Stance and Swing with Inhibitory LTP",
   "nodes": [
     {
       "name": "WALK_START",
@@ -1101,6 +1101,22 @@
       "kind": "opu",
       "x": 4200.0,
       "y": 5600.0,
+      "rhythm": "high-gamma",
+      "tnorm": 10.0
+    },
+    {
+      "name": "LEG_FL_STANCE_HANDOFF_HG",
+      "kind": "opu",
+      "x": 650.0,
+      "y": 3450.0,
+      "rhythm": "high-gamma",
+      "tnorm": 10.0
+    },
+    {
+      "name": "LEG_FR_STANCE_HANDOFF_HG",
+      "kind": "opu",
+      "x": 2050.0,
+      "y": 3450.0,
       "rhythm": "high-gamma",
       "tnorm": 10.0
     },
@@ -3403,25 +3419,12 @@
       "strength": 4.0
     },
     {
-      "from": "LEG_RL_DONE_HG",
-      "to": "RL_HIP_POS",
-      "type": "inh",
-      "strength": 4.0
-    },
-    {
       "from": "REAR_LEFT_HIP_POS_BETA",
       "to": "RL_HIP_POS",
       "type": "exc"
     },
     {
       "from": "PHASE_B_DRIVE_HG",
-      "to": "REAR_LEFT_HIP_NEG_BETA",
-      "type": "exc",
-      "role": "operand",
-      "units": 1.0
-    },
-    {
-      "from": "LEG_RL_DONE_HG",
       "to": "REAR_LEFT_HIP_NEG_BETA",
       "type": "exc",
       "role": "operand",
@@ -3669,25 +3672,12 @@
       "strength": 4.0
     },
     {
-      "from": "LEG_RR_DONE_HG",
-      "to": "RR_HIP_POS",
-      "type": "inh",
-      "strength": 4.0
-    },
-    {
       "from": "REAR_RIGHT_HIP_POS_BETA",
       "to": "RR_HIP_POS",
       "type": "exc"
     },
     {
       "from": "PHASE_A_DRIVE_HG",
-      "to": "REAR_RIGHT_HIP_NEG_BETA",
-      "type": "exc",
-      "role": "operand",
-      "units": 1.0
-    },
-    {
-      "from": "LEG_RR_DONE_HG",
       "to": "REAR_RIGHT_HIP_NEG_BETA",
       "type": "exc",
       "role": "operand",
@@ -3790,6 +3780,50 @@
       "from": "REAR_RIGHT_KNEE_NEG_BETA",
       "to": "RR_KNEE_NEG",
       "type": "exc"
+    },
+    {
+      "from": "RL_HIP_NEG",
+      "to": "LEG_FL_STANCE_HANDOFF_HG",
+      "type": "exc"
+    },
+    {
+      "from": "LEG_FL_STANCE_HANDOFF_HG",
+      "to": "FL_HIP_POS",
+      "type": "exc"
+    },
+    {
+      "from": "LEG_FL_DONE_HG",
+      "to": "LEG_FL_STANCE_HANDOFF_HG",
+      "type": "inh",
+      "strength": 64.0
+    },
+    {
+      "from": "PHASE_A_DRIVE_HG",
+      "to": "LEG_FL_STANCE_HANDOFF_HG",
+      "type": "inh",
+      "strength": 64.0
+    },
+    {
+      "from": "RR_HIP_NEG",
+      "to": "LEG_FR_STANCE_HANDOFF_HG",
+      "type": "exc"
+    },
+    {
+      "from": "LEG_FR_STANCE_HANDOFF_HG",
+      "to": "FR_HIP_POS",
+      "type": "exc"
+    },
+    {
+      "from": "LEG_FR_DONE_HG",
+      "to": "LEG_FR_STANCE_HANDOFF_HG",
+      "type": "inh",
+      "strength": 64.0
+    },
+    {
+      "from": "PHASE_B_DRIVE_HG",
+      "to": "LEG_FR_STANCE_HANDOFF_HG",
+      "type": "inh",
+      "strength": 64.0
     },
     {
       "from": "LEG_RL_CONTACT_READY_HG",
@@ -4718,6 +4752,30 @@
     {
       "from": "STOP_REQUEST_HG",
       "to": "LEG_RR_DONE",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "LEG_FL_STANCE_HANDOFF_HG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "STOP_REQUEST_HG",
+      "to": "LEG_FL_STANCE_HANDOFF_HG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "REST_NUCLEUS",
+      "to": "LEG_FR_STANCE_HANDOFF_HG",
+      "type": "inh",
+      "strength": 4.0
+    },
+    {
+      "from": "STOP_REQUEST_HG",
+      "to": "LEG_FR_STANCE_HANDOFF_HG",
       "type": "inh",
       "strength": 4.0
     },

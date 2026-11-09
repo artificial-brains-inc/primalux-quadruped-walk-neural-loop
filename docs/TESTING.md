@@ -37,6 +37,13 @@ telemetry. DONE can be active while CONTACT_READY is still zero: the return is
 commanded but contact has not yet qualified it. Do not bypass that condition
 with a controller phase change. See [CONTACT.md](CONTACT.md).
 
+Check same-side overlap next. RL_HIP_NEG should recruit FL_HIP_POS through
+LEG_FL_STANCE_HANDOFF_HG; RR_HIP_NEG should recruit FR_HIP_POS through its relay.
+Follow actual output onsets and measured hip motion together. Rear knee landing
+must still work before the hip handoff, and front DONE must suppress the relay
+while the rear stance is held. Stop and restart to verify both output clearers.
+See [SAME_SIDE.md](SAME_SIDE.md) for the exact static paths.
+
 After static behavior is established, use `learn` to enable physical reward.
 Only the four selected inhibitory release-feedback paths are plastic, using
 STDP3/LTP. Every excitatory connection and every reflex/contact path is static.

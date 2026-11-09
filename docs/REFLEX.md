@@ -39,7 +39,8 @@ Both reflex motor branches remain available without reward.
 | REFLEX_*_HG | High-gamma reflex | 5 | 24 |
 | Regular KNEE_NEG_BETA | Beta motor | 5 | 24 |
 | Front / rear swing Betas | Beta motor | 5 | 2 / 4 |
-| Other support Betas | Beta motor | 5 | 4 |
+| Rear hip support Beta | Beta motor | 5 | 2 |
+| Other non-knee support Betas | Beta motor | 5 | 4 |
 | KNEE_REFLEX_EXTEND | Bistable motor output | — | 1 |
 | REFLEX_*_RECOVERY_BETA | Beta recovery | 3 | 2 |
 | REFLEX_*_OUTPUT_RESET_BETA | Beta reset | 3 | 4 |
