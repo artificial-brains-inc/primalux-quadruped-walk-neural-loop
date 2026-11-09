@@ -45,9 +45,10 @@ Keep proprietary construction code, equations, compiled images and credentials o
   observed pulse after two frames. No reflex guard or controller burst timer.
 - ACTIVE is diagnostic only. All outputs are bistable and have explicit clearing.
   STOP/REST clears all movement, push, reflex, readiness, return and phase paths.
-- Learning uses STDP3/LTD on four release inhibitory returns and STDP3/LTP on
-  four regular support phase drive → knee extension Beta edges. LTD reverses
-  signed eligibility; it does not guarantee weaker inhibition or more overlap.
+- Learning uses STDP3/LTP on four release inhibitory returns and STDP3/LTP on
+  four regular support phase drive → knee extension Beta edges. All eight use
+  LTP; no connection uses LTD. LTP follows signed eligibility, so it does not
+  guarantee every update strengthens a connection.
   Reward is positive upright forward progress: 10 input
   → 10 HG T10 → 17 dopaminergic T3 neurons. Zero is no reward, not punishment.
   Do not claim that wiring alone proves eligibility, weight changes or learning.
@@ -68,5 +69,8 @@ Keep proprietary construction code, equations, compiled images and credentials o
   design, build and run as separate SDK steps. Preserve the project license.
 - Local construction, mocked SDK tests and native-cell harnesses do not validate
   device equivalence, physical weight transfer, stability or learned walking.
+- Foot-pad TouchSensors must have a positive-mass Physics body. A kinematic
+  child bumper can report overlap but cannot supply ground reaction to the leg.
+  Keep the original pad pose/shape and no duplicate parent pad collider.
 - Record internal neuron activity through the read-only stream, including zeros
   and visible recording errors. The observer must not control or pace movement.

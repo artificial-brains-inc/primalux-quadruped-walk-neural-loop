@@ -1,14 +1,22 @@
-# Spot: contact-guided walking and local support reflexes
+# Spot: contact-guided walking with LTP
 
 A developer teaching example for Prima-Lux and Webots. Each leg first gives a
 small extension push, then flexes and advances, then returns to support. Neural
 activity sequences the movements; independent tilt reflexes can override a
 leg's knee motion.
 
+Learning is **STDP3 with LTP on all eight plastic paths**: four inhibitory release
+returns and four excitatory support-to-extension paths. Contact and reflex paths
+are static.
+
 | Macro state | First | Then |
 | --- | --- | --- |
 | A | Front-right push → swing → return | Rear-left push → swing → return |
 | B | Front-left push → swing → return | Rear-right push → swing → return |
+
+Each foot-pad bumper has a 10 g Physics body attached to the forearm by Webots.
+This allows its collider to transmit ground forces to the leg. The original pad
+shape and placement are preserved; the four pads add 40 g to the model.
 
 The return pathway directly activates final knee extension and clears flexion.
 Four foot-pad TouchSensors now supply measured contact. The neural handoff
@@ -106,8 +114,8 @@ WEBOTS_EXECUTABLE=/absolute/path/to/webots
 `WEBOTS_EXECUTABLE` names the executable file, not its containing folder.
 Keep `.env` out of Git. For an existing checkout, stop the application with Q,
 then fetch the bundle and merge its main branch using `--ff-only`.
-Rebuild this design even when the LTD version is already installed. The four
-contact inputs and four contact-ready readouts change the installed contract.
+Rebuild this LTP design even if the previous touch version is installed.
+Changing the reward direction in a local file does not update the installed brain.
 A new build is a new learning condition; do not assume old learned weights transfer.
 
 ## Inspect the design
@@ -179,7 +187,7 @@ Stop with Q and wait for saving, then run:
 ab run -ab --env .env learn
 ```
 
-One physical reward signal may adjust **four STDP3/LTD inhibitory returns** from
+One physical reward signal may adjust **four STDP3/LTP inhibitory returns** from
 RELEASE to its own FEEDBACK_BETA and BETA, plus **four excitatory STDP3/LTP edges**
 from each leg's support phase drive to its regular knee extension Beta. All
 contact and reflex connections, local DONE → Beta, Beta → output, state interlocks, motor
@@ -189,11 +197,10 @@ eligibility on that regular connection. Learning can alter release recovery and
 normal support recruitment; it is not
 a substitute for working coordination.
 
-LTD is selected only on the four RELEASE feedback connections. LTP follows signed eligibility; LTD reverses it. LTD does
-not guarantee weaker inhibition or more overlap. The regular support inputs
-retain LTP, and every reflex connection remains static. Inspect the selected
-edges in the Designer and rebuild before running; changing files does not change
-the brain already installed on the device.
+**All eight plastic connections use LTP. No connection uses LTD.** LTP follows
+signed eligibility; it does not promise that every update strengthens the
+connection. Every contact and reflex connection remains static. Inspect the
+selected edges in the Designer and rebuild before running.
 
 For a design with no learning metadata, author it explicitly, then inspect and
 build it with the same SDK commands:

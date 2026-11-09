@@ -1,6 +1,6 @@
 {
   "schema": "artificial-brains/design/v1",
-  "name": "Spot - Touch Feedback with LTD Release Feedback",
+  "name": "Spot - Touch Feedback with LTP Learning",
   "nodes": [
     {
       "name": "WALK_START",
@@ -1623,7 +1623,7 @@
       "type": "inh",
       "rule": "STDP3",
       "reward": "GAIT_REWARD",
-      "reward_type": "LTD",
+      "reward_type": "LTP",
       "strength": 4.0,
       "role": "feedback"
     },
@@ -1633,7 +1633,7 @@
       "type": "inh",
       "rule": "STDP3",
       "reward": "GAIT_REWARD",
-      "reward_type": "LTD",
+      "reward_type": "LTP",
       "strength": 4.0,
       "role": "feedback"
     },
@@ -1771,7 +1771,7 @@
       "type": "inh",
       "rule": "STDP3",
       "reward": "GAIT_REWARD",
-      "reward_type": "LTD",
+      "reward_type": "LTP",
       "strength": 4.0,
       "role": "feedback"
     },
@@ -1781,7 +1781,7 @@
       "type": "inh",
       "rule": "STDP3",
       "reward": "GAIT_REWARD",
-      "reward_type": "LTD",
+      "reward_type": "LTP",
       "strength": 4.0,
       "role": "feedback"
     },

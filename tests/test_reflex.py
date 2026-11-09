@@ -276,7 +276,7 @@ class ReflexGraphTests(unittest.TestCase):
     def test_bundled_knee_geometry_extends_toward_floor_in_calibrated_range(self):
         source = (ROOT / "protos/spot/SpotLeg.proto").read_text()
         forearm = source.split("endPoint DEF FOREARM Solid {", 1)[1]
-        foot = forearm.split("boundingObject DEF FOREARM_BO", 1)[1]
+        foot = forearm.split("TouchSensor {", 1)[1].split("                        Transform {", 1)[0]
         match = re.search(
             r"translation %<=sign \* ([\d.]+)>% (-?[\d.]+) (-?[\d.]+)", foot
         )

@@ -204,8 +204,8 @@
       "source": "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/robots/boston_dynamics/spot/protos/SpotLeg.proto",
       "upstream_git_blob": "fbef7a37e80c9e9d05739c723e7319174ee365e2",
       "upstream_sha256": "b5d0db78836e2075bee3c0957b0d04518681a8f70dbe0113069b48dab9b875bf",
-      "sha256": "967e752bf8c1c586ec6257e02c2f3437ea617aa1470aa73d6ebcf4f8353a6115",
-      "bytes": 24862,
+      "sha256": "67ff63fd21e2b83b33ecf9ba0772c22adf45e5d2f9b4fbf5be8e03eb0ecf72e4",
+      "bytes": 25173,
       "modified": true
     },
     {

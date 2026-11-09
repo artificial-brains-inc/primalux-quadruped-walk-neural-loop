@@ -28,10 +28,7 @@ class LearningGraphTests(unittest.TestCase):
                 edge["type"], "inh" if (edge["from"], edge["to"]) in expected else "exc"
             )
             self.assertEqual(edge["reward"], "GAIT_REWARD")
-            self.assertEqual(
-                edge["reward_type"],
-                "LTD" if (edge["from"], edge["to"]) in expected else "LTP",
-            )
+            self.assertEqual(edge["reward_type"], "LTP")
             if (edge["from"], edge["to"]) in expected:
                 self.assertEqual(edge["role"], "feedback")
                 self.assertEqual(edge["strength"], 4)
@@ -40,7 +37,7 @@ class LearningGraphTests(unittest.TestCase):
                 self.assertNotIn("rule", edge)
         self.assertEqual(
             REWARD_CLASSIFICATION["reward_types"],
-            {"release_feedback": "LTD", "regular_support": "LTP"},
+            {"release_feedback": "LTP", "regular_support": "LTP"},
         )
 
     def test_reward_does_not_choose_a_phase_or_drive_a_motor(self):

@@ -39,19 +39,17 @@ with a controller phase change. See [CONTACT.md](CONTACT.md).
 
 After static behavior is established, use `learn` to enable physical reward.
 The four selected release inhibitory feedback paths and four regular support
-phase drive → knee extension Beta paths are plastic, using LTD and LTP respectively. Every reflex connection
+phase drive → knee extension Beta paths are plastic, all using STDP3/LTP. Every reflex connection
 is static, including its direct excitation of regular Beta. Check presynaptic
 support-drive activity alongside reflex and postsynaptic Beta activity; a reflex
 burst alone does not establish eligibility on the regular connection.
 Accepted reward publications alone do not establish dopamine firing or learning.
 See [VALIDATION.md](VALIDATION.md) for the scope of the bundled check reports.
 
-For the contact experiment, compare against the LTD release design from commit
-72e3abb using matched initial weights, initial pose and run duration. Contact
-changes the graph, so an old learned checkpoint is not an equivalent initialization. Changing
-`learn` to `walk` only suppresses external reward; it does not select LTP or LTD
-or prove a frozen-weight baseline. Rebuild the intended design for each condition.
-Record rearward hip movement overlapping the next leg's swing, forward progress,
-falls and stalled intervals. Preserve the run settings and design hash. This
-comparison tests contact-qualified handoff. Evaluate LTD versus LTP separately
-with otherwise identical graphs. Contact and reflex paths stay static.
+For a controlled learning comparison, use this corrected physical model in both
+conditions. Run `python design_brain.py --static`, inspect and build it for a
+nonplastic baseline. Then regenerate with `python design_brain.py`, inspect and
+build the uniform LTP design. Keep initial pose and run duration matched. Changing
+`learn` to `walk` only suppresses external reward; it does not remove plasticity
+or prove a frozen-weight baseline. Record forward progress, falls, stalls and
+foot-contact events. Preserve settings and the design hash for both conditions.

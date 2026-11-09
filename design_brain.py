@@ -37,14 +37,14 @@ REFLEX_RESET_INHIBITION = 4.0
 REFLEX_TNORM = 5.0
 REQUEST_CLEAR_INHIBITION = 64.0
 GAIT_LEARNING_RULE = "STDP3"
-RELEASE_REWARD_TYPE = "LTD"
+RELEASE_REWARD_TYPE = "LTP"
 SUPPORT_REWARD_TYPE = "LTP"
 CONTACT_CLEAR_INHIBITION = 64.0
 
 
 def create_brain(*, learning=True):
     b = Brain(
-        "Spot - Touch Feedback with LTD Release Feedback"
+        "Spot - Touch Feedback with LTP Learning"
         if learning
         else "Spot - Neural Switch and Local Reflexes"
     )

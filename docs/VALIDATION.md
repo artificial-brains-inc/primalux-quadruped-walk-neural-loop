@@ -6,7 +6,7 @@ neurons**, 77 external neurons, 171 populations, 751 connections and 297,444 byt
 of connection matrices. Other prepared-image data also consumes the 32 MiB
 budget; device preparation remains authoritative.
 
-**105 application tests pass.** They cover command capture without neural ACK,
+**106 application tests pass.** They cover command capture without neural ACK,
 SDK dispatch, actuator calibration, physical-input encoding, reward, recovery,
 Stop/save, installer repair, bundled assets, saved-graph agreement and recording.
 Contact checks cover all four device names, bumper type, invalid measurements,
@@ -21,16 +21,28 @@ cannot establish physical contact or gait stability.
 
 The model tests verify that each SpotLeg instance gets a named bumper around the
 original distal foot cylinder and that its duplicate parent collider is removed.
-The pad dimensions and transform are unchanged. The test also checks every
-bundled asset against its updated manifest. Webots R2025a's documented bumper
-API supports this sensor type without an additional Physics body. Webots is not
-installed by this package and was not run during this validation.
+The pad dimensions and transform are unchanged. Each pad must have an explicit
+positive-mass Physics body; the regression check rejects the previous kinematic
+sensor. A separate check verifies that the visible floor and collision floor
+share one Box with its top at z=0. Every bundled asset matches its manifest.
+
+The correction follows Webots R2025a's TouchSensor implementation: a physical
+sensor gets a body and a fixed joint to its parent. A sensor without Physics
+does not inherit its parent's physical body. The official bumper sample also
+uses an explicit Physics mass. Each new pad adds 10 g; no other body parameters
+are changed. Webots is not installed by this package and was not run here.
+This identifies and repairs the missing load-bearing body in the model; it
+does not constitute a physical walking or collision-depth measurement.
 
 ## Neural contact checks
 
 [CONTACT_CHECK.json](CONTACT_CHECK.json) matches the current design hash and
-records seven full-circuit local cases using native cell updates, static weights
-and explicit harness assumptions. Inputs are synthetic START, STOP, contact and
+retains seven full-circuit local cases using native cell updates, static weights
+and explicit harness assumptions. Those cases were recorded before the uniform
+LTP selection. Construction comparison confirms identical populations and
+initial connection parameters; only the four release reward directions change.
+The report records the source hash and this equivalence check. It does not
+validate LTP weight updates or the Webots physics correction. Inputs are synthetic START, STOP, contact and
 tilt observations; the harness does not inject gait phases or motor outputs.
 
 | Case | Observed result |
@@ -57,7 +69,7 @@ through later contact loss and was cleared by the next movement's clearing path.
 The previous [SWITCH_CHECK.json](SWITCH_CHECK.json) retains its earlier design
 hash. It is evidence about the preceding return/reflex circuit, not validation
 of the contact graph. The current contact report does not test dopamine-driven
-weight changes. Release returns retain STDP3/LTD, normal support inputs retain
+weight changes. Release returns retain STDP3/LTP, normal support inputs retain
 STDP3/LTP, and every contact/reflex edge is static.
 
 ## Check on the actual system

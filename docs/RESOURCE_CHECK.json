@@ -1,6 +1,6 @@
 {
   "schema": "primalux-spot/construction-check/v1",
-  "design_sha256": "bba52a05ca75826269dfcc810b0c885a0c32bdaa73eecbd2a1012809c6bc6301",
+  "design_sha256": "58b01c42f2f28e3f44fddb05260e291b40805aa33e496847f5eac54b31cb0e81",
   "code": "CONSTRUCTION_OK",
   "populations": [
     {

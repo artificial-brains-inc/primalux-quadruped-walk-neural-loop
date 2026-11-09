@@ -1,5 +1,5 @@
 {
-  "design_sha256": "bba52a05ca75826269dfcc810b0c885a0c32bdaa73eecbd2a1012809c6bc6301",
+  "design_sha256": "58b01c42f2f28e3f44fddb05260e291b40805aa33e496847f5eac54b31cb0e81",
   "scope": "Local native-cell static-weight harness with synthetic contact events, explicit phase/connectivity/fatigue assumptions. Not a Webots physics run, compiled device image, FPGA-equivalence check or learning validation.",
   "case_count": 7,
   "all_passed": true,
@@ -295,5 +295,8 @@
     "No measured Webots foot collision, supported load, unloading or ground-force validation.",
     "No device transport latency guarantee or dopamine-driven weight changes tested.",
     "Contact-ready is retained event history, not continuous load support."
-  ]
+  ],
+  "source_design_sha256": "bba52a05ca75826269dfcc810b0c885a0c32bdaa73eecbd2a1012809c6bc6301",
+  "static_construction_equivalence_verified": true,
+  "provenance": "Cases were recorded for the preceding touch design. The current design has identical constructed populations, weights, densities, seeds and connectivity; only four release reward directions change from LTD to LTP. These static-weight results do not test plasticity or the physical sensor fix."
 }

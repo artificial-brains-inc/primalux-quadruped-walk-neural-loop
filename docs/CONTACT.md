@@ -2,8 +2,12 @@
 
 Each foot has one Webots bumper TouchSensor. Its existing distal collision pad
 is the sensing surface; the duplicate parent collider is removed. The pad's
-shape and location, forearm mass and inertia are preserved. The bumper does not
-add a separate Physics body. A bumper reports 1 for collision and 0 otherwise;
+shape and location and the original forearm mass/inertia are preserved. Each
+bumper now has a `Physics { density -1 mass 0.01 }` body. Webots attaches it to
+the dynamic forearm with a fixed joint, so pad collisions transmit supporting
+forces to the leg. This adds 10 g per pad, 40 g total. A kinematic child bumper
+can detect overlap without supporting the leg; it is unsuitable for this
+load-bearing foot pad. A bumper reports 1 for collision and 0 otherwise;
 it does not report supported weight or ground force.
 
 | Leg | Webots device | Input population | Input neurons |
@@ -76,7 +80,7 @@ input event. Input transport can delay contact qualification; the controller
 never holds motor frames or adds an ACK while waiting for that evidence.
 
 All contact connections are static. The four release-feedback connections keep
-STDP3/LTD and the four regular support-drive connections keep STDP3/LTP. Every
+STDP3/LTP and the four regular support-drive connections keep STDP3/LTP. Every
 reflex connection remains static, including its excitation of regular Beta.
 
 ## Inspect a run
@@ -101,6 +105,8 @@ unloaded. Those are distinct observations and goals.
 
 The Webots bumper API and collision requirements are documented in the
 [official TouchSensor reference](https://github.com/cyberbotics/webots/blob/R2025a/docs/reference/touchsensor.md).
+The physical attachment follows Webots' [TouchSensor implementation](https://github.com/cyberbotics/webots/blob/R2025a/src/webots/nodes/WbTouchSensor.cpp)
+and [physical bumper example](https://github.com/cyberbotics/webots/blob/R2025a/projects/samples/devices/worlds/bumper.wbt).
 The sensor must own the collider that actually meets the floor. Tests verify
 the packaged geometry and SDK path; physical collision readings still need the
 Webots/device run described in [TESTING.md](TESTING.md).

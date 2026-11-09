@@ -114,7 +114,7 @@ def main():
         f"pre-swing push outputs: {len(PUSH_MOTOR_OUTPUTS)}; "
         f"reward input: {REWARD_INPUT_NEURONS} neurons; "
         f"foot contacts: {len(contact_sensors)} sensors / {CONTACT_NEURONS} neurons each; "
-        f"reward class: dopaminergic T3 / release LTD / support LTP; "
+        f"reward class: dopaminergic T3 / release LTP / support LTP; "
         f"design: {design_hash}; project: {ROOT}",
         flush=True,
     )

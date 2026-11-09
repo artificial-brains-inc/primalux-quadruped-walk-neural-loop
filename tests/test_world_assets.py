@@ -28,10 +28,27 @@ class WorldAssetsTests(unittest.TestCase):
                       "rotation -0.577349 -0.577352 0.577350 2.0944"):
             self.assertEqual(source.count(field), 1)  # No parent duplicate masking contact.
             self.assertIn(field, pad)
-        self.assertNotIn("Physics", pad)  # Bumper shares the existing forearm body.
+        # A kinematic child bumper senses overlap but cannot support a dynamic
+        # leg against the static floor. Require a physical sensor body.
+        physics = re.search(r"physics\s+Physics\s*\{([^}]+)\}", pad)
+        self.assertIsNotNone(physics)
+        self.assertIn("density -1", physics[1])
+        self.assertEqual(float(re.search(r"mass\s+([\d.]+)", physics[1])[1]), 0.01)
         spot = (ROOT / "protos/spot/Spot.proto").read_text()
         for name in ("front left", "front right", "rear left", "rear right"):
             self.assertIn(f'name "{name}"', spot)
+
+    def test_visible_floor_and_contact_surface_share_the_same_box(self):
+        world = (ROOT / "worlds/spot_neural_walk.wbt").read_text()
+        floor = world.split("Solid {", 1)[1].split("Solid {", 1)[0]
+        self.assertIn('name "floor"', floor)
+        position = [float(n) for n in re.search(r"translation ([^\n]+)", floor)[1].split()]
+        geometry = re.search(r"geometry DEF (\w+) Box\s*\{\s*size ([^}]+)\}", floor)
+        self.assertIsNotNone(geometry)
+        size = [float(n) for n in geometry[2].split()]
+        self.assertIn("boundingObject USE " + geometry[1], floor)
+        self.assertAlmostEqual(position[2] + size[2] / 2, 0)
+        self.assertNotIn("physics Physics", floor)  # Floor stays fixed.
 
     def test_floor_markings_are_local_noncollision_geometry_with_valid_faces(self):
         source = (ROOT / "protos/FloorMarkings.proto").read_text()
