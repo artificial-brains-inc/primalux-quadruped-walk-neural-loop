@@ -40,8 +40,8 @@ class LearningGraphTests(unittest.TestCase):
         for name, learning in (("static", False), ("learning", True)):
             self.assertEqual(design_sha256(Brain.load(ROOT / "designs" / (name + ".abdesign.json"))), design_sha256(create_brain(learning=learning)))
 
-    def test_static_default_has_no_learning_metadata(self):
-        self.assertFalse(any("rule" in e for e in create_brain().to_dict()["connections"]))
+    def test_static_option_has_no_learning_metadata(self):
+        self.assertFalse(any("rule" in e for e in create_brain(learning=False).to_dict()["connections"]))
 
     def test_reward_does_not_choose_a_phase_or_drive_a_motor(self):
         d = create_brain(learning=True).to_dict()

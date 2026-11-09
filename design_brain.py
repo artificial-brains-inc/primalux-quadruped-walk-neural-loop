@@ -40,11 +40,11 @@ RELEASE_REWARD_TYPE = "LTP"
 CONTACT_CLEAR_INHIBITION = 64.0
 
 
-def create_brain(*, learning=False, handoff_inhibition=0.5):
+def create_brain(*, learning=True, handoff_inhibition=0.5):
     b = Brain(
-        "Spot - Anticipatory Support Cascade with Inhibitory LTP"
+        "Spot - Local Kick Loop with Inhibitory LTP"
         if learning
-        else "Spot - Anticipatory Support Cascade, Static Baseline"
+        else "Spot - Local Kick Loop, Static Baseline"
     )
     pending_connections = []
 
@@ -239,12 +239,17 @@ def create_brain(*, learning=False, handoff_inhibition=0.5):
         for suffix, rhythm, tnorm, dy in (
             ("MOVE_HG", "high-gamma", 10, 0),
             ("PUSH_HG", "high-gamma", 10, 280),
+            ("KICK_END_BETA", "beta", 3, 1400),
+            ("KICK_DONE_HG", "high-gamma", 10, 1680),
+            ("FLEX_WAIT_HG", "high-gamma", 10, 1900),
             ("SWING_READY_HG", "high-gamma", 10, 560),
             ("RETURN_BETA", "beta", 3, 840),
             ("DONE_HG", "high-gamma", 10, 1120),
         ):
             opu(stem + "_" + suffix, rhythm, tnorm, x, y + dy)
             gait_nodes.append(stem + "_" + suffix)
+        output(stem + "_KICK_DONE", x + 650, y + 1680)
+        gait_nodes.append(stem + "_KICK_DONE")
         output(stem + "_SWING_READY", x + 650, y + 560)
         gait_nodes.append(stem + "_SWING_READY")
         output(stem + "_DONE", x + 650, y + 1120)
@@ -258,11 +263,31 @@ def create_brain(*, learning=False, handoff_inhibition=0.5):
             connect(source, stem + "_DRIVE_BETA")
             inhibit(support_source, stem + "_DRIVE_BETA", CROSS_INHIBITION)
             source = stem + "_DRIVE_BETA"
+        # Keep flexion suppressed until the ordinary extension veto is live.
+        # Kick completion alone must not release it against retained extension.
+        connect(f"STEP_{leg}_ACTIVE_HG", stem + "_FLEX_WAIT_HG")
+        inhibit(stem + "_FLEX_WAIT_HG", f"{leg}_KNEE_POS", REFLEX_INHIBITION)
+        inhibit(f"REFLEX_{leg}_EXTENSION_VETO_HG", stem + "_FLEX_WAIT_HG", REFLEX_INHIBITION)
+        inhibit(support_source, stem + "_FLEX_WAIT_HG", REQUEST_CLEAR_INHIBITION)
         connect(source, stem + "_MOVE_HG")
         connect(stem + "_MOVE_HG", stem + "_PUSH_HG")
         connect(f"STEP_{leg}_PREPARE_HG", stem + "_PUSH_HG")
         connect(stem + "_PUSH_HG", f"{leg}_KNEE_PUSH")
-        connect(f"{leg}_KNEE_PUSH", stem + "_PUSH_HG", role="feedback")
+        # Retain a request locally until its motor output recruits termination.
+        # A completion latch blocks the still-held MOVE/PREPARE source.
+        connect(stem + "_PUSH_HG", stem + "_PUSH_HG", role="feedback")
+        connect(f"{leg}_KNEE_PUSH", stem + "_KICK_END_BETA")
+        connect(stem + "_KICK_END_BETA", stem + "_KICK_DONE")
+        connect(stem + "_KICK_DONE", stem + "_KICK_DONE_HG")
+        connect(stem + "_KICK_DONE_HG", stem + "_KICK_DONE")
+        for clear in (stem + "_KICK_END_BETA", stem + "_KICK_DONE_HG"):
+            inhibit(clear, stem + "_PUSH_HG", REQUEST_CLEAR_INHIBITION, feedback=True)
+            inhibit(clear, f"{leg}_KNEE_PUSH", REQUEST_CLEAR_INHIBITION)
+        previous = next(other for other in LEGS if NEXT_LEG[other] == leg)
+        for suffix in ("KICK_END_BETA", "KICK_DONE", "KICK_DONE_HG"):
+            # The preceding turn resets this memory before its RETURN starts
+            # this leg's next preparation. STANCE/PREPARE must not clear it.
+            inhibit(f"STEP_{previous}_REQUEST_HG", stem + "_" + suffix, REQUEST_CLEAR_INHIBITION)
         # Read actual knee flexion output before recruiting the return.
         connect(f"{leg}_KNEE_POS", stem + "_RETURN_BETA")
         connect(stem + "_RETURN_BETA", stem + "_DONE")
@@ -287,13 +312,11 @@ def create_brain(*, learning=False, handoff_inhibition=0.5):
             inhibit(stem + "_DONE_HG", target, REQUEST_CLEAR_INHIBITION)
         for suffix in ("DONE", "DONE_HG", "RETURN_BETA", "SWING_READY", "SWING_READY_HG"):
             inhibit(f"STEP_{leg}_REQUEST_HG", stem + "_" + suffix, REQUEST_CLEAR_INHIBITION)
-        # Motor Beta activity ends the preparation branch while its output
-        # is still being recruited. No Python minimum stroke or delay.
+        # Hip readiness controls the ordinary extension veto. It must not
+        # cancel a pending kick before that kick's own output has fired.
         connect(motor_population(leg, "HIP", "POS"), stem + "_SWING_READY")
         connect(stem + "_SWING_READY", stem + "_SWING_READY_HG")
         connect(stem + "_SWING_READY_HG", stem + "_SWING_READY")
-        for target in (stem + "_PUSH_HG", f"{leg}_KNEE_PUSH"):
-            inhibit(stem + "_SWING_READY_HG", target, REQUEST_CLEAR_INHIBITION)
         inhibit(stem + "_PUSH_HG", f"{leg}_KNEE_POS", REFLEX_INHIBITION)
 
     reflex_nodes = []
@@ -448,7 +471,10 @@ def create_brain(*, learning=False, handoff_inhibition=0.5):
 if __name__ == "__main__":
     import argparse
     parser = argparse.ArgumentParser(description="Author the contact cascade using SDK public fields.")
-    parser.add_argument("--learning", action="store_true", help="Enable four inhibitory STDP3/LTP paths.")
+    selection = parser.add_mutually_exclusive_group()
+    selection.add_argument("--learning", dest="learning", action="store_true", help="Enable the four inhibitory STDP3/LTP paths (default).")
+    selection.add_argument("--static", dest="learning", action="store_false", help="Omit learning metadata for the fixed-weight comparison.")
+    parser.set_defaults(learning=True)
     parser.add_argument("--handoff-inhibition", type=float, default=0.5, help="Initial multiplier on each local timing feedback connection.")
     args = parser.parse_args()
     if args.handoff_inhibition < 0.1:

@@ -168,6 +168,9 @@ class ControllerIntegrationTests(unittest.TestCase):
             stack.enter_context(patch.dict("os.environ", {"SPOT_RUN_MODE": mode}))
             stack.enter_context(patch("ab.ABClient.from_env", return_value=client))
             stack.enter_context(patch("robot.application.verify_installed"))
+            from ab import Brain
+            companion = "static" if mode == "walk" else "learning"
+            stack.enter_context(patch("robot.application.saved_design", return_value=Brain.load(ROOT / "designs" / (companion + ".abdesign.json"))))
             recorder = stack.enter_context(
                 patch("robot.neuron_recording.NeuronRecorder")
             )

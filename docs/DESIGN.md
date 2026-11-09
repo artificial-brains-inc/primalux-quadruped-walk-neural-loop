@@ -42,13 +42,16 @@ ACTIVE_HG recruits MOVE_HG directly for front legs. Rear legs retain a Beta T3
 (two-neuron) drive before MOVE_HG, preserving their local motor input rhythm and
 width. This is a local drive, not a front-output → rear-output shortcut.
 MOVE recruits the existing motor Betas and PUSH_HG in parallel. The push briefly
-extends the knee. Hip Beta recruits retained SWING_READY; readiness clears push
-and allows flexion. Knee flexion output recruits RETURN_BETA T3. RETURN directly
+extends the knee. Static PUSH self-feedback retains the request until KNEE_PUSH
+recruits KICK_END_BETA T3. This clears the kick and latches KICK_DONE until the
+preceding leg's next REQUEST rearms it. Hip SWING_READY cannot clear a pending
+kick. See [PUSH.md](PUSH.md). Knee flexion output recruits RETURN_BETA T3. RETURN directly
 excites final extension and clears knee flexion; retained DONE keeps the return
 available and ends MOVE. Local stance recruits the regular support Betas.
 The existing stroke/reflex targets and speeds are preserved. Separate small
-HIP/ABD support offsets are added by their own motor outputs; reflex wiring is
-unchanged. The push relays now have three neurons in front and four at the rear; regular
+HIP/ABD support offsets are added by their own motor outputs. Reflex trigger
+and reset paths are unchanged. The existing extension veto also releases the
+new local flexion-wait helper after extension is suppressed. The push relays now have three neurons in front and four at the rear; regular
 motor Betas retain their
 previous widths.
 
@@ -112,10 +115,8 @@ a touch sensor or measure load, and it does not guarantee better locomotion.
 ## Initial inhibitory operating point
 
 The fixed default remains 0.5. The brake is recruited from current ACTIVE before
-landing readiness. [HANDOFF_SWEEP.json](HANDOFF_SWEEP.json) records the current
-static-graph checks at different inhibitory strengths. These are circuit
-sensitivity checks, not gait optimization or STDP3 training. A stronger setting
-can delay the next turn; harness steps are not Webots milliseconds.
+landing readiness. This setting needs comparison on the device; it is not a
+measured physical optimum. Native harness steps are not Webots milliseconds.
 
 ## Rhythm and population choices
 
@@ -130,6 +131,8 @@ can delay the next turn; harness steps are not Webots milliseconds.
   posture outputs and the local push. It is not a corrective reflex.
 - **Push relay: high-gamma T10, three front / four rear neurons.** Existing
   MOVE plus preparation; rear MOVE already has two neurons.
+- **Kick termination: Beta T3, two neurons.** Driven by the kick output; it
+  clears the local loop and sets a retained completion helper (HG T10, one neuron).
 - **Regular motor Betas: T5.** Their widths follow their incoming populations:
   knee extension is 24; other regular motor Betas are 2 or 4. The local motor
   construction is preserved rather than retuned for the cascade.
@@ -149,5 +152,5 @@ python design_brain.py --handoff-inhibition 0.75
 ab design --brain brain.abdesign.json --env .env
 ```
 
-`--learning` adds the four learning annotations. This authoring command overwrites
+Learning annotations are included by default; `--static` omits them. This authoring command overwrites
 the root design; it is never called by install or run. Save Canvas edits first.

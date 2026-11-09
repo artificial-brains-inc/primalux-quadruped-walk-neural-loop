@@ -217,7 +217,10 @@ class ReflexGraphTests(unittest.TestCase):
             self.assertEqual(
                 self.edges[f"LEG_{leg}_SWING_READY_HG", gate]["type"], "exc"
             )
-            self.assertEqual({t for s, t in self.edges if s == gate}, {output})
+            self.assertEqual({t for s, t in self.edges if s == gate}, {output, f"LEG_{leg}_FLEX_WAIT_HG"})
+            wait_edge = self.edges[gate, f"LEG_{leg}_FLEX_WAIT_HG"]
+            self.assertEqual((wait_edge["type"], wait_edge["strength"]), ("inh", 64))
+            self.assertNotIn("rule", wait_edge)
             self.assertEqual(self.nodes[gate]["tnorm"], 10)
             self.assertEqual(self.edges[gate, output]["strength"], 64)
             self.assertNotIn((gate, fast), self.edges)
@@ -235,7 +238,9 @@ class ReflexGraphTests(unittest.TestCase):
             for (source, target), edge in self.edges.items():
                 if source.startswith(stem):
                     self.assertTrue(
-                        target.startswith(stem) or target in allowed, (source, target)
+                        target.startswith(stem) or target in allowed
+                        or (source, target) == (f"REFLEX_{leg}_EXTENSION_VETO_HG", f"LEG_{leg}_FLEX_WAIT_HG"),
+                        (source, target)
                     )
                 if target.startswith(stem) and source in TILT_INPUTS:
                     self.assertIn(source, REFLEX_CUES[leg])

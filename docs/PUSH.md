@@ -1,30 +1,56 @@
-# A local push, swing and return
+# A persistent request that produces one kick
 
-Each leg retains its motor primitive. MOVE_HG recruits both its regular motor
-Betas and PUSH_HG. The previous leg’s RETURN_BETA also recruits this leg’s
-PREPARE_HG, which starts PUSH_HG while this leg is still in STANCE. STANCE no
-longer vetoes the push relay/output; it still suppresses swing and local return.
-SWING_READY and DONE retain their explicit push-clearing paths. PUSH directly excites KNEE_PUSH and inhibits knee flexion.
-Its default target is −0.12 rad from neutral at up to 3 rad/s. This is intended
-to shift weight before lift-off; useful physical weight transfer still needs
-testing in Webots.
+Each leg's MOVE_HG and PREPARE_HG recruit PUSH_HG. The preceding leg's return
+sets PREPARE early, while this leg is still grounded. PUSH_HG has a static
+excitatory self-feedback edge: the request can remain active until its kick
+output recruits termination. STANCE and hip SWING_READY do not cancel this request.
 
-Hip Beta recruits SWING_READY, retained through its high-gamma helper.
-SWING_READY_HG clears PUSH_HG and KNEE_PUSH at strength 64. It is not inhibited
-by the push it must end. The normal flexion target is +0.35 rad at 1.5 rad/s.
+```mermaid
+flowchart TD
+  P["MOVE or PREPARE"] --> H["PUSH HG · T10"]
+  H -->|Static feedback| H
+  H --> O["KNEE_PUSH output"]
+  O --> E["KICK_END Beta · T3"]
+  E -->|Inhibits| H
+  E -->|Clears| O
+  E --> D["KICK_DONE latch"]
+  D -->|Keeps inhibited| H
+  D -->|Keeps cleared| O
+  R["Preceding turn's REQUEST"] -->|Rearms| D
+```
 
-Actual neural knee-flexion output recruits RETURN_BETA T3. RETURN directly
-excites KNEE_NEG and inhibits KNEE_POS plus the local extension-output veto at
-strength 64. It also sets retained DONE; DONE keeps final extension available,
-ends MOVE/PUSH and recruits regular support Betas. Final extension is −0.08 rad
-at 1.5 rad/s. There is no extra wait for the regular support Beta to produce its
-output and no controller target-completion decision.
+KICK_END_BETA has two neurons. It inhibits PUSH_HG and KNEE_PUSH at strength 64,
+and sets KICK_DONE. KICK_DONE is a one-neuron output retained by a one-neuron
+high-gamma T10 helper. That helper keeps the push relay and output suppressed
+while the original PREPARE/MOVE drive remains active. This makes a bounded kick
+rather than continuous extension or repeated pulses from a held request.
 
-The preparation relay has two constructed neurons and the push relays have three neurons in front and four at the rear,
-from its existing MOVE input plus the new preparation input. All regular motor
-Betas, push target/speed and reflex populations retain their settings.
+The preceding leg's REQUEST clears KICK_END_BETA, KICK_DONE and its helper at
+strength 64, before that leg's RETURN prepares this leg again. Clearing from
+STANCE or held PREPARE would continuously erase completion and retrigger kicks;
+those reset edges are deliberately absent. STOP/REST clears all kick states.
+DONE retains its existing local push-clear as well.
 
-The next turn restores this leg's STANCE. Its next REQUEST clears old local
-readiness and return state. The touch circuit must have observed lift-off and
-landing before this leg hands off; DONE alone does not mean physical landing.
-See [CONTACT.md](CONTACT.md).
+Push relays are high-gamma T10: three neurons in each front leg and four in each
+rear leg. Their existing MOVE and PREPARE inputs determine these widths. The
+new feedback and termination connections are static. PUSH inhibits the local
+knee-flexion output until it ends; hip readiness still drives the ordinary
+extension veto, but cannot terminate a kick before its output fires.
+
+A local FLEX_WAIT_HG (high-gamma T10, one neuron) is driven by ACTIVE. It
+inhibits knee flexion until the existing extension veto inhibits FLEX_WAIT.
+This prevents kick completion from releasing flexion before retained extension
+has been vetoed. STANCE and STOP clear this helper. All these edges are static;
+there is no new sensory input or controller delay.
+
+The kick uses the existing target, −0.12 rad from neutral at up to 3 rad/s.
+Normal flexion is +0.35 rad at 1.5 rad/s. Actual neural knee-flexion output
+recruits RETURN_BETA T3, which directly excites KNEE_NEG, clears KNEE_POS and its
+extension veto, and sets retained DONE. Final extension remains −0.08 rad at
+1.5 rad/s. Controller targets, speeds and reflexes are unchanged.
+
+KICK_DONE confirms neural output activity, not a completed physical stroke or
+measured weight transfer. The contact circuit still requires lift-off, return
+activity and measured landing before the next turn. A foot that never lands can
+still stall the cascade; this circuit does not fabricate touchdown evidence.
+See [CONTACT.md](CONTACT.md) and [VALIDATION.md](VALIDATION.md).

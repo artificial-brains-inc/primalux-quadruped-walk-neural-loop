@@ -53,14 +53,16 @@ def write_state(state, **fields):
 def main():
     from ab import ABClient
 
-    from .application import saved_design, verify_installed
+    from .application import saved_design, verify_installed, validate_run_mode
     from ab_sdk.design_submit import design_sha256
     from .evaluation import summarize
 
     config = load_config()
-    mode = os.environ.get("SPOT_RUN_MODE", "walk")
+    mode = os.environ.get("SPOT_RUN_MODE", "learn")
     if mode not in ("learn", "walk", "rhythm"):
         raise ValueError("Unknown Spot mode")
+    design = saved_design()
+    plastic_paths = validate_run_mode(design, mode)
     body = Supervisor()
     robot_node = body.getSelf()
     if robot_node is None:
@@ -92,9 +94,7 @@ def main():
         / ("run-" + time.strftime("%Y%m%d-%H%M%S") + "-" + str(time.time_ns()))
     )
     directory.mkdir(parents=True)
-    design = saved_design()
     design_hash = design_sha256(design)
-    plastic_paths = [e for e in design.to_dict()["connections"] if "rule" in e]
     (directory / "settings.json").write_text(
         json.dumps(
             dict(
@@ -126,8 +126,6 @@ def main():
         f"design: {design_hash}; project: {ROOT}",
         flush=True,
     )
-    if mode == "learn" and not plastic_paths:
-        print("[SPOT] Selected design is static: reward will be observed but no synapse can learn. Build designs/learning.abdesign.json as brain.abdesign.json for the learning comparison.", flush=True)
     client = session = recorder = None
     failed = False
     started = time.monotonic()

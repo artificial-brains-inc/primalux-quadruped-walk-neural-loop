@@ -1,6 +1,6 @@
 {
   "schema": "primalux-spot/construction-check/v1",
-  "design_sha256": "6d3f09e1f10c49b29e1e13b88fc89932d58d785f621b8d95382cdd7eb71383ad",
+  "design_sha256": "e82f81f6bc493f83e3fdd5f7b39789bf692435a5392b6448377c88de8c743f11",
   "code": "CONSTRUCTION_OK",
   "populations": [
     {
@@ -894,6 +894,24 @@
       "tnorm": 10.0
     },
     {
+      "name": "LEG_FL_KICK_END_BETA",
+      "classification": "beta",
+      "neurons": 2,
+      "tnorm": 3.0
+    },
+    {
+      "name": "LEG_FL_KICK_DONE_HG",
+      "classification": "high-gamma",
+      "neurons": 1,
+      "tnorm": 10.0
+    },
+    {
+      "name": "LEG_FL_FLEX_WAIT_HG",
+      "classification": "high-gamma",
+      "neurons": 1,
+      "tnorm": 10.0
+    },
+    {
       "name": "LEG_FL_SWING_READY_HG",
       "classification": "high-gamma",
       "neurons": 1,
@@ -910,6 +928,11 @@
       "classification": "high-gamma",
       "neurons": 1,
       "tnorm": 10.0
+    },
+    {
+      "name": "LEG_FL_KICK_DONE",
+      "classification": "output",
+      "neurons": 1
     },
     {
       "name": "LEG_FL_SWING_READY",
@@ -939,6 +962,24 @@
       "tnorm": 10.0
     },
     {
+      "name": "LEG_FR_KICK_END_BETA",
+      "classification": "beta",
+      "neurons": 2,
+      "tnorm": 3.0
+    },
+    {
+      "name": "LEG_FR_KICK_DONE_HG",
+      "classification": "high-gamma",
+      "neurons": 1,
+      "tnorm": 10.0
+    },
+    {
+      "name": "LEG_FR_FLEX_WAIT_HG",
+      "classification": "high-gamma",
+      "neurons": 1,
+      "tnorm": 10.0
+    },
+    {
       "name": "LEG_FR_SWING_READY_HG",
       "classification": "high-gamma",
       "neurons": 1,
@@ -955,6 +996,11 @@
       "classification": "high-gamma",
       "neurons": 1,
       "tnorm": 10.0
+    },
+    {
+      "name": "LEG_FR_KICK_DONE",
+      "classification": "output",
+      "neurons": 1
     },
     {
       "name": "LEG_FR_SWING_READY",
@@ -984,6 +1030,24 @@
       "tnorm": 10.0
     },
     {
+      "name": "LEG_RL_KICK_END_BETA",
+      "classification": "beta",
+      "neurons": 2,
+      "tnorm": 3.0
+    },
+    {
+      "name": "LEG_RL_KICK_DONE_HG",
+      "classification": "high-gamma",
+      "neurons": 1,
+      "tnorm": 10.0
+    },
+    {
+      "name": "LEG_RL_FLEX_WAIT_HG",
+      "classification": "high-gamma",
+      "neurons": 1,
+      "tnorm": 10.0
+    },
+    {
       "name": "LEG_RL_SWING_READY_HG",
       "classification": "high-gamma",
       "neurons": 1,
@@ -1000,6 +1064,11 @@
       "classification": "high-gamma",
       "neurons": 1,
       "tnorm": 10.0
+    },
+    {
+      "name": "LEG_RL_KICK_DONE",
+      "classification": "output",
+      "neurons": 1
     },
     {
       "name": "LEG_RL_SWING_READY",
@@ -1035,6 +1104,24 @@
       "tnorm": 10.0
     },
     {
+      "name": "LEG_RR_KICK_END_BETA",
+      "classification": "beta",
+      "neurons": 2,
+      "tnorm": 3.0
+    },
+    {
+      "name": "LEG_RR_KICK_DONE_HG",
+      "classification": "high-gamma",
+      "neurons": 1,
+      "tnorm": 10.0
+    },
+    {
+      "name": "LEG_RR_FLEX_WAIT_HG",
+      "classification": "high-gamma",
+      "neurons": 1,
+      "tnorm": 10.0
+    },
+    {
       "name": "LEG_RR_SWING_READY_HG",
       "classification": "high-gamma",
       "neurons": 1,
@@ -1051,6 +1138,11 @@
       "classification": "high-gamma",
       "neurons": 1,
       "tnorm": 10.0
+    },
+    {
+      "name": "LEG_RR_KICK_DONE",
+      "classification": "output",
+      "neurons": 1
     },
     {
       "name": "LEG_RR_SWING_READY",
@@ -1322,14 +1414,14 @@
     }
   ],
   "resources": {
-    "design_populations": 237,
-    "design_connections": 1105,
+    "design_populations": 253,
+    "design_connections": 1189,
     "input_neurons": 93,
-    "neural_neurons": 608,
-    "total_neurons": 701,
+    "neural_neurons": 628,
+    "total_neurons": 721,
     "neuron_budget": 10000,
-    "dense_matrix_cells": 11683,
-    "matrix_storage_bytes": 327124,
+    "dense_matrix_cells": 11851,
+    "matrix_storage_bytes": 331828,
     "image_budget_bytes": 33554432
   }
 }

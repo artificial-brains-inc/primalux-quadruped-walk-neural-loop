@@ -154,7 +154,8 @@ class GraphTests(unittest.TestCase):
             self.assertEqual(self.edges[stem + "_HANDOFF_BETA", stem + "_BRAKE_BETA"]["role"], "feedback")
             edge = self.edges[stem + "_BRAKE_BETA", stem + "_HANDOFF_BETA"]
             self.assertEqual((edge["type"], edge["role"], edge["strength"]), ("inh", "feedback", 0.5))
-            self.assertNotIn("rule", edge)
+            self.assertEqual(edge["rule"], "STDP3")
+            self.assertEqual(edge["reward_type"], "LTP")
 
     def test_local_motor_betas_receive_move_or_support_evidence(self):
         populations = set()
@@ -245,7 +246,7 @@ class GraphTests(unittest.TestCase):
             )
             self.assert_inhibits(stem + "_DONE_HG", stem + "_MOVE_HG", 64)
 
-    def test_push_runs_beside_motor_beta_and_clears_from_retained_readiness(self):
+    def test_kick_retains_request_until_motor_feedback_and_rearms_per_turn(self):
         for leg in LEGS:
             stem = f"LEG_{leg}"
             for a, b in [
@@ -258,12 +259,32 @@ class GraphTests(unittest.TestCase):
                 self.assertEqual(self.edges[a, b]["type"], "exc")
                 self.assertNotIn("rule", self.edges[a, b])
             self.assert_inhibits(stem + "_PUSH_HG", f"{leg}_KNEE_POS", 64)
+            self.assert_inhibits(stem + "_FLEX_WAIT_HG", f"{leg}_KNEE_POS", 64)
+            self.assert_inhibits(f"REFLEX_{leg}_EXTENSION_VETO_HG", stem + "_FLEX_WAIT_HG", 64)
+            self.assertEqual(self.edges[f"STEP_{leg}_ACTIVE_HG", stem + "_FLEX_WAIT_HG"]["type"], "exc")
             self.assertNotIn(
                 (stem + "_PUSH_HG", motor_population(leg, "HIP", "POS")), self.edges
             )
             for target in [stem + "_PUSH_HG", f"{leg}_KNEE_PUSH"]:
-                self.assert_inhibits(stem + "_SWING_READY_HG", target, 64)
+                self.assertNotIn((stem + "_SWING_READY_HG", target), self.edges)
                 self.assert_inhibits(stem + "_DONE_HG", target, 64)
+                for clear in ("KICK_END_BETA", "KICK_DONE_HG"):
+                    self.assert_inhibits(stem + "_" + clear, target, 64)
+            self.assertEqual(self.edges[stem + "_PUSH_HG", stem + "_PUSH_HG"]["role"], "feedback")
+            self.assertNotIn((f"{leg}_KNEE_PUSH", stem + "_PUSH_HG"), self.edges)
+            for a, b in ((f"{leg}_KNEE_PUSH", stem + "_KICK_END_BETA"),
+                         (stem + "_KICK_END_BETA", stem + "_KICK_DONE"),
+                         (stem + "_KICK_DONE", stem + "_KICK_DONE_HG"),
+                         (stem + "_KICK_DONE_HG", stem + "_KICK_DONE")):
+                self.assertEqual(self.edges[a, b]["type"], "exc")
+                self.assertNotIn("rule", self.edges[a, b])
+            previous = next(other for other in LEGS if NEXT_LEG[other] == leg)
+            for suffix in ("KICK_END_BETA", "KICK_DONE", "KICK_DONE_HG"):
+                target = stem + "_" + suffix
+                for source in (f"STEP_{previous}_REQUEST_HG", "STOP_REQUEST_HG", "REST_NUCLEUS"):
+                    self.assert_inhibits(source, target, 4)
+                for source in (f"STEP_{leg}_STANCE_HG", f"STEP_{leg}_PREPARE_HG"):
+                    self.assertNotIn((source, target), self.edges)
 
     def test_landing_does_not_wait_for_support_beta_or_leave_flexion_latched(self):
         for leg in LEGS:

@@ -1,11 +1,12 @@
 {
   "schema": "primalux-spot/application-check/v1",
-  "tests": 114,
+  "tests": 119,
   "result": "passed",
+  "verification": "Full 119-test suite followed by a passing 10-test reflex-group rerun after updating two expected-wiring assertions for the local flexion interlock. No production code changed between these runs.",
   "sdk_version": "0.4.2",
-  "static_design_sha256": "6d3f09e1f10c49b29e1e13b88fc89932d58d785f621b8d95382cdd7eb71383ad",
-  "learning_design_sha256": "1df02439a67a0b7791a76a45150b8da704be9b71942cd19df0d63f7998aa8158",
+  "static_design_sha256": "b4401f1633a6870ceec022244db4ab71f9833c2cc2d2d2d4b2e9ca5032f3d385",
+  "learning_design_sha256": "e82f81f6bc493f83e3fdd5f7b39789bf692435a5392b6448377c88de8c743f11",
   "device_run": false,
   "webots_physics_run": false,
-  "scope": "Graph, SDK encoding/commands, mocked adapter boundaries, support calibration and metrics, installer and assets; unchanged regular motor/reflex widths and exact static/learning parity verified."
+  "scope": "Graph and learning contracts, SDK encoding/commands, mocked adapter boundaries, asynchronous input/no ACK behavior, support calibration and metrics, installer and assets. Both graphs constructed successfully; all existing population widths preserved. Native checks are recorded separately."
 }

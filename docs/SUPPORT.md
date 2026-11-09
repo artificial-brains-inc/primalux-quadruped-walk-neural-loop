@@ -15,7 +15,8 @@ There is no new input, host timer, phase selector or ACK wait.
 - Each leg’s ACTIVE_HG inhibits its own support outputs at strength 64. The other
   legs receive the posture adjustment. During preparation the upcoming leg is
   still in STANCE, so it can push and participate before lifting.
-- SWING_READY clears the local push when its hip motor path is recruited. DONE
+- The kick output recruits its own termination and retains KICK_DONE. Hip
+  SWING_READY cannot clear a pending kick. DONE
   also clears it. STOP/REST clears the plans and all new motor outputs.
 
 PREPARE denotes a retained support plan, including its own subsequent swing.

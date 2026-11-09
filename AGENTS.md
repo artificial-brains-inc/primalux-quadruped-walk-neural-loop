@@ -9,7 +9,11 @@ Keep proprietary construction code, formulas, compiled images and credentials ou
   PREPARE adds a two-neuron HG T10 input to the push relay (3 front / 4 rear).
   Previous RETURN recruits next PREPARE before landing. START seeds FR PREPARE.
   PREPARE retains the support plan through its own swing; next PREPARE clears it.
-  STANCE must not veto the grounded push. SWING_READY/DONE and STOP clear it.
+  STANCE and SWING_READY must not veto the pending grounded push. PUSH has
+  static self-feedback; KNEE_PUSH → KICK_END_BETA T3 terminates it and sets
+  retained KICK_DONE. The preceding leg's REQUEST rearms this latch before its
+  RETURN prepares the kick. DONE and STOP retain explicit clearing.
+  FLEX_WAIT_HG blocks knee flexion until the ordinary extension veto is active.
 - Sixteen fixed HIP/ABD support outputs add small signed actuator offsets.
   Direction selection and swing exclusion remain neural. ACTIVE_HG vetoes its
   own support outputs; opposing plans clear antagonists. No phase-based decoder.
@@ -26,7 +30,8 @@ Keep proprietary construction code, formulas, compiled images and credentials ou
   Only the four BRAKE→HANDOFF inhibitory feedback edges may use STDP3/LTP.
   Default strength 0.5 is tested provisionally, not a measured physical optimum.
 - Ship static and learning companions with identical topology/TNorms/strengths.
-  The root design and default mode are static/walk. Static omits learning fields.
+  The root design and default mode are learning/learn. Static omits learning fields.
+  Reject mode/design mismatches before launching Webots; never silently switch graphs.
   All excitatory, sensory, reflex, state interlock and STOP paths stay static.
 - Each independent reflex remains high-gamma T5, 24 neurons, driving its fast
   output and regular knee extension Beta T5 (24 neurons). It inhibits local

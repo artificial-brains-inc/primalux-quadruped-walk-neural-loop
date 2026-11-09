@@ -25,6 +25,36 @@ def saved_design(root=ROOT):
     return b
 
 
+def validate_run_mode(brain, mode):
+    """Reject a misleading comparison before opening Webots or sending input."""
+    if mode not in ("learn", "walk", "rhythm"):
+        raise ValueError("Unknown Spot mode")
+    plastic = [e for e in brain.to_dict()["connections"]
+               if any(k in e for k in ("rule", "reward", "reward_type"))]
+    expected = {(f"STEP_{leg}_BRAKE_BETA", f"STEP_{leg}_HANDOFF_BETA")
+                for leg in ("FR", "RL", "FL", "RR")}
+    valid = (len(plastic) == 4
+             and {(e["from"], e["to"]) for e in plastic} == expected
+             and all(e.get("type") == "inh" and e.get("role") == "feedback"
+                     and e.get("rule") == "STDP3" and e.get("reward") == "GAIT_REWARD"
+                     and e.get("reward_type") == "LTP" for e in plastic))
+    companion = None
+    if mode == "learn" and not valid:
+        companion = "learning"
+    elif mode == "walk" and plastic:
+        companion = "static"
+    elif mode == "rhythm" and plastic and not valid:
+        companion = "learning"
+    if companion:
+        raise ValueError(
+            f"Mode {mode!r} does not match the saved graph. "
+            f"Select it explicitly: cp designs/{companion}.abdesign.json brain.abdesign.json ; "
+            "then ab build brain --brain brain.abdesign.json --env .env. "
+            "learn requires exactly four inhibitory STDP3/LTP paths; walk requires none."
+        )
+    return plastic
+
+
 def verify_installed():
     from ab_sdk.design_submit import design_sha256
     from ab_sdk.primalux import PrimaLuxClient
@@ -43,6 +73,7 @@ def launch(mode):
     from world_assets import check_world_assets
 
     load_config()
+    validate_run_mode(saved_design(), mode)
     check_world_assets(ROOT)
     executable = find_webots(ROOT)
     check_webots(executable)
@@ -109,7 +140,7 @@ def launch(mode):
 def main(argv=None):
     parser = argparse.ArgumentParser(description="Spot neural walking example")
     parser.add_argument(
-        "mode", nargs="?", default="walk", choices=("learn", "walk", "rhythm")
+        "mode", nargs="?", default="learn", choices=("learn", "walk", "rhythm")
     )
     args = parser.parse_args(argv)
     try:

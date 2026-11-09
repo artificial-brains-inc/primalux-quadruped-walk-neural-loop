@@ -137,15 +137,13 @@ a second ACK oscillator or select gait phases.
 
 | Run mode | Actuator targets | External reward |
 | --- | --- | --- |
-| `learn` | Local neural motor outputs | Physical outcome |
-| `walk` (default) | Local neural motor outputs | Held at zero |
+| `learn` (default) | Local neural motor outputs | Physical outcome |
+| `walk` | Local neural motor outputs | Held at zero |
 | `rhythm` | Neutral standing posture | Held at zero |
 
-`walk` is not a guaranteed frozen-weight baseline: a plastic graph can retain
-internal reward/eligibility state. Use the explicitly static graph for the
-controlled comparison in TESTING.md. No mode simulates synthetic neurons in Python. `rhythm` suspends tilt evidence
-but still supplies real foot contacts from the standing model; no fake gait contacts are injected.
-During recovery every mode holds neutral targets and sends no positive reward.
+`learn` requires exactly the four agreed inhibitory STDP3/LTP paths; `walk`
+requires the static graph. The launcher rejects a mismatch before opening
+Webots. Mode selection never rewrites or rebuilds a design.
 
 ## Physical tilt feedback
 

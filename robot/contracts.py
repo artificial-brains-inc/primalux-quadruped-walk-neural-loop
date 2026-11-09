@@ -68,6 +68,7 @@ OUTPUT_SIZES = {
         *MOTOR_OUTPUTS,
         *REFLEX_OUTPUTS,
         *(f"LEG_{leg}_DONE" for leg in LEGS),
+        *(f"LEG_{leg}_KICK_DONE" for leg in LEGS),
         *(f"LEG_{leg}_SWING_READY" for leg in LEGS),
         *(f"LEG_{leg}_CONTACT_READY" for leg in LEGS),
         "WALK_ENABLED",

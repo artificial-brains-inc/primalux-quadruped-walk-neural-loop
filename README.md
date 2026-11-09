@@ -1,4 +1,4 @@
-# Spot: prepare support before handing off a step
+# Spot: local kick loops and learned inhibitory handoffs
 
 A developer-facing Prima-Lux example of four neural motor goals interacting
 through measured foot contact. One START initiates a repeating sequence:
@@ -11,9 +11,11 @@ physical effect still needs testing on your Webots/Prima-Lux setup.
 
 The teaching question is: **how can one motor goal prepare the next movement,
 while contact confirms landing and inhibition controls the handoff?**
-The supplied default is a static design. Its learning companion adds
-STDP3/LTP to exactly four inhibitory connections, with identical initial strengths,
-populations and TNorms. Every excitatory connection and every reflex stays static.
+The supplied root design uses STDP3/LTP on exactly four inhibitory connections.
+A static companion preserves their initial strengths, populations and TNorms for
+comparison. Every excitatory connection, kick/reset path and reflex stays static.
+Each kick retains its request locally until the kick output recruits termination;
+a completion latch prevents a held request from repeating the same kick.
 
 ## What runs where
 
@@ -47,8 +49,8 @@ meshes and textures use bundled relative paths. See [requirements](docs/REQUIREM
 Download the bundle supplied with this example. Use its actual filename:
 
 ```bash
-git clone "$HOME/Downloads/primalux-spot-anticipatory-support.bundle" primalux-spot-anticipatory-support
-cd primalux-spot-anticipatory-support
+git clone --branch main "$HOME/Downloads/primalux-spot-kick-loop-ltp.bundle" primalux-spot-kick-loop-ltp
+cd primalux-spot-kick-loop-ltp
 bash install.sh
 source .venv/bin/activate
 ```
@@ -66,13 +68,13 @@ WEBOTS_EXECUTABLE=/absolute/path/to/webots
 original development machine it is `/home/r2/webots/webots/webots`.
 Keep `.env` out of Git.
 
-## Inspect, build and run the static baseline
+## Inspect, build and run the learning graph
 
-The root `brain.abdesign.json` is already the static baseline. To select it
+The root `brain.abdesign.json` already has the four agreed plastic paths. To select it
 explicitly, copy the supplied design:
 
 ```bash
-cp designs/static.abdesign.json brain.abdesign.json
+cp designs/learning.abdesign.json brain.abdesign.json
 ab design --brain brain.abdesign.json --env .env
 ```
 
@@ -83,7 +85,10 @@ Also follow LEG_FR_RETURN_BETA → STEP_RL_PREPARE_HG. This starts the next
 grounded push and fixed support offsets before the turn changes. PREPARE retains
 the selected support plan through its own swing; the next PREPARE replaces it.
 Inspect STEP_FR_BRAKE_BETA → STEP_FR_HANDOFF_BETA: inhibitory feedback,
-**strength 0.5**, with **no learning rule** in this baseline.
+**strength 0.5**, **STDP3 / GAIT_REWARD / LTP**. The other three legs have the
+same local inhibitory learning path. Also follow PUSH_HG → KNEE_PUSH →
+KICK_END_BETA: the kick recruits its own termination and sets KICK_DONE.
+See [the kick circuit](docs/PUSH.md).
 
 Close the Designer with Ctrl+C. Save/download any Canvas edits before building.
 Stop a previously running device brain, then build:
@@ -96,7 +101,7 @@ ab build brain --brain brain.abdesign.json --env .env
 Wait for READY, then run:
 
 ```bash
-ab run -ab --env .env walk
+ab run -ab --env .env learn
 ```
 
 Focus the Webots 3D view: **W** starts the loop, **S** stops stepping,
@@ -109,13 +114,13 @@ fall recovery is enabled in `config.json`. It sends STOP, restores the robot,
 then may send START; this is simulator assistance, not learned self-righting.
 Use the same recovery setting for both comparison conditions. See [recovery](docs/RECOVERY.md).
 
-## Run the learning comparison
+## Run the static comparison
 
-Stop with Q and wait for saving. Select the companion design and inspect the
-same four connections, now marked inhibitory **STDP3 / GAIT_REWARD / LTP**:
+Stop with Q and wait for saving. Select the static companion and inspect the
+same four inhibitory connections with the learning metadata removed:
 
 ```bash
-cp designs/learning.abdesign.json brain.abdesign.json
+cp designs/static.abdesign.json brain.abdesign.json
 ab design --brain brain.abdesign.json --env .env
 ```
 
@@ -124,14 +129,18 @@ Close the Designer, then explicitly rebuild and run:
 ```bash
 ab device --env .env stop
 ab build brain --brain brain.abdesign.json --env .env
-ab run -ab --env .env learn
+ab run -ab --env .env walk
 ```
 
-All four initial inhibitory strengths are still **0.5**. There are **no plastic
-excitatory connections and no LTD paths**. Simply running `walk` with an already
-plastic brain is not the frozen baseline: use the static design and rebuild.
+All four initial inhibitory strengths are **0.5** in both designs. The launcher
+rejects `learn` with a static graph and `walk` with a plastic graph before opening
+Webots. A run mode never selects or rebuilds a design. The default mode is `learn`.
+To return to learning, copy `designs/learning.abdesign.json`, inspect, rebuild and
+run `learn` explicitly. The installed design hash must match the saved design.
+
 Run equal simulation durations from the same initial world, with identical
-motor/reflex/recovery settings. See [comparison procedure](docs/TESTING.md).
+motor/reflex/recovery settings. There are no plastic excitatory or reflex paths,
+and no LTD paths. See [comparison procedure](docs/TESTING.md).
 
 Learning changes how strongly the current leg's brake inhibits its handoff Beta.
 It cannot bypass the lift-off/landing requirement or change the leg order.
@@ -148,22 +157,23 @@ weight update or improved walking.
 | Retained turn and event helpers | High-gamma T10 | 1 each |
 | Anticipatory preparation relay | High-gamma T10 | 2 each |
 | Local push relay with preparation input | High-gamma T10 | 3 front / 4 rear |
+| Kick termination | Beta T3 | 2 each |
+| Kick completion helper / output | High-gamma T10 / output | 1 each |
 | Rear local motor drive | Beta T3 | 2 each |
 | Regular knee extension | Beta T5 | 24 each |
 | Independent corrective reflex | High-gamma T5 | 24 each |
 | Reward | Dopaminergic T3 | 17 |
 
-The complete graph has **701 neurons**: 93 external input neurons and 608 other
-neurons, across 237 populations. There are four physical foot sensors. Each
+The complete graph has **721 neurons**: 93 external input neurons and 628 other
+neurons, across 253 populations. There are four physical foot sensors. Each
 reading has four CONTACT neurons and four AIR neurons; the explicit AIR rail
 prevents missing asynchronous messages from being interpreted as lift-off.
 The remaining inputs are START/STOP/dormant ACK (3), reward (10), and tilt (48).
 The legacy ACK circuit is isolated and never used to pace execution.
 
 Strength 0.5 is a multiplier of the SDK's inhibitory reference; it is not a
-TNorm or a percentage of neurons. Local static sweeps verified that changing
-this multiplier changes handoff timing. It remains a starting point for the
-physical test. [Design](docs/DESIGN.md) explains the choice and limitations.
+TNorm or a percentage of neurons. It remains a starting point for physical testing; changes to it
+need separate timing and locomotion comparisons. [Design](docs/DESIGN.md) explains the choice and limitations.
 
 ## Observe and compare
 
