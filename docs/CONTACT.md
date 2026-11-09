@@ -20,7 +20,7 @@ it does not report supported weight or ground force.
 The four identical bits in each input encode that foot's single measured state.
 They are four neurons, not four independent sensors or force levels. This adds
 16 sensory neurons, bringing the complete graph to 77 external neurons across
-12 named inputs and 549 neurons in total. The compatible builder's allocation
+12 named inputs and 569 neurons in total. The compatible builder's allocation
 is in [RESOURCE_CHECK.json](RESOURCE_CHECK.json).
 
 ## Return first, then contact-qualified handoff
@@ -31,46 +31,48 @@ The new gate qualifies only the handoff to the next leg or macro phase.
 
 ```mermaid
 flowchart TD
-  W["WALK nucleus"] --> V["Contact veto HG"]
-  C["Foot contact HG"] -->|Inhibits| V
-  V -->|Inhibits| M["Contact match HG"]
-  D["Local DONE HG"] --> M
+  C["Measured foot contact"] --> H["Sensory HG"]
+  C --> V["Return veto HG"]
+  H --> M["Contact match HG"]
+  V -->|Inhibits| M
+  D["Local DONE HG"] -->|Inhibits| V
   M --> R["Contact-ready output"]
-  R --> H["Contact-ready HG"]
-  H --> R
-  H --> N["Existing handoff path"]
+  R --> G["Contact-ready HG"]
+  G --> R
 ```
 
-WALK supplies the veto's positive reference. In the absence of fresh contact
-evidence, the veto suppresses the match population. Contact inhibits the veto,
-allowing local DONE activity through. Contact alone has no positive route into
-the match population. DONE alone remains vetoed. This is a local suppression
-and disinhibition circuit, not an arithmetic NOT or a half-unit AND recipe.
+The sensor drives the positive pathway. A parallel veto blocks contact from
+being captured before the leg's return. DONE_HG inhibits that veto; it does not
+excite MATCH or manufacture contact. The positive path has one more relay than
+the veto path so unarmed contact does not arrive before its inhibition.
 
 | Population / connection | Operating point | Role |
 | --- | --- | --- |
-| `FOOT_*_CONTACT_HG` | High-gamma T10, 4 neurons | Relays measured contact |
-| `LEG_*_CONTACT_VETO_HG` | High-gamma T10, 1 neuron | WALK-driven veto |
-| Contact HG → veto | Inhibitory strength 64 | Removes veto when contact arrives |
-| `LEG_*_CONTACT_MATCH_HG` | High-gamma T10, 1 neuron | Receives local DONE |
-| Veto → match | Inhibitory strength 64 | Blocks unqualified return |
+| `FOOT_*_CONTACT_HG` | High-gamma T10, 4 neurons | Carries measured contact into MATCH |
+| `LEG_*_RETURN_VETO_HG` | High-gamma T10, 4 neurons | Raw-contact-driven veto before return |
+| DONE HG → return veto | Inhibitory strength 64 | Permits contact during return |
+| `LEG_*_CONTACT_MATCH_HG` | High-gamma T10, 4 neurons | Accepts sensory activity when permitted |
+| Return veto → match | Inhibitory strength 64 | Blocks unarmed contact |
 | `LEG_*_CONTACT_READY` | Bistable output, 1 neuron | Captures the qualified event |
 | `LEG_*_CONTACT_READY_HG` | High-gamma T10, 1 neuron | Retains the event and drives handoff |
 
-These small one-neuron gates relay the one-neuron return state. They do not
-drive reflex motors. Each existing tilt reflex still has 24 high-gamma T5
-neurons and its separate fast motor output. Inhibitory strengths are multiples
-of the SDK's calculated reference, not percentages or TNorm values.
+The four-neuron sensory populations carry one foot's four-neuron input. These
+high-gamma populations relay contact; they do not bypass the motor circuit.
+The separate tilt reflex still uses 24 high-gamma T5 neurons and its fast output.
+Inhibitory strengths multiply the SDK's calculated reference; they are not TNorms.
 
-For a front leg, CONTACT_READY_HG excites its existing HANDOFF_BETA T3, which
-recruits the diagonal rear MOVE_HG. For a rear leg, CONTACT_READY_HG excites
-the phase's existing MOTOR_FEEDBACK_HG. A still sequences FR then RL; B still
-sequences FL then RR. Contact does not select a different gait.
+| Contact during local return | Neural consequence |
+| --- | --- |
+| Front right, in A | HANDOFF_BETA starts rear-left movement within A |
+| Rear left, in A | FEEDBACK_BETA requests B, starting front-left movement and rear-left support |
+| Front left, in B | HANDOFF_BETA starts rear-right movement within B |
+| Rear right, in B | FEEDBACK_BETA requests A, starting front-right movement and rear-right support |
 
-The new phase starts rear hip retraction alongside same-side front movement.
-A fixed relay from the rear HIP_NEG output recruits that front HIP_POS output.
-Contact-qualified return remains the phase trigger; the extra relay carries motor
-activity, not a new sensor-derived phase or a measurement of pushing force.
+W seeds the initial A state. Thereafter contact advances this sequence. A rear
+CONTACT_READY_HG reaches FEEDBACK_BETA directly, and that first Beta requests
+the opposite phase. The later BETA → RELEASE branch handles reset without
+delaying the request until RELEASE. The motor-output-to-motor-output shortcut
+is removed. See [SAME_SIDE.md](SAME_SIDE.md).
 
 ## Retention and clearing
 
@@ -78,7 +80,9 @@ Once captured, CONTACT_READY and its HG retain the handoff event through brief
 later contact gaps. This is event memory, not a continuous support guarantee.
 Local MOVE_HG, the opposite/support phase and STOP/REST inhibit MATCH, READY
 and READY_HG at strength 64. This clears a previous cycle's confirmation before
-reuse. STOP/REST also clears the contact veto. No global brain reset occurs.
+reuse. The sensory RETURN_VETO remains active when contact arrives during REST,
+so standing contact cannot leak through while WALK initializes. No global brain
+reset occurs.
 
 The sensory relay is not a latch. Every transmitted nonzero sample is a new
 input event. Input transport can delay contact qualification; the controller
@@ -96,7 +100,8 @@ encoded `contact_inputs`. `contact-inputs.jsonl` contains accepted transmitted
 captures, including capture age and native output step. Unsent captures can be
 replaced by newer readings; the two logs make that visible.
 
-In telemetry, follow contact HG → veto → match → ready → handoff. While standing,
+In telemetry, follow contact HG → match → ready → FEEDBACK_BETA → opposite
+phase request for a rear leg. Inspect DONE and RETURN_VETO alongside that path. While standing,
 planted pads should read 1. A raised pad should read 0. If a foot has DONE=1 but
 READY=0, inspect its physical contact and the gate; do not add a host timer to
 force the next phase. Sensors remain available in `rhythm` mode while actuators

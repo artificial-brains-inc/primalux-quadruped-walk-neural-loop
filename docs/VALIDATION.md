@@ -1,8 +1,8 @@
 # Validation
 
 SDK 0.4.2 validates the saved design, and the compatible local builder accepts
-its construction. [RESOURCE_CHECK.json](RESOURCE_CHECK.json) records **549 total
-neurons**, 77 external neurons, 173 populations, 759 connections and 295,820 bytes
+its construction. [RESOURCE_CHECK.json](RESOURCE_CHECK.json) records **569 total
+neurons**, 77 external neurons, 169 populations, 723 connections and 300,860 bytes
 of connection matrices. Other prepared-image data also consumes the 32 MiB
 budget; device preparation remains authoritative.
 
@@ -36,45 +36,43 @@ does not constitute a physical walking or collision-depth measurement.
 
 ## Neural coordination checks
 
-[SAME_SIDE_CHECK.json](SAME_SIDE_CHECK.json) records six current-design cases and
-one baseline comparison using native cell updates, static weights and explicit
-local initialization, connectivity and fatigue assumptions. Inputs are synthetic
-START, STOP, contact and tilt observations. The harness does not inject motor
-outputs or gait phases. This is not a compiled device image, an FPGA-equivalence
-check, a Webots physics run or a test of weight updates.
-
-The all-contact comparison reduced the median rear-HIP_NEG to same-side
-front-HIP_POS interval from 15 to 5 harness frames on both sides. Rear drive was
-active at every checked front onset in the current all-contact case. This is
-neural command coordination, not a measured backward force or physical benefit.
-The added branches do not bypass the front's completion and stop clearers.
+[CONTACT_SWITCH_CHECK.json](CONTACT_SWITCH_CHECK.json) records ten current-design
+cases using native cell updates, fixed weights and explicit local initialization,
+connectivity and fatigue assumptions. Inputs are synthetic START, STOP, contact
+and tilt observations. No motor outputs or gait phases are injected. This is
+not a compiled device image, an FPGA-equivalence check, a Webots physics run or
+a test of plastic weight updates.
 
 | Current-design case | Observed result |
 | --- | --- |
-| All feet report contact | Repeated sequences, with same-side motor output overlap |
-| No foot reports contact | Initial front movement can start; no contact-ready latch or phase B |
-| Rear-left contact withheld until frame 650 | Its confirmation and phase B remain blocked until contact arrives |
-| Varied initial phases and coupling | Repeated coordinated sequences |
+| All feet report contact | Repeated A/B sequences; both RELEASE branches remain active |
+| No foot reports contact | Initial front-right movement only; no rear handoff or phase B |
+| Rear-left contact withheld until frame 650 | A remains selected; B and front-left movement follow contact |
+| Front-right contact withheld until frame 650 | Rear-left movement waits for that front contact |
+| Rear-left pulse at frame 120, before return | No rear-left READY or phase B; early contact is not reused |
+| One rear-left pulse at frame 650, during return | One B entry; no further B without fresh eligible contact |
+| Standing with contact, without START | No phases, READY events or leg movements |
+| Varied initial phases and coupling | Repeated A/B sequences and active reset branches |
 | Left tilt during walking | Left fast reflex outputs respond; right fast outputs remain inactive |
-| STOP at frame 700, START at 900 | Movement clears and coordinated sequences resume |
+| STOP at frame 700, START at 900 | All motors clear while stopped; sequences resume after START |
 
-The six cases have no simultaneous A/B readouts or opposing hip/knee outputs in
-the checked walking interval. All normal motor outputs clear after the final
-STOP. The report also records the branch activity and timing used in those checks.
-These timings are not predictions of device or Webots timing.
+All ten cases have no simultaneous A/B readouts or opposing hip/knee outputs
+in the checked interval. Normal, push and fast-reflex motor outputs are quiet
+after final STOP. The report records the stimulus schedule, activity and design
+hash. Its frame intervals are not predictions of device or Webots timing.
+RELEASE activity confirms that the reset branches are recruited; it does not
+establish eligibility, dopamine firing or learned weight changes.
 
-[CONTACT_CHECK.json](CONTACT_CHECK.json) and [SWITCH_CHECK.json](SWITCH_CHECK.json)
-retain their earlier design hashes. Their cases were not rerun under those old
-report identities; use SAME_SIDE_CHECK for the current design. No local report
-establishes dopamine-driven weight changes. Only the four inhibitory release
-returns have STDP3/LTP; all excitatory, contact, reflex and same-side relay paths
-are static.
+The older SAME_SIDE_CHECK, CONTACT_CHECK and SWITCH_CHECK reports retain their
+original design hashes and do not validate this graph. Use CONTACT_SWITCH_CHECK
+for the current design. Only four inhibitory release returns have STDP3/LTP;
+all excitatory, contact and reflex paths are static.
 
 ## Check on the actual system
 
 Run `walk` first. Confirm that planted pads report 1 and lifted pads report 0.
 Compare `contact-inputs.jsonl`, raw observations and individual neural telemetry:
-contact HG, contact veto, match, ready and downstream handoff. Input queue
+contact HG, return veto, match, ready, FEEDBACK_BETA and opposite phase request. Input queue
 acceptance does not prove neural processing or physical support.
 
 A ready latch means a collision was observed during return. It does not prove a

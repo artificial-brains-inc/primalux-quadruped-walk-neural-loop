@@ -40,7 +40,7 @@ RETURN_BETA also recruits DONE. DONE/DONE_HG retain the return state, end this
 leg's movement and excite its ordinary support Betas except rear hip retraction.
 Rear hip forward output remains latched until its support phase or another
 explicit clearer takes over. That phase starts rear retraction and same-side
-front movement; a fixed neural relay couples their motor outputs. See
+front movement after rear contact during return changes the switch. See
 [SAME_SIDE.md](SAME_SIDE.md). DONE_HG directly retains
 KNEE_NEG and the same two inhibitory paths. Thus the support command persists
 while the following leg begins its initial push. These direct landing edges

@@ -32,17 +32,19 @@ phase lamps. High queue depth means feedback can be stale relative to the device
 
 First inspect `contacts` and `contact_ready` in the console. Standing feet
 should report contact; a raised pad should report zero. Compare raw foot contact,
-CONTACT_VETO_HG, CONTACT_MATCH_HG, CONTACT_READY and the downstream handoff in
+RETURN_VETO_HG, CONTACT_MATCH_HG, CONTACT_READY and the downstream handoff in
 telemetry. DONE can be active while CONTACT_READY is still zero: the return is
 commanded but contact has not yet qualified it. Do not bypass that condition
 with a controller phase change. See [CONTACT.md](CONTACT.md).
 
-Check same-side overlap next. RL_HIP_NEG should recruit FL_HIP_POS through
-LEG_FL_STANCE_HANDOFF_HG; RR_HIP_NEG should recruit FR_HIP_POS through its relay.
-Follow actual output onsets and measured hip motion together. Rear knee landing
-must still work before the hip handoff, and front DONE must suppress the relay
-while the rear stance is held. Stop and restart to verify both output clearers.
-See [SAME_SIDE.md](SAME_SIDE.md) for the exact static paths.
+Check the switch next. Follow RL contact during return → RL CONTACT_READY →
+PHASE_A_FEEDBACK_BETA → PHASE_B_REQUEST → PHASE_B_OUT. B should recruit rear-left
+support and front-left MOVE_HG; the corresponding RR contact requests A.
+With missing rear contact, the current phase must remain selected while landing
+stays available. Standing contact alone must not start walking. Inspect rear
+support and front movement through their normal Betas, with no rear-output
+shortcut. Compare neural commands with measured motion; contact is not load.
+See [SAME_SIDE.md](SAME_SIDE.md).
 
 After static behavior is established, use `learn` to enable physical reward.
 Only the four selected inhibitory release-feedback paths are plastic, using

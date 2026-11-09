@@ -23,8 +23,8 @@ keeps the push from restarting in a gap between Beta spikes.
 Actual knee flexion output then recruits a return pathway. Its Beta directly
 excites final extension and clears flexion and the extension-output veto. The
 retained return state continues those paths while the regular support Beta
-builds activity. A local contact veto blocks handoff until measured contact
-qualifies that return. CONTACT_READY then recruits the diagonal rear partner
+builds activity. Measured contact positively drives a local gate; the return
+state removes its veto. Without contact, return alone cannot start handoff. CONTACT_READY then recruits the diagonal rear partner
 for a front leg, or the opposite macro state for a rear leg. A runs FR then RL,
 B runs FL then RR. Python supplies four raw contact signals, with no phase,
 cadence or handoff decision. The learned outcome remains upright progress.
@@ -35,12 +35,13 @@ to achieve it. CONTACT_READY retains the event through brief later contact gaps
 and clears during local MOVE or the opposite phase. See [CONTACT.md](CONTACT.md).
 
 Rear landing and backward hip drive are separate goals. Landing extends the knee
-while retaining the forward hip target. The following phase starts rear hip
-retraction and same-side front movement together. Rear HIP_NEG activity then
-recruits the front's HIP_POS output through a fixed high-gamma T10 relay. Front
-DONE suppresses that relay so a held rear stance cannot restart the completed
-front movement. This coordinates motor activity without a host timer or a new
-sensor input; it does not measure backward force. See [SAME_SIDE.md](SAME_SIDE.md).
+while retaining the forward hip target. Contact during return then changes the
+shared phase. That phase starts rear hip retraction and same-side front movement
+through their normal motor pathways. Rear motor activity does not choose when
+to switch. FEEDBACK_BETA requests the next state while its BETA → RELEASE branch
+continues resetting the old feedback activity. This is a neural decision based
+on measured collision, not proof of supported load or backward propulsion.
+See [SAME_SIDE.md](SAME_SIDE.md).
 
 ## Local corrective priority
 

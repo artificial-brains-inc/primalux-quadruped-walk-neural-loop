@@ -76,27 +76,32 @@ class GraphTests(unittest.TestCase):
             self.assertEqual(self.nodes[sense]["neurons"], 4)
             for source, target in (
                 (sense, sense + "_HG"),
-                ("WALK_NUCLEUS", stem + "_CONTACT_VETO_HG"),
-                (stem + "_DONE_HG", stem + "_CONTACT_MATCH_HG"),
+                (sense, stem + "_RETURN_VETO_HG"),
+                (sense + "_HG", stem + "_CONTACT_MATCH_HG"),
                 (stem + "_CONTACT_MATCH_HG", stem + "_CONTACT_READY"),
                 (stem + "_CONTACT_READY", stem + "_CONTACT_READY_HG"),
                 (stem + "_CONTACT_READY_HG", stem + "_CONTACT_READY"),
             ):
                 self.assertEqual(self.edges[source, target]["type"], "exc")
-            self.assert_inhibits(sense + "_HG", stem + "_CONTACT_VETO_HG", 64)
-            self.assert_inhibits(stem + "_CONTACT_VETO_HG", stem + "_CONTACT_MATCH_HG", 64)
+            self.assert_inhibits(stem + "_DONE_HG", stem + "_RETURN_VETO_HG", 64)
+            self.assert_inhibits(stem + "_RETURN_VETO_HG", stem + "_CONTACT_MATCH_HG", 64)
+            self.assertNotIn((stem + "_DONE_HG", stem + "_CONTACT_MATCH_HG"), self.edges)
             for suffix in ("CONTACT_MATCH_HG", "CONTACT_READY", "CONTACT_READY_HG"):
                 target = stem + "_" + suffix
                 for source in (stem + "_MOVE_HG", f"PHASE_{SUPPORT_PHASE[leg]}_DRIVE_HG", "STOP_REQUEST_HG", "REST_NUCLEUS"):
                     self.assert_inhibits(source, target, 64)
             # No direct sensory actuation, no reflex handoff, no learned sensor gate.
             sense_targets = {t for (s, t) in self.edges if s in (sense, sense + "_HG")}
-            self.assertEqual(sense_targets, {sense + "_HG", stem + "_CONTACT_VETO_HG"})
+            self.assertEqual(sense_targets, {sense + "_HG", stem + "_RETURN_VETO_HG", stem + "_CONTACT_MATCH_HG"})
+            # Sensory vetoes keep running during REST, preventing unarmed
+            # contact from leaking through as the WALK goal is initialized.
+            self.assertNotIn(("REST_NUCLEUS", stem + "_RETURN_VETO_HG"), self.edges)
+            self.assertNotIn(("STOP_REQUEST_HG", stem + "_RETURN_VETO_HG"), self.edges)
             for (source, target), edge in self.edges.items():
                 if "CONTACT" in source or "CONTACT" in target:
                     self.assertNotIn("rule", edge)
             destination = (stem + "_HANDOFF_BETA" if leg not in REAR_FRONT_PARTNER
-                           else f"PHASE_{SWING_PHASE[leg]}_MOTOR_FEEDBACK_HG")
+                           else f"PHASE_{SWING_PHASE[leg]}_FEEDBACK_BETA")
             self.assertNotIn((stem + "_DONE_HG", destination), self.edges)
 
     def test_command_reinforcement_has_explicit_opposing_clear_paths(self):
@@ -143,7 +148,7 @@ class GraphTests(unittest.TestCase):
                 (stem + "_REQUEST_HG", stem + "_OUT"),
                 (stem + "_OUT", stem + "_DRIVE_HG"),
                 (stem + "_DRIVE_HG", stem + "_OUT"),
-                (stem + "_RELEASE", opp + "_REQUEST"),
+                (stem + "_FEEDBACK_BETA", opp + "_REQUEST"),
             ):
                 self.assertEqual(self.edges[source, target]["type"], "exc")
                 self.assertNotIn("rule", self.edges[source, target])
@@ -163,7 +168,7 @@ class GraphTests(unittest.TestCase):
         }
         for phase, sources in expected.items():
             stem = f"PHASE_{phase}"
-            target = stem + "_MOTOR_FEEDBACK_HG"
+            target = stem + "_FEEDBACK_BETA"
             self.assertEqual(
                 {
                     s
@@ -173,7 +178,6 @@ class GraphTests(unittest.TestCase):
                 sources,
             )
             for a, b in (
-                ("MOTOR_FEEDBACK_HG", "FEEDBACK_BETA"),
                 ("FEEDBACK_BETA", "BETA"),
                 ("BETA", "RELEASE"),
             ):
@@ -240,13 +244,11 @@ class GraphTests(unittest.TestCase):
             self.assertEqual(self.edges[drive, f"LEG_{front}_MOVE_HG"]["type"], "exc")
             self.assertNotIn((f"LEG_{rear}_DONE_HG", motor_population(rear, "HIP", "NEG")), self.edges)
             self.assertNotIn((f"LEG_{rear}_DONE_HG", f"{rear}_HIP_POS"), self.edges)
-            relay = f"LEG_{front}_STANCE_HANDOFF_HG"
-            self.assertEqual((self.nodes[relay]["rhythm"], self.nodes[relay]["tnorm"]), ("high-gamma", 10))
-            for source, target in ((f"{rear}_HIP_NEG", relay), (relay, f"{front}_HIP_POS")):
-                self.assertEqual(self.edges[source, target]["type"], "exc")
-                self.assertNotIn("rule", self.edges[source, target])
-            for source in (f"LEG_{front}_DONE_HG", f"PHASE_{SUPPORT_PHASE[front]}_DRIVE_HG"):
-                self.assert_inhibits(source, relay, 64)
+            self.assertNotIn(f"LEG_{front}_STANCE_HANDOFF_HG", self.nodes)
+            self.assertEqual(
+                {s for (s,t),e in self.edges.items() if t==f"{front}_HIP_POS" and e['type']=='exc'},
+                {motor_population(front, "HIP", "POS")},
+            )
             for source in (f"LEG_{front}_DONE_HG", f"PHASE_{SUPPORT_PHASE[front]}_DRIVE_HG", "REST_NUCLEUS"):
                 self.assert_inhibits(source, f"{front}_HIP_POS", 4)
             # Landing still clears the internal swing Beta and directly extends
@@ -259,7 +261,7 @@ class GraphTests(unittest.TestCase):
 
     def test_stop_clears_switch_requests_and_all_motor_outputs(self):
         for name in self.nodes:
-            if (
+            if not name.endswith("_RETURN_VETO_HG") and (
                 name.startswith(
                     (
                         "PHASE_",

@@ -1,61 +1,49 @@
-# Rear stance and same-side front advance
+# Contact changes the switch
 
-The intended overlap is rear-left backward drive with front-left forward swing,
-and rear-right backward drive with front-right forward swing. This is a motor
-relationship inside the brain. Python does not select a leg or schedule a phase.
+The next movement begins because measured contact advances the neural sequence.
+The controller reads each bumper and transmits its four-neuron input; it does
+not select a leg, request a phase change or wait on a movement timer.
 
-## Separate landing from the backward stroke
-
-Each rear leg still starts landing through RETURN_BETA → KNEE_NEG. DONE retains
-that extension, and measured foot contact qualifies the phase handoff.
-
-Rear DONE no longer recruits HIP_NEG_BETA or clears the forward HIP_POS output.
-It still clears the internal forward hip Beta. The output deliberately retains
-the forward target through landing, with explicit clearing by the support phase,
-the opposing motor Beta or REST. This prevents an early return to neutral and an
-early backward target while the front is still waiting for its phase.
-
-The new phase recruits both rear HIP_NEG_BETA and the same-side front MOVE_HG.
-The rear support Beta is Beta T5, two neurons, receiving one operand unit from
-its phase drive. Knee landing and reflex extension remain independent of this
-hip coordination.
-
-## Couple the motor activity
-
-| Rear motor output | Fixed relay | Front motor output |
+| Current state | Contact during local return | Result |
 | --- | --- | --- |
-| RL_HIP_NEG | LEG_FL_STANCE_HANDOFF_HG | FL_HIP_POS |
-| RR_HIP_NEG | LEG_FR_STANCE_HANDOFF_HG | FR_HIP_POS |
+| A | Front right | Start rear-left movement within A |
+| A | Rear left | Change to B; start rear-left support and front-left movement |
+| B | Front left | Start rear-right movement within B |
+| B | Rear right | Change to A; start rear-right support and front-right movement |
 
-Each relay is **high-gamma T10, one neuron**. It relays a one-neuron motor output;
-it is not a reflex population or an amplitude multiplier. Every connection in
-these two branches is static. The front's ordinary Beta → HIP_POS pathway also
-continues, while the new branch recruits that same output from rear motor activity.
-The SDK requires output feedback to pass through an OPU.
+W seeds A for the first front-right movement. Each leg still performs its local
+push, flexion/advance and final extension. The sensor supplies positive evidence
+to its CONTACT_MATCH_HG. Local return activity removes the veto that otherwise
+blocks that evidence. CONTACT_READY captures it for the handoff.
 
-Front DONE and the front's support phase each inhibit its relay at strength 64.
-STOP/REST inhibit the relay at strength 4. Existing front HIP_POS clearing by
-DONE, its support phase, its antagonist and REST remains. These clearers prevent
-a held rear stance command from repeatedly restarting a completed front swing.
-Inhibitory strengths are SDK reference multipliers, not percentages or TNorms.
+For a rear foot, CONTACT_READY_HG recruits the current phase's FEEDBACK_BETA T5,
+which requests the opposite phase. The switch does not wait for the later
+BETA T5 and RELEASE T3 stages: those continue as the reset branch. The opposite
+phase clears the previous OUT/DRIVE, while allowing its reset branch to finish.
 
-Only the four inhibitory macro release-feedback paths use STDP3/LTP. Both new
-relays, all excitatory connections, the contact circuit and every reflex path
-remain static. No new input, output channel or controller rule is required.
+The new phase recruits rear hip support and the same-side front MOVE_HG through
+their normal motor paths. There is no rear HIP_NEG → front HIP_POS shortcut.
+Rear landing retains its forward hip output until support starts, and its final
+knee extension remains available while contact is missing.
 
-## What to observe
+All contact, switch recruitment and excitatory motor edges are static. Only four
+RELEASE inhibitory returns, to FEEDBACK_BETA and BETA in each phase, use STDP3/LTP.
+They regulate reset activity; their presence is not evidence of improved walking.
 
-Compare rear HIP_NEG onset with same-side front HIP_POS onset in native output
-records. Then inspect measured hip positions and foot contacts: output overlap
-does not prove useful ground force or successful weight transfer. Contact is
-binary collision evidence; it cannot establish that the foot is pushing backward.
+The sensor path uses four input neurons, four sensory high-gamma T10 neurons and
+four CONTACT_MATCH_HG T10 neurons per foot. A parallel four-neuron RETURN_VETO_HG
+T10 blocks unarmed contact; DONE inhibits that veto at strength 64. The captured
+READY output and its HG helper have one neuron each. These sensory gates serve
+a different role from the unchanged 24-neuron high-gamma T5 tilt reflexes.
 
-The local static comparison reduced the median rear-to-front output interval
-from 15 to 5 harness frames on both sides. Those are local neural harness frames,
-not measured Webots seconds or a device timing guarantee. See
-[SAME_SIDE_CHECK.json](SAME_SIDE_CHECK.json) and [VALIDATION.md](VALIDATION.md).
+In the local native-cell checks, holding rear-left contact at zero keeps A
+selected. Supplying it during return requests B and recruits front-left movement.
+An early pulse before return does not advance the switch. Standing contacts do
+not start walking. See [CONTACT_SWITCH_CHECK.json](CONTACT_SWITCH_CHECK.json)
+and [VALIDATION.md](VALIDATION.md) for all ten cases and their limits.
 
-The complete graph has 549 neurons, including the unchanged 77 external neurons.
-The two added relays use two neurons; the rear support Betas each shrink from
-four to two when their extra DONE source is removed. All actuator speeds,
-excursions, physics settings, contact bodies and recovery settings remain fixed.
+A bumper reports collision, not backward force or supported load. This circuit
+accepts contact during return even if the foot never left the floor. Confirm
+actual foot travel, support and body motion in Webots; the neural checks alone
+cannot establish them. Existing motor calibration, foot physics, reflexes and
+controller transport are unchanged.

@@ -15,24 +15,31 @@ and REST_ACTIVE/REST_NUCLEUS loops retain the goal, with opposing clearing paths
 
 START_REQUEST_HG also captures PHASE_A_REQUEST. Each phase request has a
 REQUEST → REQUEST_HG → REQUEST loop. Its helper excites that phase's OUT and
-clears the opposite state and its feedback path. Once the new state is active,
+clears the opposite OUT and DRIVE_HG. Once the new state is active,
 DRIVE_HG clears its own request and helper. The OUT → DRIVE_HG → OUT loop retains
-the selected state. Each DRIVE_HG inhibits the opposite OUT, DRIVE_HG and motor
-feedback relay. This makes handoff a neural event rather than a Python decision.
+the selected state. Each DRIVE_HG inhibits the opposite OUT and DRIVE_HG.
+The previous feedback/reset branch may finish after the switch has changed.
 
 State/request clearing uses strength 4. Successful state recruitment clears its
-own handoff request at strength 64 because an upstream release burst may still
+own handoff request at strength 64 because upstream feedback activity may still
 be arriving. Strength is a multiplier of the SDK's calculated inhibitory
 reference, not a percentage of neurons suppressed. These paths are static.
 
 ## What flips the switch
 
 A orders FR then RL; B orders FL then RR. Each leg has MOVE, PUSH, SWING_READY
-and DONE activity. Each DONE is qualified by measured contact in a local static
-veto circuit. Front CONTACT_READY_HG recruits a Beta T3 handoff into the rear
-leg's MOVE_HG. Rear CONTACT_READY_HG supplies the macro state's MOTOR_FEEDBACK_HG →
-FEEDBACK_BETA T5 → BETA T5 → RELEASE T3. RELEASE captures the opposite request.
-The four inhibitory RELEASE returns use STDP3/LTP.
+and DONE activity. Measured contact is the positive source into CONTACT_MATCH_HG;
+DONE_HG removes a local RETURN_VETO so contact during return can be captured.
+Front CONTACT_READY_HG recruits HANDOFF_BETA T3 → diagonal rear MOVE_HG.
+Rear CONTACT_READY_HG directly recruits its phase's FEEDBACK_BETA T5, which
+excites the opposite PHASE_REQUEST. RL therefore requests B; RR requests A.
+
+FEEDBACK_BETA also recruits BETA T5 → RELEASE T3 as a parallel reset branch.
+The switch does not wait for those two later stages. RELEASE inhibits its own
+FEEDBACK_BETA and BETA through the four STDP3/LTP connections. Opposite phase
+requests do not clear this branch prematurely; STOP/REST still clears it.
+This preserves activity for recovery and potential eligibility, without claiming
+that wiring or spike activity establishes weight changes.
 
 This sequence uses internal neural activity. The return begins from an actual
 knee flexion output rather than from the earlier hip command, so the leg's
@@ -62,16 +69,14 @@ or REST clears that output. The opposite
 macro state clears the local sequence for reuse. Rear movement receives the
 front's HANDOFF_BETA, not a front motor or reflex output. See [PUSH.md](PUSH.md).
 
-## Rear stance recruits same-side front advance
+## Contact changes the shared phase
 
-The phase that recruits rear-left hip retraction also starts front-left movement;
-the corresponding right-side pair shares the other phase. A fixed output-feedback
-path makes the actual rear HIP_NEG activity recruit front HIP_POS through one
-STANCE_HANDOFF_HG T10 relay. Each relay has one neuron. It bypasses the extra
-wait for the front hip Beta to build, while that normal pathway keeps running.
-Front DONE and the front's support phase inhibit its relay at strength 64;
-STOP/REST inhibit it at 4. Existing front output clearing remains in force.
-Rear knee landing does not wait for this hip handoff. See [SAME_SIDE.md](SAME_SIDE.md).
+After RL contact during return requests B, PHASE_B_DRIVE_HG starts rear-left
+hip support and front-left MOVE_HG. After RR contact requests A, the corresponding
+right-side paths begin. The front advances through its normal push/swing/return
+circuit. No rear motor-output relay drives a front motor output.
+Rear knee landing remains available before contact or the phase change.
+See [SAME_SIDE.md](SAME_SIDE.md).
 
 ## Reflex and ordinary extension
 
@@ -100,7 +105,6 @@ one-HG clearing. ACTIVE remains diagnostic. See [REFLEX.md](REFLEX.md).
 | Population | Rhythm / TNorm | Neurons each |
 | --- | --- | --- |
 | Command, state and readiness HG helpers | High-gamma 10 | 1 |
-| Macro motor feedback HG | High-gamma 10 | 1 |
 | Macro feedback / downstream / release | Beta 5 / Beta 5 / Beta 3 | 2 / 4 / 7 |
 | Front MOVE / PUSH | High-gamma 10 | 1 |
 | Rear MOVE / PUSH | High-gamma 10 | 2 |
@@ -109,18 +113,17 @@ one-HG clearing. ACTIVE remains diagnostic. See [REFLEX.md](REFLEX.md).
 | Front swing / rear swing Betas | Beta 5 | 2 / 4 |
 | Rear hip support Beta | Beta 5 | 2 |
 | Other non-knee support Betas | Beta 5 | 4 |
-| Same-side stance handoff HG | High-gamma 10 | 1 |
 | Local extension-output veto | High-gamma 10 | 1 |
 | Foot contact input / sensory HG | Input / High-gamma 10 | 4 / 4 |
-| Contact veto / match / ready HG | High-gamma 10 | 1 / 1 / 1 |
+| Return veto / contact match / ready HG | High-gamma 10 | 4 / 4 / 1 |
 | Contact-ready readout | Bistable output | 1 |
 | Local reflex HG | High-gamma 5 | 24 |
 | Reflex recovery / output reset | Beta 3 / Beta 3 | 2 / 4 |
 | Reward relay / reward | High-gamma 10 / Dopaminergic 3 | 10 / 17 |
 
 The compatible builder calculates these widths from the declared relationships.
-The graph has 102 OPUs, 59 one-neuron outputs and twelve external populations:
-173 populations, 759 connections, 549 total neurons and 295,820 bytes of
+The graph has 98 OPUs, 59 one-neuron outputs and twelve external populations:
+169 populations, 723 connections, 569 total neurons and 300,860 bytes of
 connection matrices. Device preparation remains authoritative.
 
 ## Learning scope

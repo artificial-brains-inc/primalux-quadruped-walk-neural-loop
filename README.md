@@ -1,15 +1,15 @@
-# Spot: coordinated stance and swing with inhibitory LTP
+# Spot: contact-triggered walking switch with inhibitory LTP
 
 A developer teaching example for Prima-Lux and Webots. Each leg first gives a
 small extension push, then flexes and advances, then returns to support. Neural
 activity sequences the movements; independent tilt reflexes can override a
 leg's knee motion.
 
-Rear backward drive now recruits the front hip's forward command on the same
-side: rear-left → front-left, rear-right → front-right. Two fixed high-gamma
-relays carry that motor activity. Rear knee extension can land the foot before
-this handoff; rear hip retraction starts with the phase for the same-side front
-swing. See [same-side coordination](docs/SAME_SIDE.md).
+Measured foot contact advances the neural sequence. A front foot's contact during
+return starts its diagonal rear partner. A rear foot's contact during return
+changes A/B: the new phase recruits rear support and the same-side front movement.
+The sensor drives the contact pathway; the controller supplies no switch decision.
+See [contact-triggered coordination](docs/SAME_SIDE.md).
 
 Learning is **STDP3 with LTP only on four inhibitory release-feedback paths**.
 Every excitatory connection is static, including the normal support-to-extension
@@ -45,14 +45,15 @@ There is **no neural ACK handshake**. Input HTTP requests run separately from
 motor delivery; the newest unsent tilt/contact/reward capture replaces older unsent
 captures. WALK/REST confirmation is observed without pausing body steps. Every
 native motor frame is retained. The isolated ACK populations remain dormant.
-This contact design changes the input/output contract and **requires a rebuild**.
+This graph **requires a rebuild**. Its input/output names remain unchanged from
+the preceding contact-enabled package.
 Existing motor calibration and the independent tilt-reflex paths are preserved.
 
 Automatic fall recovery is still enabled. It requests STOP, restores the robot
 and requests START after settling. Removing ACK does not disable that separate
 source of apparent restarts. See [recovery](docs/RECOVERY.md).
 
-There are **549 neurons**, including **77 external neurons across twelve named
+There are **569 neurons**, including **77 external neurons across twelve named
 inputs**. Each leg's reflex remains **24 high-gamma T5 neurons**, directly
 exciting its fast output and its **24-neuron regular extension Beta T5**. The
 two reflex connections and the regular support phase drive → knee extension
@@ -62,7 +63,7 @@ output so it does not prevent that Beta from receiving reflex evidence.
 
 The reward path is 10 outcome input neurons → 10 high-gamma T10 neurons →
 17 dopaminergic T3 neurons. Positive reward means new upright forward progress;
-zero means no reward. The four new contact inputs each contain four neurons.
+zero means no reward. The four contact inputs each contain four neurons.
 Python transmits measurements; it supplies no phase, gait or handoff decision.
 
 ## What you learn
@@ -74,7 +75,7 @@ Python transmits measurements; it supplies no phase, gait or handoff decision.
 - Combine a return command with measured foot contact inside the brain.
 - Retain that confirmation and clear it before the next local movement.
 - Recruit the diagonal rear partner after front contact is confirmed.
-- Couple rear hip retraction to same-side front hip advance through neural output feedback.
+- Change A/B on rear contact, recruiting rear support and same-side front advance.
 - Keep local reflexes independent and give them a neural reset long enough to
   avoid the immediate output-clearing loop.
 - Recruit regular Beta through a fixed reflex connection while limiting STDP3/LTP
@@ -136,10 +137,13 @@ Follow START → START_REQUEST → WALK_ENABLED, then PHASE_A_REQUEST → PHASE_
 OUT and DRIVE_HG retain each macro state. Inspect LEG_FR_MOVE_HG: it excites the
 ordinary motor Betas and PUSH_HG in parallel. Follow hip Beta → SWING_READY →
 SWING_READY_HG back to clear the push branch. Then follow KNEE_POS → RETURN_BETA
-→ DONE → DONE_HG. Inspect FOOT_FR_CONTACT_HG inhibiting LEG_FR_CONTACT_VETO_HG.
-That veto suppresses LEG_FR_CONTACT_MATCH_HG, whose positive drive is DONE_HG.
-The resulting CONTACT_READY loop feeds front HANDOFF_BETA → rear MOVE_HG, or
-rear MOTOR_FEEDBACK_HG for the phase handoff. Python does not compute these states.
+→ DONE → DONE_HG. Follow FOOT_FR_CONTACT → FOOT_FR_CONTACT_HG →
+LEG_FR_CONTACT_MATCH_HG → CONTACT_READY. The raw input also recruits
+LEG_FR_RETURN_VETO_HG, which suppresses MATCH until DONE_HG inhibits that veto.
+Contact is the positive evidence; DONE alone cannot create it. Front
+CONTACT_READY_HG feeds HANDOFF_BETA → diagonal rear MOVE_HG. Rear
+CONTACT_READY_HG feeds its phase's FEEDBACK_BETA → opposite PHASE_REQUEST.
+The switch does not wait for the later BETA → RELEASE reset branch to finish.
 
 Inspect the direct RETURN_BETA → KNEE_NEG and DONE_HG → KNEE_NEG edges. Both
 sources clear KNEE_POS and its extension-output veto at strength 64. The final
@@ -153,11 +157,12 @@ RELEASE → FEEDBACK_BETA and RELEASE → BETA inhibitory edges.
 Follow the fast output through two Beta
 T3 recovery stages back to clear itself. ACTIVE is diagnostic only.
 
-Inspect RL_HIP_NEG → LEG_FL_STANCE_HANDOFF_HG → FL_HIP_POS and the matching
-right-side branch. Each relay is high-gamma T10 with one neuron. The front's
-DONE and support phase suppress the relay; its normal output-clearing paths
-still apply. Rear hip support Betas each have two neurons and only their phase
-as a positive source. Knee landing retains its immediate local return path.
+Inspect LEG_RL_CONTACT_READY_HG → PHASE_A_FEEDBACK_BETA → PHASE_B_REQUEST,
+and the corresponding RR → B → A path. The new phase drives rear hip support
+and the same-side front MOVE_HG through their normal motor paths. There is no
+rear motor-output shortcut into a front motor output. Rear hip support Betas
+each have two neurons and only their support phase as a positive source.
+Knee landing retains its immediate local return path.
 
 Close the Designer with Ctrl+C before continuing. If you edit on the Canvas,
 save/download `brain.abdesign.json` before Build. Install and Run never
@@ -237,10 +242,10 @@ recorder reads the existing SDK viewer stream and never controls movement.
 
 ## Checks and limits
 
-Construction uses 549/10,000 neurons and 295,820 bytes of connection matrices;
+Construction uses 569/10,000 neurons and 300,860 bytes of connection matrices;
 other prepared-image data also consumes memory. Application tests cover actual
 SDK encoding, sensor validation, asynchronous publication, motor delivery and
-Stop/save. Local native-cell checks exercise missing, delayed and intermittent
+Stop/save. Local native-cell checks exercise missing, delayed, early and single-pulse
 contact with static weights. These are not a Webots physics or Prima-Lux device
 run. Physical walking and learning still need your test. See
 [validation](docs/VALIDATION.md).

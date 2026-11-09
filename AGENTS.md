@@ -24,19 +24,23 @@ Keep proprietary construction code, equations, compiled images and credentials o
   neutral early by clearing HIP_POS at DONE. Front
   CONTACT_READY_HG recruits HANDOFF_BETA T3, which starts diagonal rear MOVE_HG.
   Do not trigger rear movement from a front swing or reflex motor output.
-- Rear CONTACT_READY_HG recruits its phase's MOTOR_FEEDBACK_HG → FEEDBACK_BETA T5 →
-  BETA T5 → RELEASE T3 → opposite request. No host gait period or leg selection.
-- Rear HIP_NEG → same-side front STANCE_HANDOFF_HG T10 (1 neuron) → front HIP_POS.
-  RL recruits FL; RR recruits FR. These are static neural motor-activity relays,
-  not force measurements. Front DONE and its support phase suppress its relay
-  at 64; STOP/REST suppress it at 4. Existing front output clearing still applies.
-  The ordinary front Betas and push/swing/landing circuit continue in parallel.
-- Foot contact input 4 → HG T10 4 inhibits local CONTACT_VETO_HG T10 at 64.
-  WALK_NUCLEUS drives this veto; it inhibits CONTACT_MATCH_HG at 64. DONE_HG
-  is MATCH's positive anchor. MATCH recruits CONTACT_READY; READY/output-HG
-  retains the event. MOVE, opposite phase and STOP/REST clear MATCH/READY/HG
-  at 64. Contact does not block extension or independently start handoff.
-  These edges are static. Contact is pad collision, not load or completed push.
+- Rear CONTACT_READY_HG directly recruits FEEDBACK_BETA T5, which requests the
+  opposite phase. Do not put MOTOR_FEEDBACK_HG or the later BETA/RELEASE stages
+  between this feedback and the phase request. FEEDBACK_BETA → BETA → RELEASE
+  runs as a reset branch, with four plastic inhibitory returns. Opposite phase
+  requests clear the old OUT/DRIVE, not that reset branch; let it finish.
+- Rear hip support and same-side front MOVE share a phase. Do not add a rear
+  motor-output → front motor-output shortcut. Contact changes the switch, and
+  the switch recruits the ordinary motor pathways.
+- Foot contact input 4 → sensory HG T10 4 → CONTACT_MATCH_HG T10 4 is the
+  positive contact path. Raw contact also drives RETURN_VETO_HG T10 4, which
+  inhibits MATCH at 64. DONE_HG inhibits RETURN_VETO_HG at 64, permitting contact
+  during return. DONE is permission, not a substitute source of contact.
+  MATCH recruits CONTACT_READY; READY/output-HG retains the event. MOVE,
+  support phase and STOP/REST clear MATCH/READY/HG at 64. Do not clear the
+  sensory RETURN_VETO in REST: it must block unarmed contact across START.
+  All these edges are static. Contact is pad collision, not load or completed
+  push. No prior airborne transition is required. Contact does not block landing.
 - Each reflex is 24 high-gamma T5 neurons directly exciting a fast motor output
   and its existing regular extension Beta T5 through fixed connections. Keep both
   edges static. All excitatory connections, including support phase drive →
