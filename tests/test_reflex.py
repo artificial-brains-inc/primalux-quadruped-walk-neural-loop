@@ -172,13 +172,10 @@ class ReflexGraphTests(unittest.TestCase):
             for name in (trigger, reset, active, gate, fast):
                 for source in ("REST_NUCLEUS", "STOP_REQUEST_HG"):
                     self.assertEqual(self.edges[source, name]["strength"], 4)
-        learning_edges = {
-            (f"REFLEX_{leg}_HG", motor_population(leg, "KNEE", "NEG")) for leg in LEGS
-        }
         for (source, target), edge in self.edges.items():
             if (
                 source.startswith(("REFLEX_", "TILT_")) or target.startswith("REFLEX_")
-            ) and (source, target) not in learning_edges:
+            ):
                 self.assertNotIn("rule", edge)
         self.assertFalse(any("GUARD" in n for n in self.nodes))
         self.assertFalse(any(s in REFLEX_OUTPUTS for s, _ in self.edges))

@@ -16,10 +16,19 @@ after the request finishes. Other tests check command priority, in-flight reques
 shutdown and real SDK encoding of 48 tilt and 10 reward neurons in one frame.
 Controller integration tests use a deterministic input sender; concurrent behavior
 is tested separately with the real worker. These tests do not establish device
-latency or stable Webots walking. The neural design is unchanged by this adapter
-update; the graph checks below apply to the same design.
+latency or stable Webots walking.
 
-[SWITCH_CHECK.json](SWITCH_CHECK.json) records four complete-circuit local cases:
+The learning-placement correction moves four STDP3/LTP settings from reflex HG
+→ regular extension Beta to the existing support phase drive → regular extension
+Beta edges. SDK validation and local construction pass. Comparison with the
+preceding design confirms that all nodes and all non-learning edge fields are
+identical, including constructed initial parameters. There are still eight
+plastic population connections; every reflex edge is static. The correction
+has not been run on the device or in Webots and does not establish eligibility
+or improved behavior.
+
+[SWITCH_CHECK.json](SWITCH_CHECK.json) retains the preceding design hash and
+records four complete-circuit local cases with static weights:
 aligned initial phases, varied phases/coupling/floor, left tilt and right tilt.
 The check injects START, STOP and tilt evidence, not phase or motor spikes. It
 uses native ARM cell updates with explicit harness assumptions for initialization

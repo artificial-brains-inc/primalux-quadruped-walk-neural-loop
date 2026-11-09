@@ -44,9 +44,13 @@ expressing a motor command. The fixed direct reflex output remains available.
 
 Static dynamics establish command retention, push, sequencing, competition and
 reflexes. Four STDP3/LTP inhibitory returns adjust macro release recovery. Four
-excitatory STDP3/LTP edges connect reflex HG directly to regular extension Beta.
-Their relative firing can create eligibility; dopamine can later act on it.
-Learning intentionally changes that recruitment relationship.
+excitatory STDP3/LTP edges connect each leg's support phase drive to its regular
+extension Beta. The reflex directly recruits that Beta through a fixed edge.
+When the regular presynaptic drive and the recruited Beta fire with suitable
+timing, their plastic connection can develop eligibility; dopamine can later
+act on it. Reflex firing alone does not establish eligibility on an inactive
+regular input. Learning changes normal support recruitment. Every reflex
+connection, local DONE → Beta and Beta → output stays static.
 
 Reward is new upright forward progress, not merely reflex activation. Accepted
 reward input is not proof of dopamine spikes, weight changes or improved walking.

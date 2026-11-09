@@ -3,12 +3,12 @@ import unittest
 
 from design_brain import create_brain
 from robot.configuration import load_config
-from robot.contracts import LEGS, REWARD_INPUT, motor_population
+from robot.contracts import LEGS, REWARD_INPUT, SUPPORT_PHASE, motor_population
 from robot.reward import ProgressReward, RewardPublisher
 
 
 class LearningGraphTests(unittest.TestCase):
-    def test_release_recovery_and_reflex_teaching_paths_are_plastic(self):
+    def test_release_recovery_and_regular_support_paths_are_plastic(self):
         d = create_brain().to_dict()
         plastic = [e for e in d["connections"] if e.get("rule") == "STDP3"]
         expected = {
@@ -16,10 +16,11 @@ class LearningGraphTests(unittest.TestCase):
             for p in ("A", "B")
             for target in ("FEEDBACK_BETA", "BETA")
         }
-        teaching = {
-            (f"REFLEX_{leg}_HG", motor_population(leg, "KNEE", "NEG")) for leg in LEGS
+        regular_support = {
+            (f"PHASE_{SUPPORT_PHASE[leg]}_DRIVE_HG", motor_population(leg, "KNEE", "NEG"))
+            for leg in LEGS
         }
-        self.assertEqual({(e["from"], e["to"]) for e in plastic}, expected | teaching)
+        self.assertEqual({(e["from"], e["to"]) for e in plastic}, expected | regular_support)
         for edge in plastic:
             self.assertEqual(
                 edge["type"], "inh" if (edge["from"], edge["to"]) in expected else "exc"
@@ -30,7 +31,7 @@ class LearningGraphTests(unittest.TestCase):
                 self.assertEqual(edge["role"], "feedback")
                 self.assertEqual(edge["strength"], 4)
         for edge in d["connections"]:
-            if (edge["from"], edge["to"]) not in expected | teaching:
+            if (edge["from"], edge["to"]) not in expected | regular_support:
                 self.assertNotIn("rule", edge)
 
     def test_reward_does_not_choose_a_phase_or_drive_a_motor(self):

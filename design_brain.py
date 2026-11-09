@@ -317,7 +317,25 @@ def create_brain(*, learning=True):
                 else:
                     # Support remains available after this leg's local return.
                     for source in (f"PHASE_{support}_DRIVE_HG", stem + "_DONE_HG"):
-                        b.connect(source, population, role="operand", units=1)
+                        # Adapt normal phase recruitment of knee extension.
+                        # Local return and the reflex's teaching drive stay fixed.
+                        b.connect(
+                            source,
+                            population,
+                            role="operand",
+                            units=1,
+                            **(
+                                dict(
+                                    rule=GAIT_LEARNING_RULE,
+                                    reward="GAIT_REWARD",
+                                    reward_type=GAIT_REWARD_TYPE,
+                                )
+                                if learning
+                                and joint == "KNEE"
+                                and source == f"PHASE_{support}_DRIVE_HG"
+                                else {}
+                            ),
+                        )
                     veto = gate if joint == "KNEE" else stem + "_MOVE_HG"
                     # Do not accumulate swing-veto inhibition inside extension
                     # Beta: it must receive reflex evidence during a swing.
@@ -369,18 +387,14 @@ def create_brain(*, learning=True):
         b.connect(trigger, trigger, role="feedback")
         b.connect(trigger, fast)
         # The same high-gamma neurons directly recruit the regular Beta.
-        # This connection carries eligibility for reward-modulated learning;
-        # the fast reflex output has its own fixed excitatory connection.
+        # Both reflex branches stay fixed. Reflex-driven postsynaptic activity
+        # can contribute to eligibility on the regular phase-drive -> Beta edge
+        # when the phase source also fires with suitable timing.
         b.connect(
             trigger,
             motor_population(leg, "KNEE", "NEG"),
             role="operand",
             units=1,
-            **(
-                dict(rule="STDP3", reward="GAIT_REWARD", reward_type="LTP")
-                if learning
-                else {}
-            ),
         )
         b.connect(trigger, active)
         for target in (motor_population(leg, "KNEE", "POS"), f"{leg}_KNEE_POS", gate):

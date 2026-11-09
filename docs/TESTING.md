@@ -31,6 +31,10 @@ and same-side-only knee flexion from actual motor outputs, separately from the
 phase lamps. High queue depth means feedback can be stale relative to the device.
 
 After static behavior is established, use `learn` to enable physical reward.
-The four selected inhibitory feedback paths are the only plastic relationships.
+The four selected release inhibitory feedback paths and four regular support
+phase drive → knee extension Beta paths are plastic. Every reflex connection
+is static, including its direct excitation of regular Beta. Check presynaptic
+support-drive activity alongside reflex and postsynaptic Beta activity; a reflex
+burst alone does not establish eligibility on the regular connection.
 Accepted reward publications alone do not establish dopamine firing or learning.
 See [VALIDATION.md](VALIDATION.md) for the scope of the bundled check reports.

@@ -6,8 +6,8 @@ Each leg has a **24-neuron high-gamma T5** reflex. It receives two compatible
 ```mermaid
 flowchart TD
   H["Reflex high-gamma · T5 · 24 neurons"] -->|Fixed| F["Fast extension output"]
-  H -->|STDP3 · one operand unit| B["Regular extension Beta · T5 · 24 neurons"]
-  G["Normal gait drive"] -->|Fixed · one operand unit| B
+  H -->|Fixed · one operand unit| B["Regular extension Beta · T5 · 24 neurons"]
+  G["Support phase drive"] -->|STDP3 · one operand unit| B
   B --> O["Regular extension output"]
   F --> C["Recovery Beta · T3 · 2 neurons"]
   C --> R["Output reset Beta · T3 · 4 neurons"]
@@ -15,10 +15,14 @@ flowchart TD
   R -->|Clears| F
 ```
 
-The fast output does not wait for Beta. The direct HG → regular Beta connection
-uses `rule="STDP3"`, `reward="GAIT_REWARD"`, `reward_type="LTP"`. Pre/post firing
-at that connection can create eligibility; later dopaminergic activity can act
-on it. There is no intermediate teaching relay or output-to-input republishing.
+The fast output does not wait for Beta. Both direct reflex branches are static.
+Each support PHASE_DRIVE_HG → regular Beta connection uses `rule="STDP3"`,
+`reward="GAIT_REWARD"`, `reward_type="LTP"`. Reflex activity can recruit the
+postsynaptic Beta; when the regular presynaptic drive also fires with suitable
+timing, their plastic connection can develop eligibility. Later dopaminergic
+activity can act on that eligibility. Reflex firing alone cannot establish
+eligibility on an inactive regular input. Local DONE → Beta and Beta → output
+remain static. There is no intermediate teaching relay or output-to-input republishing.
 The Beta is the existing normal knee extension population, not a second reflex
 motor Beta.
 
@@ -28,7 +32,7 @@ evidence can recruit extension. Equal canonical units retain both contributions
 when the two one-neuron support sources and a 24-neuron reflex converge. Units are not neuron
 counts. The builder allocates the receiver's 24 neurons from this relationship.
 
-Learning intentionally adapts reflex recruitment of the normal path. It can
+Learning intentionally adapts support-phase recruitment of the normal path. It can
 change this initial computation. Eligibility depends on relative firing and
 fades; a connection or an accepted reward message alone does not prove useful
 learning. LTP follows eligibility's sign, so it is not a promise that every
@@ -86,7 +90,7 @@ Left/front evidence can recruit FL, FR and RL independently. No sensory cue
 inhibits another corner. Rear gait handoff follows the front return pathway; all four reflex paths bypass those relays.
 
 In `walk`, reflexes operate but reward is zero. In `learn`, new upright forward
-progress supplies reward to the four direct HG → Beta edges and the four
+progress supplies reward to the four support phase drive → Beta edges and the four
 switch-release inhibitory edges. Correcting a stationary tilt alone is not
 rewarded by this progress objective. The reward path is 10 input neurons →
 10 high-gamma T10 neurons → 17 dopaminergic T3 neurons, classified as positive

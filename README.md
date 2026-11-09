@@ -40,7 +40,8 @@ source of apparent restarts. See [recovery](docs/RECOVERY.md).
 There are **503 neurons**, including **61 external neurons across eight named
 inputs**. Each leg's reflex remains **24 high-gamma T5 neurons**, directly
 exciting its fast output and its **24-neuron regular extension Beta T5**. The
-latter connection uses STDP3/LTP. Swing inhibition acts at the regular extension
+two reflex connections are static. STDP3/LTP is on the regular support phase
+drive → knee extension Beta connection, one per leg. Swing inhibition acts at the regular extension
 output so it does not prevent that Beta from receiving reflex evidence.
 
 The reward path is 10 outcome input neurons → 10 high-gamma T10 neurons →
@@ -56,7 +57,8 @@ zero means no reward. No new external gait, phase or progress inputs are added.
 - Return a front leg to support before recruiting its diagonal rear partner.
 - Keep local reflexes independent and give them a neural reset long enough to
   avoid the immediate output-clearing loop.
-- Connect reflex HG directly to regular Beta for reward-modulated eligibility.
+- Recruit regular Beta through a fixed reflex connection, with STDP3 on its
+  normal support input.
 
 Read [goals and interactions](docs/GOALS.md), [the design](docs/DESIGN.md),
 [push before swing](docs/PUSH.md), and [the reflex path](docs/REFLEX.md).
@@ -119,7 +121,8 @@ extension command starts through these fixed paths while the regular support
 Beta is still being recruited; no additional population or input is needed.
 
 Each REFLEX_HG T5 connects directly to KNEE_REFLEX_EXTEND and to the existing
-regular KNEE_NEG_BETA T5 through STDP3. Follow the fast output through two Beta
+regular KNEE_NEG_BETA T5 through fixed connections. Inspect STDP3 on each
+PHASE_support_DRIVE_HG → KNEE_NEG_BETA edge. Follow the fast output through two Beta
 T3 recovery stages back to clear itself. ACTIVE is diagnostic only.
 
 Close the Designer with Ctrl+C before continuing. If you edit on the Canvas,
@@ -168,9 +171,12 @@ ab run -ab --env .env learn
 
 One physical reward signal may adjust **four STDP3/LTP inhibitory returns** from
 RELEASE to its own FEEDBACK_BETA and BETA, plus **four excitatory STDP3/LTP edges**
-from each REFLEX_HG to its regular knee extension Beta. State interlocks, motor
-vetoes, command paths, the fast reflex branch and resets remain static. Learning
-can alter release recovery and reflex recruitment of normal extension; it is not
+from each leg's support phase drive to its regular knee extension Beta. All
+reflex connections, local DONE → Beta, Beta → output, state interlocks, motor
+vetoes, command paths and resets remain static. Reflex activity can recruit the
+postsynaptic Beta while the regular presynaptic drive is active, contributing to
+eligibility on that regular connection. Learning can alter release recovery and
+normal support recruitment; it is not
 a substitute for working coordination.
 
 For a design with no learning metadata, author it explicitly, then inspect and

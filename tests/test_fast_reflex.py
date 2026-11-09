@@ -61,7 +61,7 @@ class FastReflexTests(unittest.TestCase):
             self.assertNotIn("rule", edges[relay, fast])
             teaching = edges[relay, motor_population(leg, "KNEE", "NEG")]
             self.assertEqual(teaching["type"], "exc")
-            self.assertEqual(teaching["rule"], "STDP3")
+            self.assertNotIn("rule", teaching)
 
     def test_push_has_separate_calibration_and_reflex_does_not_add_angles(self):
         config = load_config()

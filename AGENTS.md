@@ -23,7 +23,9 @@ Keep proprietary construction code, equations, compiled images and credentials o
   BETA T5 → RELEASE T3 → opposite request. No host gait period or leg selection.
   Return, readiness and handoff are command history, not measured foot contact.
 - Each reflex is 24 high-gamma T5 neurons directly exciting a fast motor output
-  and its existing regular extension Beta T5 through STDP3/LTP. Keep both edges.
+  and its existing regular extension Beta T5 through fixed connections. Keep both
+  edges static. STDP3/LTP belongs on PHASE_support_DRIVE_HG → KNEE_NEG_BETA,
+  one per leg. Local DONE → Beta and Beta → output also remain static.
 - Normal extension Beta receives gait support, local DONE and reflex evidence
   as one canonical operand unit each. Swing veto acts at its output, not inside
   that Beta. Knee opposition uses state/output vetoes; do not starve the Beta
@@ -37,8 +39,8 @@ Keep proprietary construction code, equations, compiled images and credentials o
   observed pulse after two frames. No reflex guard or controller burst timer.
 - ACTIVE is diagnostic only. All outputs are bistable and have explicit clearing.
   STOP/REST clears all movement, push, reflex, readiness, return and phase paths.
-- Learning remains on four release inhibitory returns and four direct reflex
-  HG → normal Beta edges. Reward is positive upright forward progress: 10 input
+- Learning remains on four release inhibitory returns and four regular support
+  phase drive → knee extension Beta edges. Reward is positive upright forward progress: 10 input
   → 10 HG T10 → 17 dopaminergic T3 neurons. Zero is no reward, not punishment.
   Do not claim that wiring alone proves eligibility, weight changes or learning.
 - Python senses/encodes, publishes reward, decodes local outputs and applies

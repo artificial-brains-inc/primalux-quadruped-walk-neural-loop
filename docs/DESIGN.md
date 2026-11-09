@@ -60,10 +60,14 @@ front's HANDOFF_BETA, not a front motor or reflex output. See [PUSH.md](PUSH.md)
 ## Reflex and ordinary extension
 
 Each 24-neuron REFLEX_HG T5 has a fixed direct connection to the fast extension
-output and a direct STDP3/LTP operand connection into the existing regular
+output and a fixed operand connection into the existing regular
 extension Beta T5. Regular extension accepts one canonical unit each from
 macro support, local DONE and reflex HG, using the Beta T5 OR construction as
-its starting relationship. Learning intentionally adapts reflex recruitment.
+its starting relationship. STDP3/LTP is on macro support → regular extension
+Beta, one connection per leg. Local DONE → Beta and Beta → output stay static.
+The fixed reflex can recruit postsynaptic Beta activity that contributes to
+eligibility when the normal presynaptic support source also fires with suitable
+timing. Learning adapts normal support recruitment.
 
 The local SWING_READY_HG recruits EXTENSION_VETO_HG T10, which inhibits ordinary
 extension output at strength 64. It does not inhibit the extension Beta. Knee

@@ -156,7 +156,9 @@ Each local reflex receives compatible signs, inhibits its own knee flexion,
 directly excites its fast extension output from high-gamma T5.
 KNEE_REFLEX_EXTEND recruits RECOVERY_BETA T3 then OUTPUT_RESET_BETA T3; the
 second stage clears the output and inhibits its trigger. The same high-gamma directly excites the regular extension
-Beta through STDP3/LTP. No reflex inhibits another leg;
+Beta through a fixed connection. STDP3/LTP is on each regular support phase
+drive → extension Beta connection; all reflex connections are static.
+No reflex inhibits another leg;
 shared sensory evidence can recruit several independent reflexes.
 
 KNEE_PUSH is a separate early extension output, calibrated to −0.12 rad at up to
